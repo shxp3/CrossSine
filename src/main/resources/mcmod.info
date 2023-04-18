@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "crosssine",
+    "name": "CrossSine",
+    "description": "Minecraft 1.8 Utility mod",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://crosssine.github.io",
+    "updateUrl": "",
+    "authorList": ["CCBlueX", "Zywl", "SkidderMC"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
