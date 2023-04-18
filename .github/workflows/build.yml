@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: chmod +x ./gradlew && ./gradlew setupCiWorkspace && ./gradlew build 
       - name: Rename build artifacts
-        run: mv build/libs/FDPClient-*.jar build/libs/FDPClient-build.jar
+        run: mv build/libs/CrossSine-*.jar build/libs/CrossSine-BetaBuild.jar
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
