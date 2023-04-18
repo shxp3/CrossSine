@@ -219,8 +219,6 @@ public abstract class MixinMinecraft {
     private void sendClickBlockToController(boolean leftClick) {
         if (!leftClick)
             this.leftClickCounter = 0;
-
-        if (this.leftClickCounter <= 0 && (!this.thePlayer.isUsingItem())) {
             if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                 BlockPos blockPos = this.objectMouseOver.getBlockPos();
 
@@ -236,7 +234,6 @@ public abstract class MixinMinecraft {
                 this.playerController.resetBlockRemoving();
             }
         }
-    }
 
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
@@ -277,6 +274,6 @@ public abstract class MixinMinecraft {
     }
     @ModifyConstant(method = "getLimitFramerate", constant = @Constant(intValue = 30))
     public int getLimitFramerate(int constant) {
-        return 60;
+        return 1000;
     }
 }

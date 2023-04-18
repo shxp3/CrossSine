@@ -60,10 +60,9 @@ object Animations : Module() {
     val itemScaleValue = FloatValue("ItemScale", 0.4f, 0.0f, 2.0f)
     val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f)
     val swingAnimValue = BoolValue("SwingAnim", false)
-    @JvmStatic
-    val noBlockParticles = BoolValue("NoBlockParticles", false)
+    val anythingBlockValue = BoolValue("AnythingBlock", false)
     @JvmField
-    val Equip = FloatValue("Equip-Modifier", 1.8f, -5f, 5f).displayable { blockingModeValue.equals("Dortware2") || blockingModeValue.equals("Moon") || blockingModeValue.equals("Stella") || blockingModeValue.equals("Zoom") || blockingModeValue.equals("Astolfo") }
+    val Equip = 1.8F
 
 
     var flagRenderTabOverlay = false
@@ -72,6 +71,7 @@ object Animations : Module() {
     var tabPercent = 0f
     var tabHopePercent = 0f
     var lastTabSync = 0L
+
 
     override val tag: String?
         get() = blockingModeValue.get()

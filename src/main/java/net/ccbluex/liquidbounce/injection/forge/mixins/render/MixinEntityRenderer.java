@@ -191,8 +191,8 @@ public abstract class MixinEntityRenderer {
             this.mc.mcProfiler.startSection("pick");
 
             this.mc.pointedEntity = null;
-            double d0 = LiquidBounce.moduleManager.getModule(Reach.class).getState() ? 5F : (double) this.mc.playerController.getBlockReachDistance();
-            this.mc.objectMouseOver = entity.rayTrace(LiquidBounce.moduleManager.getModule(Reach.class).getState() ? ReachMax.getValue() : d0, p_getMouseOver_1_);
+            double d0 = LiquidBounce.moduleManager.getModule(Reach.class).getState() ? ReachMax.get() : (double) this.mc.playerController.getBlockReachDistance();
+            this.mc.objectMouseOver = entity.rayTrace(LiquidBounce.moduleManager.getModule(Reach.class).getState() ? 5 : d0, p_getMouseOver_1_);
             double d1 = d0;
             Vec3 vec3 = entity.getPositionEyes(p_getMouseOver_1_);
             boolean flag = false;
