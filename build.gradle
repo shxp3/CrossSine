@@ -16,7 +16,7 @@ repositories {
 }
 
 version = "BetaBuild"
-group = "org.unlegitmc.fdp"
+group = "net.shxp3.crosssine"
 archivesBaseName = "CrossSine"
 
 sourceCompatibility = targetCompatibility = 1.8
