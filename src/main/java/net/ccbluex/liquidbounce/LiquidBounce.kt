@@ -40,7 +40,7 @@ object LiquidBounce {
     const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & the shit of the year"
     const val CLIENT_WEBSITE = "crosssine.github.io"
     const val MINECRAFT_VERSION = "1.8.9"
-    const val CLIENT_VERSION = "B31-Beta"
+    const val CLIENT_VERSION = "3.100 r3"
     @JvmField
     val CLIENT_LOADING = "Initializing game..."
     @JvmField

@@ -11,6 +11,8 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.world.Stealer
+import net.ccbluex.liquidbounce.features.module.modules.world.Stealer.AuraclickedBlocks
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.OutlineShader
@@ -33,8 +35,8 @@ class StorageESP : Module() {
     private val hopperValue = BoolValue("Hopper", true)
 
     private fun getColor(tileEntity: TileEntity): Color? {
-        if (chestValue.get() && tileEntity is TileEntityChest && !clickedBlocks.contains(tileEntity.getPos())) return Color(0, 66, 255)
-        if (enderChestValue.get() && tileEntity is TileEntityEnderChest && !clickedBlocks.contains(tileEntity.getPos())) return Color.MAGENTA
+        if (chestValue.get() && tileEntity is TileEntityChest && !AuraclickedBlocks.contains(tileEntity.getPos())) return Color(0, 66, 255)
+        if (enderChestValue.get() && tileEntity is TileEntityEnderChest && !AuraclickedBlocks.contains(tileEntity.getPos())) return Color.MAGENTA
         if (furnaceValue.get() && tileEntity is TileEntityFurnace) return Color.BLACK
         if (dispenserValue.get() && tileEntity is TileEntityDispenser) return Color.BLACK
         if (hopperValue.get() && tileEntity is TileEntityHopper) return Color.GRAY

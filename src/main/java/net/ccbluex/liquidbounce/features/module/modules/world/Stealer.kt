@@ -40,7 +40,7 @@ import kotlin.concurrent.schedule
 import kotlin.random.Random
 
 @ModuleInfo(name = "Stealer", category = ModuleCategory.WORLD)
-class Stealer : Module() {
+object Stealer : Module() {
     /**
      * OPTIONS
      */
