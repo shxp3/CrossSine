@@ -1,11 +1,11 @@
-name: build-ci
+name: build
 
-on: [push, pull_request]
+on:
+  - push
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -17,10 +17,13 @@ jobs:
           distribution: "zulu"
           java-version: 8
           cache: "gradle"
-      - name: Add version info
+      - name: Set outputs
+        id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       - name: Build
-        run: ./gradlew setupCiWorkspace && ./gradlew build
+        run: chmod +x ./gradlew && ./gradlew setupCiWorkspace && ./gradlew build
+      - name: Rename build artifacts
+        run: mv build/libs/CrossSine-*.jar build/libs/CrossSine-BetaBuild.jar
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:

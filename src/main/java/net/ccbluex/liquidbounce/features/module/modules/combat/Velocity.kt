@@ -21,6 +21,7 @@ import kotlin.math.sqrt
 
 @ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
 class Velocity : Module() {
+    private val showModeValue = BoolValue("ShowMode", false)
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
         .map { it.newInstance() as VelocityMode }
         .sortedBy { it.modeName }
@@ -170,14 +171,11 @@ class Velocity : Module() {
     fun onStep(event: StepEvent) {
         mode.onStep(event)
     }
-    override val tag: String
-        get() = if (modeValue.get() == "Simple")
-            "${horizontalValue.get()}% ${verticalValue.get()}%"
-        else
-            if (modeValue.get() == "Cancel")
-                "0.0% 0.0%"
-        else
+    override val tag: String?
+        get() = if (showModeValue.get())
             modeValue.get()
+    else
+        null
 
     /**
      * 读取mode中的value并和本体中的value合并

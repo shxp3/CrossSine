@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.event
 
 import net.minecraft.block.Block
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.model.ModelPlayer
@@ -12,6 +13,7 @@ import net.minecraft.network.Packet
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
+import net.minecraft.world.World
 
 /**
  * Called when player attacks other entity
@@ -71,7 +73,7 @@ class KeyEvent(val key: Int) : Event()
  * @param eventState PRE or POST
  */
 class MotionEvent(val eventState: EventState) : Event() {
-    fun isPre() : Boolean {
+    fun isPre(): Boolean {
         return eventState == EventState.PRE
     }
 }
@@ -84,7 +86,7 @@ class UpdateModelEvent(val player: EntityPlayer, val model: ModelPlayer) : Event
 /**
  * Called when an entity receives damage
  */
-class EntityDamageEvent(val damagedEntity: Entity): Event()
+class EntityDamageEvent(val damagedEntity: Entity) : Event()
 
 /**
  * Called in "onLivingUpdate" when the player is using a use item.
@@ -104,6 +106,7 @@ class StrafeEvent(val strafe: Float, val forward: Float, val friction: Float) : 
  * Called when an other entity moves
  */
 data class EntityMovementEvent(val movedEntity: Entity) : Event()
+
 /**
  * Called when player moves
  *
@@ -192,4 +195,5 @@ class WorldEvent(val worldClient: WorldClient?) : Event()
 /**
  * Called when window clicked
  */
-class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicked: Int, val mode: Int) : CancellableEvent()
+class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicked: Int, val mode: Int) :
+    CancellableEvent()

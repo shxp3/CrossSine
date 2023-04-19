@@ -57,10 +57,10 @@ object Animations : Module() {
     val itemPosXValue = FloatValue("ItemPosX", 0.56F, -1.0F, 1.0F)
     val itemPosYValue = FloatValue("ItemPosY", -0.52F, -1.0F, 1.0F)
     val itemPosZValue = FloatValue("ItemPosZ", -0.71999997F, -1.0F, 1.0F)
-    val itemScaleValue = FloatValue("ItemScale", 0.4f, 0.0f, 2.0f)
+    val itemScaleValue = FloatValue("ItemScale", 0.42f, 0.0f, 2.0f)
     val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f)
-    val swingAnimValue = BoolValue("SwingAnim", false)
-    val anythingBlockValue = BoolValue("AnythingBlock", false)
+    val fluxAnimation = BoolValue("FluxSwing", false)
+    val anythingBlockValue = false
     @JvmField
     val Equip = 1.8F
 

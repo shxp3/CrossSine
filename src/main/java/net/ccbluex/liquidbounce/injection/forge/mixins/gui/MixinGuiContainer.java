@@ -7,13 +7,11 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.KeyEvent;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryManager;
-import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer;
+import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
-import net.ccbluex.liquidbounce.utils.render.EaseUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -75,14 +73,14 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         if (button.id == 1024576)
             LiquidBounce.moduleManager.getModule(KillAura.class).setState(false);
         if (button.id == 727)
-            LiquidBounce.moduleManager.getModule(ChestStealer.class).setState(false);
+            LiquidBounce.moduleManager.getModule(Stealer.class).setState(false);
         if (button.id == 321123)
             LiquidBounce.moduleManager.getModule(InventoryManager.class).setState(false);
     }
 
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private void drawScreenHead(CallbackInfo callbackInfo) {
-        ChestStealer stealer = LiquidBounce.moduleManager.getModule(ChestStealer.class);
+        Stealer stealer = LiquidBounce.moduleManager.getModule(Stealer.class);
         Minecraft mc = Minecraft.getMinecraft();
         GuiScreen guiScreen = mc.currentScreen;
         if (stealer.getState() && stealer.getSilentValue().get() && guiScreen instanceof GuiChest) {
@@ -136,7 +134,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
 
     @Inject(method = "keyTyped", at = @At("HEAD"))
     private void keyTyped(char typedChar, int keyCode, CallbackInfo ci) {
-        ChestStealer stealer = LiquidBounce.moduleManager.getModule(ChestStealer.class);
+        Stealer stealer = LiquidBounce.moduleManager.getModule(Stealer.class);
         try {
             if (stealer.getState() && stealer.getSilentTitleValue().get() && mc.currentScreen instanceof GuiChest)
                 LiquidBounce.eventManager.callEvent(new KeyEvent(keyCode == 0 ? typedChar + 256 : keyCode));

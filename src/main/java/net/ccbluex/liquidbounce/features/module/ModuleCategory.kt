@@ -16,9 +16,8 @@ enum class ModuleCategory(val displayName: String, val configName: String, val h
     MOVEMENT("Movement", "Movement", "&#xe566;"),
     VISUAL("Visual", "Visual", "&#xe417;"),
     WORLD("World", "World", "&#xe55b;"),
-    MISC("Misc", "Misc", "&#xe5d3;"),
     GHOST("Ghost", "Ghost", "%#xe594"),
-    EXPLOIT("Exploit", "Exploit", "&#xe868;"),
+    OTHER("Other", "Other", "&#xe868;"),
     CLIENT("Client", "Client", "&#xe869;"),;
 
     var namee: String? = null

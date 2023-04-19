@@ -5,13 +5,15 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 @ModuleInfo(name = "Reach", category = ModuleCategory.GHOST)
 public class Reach extends Module {
     public static FloatValue ReachMax = new FloatValue("Max", 3.5f, 0f, 7f);
     public static FloatValue ReachMin = new FloatValue("Min", 3.5f, 0f, 7f);
-    public static BoolValue ThroughWall = new BoolValue("Wall", false);
+    public static BoolValue ThroughWall = new BoolValue("ThroughWall", false);
 
 
     public static double getReach() {
@@ -19,7 +21,6 @@ public class Reach extends Module {
         double max = Math.max(ReachMin.getValue(), ReachMax.getValue());
         return Math.random() * (max - min) + min;
     }
-
     @Nullable
     @Override
     public String getTag() {

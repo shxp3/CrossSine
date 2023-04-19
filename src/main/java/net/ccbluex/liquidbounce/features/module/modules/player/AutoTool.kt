@@ -5,21 +5,22 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.ClickBlockEvent
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.utils.PlayerUtils
+import net.ccbluex.liquidbounce.utils.InventoryUtils
+import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
 
 @ModuleInfo(name = "AutoTool", category = ModuleCategory.PLAYER)
 class AutoTool : Module() {
+    var bestSlot = -1
+    var serverSideSlot = -1
+    private val swordValue = BoolValue("Sword", false)
 
-    private val hotkeyBack = BoolValue("HotkeyBack", false)
-    val prevItem = PlayerUtils.getCurrentPlayerSlot()
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
         switchSlot(event.clickedBlock ?: return)
@@ -27,7 +28,6 @@ class AutoTool : Module() {
 
     fun switchSlot(blockPos: BlockPos) {
         var bestSpeed = 1F
-        var bestSlot = -1
 
         val block = mc.theWorld.getBlockState(blockPos).block
 
@@ -45,9 +45,17 @@ class AutoTool : Module() {
             mc.thePlayer.inventory.currentItem = bestSlot
         }
     }
-    fun onUpdate(event: UpdateEvent) {
-        if (hotkeyBack.get()) {
-            PlayerUtils.hotkeyToSlot(prevItem)
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+
+        if (swordValue.get()) {
+            val slot: Int = InventoryUtils.findSword()
+
+            if (slot != -1) {
+                this.bestSlot = slot
+                serverSideSlot = bestSlot
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.features.module.modules.exploit.PacketFix;
+import net.ccbluex.liquidbounce.features.module.modules.other.PacketFix;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;

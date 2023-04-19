@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.FPSBoost;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
-import net.ccbluex.liquidbounce.features.module.modules.exploit.ViaVersionFix;
+import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.injection.access.IWorld;
 import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.minecraft.block.Block;

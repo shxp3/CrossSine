@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.player.BedNuker
 import net.ccbluex.liquidbounce.features.value.FloatValue
 
 @ModuleInfo(name = "FastBreak", category = ModuleCategory.WORLD)
@@ -25,8 +26,8 @@ class FastBreak : Module() {
             mc.playerController.curBlockDamageMP = 1F
         }
 
-        if (BedAura.currentDamage > breakDamageValue.get()) {
-            BedAura.currentDamage = 1F
+        if (BedNuker.currentDamage > breakDamageValue.get()) {
+            BedNuker.currentDamage = 1F
         }
     }
 }

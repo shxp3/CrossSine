@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
-import net.ccbluex.liquidbounce.features.module.modules.exploit.ViaVersionFix;
+import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -200,8 +200,14 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     private int getArmSwingAnimationEnd() {
         int speed = this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);
 
-        if (this.equals(Minecraft.getMinecraft().thePlayer)) {
-            speed = (int) (speed * Animations.INSTANCE.getSwingSpeedValue().get());
+        if (Animations.INSTANCE.getState()) {
+            if (this.equals(Minecraft.getMinecraft().thePlayer)) {
+                speed = (int) (speed * Animations.INSTANCE.getSwingSpeedValue().get());
+            }
+        } else {
+            if (this.equals(Minecraft.getMinecraft().thePlayer)) {
+                speed = (int) (speed);
+            }
         }
 
         return speed;

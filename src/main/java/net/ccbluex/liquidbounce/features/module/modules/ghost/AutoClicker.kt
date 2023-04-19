@@ -1,8 +1,3 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.features.module.modules.ghost
 
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -22,7 +17,7 @@ import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemSword
 import kotlin.random.Random
 
-@ModuleInfo(name = "AutoClicker", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "AutoClicker", category = ModuleCategory.GHOST)
 class AutoClicker : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Normal", "Gaussian", "LegitJitter", "LegitButterfly"), "Normal")

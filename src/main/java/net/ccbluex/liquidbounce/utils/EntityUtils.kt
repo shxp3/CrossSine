@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.features.module.modules.client.Target.deadValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.invisibleValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.mobValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.playerValue
-import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
-import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot.isBot
+import net.ccbluex.liquidbounce.features.module.modules.world.Teams
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase

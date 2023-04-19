@@ -10,17 +10,15 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
+import net.minecraft.enchantment.Enchantment
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.init.Blocks
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemPotion
-import net.minecraft.item.ItemStack
+import net.minecraft.item.*
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.potion.Potion
-import net.minecraft.util.BlockPos
 
 object InventoryUtils : MinecraftInstance(), Listenable {
     @kotlin.jvm.JvmField
@@ -40,6 +38,30 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             }
         }
         return -1
+    }
+    fun findSword(): Int {
+        var bestDurability = -1
+        var bestDamage = -1f
+        var bestSlot = -1
+        for (i in 0..8) {
+            val itemStack = mc.thePlayer.inventory.getStackInSlot(i) ?: continue
+            if (itemStack.item is ItemSword) {
+                val sword = itemStack.item as ItemSword
+                val sharpnessLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.sharpness.effectId, itemStack)
+                val damage = sword.damageVsEntity + sharpnessLevel * 1.25f
+                val durability = sword.maxDamage
+                if (bestDamage < damage) {
+                    bestDamage = damage
+                    bestDurability = durability
+                    bestSlot = i
+                }
+                if (damage == bestDamage && durability > bestDurability) {
+                    bestDurability = durability
+                    bestSlot = i
+                }
+            }
+        }
+        return bestSlot
     }
 
     fun hasSpaceHotbar(): Boolean {

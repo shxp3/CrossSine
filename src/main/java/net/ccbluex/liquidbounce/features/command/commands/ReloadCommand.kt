@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
-import net.ccbluex.liquidbounce.features.module.modules.misc.Insult
+import net.ccbluex.liquidbounce.features.module.modules.player.Insult
 import net.ccbluex.liquidbounce.ui.font.Fonts
 
 class ReloadCommand : Command("reload", emptyArray()) {

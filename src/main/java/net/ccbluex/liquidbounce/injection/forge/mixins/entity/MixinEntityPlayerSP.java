@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiDesync;
+import net.ccbluex.liquidbounce.features.module.modules.other.AntiDesync;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly;
 import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;

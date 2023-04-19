@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.module.modules.combat
+package net.ccbluex.liquidbounce.features.module.modules.ghost
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.StrafeEvent
