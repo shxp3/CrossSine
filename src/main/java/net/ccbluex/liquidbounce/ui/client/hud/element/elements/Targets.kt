@@ -373,93 +373,48 @@ open class Targets : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side
     }
 
     private fun drawAstolfo(target: EntityLivingBase) {
-        val font = fontValue.get()
-        val color = ColorUtils.skyRainbow(1, 1F, 0.9F, 5.0)
-        val hpPct = easingHP / target.maxHealth
+        val font = Fonts.minecraftFont
+        val color = barColor
 
-        RenderUtils.drawRect(0F, 0F, 140F, 60F, Color(0, 0, 0, 110).rgb)
+        easingHealth += ((target.health - easingHealth) / 2.0F.pow(10.0F - fadeSpeed.get())) * RenderUtils.deltaTime
+
+        val hpPct = easingHealth / target.maxHealth
+
+        RenderUtils.drawRect(0F, 0F, 140F, 60F, bgColor.rgb)
 
         // health rect
         RenderUtils.drawRect(3F, 55F, 137F, 58F, ColorUtils.reAlpha(color, 100).rgb)
         RenderUtils.drawRect(3F, 55F, 3 + (hpPct * 134F), 58F, color.rgb)
-        GL11.glColor4f(1f, 1f, 1f, 1f)
+
+        GlStateManager.resetColor()
+        GL11.glColor4f(1F, 1F, 1F, 1F)
         RenderUtils.drawEntityOnScreen(18, 46, 20, target)
 
         font.drawStringWithShadow(target.name, 37F, 6F, -1)
         GL11.glPushMatrix()
-        GL11.glScalef(2F, 2F, 2F)
-        font.drawString("${getHealth(target).roundToInt()} ❤", 19, 9, color.rgb)
+        GL11.glScalef(2F,2F,2F)
+        font.drawString("${decimalFormat3.format(target.health)} ❤", 19, 9, color.rgb)
         GL11.glPopMatrix()
-        if (shadowValue.get()) {
-            GL11.glTranslated(-renderX, -renderY, 0.0)
-            GL11.glPushMatrix()
-            ShadowUtils.shadow(shadowStrength.get(), {
-                GL11.glPushMatrix()
-                GL11.glTranslated(renderX, renderY, 0.0)
-                if (fadeValue.get()) {
-                    GL11.glTranslatef(calcTranslateX, calcTranslateY, 0F)
-                    GL11.glScalef(1F - calcScaleX, 1F - calcScaleY, 1F - calcScaleX)
-                }
-                RenderUtils.drawRect(0F, 0F, 140F, 60F, Color(0, 0, 0).rgb)
-                GL11.glPopMatrix()
-            }, {
-                GL11.glPushMatrix()
-                GL11.glTranslated(renderX, renderY, 0.0)
-                if (fadeValue.get()) {
-                    GL11.glTranslatef(calcTranslateX, calcTranslateY, 0F)
-                    GL11.glScalef(1F - calcScaleX, 1F - calcScaleY, 1F - calcScaleX)
-                }
-                RenderUtils.drawRect(0F, 0F, 140F, 60F, Color(0, 0, 0).rgb)
-                GL11.glPopMatrix()
-            })
-            GL11.glPopMatrix()
-            GL11.glTranslated(renderX, renderY, 0.0)
-        }
     }
     private fun drawAstolfo2(entity: EntityPlayer) {
-        updateAnim(entity.health)
-        val colors = barColor.rgb
-        val colors1 = barColor.darker(1.0f).rgb
-        val colors2 = barColor.darker(0.5f).rgb
-        val additionalWidth = Fonts.minecraftFont.getStringWidth("${entity.name}").coerceAtLeast(125)
-        GlStateManager.pushMatrix()
-        GlStateManager.translate((15).toFloat(), 55.toFloat(), 0.0f)
-        GlStateManager.color(1f, 1f, 1f)
-        GuiInventory.drawEntityOnScreen(-18, 47, 30, -180f, 0f, entity)
-        RenderUtils.drawRect(
-            -38.0,
-            -14.0,
-            133.0,
-            52.0,
-            net.ccbluex.liquidbounce.utils.render.Colors.getColor(0, 0, 0, 180)
-        )
-        mc.fontRendererObj.drawStringWithShadow(entity.getName(), 0.0f, -8.0f, Color(255, 255, 255).rgb)
-        RenderUtils.drawRect(0.0, (8.0f + Math.round(40.0f)).toDouble(), 130.0, 40.0, colors2)
-        if (entity.getHealth() / 2.0f + entity.getAbsorptionAmount() / 2.0f > 1.0) {
-            RenderUtils.drawRect(
-                0.0,
-                (8.0f + Math.round(40.0f)).toDouble(),
-                ((entity.health / entity.maxHealth) * additionalWidth).toDouble() + 5f,
-                40.0,
-                colors1
-            )
-        }
-        RenderUtils.drawRect(
-            0.0,
-            (8.0f + Math.round(40.0f)).toDouble(),
-            ((easingHealth / entity.maxHealth) * additionalWidth).toDouble(),
-            40.0,
-            colors
-        )
         easingHealth += ((entity.health - easingHealth) / 2.0F.pow(10.0F - fadeSpeed.get())) * RenderUtils.deltaTime
-        GlStateManager.scale(3f, 3f, 3f)
-        mc.fontRendererObj.drawStringWithShadow(
-            "${entity.health.toInt()}\u2764",
-            0.0f,
-            2.5f,
-            colors
-        )
-        GlStateManager.popMatrix()
+
+        RenderUtils.drawRect(0F, 0F, 160F, 60F, bgColor.rgb)
+
+        GlStateManager.resetColor()
+        GL11.glColor4f(1F, 1F, 1F, 1F)
+        RenderUtils.drawEntityOnScreen(16, 55, 25, entity)
+
+        Fonts.minecraftFont.drawString(entity.name, 32F, 5F, -1, true)
+        GL11.glPushMatrix()
+        GL11.glTranslatef(32F, 20F, 32F)
+        GL11.glScalef(2F, 2F, 2F)
+        Fonts.minecraftFont.drawString("${decimalFormat3.format(entity.health)} ❤", 0, 0, barColor.rgb);
+        GL11.glPopMatrix()
+
+        RenderUtils.drawRect(32F, 48F, 32F + 122F, 55F, barColor.darker().rgb)
+        RenderUtils.drawRect(32F, 48F, 32F + (easingHealth / entity.maxHealth).toFloat() * 122F, 55F, barColor.rgb)
+
     }
     private fun drawNovo(target: EntityLivingBase) {
         val font = fontValue.get()
@@ -2228,7 +2183,7 @@ open class Targets : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side
             "novoline2" -> Border(0F, 0F, 140F, 40F)
             "novoline3" -> Border(-1F, -2F, 90F, 38F)
             "astolfo" -> Border(0F, 0F, 140F, 60F)
-            "astolfo2" -> Border(-23F, 41F, 148F, 107F)
+            "astolfo2" -> Border(0F, 0F, 160F, 60F)
             "moon" -> Border(0F, 0F, 118F + 40.5f, 51.5F)
             "liquid" -> Border(0F, 0F, (38 + mc.thePlayer.name.let(Fonts.font40::getStringWidth)).coerceAtLeast(118).toFloat(), 36F)
             "fdp" -> Border(0F, 0F, 150F, 47F)

@@ -4,8 +4,7 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.client.GuiProxySelect
 import net.ccbluex.liquidbounce.ui.client.GuiServerSpoof
-import net.ccbluex.liquidbounce.ui.client.gui.modernui.TestBtn
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
+import net.ccbluex.liquidbounce.utils.Btn
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.*
 import net.minecraft.client.resources.I18n
@@ -18,7 +17,7 @@ class GuiMore(private val prevGui: GuiScreen) : GuiScreen() {
     
     fun drawBtns() {
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 100,
                 (this.width / 2) - (130 / 2),
                 this.height / 2 - 20,
@@ -31,7 +30,7 @@ class GuiMore(private val prevGui: GuiScreen) : GuiScreen() {
             )
         )
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 101,
                 (this.width / 2) - (130 / 2),
                 this.height / 2 + 10,

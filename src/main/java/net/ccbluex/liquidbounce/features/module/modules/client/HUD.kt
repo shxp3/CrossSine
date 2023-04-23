@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint
 import net.ccbluex.liquidbounce.features.module.modules.player.Annoy
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook
-import net.ccbluex.liquidbounce.features.module.modules.player.BedNuker
-import net.ccbluex.liquidbounce.features.module.modules.world.Stealer
+import net.ccbluex.liquidbounce.features.module.modules.world.BedNuker
+import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -808,7 +808,7 @@ object HUD : Module() {
     private fun State(module: Class<out Module>) = LiquidBounce.moduleManager[module]!!.state
 
     fun shouldRotate(): Boolean {
-        return (State(Scaffold::class.java)) || (State(KillAura::class.java)) || (State(Stealer::class.java)) ||
+        return (State(Scaffold::class.java)) || (State(KillAura::class.java)) || (State(ChestStealer::class.java)) ||
                 (State(FreeLook::class.java)) || (State(Annoy::class.java)) || (State(BowAimbot::class.java)) ||
                 (State(AutoBot::class.java)) || (State(BedNuker::class.java))  || (State(Sprint::class.java))
     }

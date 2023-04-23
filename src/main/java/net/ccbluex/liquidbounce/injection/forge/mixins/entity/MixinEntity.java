@@ -195,19 +195,16 @@ public abstract class MixinEntity {
             callbackInfo.cancel();
     }
 
-    @Inject(method = "getCollisionBorderSize", at = @At("HEAD"), cancellable = true)
-    private void getCollisionBorderSize(final CallbackInfoReturnable<Float> callbackInfoReturnable) {
-        final HitBox hitBox = LiquidBounce.moduleManager.getModule(HitBox.class);
-        final ViaVersionFix viaVersionFix = LiquidBounce.moduleManager.getModule(ViaVersionFix.class);
-
-        if (hitBox.getState() && EntityUtils.INSTANCE.isSelected(((Entity)((Object)this)),true)) {
-            if (viaVersionFix.getState()) {
-                callbackInfoReturnable.setReturnValue(hitBox.getSizeValue().get());
-            } else {
-                callbackInfoReturnable.setReturnValue(0.1F + hitBox.getSizeValue().get());
-            }
-        } else if (viaVersionFix.getState()) {
-            callbackInfoReturnable.setReturnValue(0.0F);
+    @Inject(
+            method = "getCollisionBorderSize",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public void getCollisionBorderSize(CallbackInfoReturnable callbackInfoReturnable) {
+        if (LiquidBounce.moduleManager.getModule(HitBox.class).getState()) {
+            double hitBox = HitBox.getSize();
+            callbackInfoReturnable.setReturnValue((float) hitBox);
+            callbackInfoReturnable.cancel();
         }
     }
 

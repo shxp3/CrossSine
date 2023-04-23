@@ -2,8 +2,11 @@ package net.ccbluex.liquidbounce.utils
 
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.features.command.CommandManager
+import net.ccbluex.liquidbounce.features.module.modules.player.Insult
 import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Text
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.minecraft.client.Minecraft
 import net.minecraft.util.IChatComponent
 import org.apache.logging.log4j.LogManager
@@ -47,6 +50,29 @@ ClientUtils : MinecraftInstance() {
         val jsonObject = JsonObject()
         jsonObject.addProperty("text", message)
         mc.thePlayer.addChatMessage(IChatComponent.Serializer.jsonToComponent(jsonObject.toString()))
+    }
+
+    fun reloadClient() {
+        LiquidBounce.commandManager = CommandManager()
+        LiquidBounce.commandManager.registerCommands()
+        LiquidBounce.isStarting = true
+        LiquidBounce.isLoadingConfig = true
+        LiquidBounce.scriptManager.disableScripts()
+        LiquidBounce.scriptManager.unloadScripts()
+        for (module in LiquidBounce.moduleManager.modules)
+            LiquidBounce.moduleManager.generateCommand(module)
+        LiquidBounce.scriptManager.loadScripts()
+        LiquidBounce.scriptManager.enableScripts()
+        Fonts.loadFonts()
+        LiquidBounce.configManager.load(LiquidBounce.configManager.nowConfig, false)
+        Insult.loadFile()
+        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.accountsConfig)
+        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.friendsConfig)
+        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.xrayConfig)
+        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
+        LiquidBounce.isStarting = false
+        LiquidBounce.isLoadingConfig = false
+        System.gc()
     }
 
     /**

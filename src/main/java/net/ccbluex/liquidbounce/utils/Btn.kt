@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.gui.modernui
+package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.font.FontLoaders
@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class TestBtn : GuiButton {
+class Btn : GuiButton {
     private var r: Int
     private var g: Int
     private var b: Int

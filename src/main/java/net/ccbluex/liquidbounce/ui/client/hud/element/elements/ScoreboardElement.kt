@@ -66,13 +66,6 @@ class ScoreboardElement(
     private val rainbowBarValue = BoolValue("RainbowBar", false)
     private val shadowValue = BoolValue("ShadowText", false)
     private val serverValue = ListValue("ServerIp", arrayOf("None", "ClientName", "Website", "Custom"), "ClientName")
-    private val serverIpColorValue = ListValue("ServerColor", arrayOf("Custom", "Rainbow", "AnotherRainbow", "SkyRainbow", "Mixer", "HUDSync"), "RainBow")
-    private val rainbowSpeed = IntegerValue("ServerRainbowSpeed", 10, 1, 10)
-    private val rainbowIndex = IntegerValue("ServerRainbowIndex", 1, 1, 20)
-    private val serverRedValue = IntegerValue("Server-Red", 255, 0, 255).displayable { serverIpColorValue.get().equals("Custom") }
-    private val serverGreenValue = IntegerValue("Server-Green", 255, 0, 255).displayable { serverIpColorValue.get().equals("Custom") }
-    private val serverBlueValue = IntegerValue("Server-Blue", 255, 0, 255).displayable { serverIpColorValue.get().equals("Custom") }
-    private val serverAlphaValue = IntegerValue("Server-Alpha", 255, 0, 255).displayable { serverIpColorValue.get().equals("Custom") }
     private val noPointValue = BoolValue("NoPoints", true)
     private val fontValue = FontValue("Font", Fonts.minecraftFont)
 
@@ -149,7 +142,6 @@ class ScoreboardElement(
 
             var name = ScorePlayerTeam.formatPlayerName(team, score.playerName)
             val scorePoints = "${EnumChatFormatting.RED}${score.scorePoints}"
-
             val width = 5 - if (rectValue.get()) 4 else 0
             val height = maxHeight - index * fontRenderer.FONT_HEIGHT
             GlStateManager.resetColor()

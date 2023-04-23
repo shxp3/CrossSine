@@ -53,7 +53,7 @@ class AutoTool : Module() {
             val slot: Int = InventoryUtils.findSword()
 
             if (slot != -1) {
-                this.bestSlot = slot
+                bestSlot = slot
                 serverSideSlot = bestSlot
             }
         }

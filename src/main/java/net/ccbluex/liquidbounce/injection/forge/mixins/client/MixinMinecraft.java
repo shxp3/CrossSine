@@ -215,26 +215,6 @@ public abstract class MixinMinecraft {
      * @author CCBlueX
      * @reason
      */
-    @Overwrite
-    private void sendClickBlockToController(boolean leftClick) {
-        if (!leftClick)
-            this.leftClickCounter = 0;
-            if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                BlockPos blockPos = this.objectMouseOver.getBlockPos();
-
-                if (this.leftClickCounter == 0)
-                    LiquidBounce.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
-
-
-                if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
-                    this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
-                    this.thePlayer.swingItem();
-                }
-            } else {
-                this.playerController.resetBlockRemoving();
-            }
-        }
-
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
         try {

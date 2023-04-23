@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiDisconnected
 import net.minecraft.client.gui.GuiIngameMenu
 import net.minecraft.client.gui.GuiMultiplayer
+import net.minecraft.client.multiplayer.GuiConnecting
 import org.json.JSONObject
 import java.time.OffsetDateTime
 import kotlin.concurrent.thread
@@ -74,10 +75,9 @@ object CrossSineRPC : MinecraftInstance(){
                     "Wow Toilet"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "CumSine ${LiquidBounce.CLIENT_VERSION}")
-            } else if (mc.currentScreen is GuiChat) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "AFK")
-            }
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+            } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
+
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
                 "Player name : ${mc.session.username}"
@@ -93,9 +93,11 @@ object CrossSineRPC : MinecraftInstance(){
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
                 builder.setDetails("Playing : ${ServerUtils.getRemoteIp()}")
             } else if (mc.currentScreen is GuiChat) {
-                builder.setDetails(("AFK in ${ServerUtils.getRemoteIp()}"))
+                builder.setDetails("AFK in ${ServerUtils.getRemoteIp()}")
             } else if (mc.currentScreen is GuiDisconnected) {
-                builder.setDetails(("Banned or Kick"))
+                builder.setDetails("Banned or Kick")
+            } else if (mc.currentScreen is GuiConnecting) {
+                builder.setDetails("Connecting to ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("Hi ${mc.session.username}"))
             builder.setState("Download : " + LiquidBounce.CLIENT_WEBSITE)
         }
@@ -111,10 +113,8 @@ object CrossSineRPC : MinecraftInstance(){
                     "Wow Toilet"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "CumSine ${LiquidBounce.CLIENT_VERSION}")
-            } else if (mc.currentScreen is GuiChat) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "AFK")
-            }
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+            } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
                 "Player name : ${mc.session.username}"
@@ -133,6 +133,8 @@ object CrossSineRPC : MinecraftInstance(){
                 builder.setDetails(("AFK ein ${ServerUtils.getRemoteIp()}"))
             } else if (mc.currentScreen is GuiDisconnected) {
                 builder.setDetails(("Banned or Kick"))
+            } else if (mc.currentScreen is GuiConnecting) {
+                builder.setDetails("verbinden to ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("Hallo ${mc.session.username}"))
             builder.setState("Herunterladen : " + LiquidBounce.CLIENT_WEBSITE)
         }
@@ -148,10 +150,8 @@ object CrossSineRPC : MinecraftInstance(){
                     "ห้องน้ำ~~"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "CumSine ${LiquidBounce.CLIENT_VERSION}")
-            } else if (mc.currentScreen is GuiChat) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "ไม่อยู่")
-            }
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+            } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
                 "ชื่อในเกม : ${mc.session.username}"
@@ -170,6 +170,8 @@ object CrossSineRPC : MinecraftInstance(){
                 builder.setDetails(("ไม่อยู่แต่ตัวละครอยู่ใน ${ServerUtils.getRemoteIp()}"))
             } else if (mc.currentScreen is GuiDisconnected) {
                 builder.setDetails(("หายตัว~~"))
+            } else if (mc.currentScreen is GuiConnecting) {
+                builder.setDetails("กำลังเชื่อมต่อไปยัง ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("สวัสดี ${mc.session.username}"))
             builder.setState("ดาวน์โหลด : " + LiquidBounce.CLIENT_WEBSITE)
         }
@@ -185,10 +187,8 @@ object CrossSineRPC : MinecraftInstance(){
                     "トイレ~~"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "CumSine ${LiquidBounce.CLIENT_VERSION}")
-            } else if (mc.currentScreen is GuiChat) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "離席中")
-            }
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+            } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
                 "ゲームネームで : ${mc.session.username}"
@@ -207,6 +207,8 @@ object CrossSineRPC : MinecraftInstance(){
                 builder.setDetails(("離席中の ${ServerUtils.getRemoteIp()}"))
             } else if (mc.currentScreen is GuiDisconnected) {
                 builder.setDetails(("Banned or Kick"))
+            } else if (mc.currentScreen is GuiConnecting) {
+                builder.setDetails("接続中 to ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("やあ ${mc.session.username}"))
             builder.setState("ダウンロード : " + LiquidBounce.CLIENT_WEBSITE)
         }

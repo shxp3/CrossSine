@@ -26,6 +26,7 @@ class Cape : Module() {
             "Rise",
             "Novoline",
             "NoneClient",
+            "SexyBanana",
             "None"
         ),
         "None"
@@ -56,6 +57,7 @@ class Cape : Module() {
         RISE(ResourceLocation("crosssine/cape/risecape.png")),
         NOVOLINE(ResourceLocation("crosssine/cape/novoline.png")),
         NONECLIENT(ResourceLocation("crosssine/cape/noneclient.png")),
+        SEXYBANANA(ResourceLocation("crosssine/cape/sexybanana.png")),
         NONE(ResourceLocation(""))
     }
 

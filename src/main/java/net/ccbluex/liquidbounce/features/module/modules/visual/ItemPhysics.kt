@@ -9,5 +9,5 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 @ModuleInfo(name = "ItemPhysics", category = ModuleCategory.VISUAL)
 class ItemPhysics : Module() {
     val cleanValue = BoolValue("clean", false)
-    val itemPhysicsSpeed = FloatValue("Speed", 0.0F,0.0F,8.0F).displayable { !cleanValue.get() }
+    val itemPhysicsSpeed = FloatValue("Speed", 0.0F,0.0F,2.0F).displayable { !cleanValue.get() }
 }

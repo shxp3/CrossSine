@@ -3,9 +3,10 @@ package net.ccbluex.liquidbounce.ui.client.gui
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.client.GuiBackground
-import net.ccbluex.liquidbounce.ui.client.gui.modernui.TestBtn
+import net.ccbluex.liquidbounce.utils.Btn
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
+import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.minecraft.client.gui.*
@@ -19,7 +20,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     var clicked = false
     fun drawBtns() {
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 100,
                 (this.width / 2) - (130 / 2),
                 this.height / 2 - 20,
@@ -32,7 +33,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             )
         )
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 101,
                 (this.width / 2) - (130 / 2),
                 this.height / 2 + 10,
@@ -46,7 +47,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         )
 
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 200,
                 (this.width / 2) - (130 / 2),
                 this.height / 2 + 40,
@@ -59,7 +60,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             )
         )
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 111,
                 (this.width / 2) - (130 / 2),
                 this.height / 2 + 70,
@@ -74,7 +75,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
 
 
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 104,
                 this.width - 35,
                 10,
@@ -88,7 +89,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         )
 
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 103,
                 this.width - 65,
                 10,
@@ -102,7 +103,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         )
 
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 201,
                 this.width - 95,
                 10,
@@ -116,7 +117,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         )
 
               this.buttonList.add(
-            TestBtn(
+            Btn(
                 204,
                 this.width - 125,
                 10,
@@ -131,14 +132,20 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
 
 
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 203, this.width - 155, 10, 25, 25, "Discord", if (LiquidBounce.Darkmode.equals(true)) { ResourceLocation("crosssine/imgs/icon/discord.png") } else { ResourceLocation("crosssine/imgs/icon/discord.png") }, 2,
                 if (LiquidBounce.Darkmode.equals(true)) { Color(20, 20, 20, 180) } else { Color(255, 255, 255, 170) }
             )
         )
         this.buttonList.add(
-            TestBtn(
+            Btn(
                 66, this.width - 185, 10, 25, 25, "Youtube", if (LiquidBounce.Darkmode.equals(true)) { ResourceLocation("crosssine/imgs/icon/youtube.png") } else { ResourceLocation("crosssine/imgs/icon/youtube.png") }, 2,
+                if (LiquidBounce.Darkmode.equals(true)) { Color(20, 20, 20, 180) } else { Color(255, 255, 255, 170) }
+            )
+        )
+        this.buttonList.add(
+            Btn(
+                84444, this.width - 215, 10, 25, 25, "Reload Client", if (LiquidBounce.Darkmode.equals(true)) { ResourceLocation("crosssine/imgs/icon/reload.png") } else { ResourceLocation("crosssine/imgs/icon/reload.png") }, 2,
                 if (LiquidBounce.Darkmode.equals(true)) { Color(20, 20, 20, 180) } else { Color(255, 255, 255, 170) }
             )
         )
@@ -193,6 +200,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             203 -> MiscUtils.showURL("https://discord.gg/68qm3qMznG")
             204 -> MiscUtils.showURL("https://${LiquidBounce.CLIENT_WEBSITE}")
             111 -> mc.displayGuiScreen(GuiMore(this))
+            84444 -> ClientUtils.reloadClient()
         }
     }
 

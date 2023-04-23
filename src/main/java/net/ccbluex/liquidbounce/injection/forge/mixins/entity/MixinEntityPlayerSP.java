@@ -4,12 +4,8 @@ import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.other.AntiDesync;
-import net.ccbluex.liquidbounce.features.module.modules.movement.Fly;
-import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove;
-import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
-import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
-import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
+import net.ccbluex.liquidbounce.features.module.modules.ghost.HitBox;
+import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
@@ -173,10 +169,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 double yawDiff = yaw - lastReportedYaw;
                 double pitchDiff = pitch - lastReportedPitch;
 
-                final Fly fly = LiquidBounce.moduleManager.getModule(Fly.class);
-                final Criticals criticals = LiquidBounce.moduleManager.getModule(Criticals.class);
-                final AntiDesync antiDesync = LiquidBounce.moduleManager.getModule(AntiDesync.class);
-                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 9.0E-4D || this.positionUpdateTicks >= 20 || (fly.getState() && fly.getAntiDesync()) || (criticals.getState() && criticals.getAntiDesync()) || (antiDesync.getState() && xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 0.0D);
+                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (LiquidBounce.moduleManager.getModule(NoZeroZeroThree.class).getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20;
                 boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
 
                 if (this.ridingEntity == null) {
@@ -401,6 +394,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (scaffold.getState() && scaffold.getScaffoldModeValue().equals("blatant")) {
             this.setSprinting(scaffold.getCanSprint());
+        }
+        if (scaffold.getState() && scaffold.getScaffoldModeValue().equals("blatant")) {
+            if (scaffold.getTowerStatus() && scaffold.getTowerSprintValue().get()) {
+                this.setSprinting(scaffold.getCanSprint());
+            }
         }
 
         attemptToggle = false;

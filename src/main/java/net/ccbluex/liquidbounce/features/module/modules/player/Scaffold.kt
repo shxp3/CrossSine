@@ -47,7 +47,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.logo.info
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.PLAYER, keyBind = Keyboard.KEY_G)
 class Scaffold : Module() {
-
+    private val ShowTagValue = BoolValue("ShowTag", false)
     val ScaffoldModeValue = ListValue("ScaffoldMode", arrayOf("Blatant", "Legit"), "Blatant")
     private val ThirdViewValue = BoolValue("ThirdView", false).displayable { ScaffoldModeValue.equals("Blatant") }
 
@@ -96,9 +96,10 @@ class Scaffold : Module() {
     private val sprintValue = BoolValue("Sprint", false).displayable { ScaffoldModeValue.equals("Blatant") }
     private val sprintModeValue = ListValue(
         "SprintPacket",
-        arrayOf("Normal", "Bypass", "WatchDog", "FakeWatchDog", "Ground", "Air", "Legit", "Fast"),
+        arrayOf("Normal", "Bypass", "WatchDog", "FakeWatchDog", "Ground", "Air", "Legit", "Fast", "XZ", "XZSprint"),
         "Normal"
     ).displayable { ScaffoldModeValue.equals("Blatant") && sprintValue.get() }
+    private val XZModifly = FloatValue("XZ", 0F, 0F, 2F)
     private val swingValue = ListValue(
         "Swing",
         arrayOf("Normal", "Packet", "None"),
@@ -332,9 +333,6 @@ class Scaffold : Module() {
     ).displayable { motionSpeedEnabledValue.get() && ScaffoldModeValue.equals("Blatant") }
     private val noTowerValue =
         BoolValue("NoTower", false).displayable { motionSpeedEnabledValue.get() && ScaffoldModeValue.equals("Blatant") }
-    private val speedModifierValue =
-        FloatValue("SpeedModifier", 1f, 0f, 2f).displayable { ScaffoldModeValue.equals("Blatant") }
-
     // Tower
     private val towerModeValue = ListValue(
         "TowerMode", arrayOf(
@@ -358,8 +356,6 @@ class Scaffold : Module() {
             "Vanilla"
         ), "Vanilla"
     ).displayable { ScaffoldModeValue.equals("Blatant") }
-    private val verusonMove =
-        BoolValue("OnMove", false).displayable { towerModeValue.equals("Verus") && ScaffoldModeValue.equals("Blatant") }
     private val stopWhenBlockAboveValue =
         BoolValue("StopTowerWhenBlockAbove", true).displayable { ScaffoldModeValue.equals("Blatant") }
     private val towerFakeJumpValue =
@@ -369,7 +365,7 @@ class Scaffold : Module() {
         arrayOf("Always", "PressSpace", "NoMove", "OnMove", "OFF"),
         "PressSpace"
     ).displayable { ScaffoldModeValue.equals("Blatant") }
-    private val towerSprintValue = BoolValue("TowerSprint", false).displayable { !towerActiveValue.equals("NoMove") }
+    val towerSprintValue = BoolValue("TowerSprint", false).displayable { !towerActiveValue.equals("NoMove") }
     private val towerTimerValue =
         FloatValue("TowerTimer", 1f, 0.1f, 5f).displayable { ScaffoldModeValue.equals("Blatant") }
 
@@ -539,7 +535,7 @@ class Scaffold : Module() {
     // Down
     private var shouldGoDown = false
     private var jumpGround = 0.0
-    private var towerStatus = false
+    var towerStatus = false
     private var canSameY = false
     private var lastPlaceBlock: BlockPos? = null
     private var afterPlaceC08: C08PacketPlayerBlockPlacement? = null
@@ -551,9 +547,8 @@ class Scaffold : Module() {
     private var offGroundTicks: Int = 0
 
     //Fuck
-    private var FuckYou = 0
-    private var Kid = false
-
+    private var verusState = 0
+    private var verusJumped = false
     /**
      * Enable module
      */
@@ -736,6 +731,9 @@ class Scaffold : Module() {
                 }
 
                 mc.thePlayer.isSprinting = canSprint
+                if (towerSprintValue.get() && towerStatus) {
+                    canSprint
+                }
                 if (sprintModeValue.equals("WatchDog")) {
                     if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                         mc.thePlayer.motionX *= 0.92
@@ -1025,15 +1023,6 @@ class Scaffold : Module() {
                 }
             }
         }
-
-
-        if (towerSprintValue.get()) {
-            if (!towerActiveValue.equals("NoMove")) {
-                if (towerStatus) {
-                    canSprint
-                }
-            }
-        }
     }
 
     @EventTarget
@@ -1107,10 +1096,12 @@ class Scaffold : Module() {
                                     mc.gameSettings.keyBindRight.isKeyDown || mc.gameSettings.keyBindForward.isKeyDown ||
                                     mc.gameSettings.keyBindBack.isKeyDown) && mc.gameSettings.keyBindJump.isKeyDown
                         }
+                        "onmove" -> {
+                            towerStatus = MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown
+                        }
                     }
                 }
                 if (towerStatus) move()
-
                 // Lock Rotation
                 if (!rotationsValue.equals("Snap")) {
                     if (rotationsValue.get() != "None" && 20 > 0 && lockRotation != null && silentRotationValue.get()) {
@@ -1374,77 +1365,36 @@ class Scaffold : Module() {
                     }
 
                     "verus" -> {
-                        if (verusonMove.get()) {
-                            if (MovementUtils.isMoving()) {
-                                if (!mc.theWorld.getCollidingBoundingBoxes(
-                                        mc.thePlayer,
-                                        mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)
-                                    ).isEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically
-                                ) {
-                                    FuckYou = 0
-                                    Kid = true
-                                }
-                                if (Kid) {
-                                    MovementUtils.strafe()
-                                    when (FuckYou) {
-                                        0 -> {
-                                            fakeJump()
-                                            mc.thePlayer.motionY = 0.41999998688697815
-                                            ++FuckYou
-                                        }
-
-                                        1 -> ++FuckYou
-                                        2 -> ++FuckYou
-                                        3 -> {
-                                            doSpoof
-                                            mc.thePlayer.motionY = 0.0
-                                            ++FuckYou
-                                        }
-
-                                        4 -> ++FuckYou
-                                    }
-                                    Kid = false
-                                }
-                                Kid = true
-                            } else {
-                                if (mc.thePlayer.onGround && towerTimer.hasTimePassed(0)) {
-                                    fakeJump()
-                                    mc.thePlayer.motionY = 0.41999998688698
-                                    towerTimer.reset()
-                                }
-                            }
-                        } else {
-                            if (!mc.theWorld.getCollidingBoundingBoxes(
-                                    mc.thePlayer,
-                                    mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)
-                                ).isEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically
-                            ) {
-                                FuckYou = 0
-                                Kid = true
-                            }
-                            if (Kid) {
-                                MovementUtils.strafe()
-                                when (FuckYou) {
-                                    0 -> {
-                                        fakeJump()
-                                        mc.thePlayer.motionY = 0.41999998688697815
-                                        ++FuckYou
-                                    }
-
-                                    1 -> ++FuckYou
-                                    2 -> ++FuckYou
-                                    3 -> {
-                                        doSpoof
-                                        mc.thePlayer.motionY = 0.0
-                                        ++FuckYou
-                                    }
-
-                                    4 -> ++FuckYou
-                                }
-                                Kid = false
-                            }
-                            Kid = true
+                        if (!mc.theWorld.getCollidingBoundingBoxes(
+                                mc.thePlayer,
+                                mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)
+                            ).isEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically
+                        ) {
+                            verusState = 0
+                            verusJumped = true
                         }
+                        if (verusJumped) {
+                            MovementUtils.strafe()
+                            when (verusState) {
+                                0 -> {
+                                    fakeJump()
+                                    mc.thePlayer.motionY = 0.41999998688697815
+                                    ++verusState
+                                }
+
+                                1 -> ++verusState
+                                2 -> ++verusState
+                                3 -> {
+                                    doSpoof
+                                    mc.thePlayer.motionY = 0.0
+                                    ++verusState
+                                }
+
+                                4 -> ++verusState
+                            }
+                            verusJumped = false
+                        }
+                        verusJumped = true
                     }
 
 
@@ -1634,11 +1584,6 @@ class Scaffold : Module() {
                 ) {
                     // delayTimer.reset()
                     delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
-                    if (mc.thePlayer.onGround) {
-                        val modifier = speedModifierValue.get()
-                        mc.thePlayer.motionX *= modifier.toDouble()
-                        mc.thePlayer.motionZ *= modifier.toDouble()
-                    }
 
                     if (swingValue.equals("packet")) {
                         mc.netHandler.addToSendQueue(C0APacketAnimation())
@@ -1678,6 +1623,13 @@ class Scaffold : Module() {
 
                 // Reset
                 targetPlace = null
+            }
+        }
+
+        if (sprintModeValue.equals("XZ") || sprintModeValue.equals("XZSprint")){
+            if (mc.thePlayer.onGround) {
+                mc.thePlayer.motionX *= XZModifly.get().toDouble()
+                mc.thePlayer.motionZ *= XZModifly.get().toDouble()
             }
         }
     }
@@ -2244,12 +2196,16 @@ class Scaffold : Module() {
             "ground" -> mc.thePlayer.onGround
             "air" -> !mc.thePlayer.onGround
             "fast" -> true
+            "xzsprint" -> true
             else -> false
         }
-    override val tag: String
-        get() = if (ScaffoldModeValue.get() == ("Blatant"))
-            placeModeValue.get()
-        else
-            "Legit"
-
+    override val tag: String?
+        get() = if (ShowTagValue.get()){
+            if (ScaffoldModeValue.get() == ("Blatant"))
+                placeModeValue.get()
+            else
+                "Legit"
+        }
+    else
+        null
 }

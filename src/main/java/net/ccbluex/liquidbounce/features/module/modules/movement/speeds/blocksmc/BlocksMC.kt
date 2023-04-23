@@ -15,8 +15,8 @@ class BlocksMC : SpeedMode("BlocksMC") {
 
         if (MovementUtils.isMoving()) {
             if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                MovementUtils.strafe(0.3155555555F)
-            } else MovementUtils.strafe(0.2687585575F)
+                MovementUtils.strafe(0.3455555555F)
+            } else MovementUtils.strafe(0.2735555555F)
             if(mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
             }

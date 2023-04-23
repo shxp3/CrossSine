@@ -23,6 +23,13 @@ object MovementUtils : MinecraftInstance() {
         return sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ).toFloat()
     }
 
+    fun FlyBasic(speed: Float) {
+        if (mc.gameSettings.keyBindJump.isKeyDown) mc.thePlayer.motionY += speed
+
+        if (mc.gameSettings.keyBindSneak.isKeyDown) mc.thePlayer.motionY -= speed
+
+        strafe(speed)
+    }
     /**
      * Calculate speed based on the speed potion effect level/amplifier
      */

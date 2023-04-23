@@ -36,15 +36,16 @@ object LiquidBounce {
     const val CLIENT_NAME = "CrossSine"
 
     var Darkmode = true
-    const val COLORED_NAME = "§7[§C!§7] §FCrossSine » "
-    const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & the shit of the year"
+    var CLIENT_STATUS = false
+    const val COLORED_NAME = "Cross§CSine"
+    const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"
     const val CLIENT_WEBSITE = "crosssine.github.io"
     const val MINECRAFT_VERSION = "1.8.9"
-    const val CLIENT_VERSION = "3.100 r3"
+    const val CLIENT_VERSION = "B31"
     @JvmField
     val CLIENT_LOADING = "Initializing game..."
     @JvmField
-    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION} | ${MINECRAFT_VERSION}"
+    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION} | ${MINECRAFT_VERSION}" + if (CLIENT_STATUS) " - Beta" else ""
 
     @JvmField
     val gitInfo = Properties().also {

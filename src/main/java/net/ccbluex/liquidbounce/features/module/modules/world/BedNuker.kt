@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.module.modules.player
+package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
@@ -31,7 +31,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import java.awt.Color
 
-@ModuleInfo(name = "BedNuker", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "BedNuker", category = ModuleCategory.WORLD)
 object BedNuker : Module() {
 
     /**
@@ -70,7 +70,6 @@ object BedNuker : Module() {
     private var damage = 0f
 
     private var lastWorld: WorldClient? = null
-    var bestSpeed = 1F
     var bestSlot = -1
     var serverSideSlot = -1
 
@@ -103,7 +102,7 @@ object BedNuker : Module() {
                     pos = null
                     oldPos = null
                     currentDamage = 0F
-                    RotationUtils.faceBlock(null)
+                    RotationUtils.faceBlock(null) ?: return
                 }
             }
             if (NoKillAuraValue.get()) {
@@ -428,7 +427,7 @@ object BedNuker : Module() {
     }
 
     fun AutoToolFun(blockPos: BlockPos) {
-
+        var bestSpeed = 1F
         val block = mc.theWorld.getBlockState(blockPos).block
 
         for (i in 0..8) {
@@ -479,7 +478,7 @@ object BedNuker : Module() {
             val slot: Int = InventoryUtils.findSword()
 
             if (slot != -1) {
-                this.bestSlot = slot
+                bestSlot = slot
                 serverSideSlot = bestSlot
             }
         }

@@ -466,8 +466,8 @@ public abstract class MixinItemRenderer {
             GlStateManager.popMatrix();
             GlStateManager.disableRescaleNormal();
             RenderHelper.disableStandardItemLighting();
-            }
         }
+    }
 
 
     private void doItemRenderGLTranslate(){

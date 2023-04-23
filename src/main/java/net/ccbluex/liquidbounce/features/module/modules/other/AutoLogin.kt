@@ -28,6 +28,7 @@ class AutoLogin : Module() {
     private val delayValue = IntegerValue("Delay", 1500, 100, 5000)
     private val titleValue = BoolValue("Title", true)
     private val chatValue = BoolValue("Chat", true)
+    private val showPassword = BoolValue("ShowPassword", false)
 
     private var logined = false
 
@@ -78,4 +79,9 @@ class AutoLogin : Module() {
             }
         }
     }
+    override val tag: String?
+        get() = if (showPassword.get())
+            passwordValue.get()
+    else
+        null
 }

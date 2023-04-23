@@ -11,7 +11,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 @ModuleInfo(name = "DamageBoost", category = ModuleCategory.MOVEMENT)
 class DamageBoost : Module() {
-    private val DamageBoostMode = ListValue("Mode", arrayOf("Minemen", "LegitBoost", "FireBall", "Custom"), "Minemen")
+    private val DamageBoostMode = ListValue("Mode", arrayOf("Minemen", "LegitBoost", "FireBall", "Hypixel", "Custom"), "Minemen")
     private val BoostCustomXZValue = FloatValue("CustomXZBoost", 0F, -10F, 10F).displayable { DamageBoostMode.get().equals("Custom")}
     private val BoostCustomYValue = FloatValue("CustomYBoost", 0F, -10F, 10F).displayable { DamageBoostMode.get().equals("Custom")}
 
@@ -50,6 +50,14 @@ class DamageBoost : Module() {
 
                     packet.motionX = (packet.getMotionX() * 1F).toInt()
                     packet.motionY = (packet.getMotionY() * 7)
+                    packet.motionZ = (packet.getMotionZ() * 1F).toInt()
+                }
+            }
+            "hypixel" -> {
+                if (packet is S12PacketEntityVelocity) {
+
+                    packet.motionX = (packet.getMotionX() * 1F).toInt()
+                    packet.motionY = (packet.getMotionY() * 2.45F).toInt()
                     packet.motionZ = (packet.getMotionZ() * 1F).toInt()
                 }
             }

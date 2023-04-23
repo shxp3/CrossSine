@@ -40,7 +40,7 @@ import kotlin.concurrent.schedule
 import kotlin.random.Random
 
 @ModuleInfo(name = "Stealer", category = ModuleCategory.WORLD)
-object Stealer : Module() {
+object ChestStealer : Module() {
     /**
      * OPTIONS
      */
@@ -74,7 +74,6 @@ object Stealer : Module() {
     private val autoCloseValue = BoolValue("AutoClose", true)
     val silentValue = BoolValue("Silent", true)
     val drawshadowvalue = BoolValue("Shadow", false).displayable { silentValue.get() }
-    val silentTitleValue = BoolValue("SilentTitle", true).displayable { silentValue.get() }
 
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {

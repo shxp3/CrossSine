@@ -23,9 +23,9 @@ jobs:
       - name: Build
         run: chmod +x ./gradlew && ./gradlew setupCiWorkspace && ./gradlew build
       - name: Rename build artifacts
-        run: mv build/libs/CrossSine-*.jar build/libs/CrossSine-BetaBuild.jar
+        run: mv build/libs/CrossSine-*.jar build/libs/CrossSine-Build.jar
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
           name: CrossSine
-          path: build/libs/CrossSine-BetaBuild.jar
+          path: build/libs/CrossSine-Build.jar

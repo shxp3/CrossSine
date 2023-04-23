@@ -11,9 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 @ModuleInfo(name = "Reach", category = ModuleCategory.GHOST)
 public class Reach extends Module {
-    public static FloatValue ReachMax = new FloatValue("Max", 3.5f, 0f, 7f);
-    public static FloatValue ReachMin = new FloatValue("Min", 3.5f, 0f, 7f);
-    public static BoolValue ThroughWall = new BoolValue("ThroughWall", false);
+    public static FloatValue ReachMax = new FloatValue("Max", 3.5f, 3f, 7f);
+    public static FloatValue ReachMin = new FloatValue("Min", 3.5f, 3f, 7f);
 
 
     public static double getReach() {
