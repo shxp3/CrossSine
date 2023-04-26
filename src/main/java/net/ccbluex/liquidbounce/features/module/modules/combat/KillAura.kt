@@ -1,11 +1,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.player.FreeCam
@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.gui.inventory.GuiInventory
-import net.minecraft.client.settings.KeyBinding
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -37,6 +36,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
+import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.glu.Cylinder
 import java.awt.Color
@@ -282,7 +282,7 @@ class KillAura : Module() {
         mc.theWorld ?: return
 
         updateTarget()
-        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) LiquidBounce.moduleManager[StrafeFix::class.java]!!.state = true
+        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[StrafeFix::class.java]!!.state = true
         if (ThirdViewValue.get() && currentTarget !== null) {
             perspectiveToggled = !perspectiveToggled
             if (perspectiveToggled) {
@@ -299,7 +299,7 @@ class KillAura : Module() {
      */
     override fun onDisable() {
         strictStrafe = false
-        LiquidBounce.moduleManager[TargetStrafe::class.java]!!.doStrafe = false
+        CrossSine.moduleManager[TargetStrafe::class.java]!!.doStrafe = false
         target = null
         currentTarget = null
         hitable = false
@@ -314,7 +314,7 @@ class KillAura : Module() {
 
         stopBlocking()
         RotationUtils.setTargetRotationReverse(RotationUtils.serverRotation, 0, 0)
-        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) LiquidBounce.moduleManager[StrafeFix::class.java]!!.state = false
+        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[StrafeFix::class.java]!!.state = false
         if (ThirdViewValue.get()) {
             resetPerspective()
         }
@@ -390,7 +390,7 @@ class KillAura : Module() {
     fun onStrafe(event: StrafeEvent) {
         if (cancelRun) return
         strictStrafe = false
-        if(!LiquidBounce.moduleManager[TargetStrafe::class.java]!!.modifyStrafe(event)) {
+        if(!CrossSine.moduleManager[TargetStrafe::class.java]!!.modifyStrafe(event)) {
             strictStrafe = true
         }
         if (rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding) {
@@ -471,8 +471,8 @@ class KillAura : Module() {
             target = currentTarget
         }
 
-        LiquidBounce.moduleManager[TargetStrafe::class.java]!!.targetEntity = currentTarget?:return
-        LiquidBounce.moduleManager[TargetStrafe::class.java]!!.doStrafe = LiquidBounce.moduleManager[TargetStrafe::class.java]!!.toggleStrafe()
+        CrossSine.moduleManager[TargetStrafe::class.java]!!.targetEntity = currentTarget?:return
+        CrossSine.moduleManager[TargetStrafe::class.java]!!.doStrafe = CrossSine.moduleManager[TargetStrafe::class.java]!!.toggleStrafe()
     }
 
     /**
@@ -495,13 +495,13 @@ class KillAura : Module() {
             return
         }
 
-        if (autoBlockValue.get().equals("damage", true)) {
+        if (autoBlockValue.equals("Damage")) {
             if (mc.thePlayer.hurtTime > 0) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, true)
-                blockingStatus = true
+                canBlock
+                mc.gameSettings.keyBindUseItem.pressed = true
             } else {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, false)
-                blockingStatus = false
+                stopBlocking()
+                mc.gameSettings.keyBindUseItem.pressed = false
             }
         }
 
@@ -645,9 +645,9 @@ class KillAura : Module() {
                         RenderUtils.glColor(
                             Color.getHSBColor(
                                 if (i < 180) {
-                                    HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (i / 180f)
+                                    ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (i / 180f)
                                 } else {
-                                    HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (-(i - 360) / 180f)
+                                    ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (-(i - 360) / 180f)
                                 }, 0.7f, 1.0f
                             )
                         )
@@ -769,9 +769,9 @@ class KillAura : Module() {
                     for (i in 5..360 step 5) {
                         val color = Color.getHSBColor(
                             if (i < 180) {
-                                HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (i / 180f)
+                                ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (i / 180f)
                             } else {
-                                HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (-(i - 360) / 180f)
+                                ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (-(i - 360) / 180f)
                             }, 0.7f, 1.0f
                         )
                         val x1 = x - sin(i * Math.PI / 180F) * radius
@@ -999,14 +999,14 @@ class KillAura : Module() {
             if (mc.thePlayer.getDistanceToEntityBox(entity) < maxRange) {
                 target = entity
                 canSwing = false
-                LiquidBounce.moduleManager[TargetStrafe::class.java]!!.targetEntity = target?:return
-                LiquidBounce.moduleManager[TargetStrafe::class.java]!!.doStrafe = LiquidBounce.moduleManager[TargetStrafe::class.java]!!.toggleStrafe()
+                CrossSine.moduleManager[TargetStrafe::class.java]!!.targetEntity = target?:return
+                CrossSine.moduleManager[TargetStrafe::class.java]!!.doStrafe = CrossSine.moduleManager[TargetStrafe::class.java]!!.toggleStrafe()
                 return
             }
         }
 
         target = null
-        LiquidBounce.moduleManager[TargetStrafe::class.java]!!.doStrafe = false
+        CrossSine.moduleManager[TargetStrafe::class.java]!!.doStrafe = false
         canSwing = discoveredTargets.find { mc.thePlayer.getDistanceToEntityBox(it) < swingRangeValue.get() } != null
     }
 
@@ -1029,7 +1029,7 @@ class KillAura : Module() {
         }
         // Call attack event
         val event = AttackEvent(entity)
-        LiquidBounce.eventManager.callEvent(event)
+        CrossSine.eventManager.callEvent(event)
         if (event.isCancelled) {
             return
         }
@@ -1242,7 +1242,10 @@ class KillAura : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
         if (autoBlockPacketValue.get().equals("damage", true)) {
-            mc.gameSettings.keyBindUseItem.pressed = mc.thePlayer.hurtTime > 0
+            if(mc.thePlayer.hurtTime == 0) {
+                Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.keyCode)
+            } else
+                !Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.keyCode)
         }
         if (interact) {
             mc.netHandler.addToSendQueue(C02PacketUseEntity(interactEntity, interactEntity.positionVector))
@@ -1304,8 +1307,8 @@ class KillAura : Module() {
      */
     private val cancelRun: Boolean
         get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer)
-                || (blinkCheck.get() && LiquidBounce.moduleManager[Blink::class.java]!!.state) || LiquidBounce.moduleManager[FreeCam::class.java]!!.state ||
-                (noScaffValue.get() && LiquidBounce.moduleManager[Scaffold::class.java]!!.state) || (noFlyValue.get() && LiquidBounce.moduleManager[Fly::class.java]!!.state) || (noInventoryAttackValue.equals("CancelRun") && (mc.currentScreen is GuiContainer ||
+                || (blinkCheck.get() && CrossSine.moduleManager[Blink::class.java]!!.state) || CrossSine.moduleManager[FreeCam::class.java]!!.state ||
+                (noScaffValue.get() && CrossSine.moduleManager[Scaffold::class.java]!!.state) || (noFlyValue.get() && CrossSine.moduleManager[Fly::class.java]!!.state) || (noInventoryAttackValue.equals("CancelRun") && (mc.currentScreen is GuiContainer ||
                 System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get()))
 
 

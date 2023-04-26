@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.disablers.other
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.modules.other.disablers.DisablerMode
@@ -37,7 +37,7 @@ class FakeLagDisabler : DisablerMode("FakeLag") {
     }
 
     override fun onUpdate(event: UpdateEvent) {
-        if(LiquidBounce.moduleManager[Blink::class.java]!!.state) {
+        if(CrossSine.moduleManager[Blink::class.java]!!.state) {
             fakeLagDelay.reset()
             fakeLagDuration.reset()
             return

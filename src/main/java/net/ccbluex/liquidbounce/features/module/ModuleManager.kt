@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
@@ -26,7 +26,7 @@ class ModuleManager : Listenable {
     var pendingBindModule: Module? = null
 
     init {
-        LiquidBounce.eventManager.registerListener(this)
+        CrossSine.eventManager.registerListener(this)
     }
 
     /**
@@ -42,7 +42,7 @@ class ModuleManager : Listenable {
 
         modules.forEach { it.onLoad() }
 
-        LiquidBounce.eventManager.registerListener(AutoDisable)
+        CrossSine.eventManager.registerListener(AutoDisable)
 
         ClientUtils.logInfo("[ModuleManager] Loaded ${modules.size} modules.")
     }
@@ -57,7 +57,7 @@ class ModuleManager : Listenable {
 
         generateCommand(module)
 
-        LiquidBounce.eventManager.registerListener(module)
+        CrossSine.eventManager.registerListener(module)
     }
 
     /**
@@ -80,7 +80,7 @@ class ModuleManager : Listenable {
     fun unregisterModule(module: Module) {
         modules.remove(module)
         moduleClassMap.remove(module::class.java)
-        LiquidBounce.eventManager.unregisterListener(module)
+        CrossSine.eventManager.unregisterListener(module)
     }
 
     /**
@@ -97,7 +97,7 @@ class ModuleManager : Listenable {
             return
         }
 
-        LiquidBounce.commandManager.registerCommand(ModuleCommand(module, values))
+        CrossSine.commandManager.registerCommand(ModuleCommand(module, values))
     }
 
     fun getModulesByName(name: String): List<Module> {
@@ -134,7 +134,7 @@ class ModuleManager : Listenable {
         } else {
             pendingBindModule!!.keyBind = event.key
             ClientUtils.displayAlert("Bound module §a§l${pendingBindModule!!.name}§3 to key §a§l${Keyboard.getKeyName(event.key)}§3.")
-            LiquidBounce.hud.addNotification(Notification("KeyBind", "Bound ${pendingBindModule!!.name} to ${Keyboard.getKeyName(event.key)}.", NotifyType.INFO))
+            CrossSine.hud.addNotification(Notification("KeyBind", "Bound ${pendingBindModule!!.name} to ${Keyboard.getKeyName(event.key)}.", NotifyType.INFO))
             pendingBindModule = null
         }
     }

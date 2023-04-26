@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
 import net.ccbluex.liquidbounce.features.module.modules.client.HotbarSettings;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Crosshair;
@@ -54,8 +54,8 @@ public abstract class MixinGuiInGame extends MixinGui {
     private void renderScoreboard(ScoreObjective scoreObjective, ScaledResolution scaledResolution, CallbackInfo callbackInfo) {
         if (scoreObjective != null) ColorUtils.stripColor(scoreObjective.getDisplayName());
 
-        final NoRender NoRender = LiquidBounce.moduleManager.getModule(NoRender.class);
-        if ((NoRender.getState() && NoRender.getScoreBoard().get()) || LiquidBounce.moduleManager.getModule(HUD.class).getState())
+        final NoRender NoRender = CrossSine.moduleManager.getModule(NoRender.class);
+        if ((NoRender.getState() && NoRender.getScoreBoard().get()) || CrossSine.moduleManager.getModule(ClientRender.class).getState())
             callbackInfo.cancel();
     }
     /**
@@ -63,8 +63,8 @@ public abstract class MixinGuiInGame extends MixinGui {
      */
     @Overwrite
     protected void renderTooltip(ScaledResolution sr, float partialTicks) {
-        final HUD hud = LiquidBounce.moduleManager.getModule(HUD.class);
-        final HotbarSettings HotbarSettings = LiquidBounce.moduleManager.getModule(HotbarSettings.class);
+        final ClientRender hud = CrossSine.moduleManager.getModule(ClientRender.class);
+        final HotbarSettings HotbarSettings = CrossSine.moduleManager.getModule(HotbarSettings.class);
         final EntityPlayer entityplayer = (EntityPlayer) mc.getRenderViewEntity();
 
         float tabHope = this.mc.gameSettings.keyBindPlayerList.isKeyDown() ? 1f : 0f;
@@ -104,12 +104,12 @@ public abstract class MixinGuiInGame extends MixinGui {
             GlStateManager.disableRescaleNormal();
             GlStateManager.disableBlend();
         }
-        LiquidBounce.eventManager.callEvent(new Render2DEvent(partialTicks, StaticStorage.scaledResolution));
+        CrossSine.eventManager.callEvent(new Render2DEvent(partialTicks, StaticStorage.scaledResolution));
     }
 
     @Inject(method = "renderPumpkinOverlay", at = @At("HEAD"), cancellable = true)
     private void renderPumpkinOverlay(final CallbackInfo callbackInfo) {
-        final NoRender NoRender = LiquidBounce.moduleManager.getModule(NoRender.class);
+        final NoRender NoRender = CrossSine.moduleManager.getModule(NoRender.class);
 
         if(NoRender.getState() && NoRender.getPumpkinEffect().get())
             callbackInfo.cancel();
@@ -117,14 +117,14 @@ public abstract class MixinGuiInGame extends MixinGui {
 
     @Inject(method = "renderBossHealth", at = @At("HEAD"), cancellable = true)
     private void renderBossHealth(CallbackInfo callbackInfo) {
-        final NoRender NoRender = (NoRender) LiquidBounce.moduleManager.getModule(NoRender.class);
+        final NoRender NoRender = (NoRender) CrossSine.moduleManager.getModule(NoRender.class);
         if (NoRender.getState() && NoRender.getBossHealth().get())
             callbackInfo.cancel();
     }
 
     @Inject(method = "showCrosshair", at = @At("HEAD"), cancellable = true)
     private void injectCrosshair(CallbackInfoReturnable<Boolean> cir) {
-        final Crosshair crossHair = LiquidBounce.moduleManager.getModule(Crosshair.class);
+        final Crosshair crossHair = CrossSine.moduleManager.getModule(Crosshair.class);
         if (crossHair.getState())
             cir.setReturnValue(false);
     }

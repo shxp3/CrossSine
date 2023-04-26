@@ -8,8 +8,8 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
-@ModuleInfo(name = "Bobing", category = ModuleCategory.VISUAL)
-class Bobing : Module() {
+@ModuleInfo(name = "BobChanger", category = ModuleCategory.VISUAL)
+class BobChanger : Module() {
     private val BobChangerValue =
         ListValue("BobChanger", arrayOf("Low", "VeryLow", "Meme", "Custom", "Off"), "Low")
     private val CustomYaw =

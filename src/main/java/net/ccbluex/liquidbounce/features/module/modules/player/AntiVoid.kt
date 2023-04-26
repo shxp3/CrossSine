@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -245,7 +245,7 @@ class AntiVoid : Module() {
                         }
 
                         if (autoScaffoldValue.get()) {
-                            LiquidBounce.moduleManager[Scaffold::class.java]!!.state = true
+                            CrossSine.moduleManager[Scaffold::class.java]!!.state = true
                         }
 
                         packetCache.clear()

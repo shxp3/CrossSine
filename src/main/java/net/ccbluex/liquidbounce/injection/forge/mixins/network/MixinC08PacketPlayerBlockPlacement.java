@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.other.PacketFix;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -37,7 +37,7 @@ public class MixinC08PacketPlayerBlockPlacement {
         buf.writeBlockPos(this.position);
         buf.writeByte(this.placedBlockDirection);
         buf.writeItemStackToBuffer(this.stack);
-        if (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(PacketFix.class)).getState()) {
+        if (Objects.requireNonNull(CrossSine.moduleManager.getModule(PacketFix.class)).getState()) {
             buf.writeFloat(this.facingX);
             buf.writeFloat(this.facingY);
             buf.writeFloat(this.facingZ);
@@ -59,7 +59,7 @@ public class MixinC08PacketPlayerBlockPlacement {
         this.position = buf.readBlockPos();
         this.placedBlockDirection = buf.readUnsignedByte();
         this.stack = buf.readItemStackFromBuffer();
-        if (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(PacketFix.class)).getState()) {
+        if (Objects.requireNonNull(CrossSine.moduleManager.getModule(PacketFix.class)).getState()) {
             this.facingX = buf.readFloat();
             this.facingY = buf.readFloat();
             this.facingZ = buf.readFloat();

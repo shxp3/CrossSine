@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.longjumps
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.LongJump
 import net.ccbluex.liquidbounce.utils.ClassUtils
@@ -11,7 +11,7 @@ abstract class LongJumpMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
     protected val longjump: LongJump
-        get() = LiquidBounce.moduleManager[LongJump::class.java]!!
+        get() = CrossSine.moduleManager[LongJump::class.java]!!
 
     open val values: List<Value<*>>
         get() = ClassUtils.getValues(this.javaClass, this)

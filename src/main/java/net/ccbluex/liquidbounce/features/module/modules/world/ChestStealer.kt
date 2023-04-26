@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -39,7 +39,7 @@ import net.minecraft.util.Vec3
 import kotlin.concurrent.schedule
 import kotlin.random.Random
 
-@ModuleInfo(name = "Stealer", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "ChestStealer", category = ModuleCategory.WORLD)
 object ChestStealer : Module() {
     /**
      * OPTIONS
@@ -73,7 +73,6 @@ object ChestStealer : Module() {
     private val noCompassValue = BoolValue("NoCompass", false)
     private val autoCloseValue = BoolValue("AutoClose", true)
     val silentValue = BoolValue("Silent", true)
-    val drawshadowvalue = BoolValue("Shadow", false).displayable { silentValue.get() }
 
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -152,7 +151,7 @@ object ChestStealer : Module() {
         }
 
         // inventory cleaner
-        val inventoryManager = LiquidBounce.moduleManager[InventoryManager::class.java]!!
+        val inventoryManager = CrossSine.moduleManager[InventoryManager::class.java]!!
 
         // check if it's empty?
         if (!isEmpty(screen) && !(closeOnFullValue.get() && fullInventory)) {
@@ -223,7 +222,7 @@ object ChestStealer : Module() {
     }
 
     private fun isEmpty(chest: GuiChest): Boolean {
-        val inventoryManager = LiquidBounce.moduleManager[InventoryManager::class.java]!!
+        val inventoryManager = CrossSine.moduleManager[InventoryManager::class.java]!!
 
         for (i in 0 until chest.inventoryRows * 9) {
             val slot = chest.inventorySlots.inventorySlots[i]
@@ -239,7 +238,7 @@ object ChestStealer : Module() {
     @EventTarget
     fun onMotion(event: MotionEvent) {
         if (Aura.get()){
-            if ((AuraonlyOnGroundValue.get() && !mc.thePlayer.onGround) || (AuranoCombatingValue.get() && LiquidBounce.combatManager.inCombat)) {
+            if ((AuraonlyOnGroundValue.get() && !mc.thePlayer.onGround) || (AuranoCombatingValue.get() && CrossSine.combatManager.inCombat)) {
                 return
             }
 

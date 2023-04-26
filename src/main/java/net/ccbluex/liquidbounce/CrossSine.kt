@@ -29,27 +29,27 @@ import org.lwjgl.opengl.Display
 import java.util.*
 import kotlin.concurrent.thread
 
-object LiquidBounce {
+object CrossSine {
 
     // Client information
 
     const val CLIENT_NAME = "CrossSine"
 
     var Darkmode = true
-    var CLIENT_STATUS = false
-    const val COLORED_NAME = "Cross§CSine"
+    var CLIENT_STATUS = true
+    const val COLORED_NAME = "Cross§CSine§F"
     const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"
     const val CLIENT_WEBSITE = "crosssine.github.io"
     const val MINECRAFT_VERSION = "1.8.9"
-    const val CLIENT_VERSION = "B31"
+    const val CLIENT_VERSION = "B32"
     @JvmField
     val CLIENT_LOADING = "Initializing game..."
     @JvmField
-    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION} | ${MINECRAFT_VERSION}" + if (CLIENT_STATUS) " - Beta" else ""
+    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION}" + if (CLIENT_STATUS) " - *CRACK BETA LEAK* CRACK BY shxp3 Discord : https://dsc.gg/crosssinecommunity " else " Download : ${CLIENT_WEBSITE}"
 
     @JvmField
     val gitInfo = Properties().also {
-        val inputStream = LiquidBounce::class.java.classLoader.getResourceAsStream("git.properties")
+        val inputStream = CrossSine::class.java.classLoader.getResourceAsStream("git.properties")
         if (inputStream != null) {
             it.load(inputStream)
         } else {
@@ -284,7 +284,7 @@ object LiquidBounce {
     }
 
     fun onSendChatMessage(s: String?): Boolean {
-        if (s!!.startsWith(".") && !LiquidBounce.destructed) {
+        if (s!!.startsWith(".") && !CrossSine.destructed) {
             commandManager.getCommand(s.substring(1))
             return false
         }

@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.minecraft.block.Block;
@@ -37,7 +37,7 @@ public class MixinLayerHeldItem {
      */
     @Overwrite
     public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
-        final KillAura killAura = LiquidBounce.moduleManager.getModule(KillAura.class);
+        final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
         ItemStack itemstack = entitylivingbaseIn.getHeldItem();
 
         if(itemstack != null) {
@@ -55,7 +55,7 @@ public class MixinLayerHeldItem {
             final EntityPlayer entityplayer = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(uuid);
 
             if(entityplayer != null && entityplayer.isBlocking() || entityplayer != null && killAura.getCurrentTarget() != null && !killAura.getAutoBlockValue().get().equals("None" +
-                    "") && LiquidBounce.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
+                    "") && CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
                 if(entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped) this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     GlStateManager.translate(-0.58F, 0.3F, -0.2F);

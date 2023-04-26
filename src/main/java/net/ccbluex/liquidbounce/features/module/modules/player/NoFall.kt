@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.features.module.Module
@@ -81,7 +81,7 @@ class NoFall : Module() {
             wasTimer = false
         }
         mode.onUpdate(event)
-        if (!state || LiquidBounce.moduleManager[FreeCam::class.java]!!.state) {
+        if (!state || CrossSine.moduleManager[FreeCam::class.java]!!.state) {
             return
         }
 

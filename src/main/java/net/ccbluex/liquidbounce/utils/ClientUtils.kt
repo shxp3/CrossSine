@@ -1,16 +1,13 @@
 package net.ccbluex.liquidbounce.utils
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.modules.player.Insult
-import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Text
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.minecraft.client.Minecraft
 import net.minecraft.util.IChatComponent
 import org.apache.logging.log4j.LogManager
-import org.lwjgl.opengl.Display
 
 object
 ClientUtils : MinecraftInstance() {
@@ -39,7 +36,7 @@ ClientUtils : MinecraftInstance() {
     }
 
     fun displayAlert(message: String) {
-        displayChatMessage("[" + LiquidBounce.COLORED_NAME + "] " + message)
+        displayChatMessage("[" + CrossSine.COLORED_NAME + "] " + message)
     }
 
     fun displayChatMessage(message: String) {
@@ -53,25 +50,25 @@ ClientUtils : MinecraftInstance() {
     }
 
     fun reloadClient() {
-        LiquidBounce.commandManager = CommandManager()
-        LiquidBounce.commandManager.registerCommands()
-        LiquidBounce.isStarting = true
-        LiquidBounce.isLoadingConfig = true
-        LiquidBounce.scriptManager.disableScripts()
-        LiquidBounce.scriptManager.unloadScripts()
-        for (module in LiquidBounce.moduleManager.modules)
-            LiquidBounce.moduleManager.generateCommand(module)
-        LiquidBounce.scriptManager.loadScripts()
-        LiquidBounce.scriptManager.enableScripts()
+        CrossSine.commandManager = CommandManager()
+        CrossSine.commandManager.registerCommands()
+        CrossSine.isStarting = true
+        CrossSine.isLoadingConfig = true
+        CrossSine.scriptManager.disableScripts()
+        CrossSine.scriptManager.unloadScripts()
+        for (module in CrossSine.moduleManager.modules)
+            CrossSine.moduleManager.generateCommand(module)
+        CrossSine.scriptManager.loadScripts()
+        CrossSine.scriptManager.enableScripts()
         Fonts.loadFonts()
-        LiquidBounce.configManager.load(LiquidBounce.configManager.nowConfig, false)
+        CrossSine.configManager.load(CrossSine.configManager.nowConfig, false)
         Insult.loadFile()
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.accountsConfig)
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.friendsConfig)
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.xrayConfig)
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
-        LiquidBounce.isStarting = false
-        LiquidBounce.isLoadingConfig = false
+        CrossSine.fileManager.loadConfig(CrossSine.fileManager.accountsConfig)
+        CrossSine.fileManager.loadConfig(CrossSine.fileManager.friendsConfig)
+        CrossSine.fileManager.loadConfig(CrossSine.fileManager.xrayConfig)
+        CrossSine.fileManager.loadConfig(CrossSine.fileManager.hudConfig)
+        CrossSine.isStarting = false
+        CrossSine.isLoadingConfig = false
         System.gc()
     }
 

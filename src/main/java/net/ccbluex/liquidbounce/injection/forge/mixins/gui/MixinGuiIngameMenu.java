@@ -1,8 +1,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.client.GuiHUDEdit;
-import net.ccbluex.liquidbounce.ui.client.keybind.KeyBindManager;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.login.LoginUtils;
@@ -34,7 +33,7 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     private void drawScreen(CallbackInfo callbackInfo) {
-        final GuiHUDEdit guihudedit = LiquidBounce.moduleManager.getModule(GuiHUDEdit.class);
+        final GuiHUDEdit guihudedit = CrossSine.moduleManager.getModule(GuiHUDEdit.class);
         Fonts.minecraftFont.drawStringWithShadow(
                 "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Username : §a" + mc.getSession().getUsername(),
                 6f,
@@ -72,7 +71,7 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
                     66f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Client Version : §a" + LiquidBounce.CLIENT_VERSION,
+                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Client Version : §a" + CrossSine.CLIENT_VERSION,
                     6f,
                     76f,
                     0xffffff);
@@ -94,7 +93,7 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
             mc.displayGuiScreen(new GuiMultiplayer((GuiScreen) (Object) this));
         }
         if (button.id == 1078) {
-            mc.displayGuiScreen(LiquidBounce.keyBindManager);
+            mc.displayGuiScreen(CrossSine.keyBindManager);
         }
     }
 }

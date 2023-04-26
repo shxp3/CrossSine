@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
@@ -49,7 +49,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     private float yPosOfInputField;
     private float fade = 0;
 
-    final HUD hud = LiquidBounce.moduleManager.getModule(HUD.class);
+    final ClientRender hud = CrossSine.moduleManager.getModule(ClientRender.class);
 
     /**
      * @author Liuli
@@ -77,7 +77,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     }
 
     private void setText(String text){
-        if(text.startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix()))) {
+        if(text.startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))) {
             this.inputField.setMaxStringLength(114514);
         } else {
             if(hud.getState() && hud.getChatLimitValue().get()) {
@@ -101,16 +101,16 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     @Inject(method = "keyTyped", at = @At("HEAD"), cancellable = true)
     private void keyTyped(char typedChar, int keyCode, CallbackInfo callbackInfo) {
         String text = inputField.getText();
-        if(text.startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix()))) {
+        if(text.startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))) {
             this.inputField.setMaxStringLength(114514);
             if (keyCode == 28 || keyCode == 156) {
-                LiquidBounce.commandManager.executeCommands(text);
+                CrossSine.commandManager.executeCommands(text);
                 callbackInfo.cancel();
                 mc.ingameGUI.getChatGUI().addToSentMessages(text);
                 if(mc.currentScreen instanceof GuiChat)
                     Minecraft.getMinecraft().displayGuiScreen(null);
             }else{
-                LiquidBounce.commandManager.autoComplete(text);
+                CrossSine.commandManager.autoComplete(text);
             }
         } else {
             this.inputField.setMaxStringLength(100);
@@ -122,8 +122,8 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
      */
     @Inject(method = "setText", at = @At("HEAD"), cancellable = true)
     private void setText(String newChatText, boolean shouldOverwrite, CallbackInfo callbackInfo) {
-        if(shouldOverwrite&&newChatText.startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix()))){
-            setText(LiquidBounce.commandManager.getPrefix()+"say "+newChatText);
+        if(shouldOverwrite&&newChatText.startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))){
+            setText(CrossSine.commandManager.getPrefix()+"say "+newChatText);
             callbackInfo.cancel();
         }
     }
@@ -144,7 +144,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     @Inject(method = "autocompletePlayerNames", at = @At("HEAD"))
     private void prioritizeClientFriends(final CallbackInfo callbackInfo) {
         foundPlayerNames.sort(
-                Comparator.comparing(s -> !LiquidBounce.fileManager.getFriendsConfig().isFriend(s)));
+                Comparator.comparing(s -> !CrossSine.fileManager.getFriendsConfig().isFriend(s)));
     }
 
     /**
@@ -155,10 +155,10 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
      */
     @Inject(method = "sendAutocompleteRequest", at = @At("HEAD"), cancellable = true)
     private void handleClientCommandCompletion(String full, final String ignored, CallbackInfo callbackInfo) {
-        if (LiquidBounce.commandManager.autoComplete(full)) {
+        if (CrossSine.commandManager.autoComplete(full)) {
             waitingOnAutocomplete = true;
 
-            String[] latestAutoComplete = LiquidBounce.commandManager.getLatestAutoComplete();
+            String[] latestAutoComplete = CrossSine.commandManager.getLatestAutoComplete();
 
             if (full.toLowerCase().endsWith(latestAutoComplete[latestAutoComplete.length - 1].toLowerCase()))
                 return;
@@ -170,7 +170,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     }
 
     private void onAutocompleteResponse(String[] autoCompleteResponse, CallbackInfo callbackInfo) {
-        if (LiquidBounce.commandManager.getLatestAutoComplete().length != 0) callbackInfo.cancel();
+        if (CrossSine.commandManager.getLatestAutoComplete().length != 0) callbackInfo.cancel();
     }
     public void draw(){
     }
@@ -185,8 +185,8 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
 
         this.inputField.drawTextBox();
 
-        if (LiquidBounce.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix()))) {
-            String[] latestAutoComplete = LiquidBounce.commandManager.getLatestAutoComplete();
+        if (CrossSine.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))) {
+            String[] latestAutoComplete = CrossSine.commandManager.getLatestAutoComplete();
             String[] textArray = inputField.getText().split(" ");
             String text = textArray[textArray.length - 1];
             Object[] result = Arrays.stream(latestAutoComplete).filter((str) -> str.toLowerCase().startsWith(text.toLowerCase())).toArray();

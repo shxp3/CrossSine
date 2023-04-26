@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.disablers.server
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
@@ -57,7 +57,7 @@ class HypixelDisabler : DisablerMode("Hypixel") {
 
         //ban warning
         if (banWarning.get() && packet is S02PacketChat && packet.chatComponent.unformattedText.contains("Cages opened!", true)) {
-            LiquidBounce.hud.addNotification(Notification("Disabler", "Speed is bannable until this notification disappears.", NotifyType.ERROR, 20000))
+            CrossSine.hud.addNotification(Notification("Disabler", "Speed is bannable until this notification disappears.", NotifyType.ERROR, 20000))
             inCage = false
         }
 

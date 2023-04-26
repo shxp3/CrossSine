@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.dropdown;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.timer.Timer;
@@ -81,7 +81,7 @@ public class Module {
             }
         }
 
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        ClientRender hud = (ClientRender) CrossSine.moduleManager.getModule(ClientRender.class);
         Color colorHUD = ClickGUIModule.generateColor();
         Color white = new Color(0xFFFFFF);
 
@@ -169,7 +169,7 @@ public class Module {
                     break;
                 case 1:
                     if (!module.getValues().isEmpty()) {
-                        final ClickGUIModule clickGUI = (ClickGUIModule) LiquidBounce.moduleManager.getModule(ClickGUIModule.class);
+                        final ClickGUIModule clickGUI = (ClickGUIModule) CrossSine.moduleManager.getModule(ClickGUIModule.class);
                         if (!opened && clickGUI.getClosePrevious.get())
                             tab.modules.forEach(module -> {
                                 if (module.opened)

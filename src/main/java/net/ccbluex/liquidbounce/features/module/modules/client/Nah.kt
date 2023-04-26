@@ -1,16 +1,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.client
 
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.client.gui.inventory.GuiInventory
-
-import net.minecraft.util.ResourceLocation
 
 @ModuleInfo(name = "LAG", category = ModuleCategory.CLIENT, canEnable = false)
 class Nah : Module() {

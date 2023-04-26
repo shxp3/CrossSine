@@ -1,8 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -14,7 +13,6 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.network.play.server.S12PacketEntityVelocity
-import org.lwjgl.input.Keyboard
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -92,7 +90,7 @@ class Velocity : Module() {
             return
         }
 
-        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !CrossSine.combatManager.inCombat)) {
             return
         }
         if (noFireValue.get() && mc.thePlayer.isBurning) return
@@ -112,7 +110,7 @@ class Velocity : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         mode.onPacket(event)
-        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !CrossSine.combatManager.inCombat)) {
             return
         }
 
@@ -172,7 +170,7 @@ class Velocity : Module() {
     }
     override val tag: String?
         get() = if (modeValue.get() == "Standard")
-            "${horizontalValue.get()} ${verticalValue.get()}"
+            "${verticalValue.get()}% ${horizontalValue.get()}%"
             else if (showModeValue.get())
             modeValue.get()
     else

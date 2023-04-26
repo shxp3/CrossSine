@@ -10,7 +10,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.special.ProxyManager;
@@ -23,11 +23,9 @@ import net.minecraft.util.MessageDeserializer;
 import net.minecraft.util.MessageDeserializer2;
 import net.minecraft.util.MessageSerializer;
 import net.minecraft.util.MessageSerializer2;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -53,7 +51,7 @@ public abstract class MixinNetworkManager {
             return;
 
         final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
-        LiquidBounce.eventManager.callEvent(event);
+        CrossSine.eventManager.callEvent(event);
 
         if(event.isCancelled())
             callback.cancel();
@@ -66,7 +64,7 @@ public abstract class MixinNetworkManager {
 
         if(!PacketUtils.INSTANCE.handleSendPacket(packet)){
             final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.SEND);
-            LiquidBounce.eventManager.callEvent(event);
+            CrossSine.eventManager.callEvent(event);
 
             if(event.isCancelled())
                 callback.cancel();

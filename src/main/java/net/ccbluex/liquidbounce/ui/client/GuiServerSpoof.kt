@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.special.ServerSpoof
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
@@ -48,7 +48,7 @@ class GuiServerSpoof(private val prevGui: GuiScreen) : GuiScreen() {
             }
         }
         updateButtonStat()
-        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.specialConfig)
+        CrossSine.fileManager.saveConfig(CrossSine.fileManager.specialConfig)
     }
 
     override fun onGuiClosed() {

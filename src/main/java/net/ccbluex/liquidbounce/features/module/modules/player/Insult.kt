@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EntityKilledEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.features.module.Module
@@ -34,7 +34,7 @@ object Insult : Module() {
     )
     private val waterMarkValue = BoolValue("WaterMark", true)
 
-    private val insultFile = File(LiquidBounce.fileManager.dir, "insult.json")
+    private val insultFile = File(CrossSine.fileManager.dir, "insult.json")
     var insultWords = mutableListOf<String>()
 
     init {

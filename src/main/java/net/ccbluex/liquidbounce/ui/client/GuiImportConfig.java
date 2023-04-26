@@ -1,11 +1,10 @@
 package net.ccbluex.liquidbounce.ui.client;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.client.button.FlatButtonRenderer;
 import net.ccbluex.liquidbounce.font.FontLoaders;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType;
-import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.render.ColorManager;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.*;
@@ -41,12 +40,12 @@ public class GuiImportConfig extends GuiScreen
                         String name = username.getText().startsWith("https://") ? username.getText().substring(8,username.getText().replaceAll("https://","").indexOf("/")+8) : username.getText().startsWith("http://") ? username.getText().substring(7,username.getText().replaceAll("http://","").indexOf("/")+7) : "No name config";
                         try {
                             long startTime = System.currentTimeMillis();
-                            LiquidBounce.hud.addNotification(new Notification("Script Manager", "Reloading Scripts...", NotifyType.INFO, 1500, 500));
-                            LiquidBounce.scriptManager.disableScripts();
-                            LiquidBounce.scriptManager.unloadScripts();
-                            LiquidBounce.scriptManager.loadScripts();
-                            LiquidBounce.scriptManager.enableScripts();
-                            LiquidBounce.hud.addNotification(new Notification("Script Manager", "Added Subscribe: " + name + " | " + url + " (" + (System.currentTimeMillis() - startTime) + "ms)", NotifyType.SUCCESS, 1500, 500));
+                            CrossSine.hud.addNotification(new Notification("Script Manager", "Reloading Scripts...", NotifyType.INFO, 1500, 500));
+                            CrossSine.scriptManager.disableScripts();
+                            CrossSine.scriptManager.unloadScripts();
+                            CrossSine.scriptManager.loadScripts();
+                            CrossSine.scriptManager.enableScripts();
+                            CrossSine.hud.addNotification(new Notification("Script Manager", "Added Subscribe: " + name + " | " + url + " (" + (System.currentTimeMillis() - startTime) + "ms)", NotifyType.SUCCESS, 1500, 500));
                             message = "Done!";
                         }catch (Exception e){
                             e.printStackTrace();
@@ -73,7 +72,7 @@ public class GuiImportConfig extends GuiScreen
     @Override
     public void drawScreen(int mouseX, int mouseY, float delta) {
         aaa[0]=Math.pow(aaa[0]+1,0.96)-1;
-        FontLoaders.F18.drawString(LiquidBounce.CLIENT_NAME,10,10,new Color(255,255,255).getRGB());
+        FontLoaders.F18.drawString(CrossSine.CLIENT_NAME,10,10,new Color(255,255,255).getRGB());
         final int h;
         final int Height = h = new ScaledResolution(this.mc).getScaledHeight();
         final int w;

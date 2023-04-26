@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.special.GradientBackground
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
@@ -62,7 +62,7 @@ class GuiBackground(val prevGui: GuiScreen) : GuiScreen() {
         typeButton.displayString = "%ui.background.gtype%: ${GradientBackground.gradientSide}"
         particlesButton.displayString = "%ui.background.particles% (${if (particles) "%ui.on%" else "%ui.off%"})"
         animatedButton.displayString = "%ui.background.ganimated% (${if (GradientBackground.animated) "%ui.on%" else "%ui.off%"})"
-        val hasCustomBackground = LiquidBounce.background != null
+        val hasCustomBackground = CrossSine.background != null
         lastButton.enabled = !hasCustomBackground
         nextButton.enabled = !hasCustomBackground
         typeButton.enabled = !hasCustomBackground
@@ -85,20 +85,20 @@ class GuiBackground(val prevGui: GuiScreen) : GuiScreen() {
                 if (file.isDirectory) return
 
                 try {
-                    Files.copy(file.toPath(), FileOutputStream(LiquidBounce.fileManager.backgroundFile))
+                    Files.copy(file.toPath(), FileOutputStream(CrossSine.fileManager.backgroundFile))
 
-                    val image = ImageIO.read(FileInputStream(LiquidBounce.fileManager.backgroundFile))
-                    LiquidBounce.background = ResourceLocation(LiquidBounce.CLIENT_NAME.lowercase() + "/background.png")
-                    mc.textureManager.loadTexture(LiquidBounce.background, DynamicTexture(image))
+                    val image = ImageIO.read(FileInputStream(CrossSine.fileManager.backgroundFile))
+                    CrossSine.background = ResourceLocation(CrossSine.CLIENT_NAME.lowercase() + "/background.png")
+                    mc.textureManager.loadTexture(CrossSine.background, DynamicTexture(image))
                 } catch (e: Exception) {
                     e.printStackTrace()
                     MiscUtils.showErrorPopup("Error", "Exception class: " + e.javaClass.name + "\nMessage: " + e.message)
-                    LiquidBounce.fileManager.backgroundFile.delete()
+                    CrossSine.fileManager.backgroundFile.delete()
                 }
             }
             4 -> {
-                LiquidBounce.background = null
-                LiquidBounce.fileManager.backgroundFile.delete()
+                CrossSine.background = null
+                CrossSine.fileManager.backgroundFile.delete()
             }
             5 -> {
                 val index = GradientBackground.gradientSides.indexOf(GradientBackground.gradientSide)
@@ -127,13 +127,13 @@ class GuiBackground(val prevGui: GuiScreen) : GuiScreen() {
 
         updateButtons()
 
-        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.specialConfig)
+        CrossSine.fileManager.saveConfig(CrossSine.fileManager.specialConfig)
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
         mc.fontRendererObj.drawCenteredString("%ui.background%", this.width / 2F, height / 8F + 5F, 4673984, true)
-        mc.fontRendererObj.drawCenteredString("%ui.background.gcurrent%: " + if(LiquidBounce.background == null) { GradientBackground.nowGradient.name } else { "Customized" },
+        mc.fontRendererObj.drawCenteredString("%ui.background.gcurrent%: " + if(CrossSine.background == null) { GradientBackground.nowGradient.name } else { "Customized" },
             this.width / 2F, height / 4 + 40 + 25 * 2f + (20 - mc.fontRendererObj.FONT_HEIGHT) * 0.5f, Color.WHITE.rgb, true)
 
         super.drawScreen(mouseX, mouseY, partialTicks)

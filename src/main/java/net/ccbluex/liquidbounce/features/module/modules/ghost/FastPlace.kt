@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.ghost
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -17,10 +17,10 @@ class FastPlace : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (LiquidBounce.moduleManager[FastPlace::class.java]!!.state && !blockonlyValue.get()) {
+        if (CrossSine.moduleManager[FastPlace::class.java]!!.state && !blockonlyValue.get()) {
             mc.rightClickDelayTimer = speedValue.get()
         } else
-            if (LiquidBounce.moduleManager[FastPlace::class.java]!!.state && blockonlyValue.get()) {
+            if (CrossSine.moduleManager[FastPlace::class.java]!!.state && blockonlyValue.get()) {
                 if (mc.thePlayer.heldItem.item is ItemBlock) {
                     mc.rightClickDelayTimer = speedValue.get()
                 }

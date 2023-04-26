@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
@@ -14,9 +14,9 @@ class GrimVelo : VelocityMode("Grim") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         when (CancelC0FMode.get().lowercase()) {
-            "oncombat" -> if (packet is C0FPacketConfirmTransaction && LiquidBounce.combatManager.inCombat) event.cancelEvent()
+            "oncombat" -> if (packet is C0FPacketConfirmTransaction && CrossSine.combatManager.inCombat) event.cancelEvent()
             "ondamage" -> if (packet is C0FPacketConfirmTransaction && mc.thePlayer.hurtTime > 0) event.cancelEvent()
-            "both" -> if (packet is C0FPacketConfirmTransaction && mc.thePlayer.hurtTime > 0 && LiquidBounce.combatManager.inCombat) event.cancelEvent()
+            "both" -> if (packet is C0FPacketConfirmTransaction && mc.thePlayer.hurtTime > 0 && CrossSine.combatManager.inCombat) event.cancelEvent()
         }
     }
 

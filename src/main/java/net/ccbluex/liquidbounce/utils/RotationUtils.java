@@ -518,7 +518,6 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     public static void setTargetRotation(final Rotation rotation) {
         setTargetRotation(rotation, 0);
     }
-
     /**
      * Set your target rotation
      *

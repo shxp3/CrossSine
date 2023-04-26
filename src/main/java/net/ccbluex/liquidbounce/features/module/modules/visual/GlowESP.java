@@ -5,14 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.visual;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.event.Render3DEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.files.animations.Animation;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.files.animations.impl.DecelerateAnimation;
 import net.ccbluex.liquidbounce.utils.math.MathUtils;
@@ -185,7 +185,7 @@ public class GlowESP extends Module {
     }
 
     private Color getColor() {
-        final HUD hudMod = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        final ClientRender hudMod = (ClientRender) CrossSine.moduleManager.getModule(ClientRender.class);
         Color[] colors = hudMod.getClientColors();
         if (hudMod.getMovingcolors().get()) {
             return colors[0];

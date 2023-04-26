@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
 import io.netty.buffer.Unpooled;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EntityDamageEvent;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.other.PackSpoofer;
@@ -76,7 +76,7 @@ public abstract class MixinNetHandlerPlayClient {
         final String url = p_handleResourcePack_1_.getURL();
         final String hash = p_handleResourcePack_1_.getHash();
 
-        final PackSpoofer ps = LiquidBounce.moduleManager.getModule(PackSpoofer.class);
+        final PackSpoofer ps = CrossSine.moduleManager.getModule(PackSpoofer.class);
 
         if (ClientFixes.blockResourcePackExploit) {
             try {
@@ -125,9 +125,9 @@ public abstract class MixinNetHandlerPlayClient {
         if (packetIn.getOpCode() == 2) {
             Entity entity = packetIn.getEntity(this.clientWorldController);
             if (entity != null) {
-                LiquidBounce.eventManager.callEvent(new EntityDamageEvent(entity));
+                CrossSine.eventManager.callEvent(new EntityDamageEvent(entity));
                 if (entity instanceof EntityPlayer)
-                    LiquidBounce.hud.handleDamage((EntityPlayer) entity);
+                    CrossSine.hud.handleDamage((EntityPlayer) entity);
             }
         }
     }
@@ -171,7 +171,7 @@ public abstract class MixinNetHandlerPlayClient {
                     (this.gameController.thePlayer.motionY + packetIn.func_149144_d()) * 8000.0,
                     (this.gameController.thePlayer.motionZ + packetIn.func_149147_e()) * 8000.0);
             PacketEvent packetEvent = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
-            LiquidBounce.eventManager.callEvent(packetEvent);
+            CrossSine.eventManager.callEvent(packetEvent);
             if (!packetEvent.isCancelled()) {
                 handleEntityVelocity(packet);
             }
@@ -249,7 +249,7 @@ public abstract class MixinNetHandlerPlayClient {
      */
     @Overwrite
     public void handlePlayerPosLook(S08PacketPlayerPosLook packetIn) {
-        final NoRotateSet noRotateSet = LiquidBounce.moduleManager.getModule(NoRotateSet.class);
+        final NoRotateSet noRotateSet = CrossSine.moduleManager.getModule(NoRotateSet.class);
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
         EntityPlayer entityplayer = this.gameController.thePlayer;
         double d0 = packetIn.getX();

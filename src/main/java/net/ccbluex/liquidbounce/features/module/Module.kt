@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
 import net.ccbluex.liquidbounce.features.module.modules.client.SoundModule
 import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
@@ -41,16 +41,16 @@ open class Module : MinecraftInstance(), Listenable {
         set(keyBind) {
             field = keyBind
 
-            if (!LiquidBounce.isStarting) {
-                LiquidBounce.configManager.smartSave()
+            if (!CrossSine.isStarting) {
+                CrossSine.configManager.smartSave()
             }
         }
     var array = true
         set(array) {
             field = array
 
-            if (!LiquidBounce.isStarting) {
-                LiquidBounce.configManager.smartSave()
+            if (!CrossSine.isStarting) {
+                CrossSine.configManager.smartSave()
             }
         }
     val canEnable: Boolean
@@ -108,13 +108,13 @@ open class Module : MinecraftInstance(), Listenable {
             onToggle(value)
 
             // Play sound and add notification
-            if (!LiquidBounce.isStarting) {
+            if (!CrossSine.isStarting) {
                 if (value) {
                     SoundModule.playSound(true)
-                    LiquidBounce.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.enable", localizedName), NotifyType.SUCCESS))
+                    CrossSine.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.enable", localizedName), NotifyType.SUCCESS))
                 } else {
                     SoundModule.playSound(false)
-                    LiquidBounce.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.disable", localizedName), NotifyType.ERROR))
+                    CrossSine.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.disable", localizedName), NotifyType.ERROR))
                 }
             }
 
@@ -131,7 +131,7 @@ open class Module : MinecraftInstance(), Listenable {
             }
 
             // Save module state
-            LiquidBounce.configManager.smartSave()
+            CrossSine.configManager.smartSave()
         }
 
     // HUD
@@ -149,7 +149,7 @@ open class Module : MinecraftInstance(), Listenable {
         }
         set(value) {
             if (slideAnimation == null || (slideAnimation != null && slideAnimation!!.to != value.toDouble())) {
-                slideAnimation = Animation(EaseUtils.EnumEasingType.valueOf(HUD.arraylistXAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(HUD.arraylistXAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), HUD.arraylistXAxisAnimSpeedValue.get() * 30L).start()
+                slideAnimation = Animation(EaseUtils.EnumEasingType.valueOf(ClientRender.arraylistXAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(ClientRender.arraylistXAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), ClientRender.arraylistXAxisAnimSpeedValue.get() * 30L).start()
             }
         }
     var yPosAnimation: Animation? = null
@@ -165,7 +165,7 @@ open class Module : MinecraftInstance(), Listenable {
         }
         set(value) {
             if (yPosAnimation == null || (yPosAnimation != null && yPosAnimation!!.to != value.toDouble())) {
-                yPosAnimation = Animation(EaseUtils.EnumEasingType.valueOf(HUD.arraylistYAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(HUD.arraylistYAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), HUD.arraylistYAxisAnimSpeedValue.get() * 30L).start()
+                yPosAnimation = Animation(EaseUtils.EnumEasingType.valueOf(ClientRender.arraylistYAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(ClientRender.arraylistYAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), ClientRender.arraylistYAxisAnimSpeedValue.get() * 30L).start()
             }
         }
 

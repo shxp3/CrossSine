@@ -4,7 +4,7 @@ import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.IPCListener
 import com.jagrosh.discordipc.entities.RichPresence
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.modules.client.RPClanguage
 import net.ccbluex.liquidbounce.ui.client.gui.GuiClickToContinue
 import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
@@ -13,7 +13,6 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.ServerUtils
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiDisconnected
-import net.minecraft.client.gui.GuiIngameMenu
 import net.minecraft.client.gui.GuiMultiplayer
 import net.minecraft.client.multiplayer.GuiConnecting
 import org.json.JSONObject
@@ -59,7 +58,7 @@ object CrossSineRPC : MinecraftInstance(){
 
     private fun update() {
         val builder = RichPresence.Builder()
-        val LanguageSelect = LiquidBounce.moduleManager[RPClanguage::class.java]!!
+        val LanguageSelect = CrossSine.moduleManager[RPClanguage::class.java]!!
         // Set playing client time
         builder.setStartTimestamp(timestamp)
 
@@ -75,7 +74,7 @@ object CrossSineRPC : MinecraftInstance(){
                     "Wow Toilet"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${CrossSine.CLIENT_NAME} ${CrossSine.CLIENT_VERSION}")
             } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
 
             builder.setSmallImage(
@@ -99,7 +98,7 @@ object CrossSineRPC : MinecraftInstance(){
             } else if (mc.currentScreen is GuiConnecting) {
                 builder.setDetails("Connecting to ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("Hi ${mc.session.username}"))
-            builder.setState("Download : " + LiquidBounce.CLIENT_WEBSITE)
+            builder.setState("Download : " + CrossSine.CLIENT_WEBSITE)
         }
         if (LanguageSelect.LanguageSelect.equals("German")) {
             // logo
@@ -113,7 +112,7 @@ object CrossSineRPC : MinecraftInstance(){
                     "Wow Toilet"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${CrossSine.CLIENT_NAME} ${CrossSine.CLIENT_VERSION}")
             } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
@@ -136,7 +135,7 @@ object CrossSineRPC : MinecraftInstance(){
             } else if (mc.currentScreen is GuiConnecting) {
                 builder.setDetails("verbinden to ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("Hallo ${mc.session.username}"))
-            builder.setState("Herunterladen : " + LiquidBounce.CLIENT_WEBSITE)
+            builder.setState("Herunterladen : " + CrossSine.CLIENT_WEBSITE)
         }
         if (LanguageSelect.LanguageSelect.equals("Thai")) {
             // logo
@@ -150,7 +149,7 @@ object CrossSineRPC : MinecraftInstance(){
                     "ห้องน้ำ~~"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${CrossSine.CLIENT_NAME} ${CrossSine.CLIENT_VERSION}")
             } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
@@ -173,7 +172,7 @@ object CrossSineRPC : MinecraftInstance(){
             } else if (mc.currentScreen is GuiConnecting) {
                 builder.setDetails("กำลังเชื่อมต่อไปยัง ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("สวัสดี ${mc.session.username}"))
-            builder.setState("ดาวน์โหลด : " + LiquidBounce.CLIENT_WEBSITE)
+            builder.setState("ดาวน์โหลด : " + CrossSine.CLIENT_WEBSITE)
         }
         if (LanguageSelect.LanguageSelect.equals("Japan")) {
             // logo
@@ -187,7 +186,7 @@ object CrossSineRPC : MinecraftInstance(){
                     "トイレ~~"
                 )
             } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${LiquidBounce.CLIENT_NAME} ${LiquidBounce.CLIENT_VERSION}")
+                builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/CrossSineNew.gif", "${CrossSine.CLIENT_NAME} ${CrossSine.CLIENT_VERSION}")
             } else builder.setLargeImage("https://gif.shapebruhbruh.repl.co/Pic/cute-anime.gif", "I dont know")
             builder.setSmallImage(
                 "https://gif.shapebruhbruh.repl.co/Pic/nahida-nahida-genshin.gif",
@@ -210,7 +209,7 @@ object CrossSineRPC : MinecraftInstance(){
             } else if (mc.currentScreen is GuiConnecting) {
                 builder.setDetails("接続中 to ${mc.currentServerData.serverIP}")
             } else builder.setDetails(("やあ ${mc.session.username}"))
-            builder.setState("ダウンロード : " + LiquidBounce.CLIENT_WEBSITE)
+            builder.setState("ダウンロード : " + CrossSine.CLIENT_WEBSITE)
         }
         // Check ipc client is connected and send rpc
         if (ipcClient.status == PipeStatus.CONNECTED) ipcClient.sendRichPresence(builder.build())

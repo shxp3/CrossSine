@@ -1,9 +1,10 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
 import net.ccbluex.liquidbounce.features.module.modules.client.GuiHUDEdit
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD.mixerDistValue
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD.mixerSecValue
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender.mixerDistValue
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender.mixerSecValue
 import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -17,8 +18,10 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.file.config.ConfigManager
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ChatAllowedCharacters
+import net.minecraft.world.gen.structure.StructureMineshaftPieces.Cross
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -107,7 +110,7 @@ class Text(
                 "health" -> return DECIMAL_FORMAT.format(mc.thePlayer.health)
                 "yaw" -> return DECIMAL_FORMAT.format(mc.thePlayer.rotationYaw)
                 "pitch" -> return DECIMAL_FORMAT.format(mc.thePlayer.rotationPitch)
-                "attackDist" -> return if (LiquidBounce.combatManager.target != null) mc.thePlayer.getDistanceToEntity(LiquidBounce.combatManager.target).toString() + " Blocks" else "Hasn't attacked"
+                "attackDist" -> return if (CrossSine.combatManager.target != null) mc.thePlayer.getDistanceToEntity(CrossSine.combatManager.target).toString() + " Blocks" else "Hasn't attacked"
             }
         }
 
@@ -122,9 +125,9 @@ class Text(
             "kills" -> StatisticsUtils.getKills().toString()
             "deaths" -> StatisticsUtils.getDeaths().toString()
             "username" -> mc.getSession().username
-            "clientName" -> LiquidBounce.CLIENT_NAME
-            "clientVersion" -> LiquidBounce.CLIENT_VERSION
-            "clientCreator" -> LiquidBounce.CLIENT_CREATOR
+            "clientName" -> CrossSine.CLIENT_NAME
+            "clientVersion" -> CrossSine.CLIENT_VERSION
+            "clientCreator" -> CrossSine.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())
@@ -132,6 +135,7 @@ class Text(
             "cps", "lcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.LEFT).toString()
             "mcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE).toString()
             "rcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT).toString()
+            "currentconfig" -> CrossSine.configManager.nowConfig
             else -> null // Null = don't replace
         }
     }
@@ -164,6 +168,24 @@ class Text(
         }
 
         return result.toString()
+    }
+
+    private fun Config() {
+        val Configlist = (CrossSine.fileManager.configsDir.listFiles() ?: return)
+            .filter { it.isFile }
+            .map {
+                val name = it.name
+                if (name.endsWith(".json")) {
+                    name.substring(0, name.length - 5)
+                } else {
+                    name
+                }
+            }
+        for (file in Configlist) {
+            if (file.equals(CrossSine.configManager.nowConfig)) {
+
+            }
+        }
     }
     fun getClientName(i: Int,i2: Int): String{
         return "CrossSine".substring(i,i2);

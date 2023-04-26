@@ -1,10 +1,8 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
-import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.ghost.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -125,10 +123,10 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
     public void onUpdateWalkingPlayer(CallbackInfo ci) {
         try {
-            final StrafeFix strafeFix = LiquidBounce.moduleManager.getModule(StrafeFix.class);
+            final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
             strafeFix.updateOverwrite();
 
-            LiquidBounce.eventManager.callEvent(new MotionEvent(EventState.PRE));
+            CrossSine.eventManager.callEvent(new MotionEvent(EventState.PRE));
 
             boolean flag = this.isSprinting();
             if (flag != this.serverSprintState) {
@@ -169,7 +167,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 double yawDiff = yaw - lastReportedYaw;
                 double pitchDiff = pitch - lastReportedPitch;
 
-                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (LiquidBounce.moduleManager.getModule(NoZeroZeroThree.class).getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20;
+                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (CrossSine.moduleManager.getModule(NoZeroZeroThree.class).getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20;
                 boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
 
                 if (this.ridingEntity == null) {
@@ -202,7 +200,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 }
             }
 
-            LiquidBounce.eventManager.callEvent(new MotionEvent(EventState.POST));
+            CrossSine.eventManager.callEvent(new MotionEvent(EventState.POST));
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -214,7 +212,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     private void onPushOutOfBlocks(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         PushOutEvent event = new PushOutEvent();
         if (this.noClip) event.cancelEvent();
-        LiquidBounce.eventManager.callEvent(event);
+        CrossSine.eventManager.callEvent(event);
 
         if (event.isCancelled())
             callbackInfoReturnable.setReturnValue(false);
@@ -246,12 +244,12 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         this.movementInput.updatePlayerMoveState();
 
-        final Sprint sprint = LiquidBounce.moduleManager.getModule(Sprint.class);
-        final NoSlow noSlow = LiquidBounce.moduleManager.getModule(NoSlow.class);
-        final KillAura killAura = LiquidBounce.moduleManager.getModule(KillAura.class);
-        final InventoryMove inventoryMove = LiquidBounce.moduleManager.getModule(InventoryMove.class);
-        final Scaffold scaffold = LiquidBounce.moduleManager.getModule(Scaffold.class);
-        final StrafeFix strafeFix = LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
+        final NoSlow noSlow = CrossSine.moduleManager.getModule(NoSlow.class);
+        final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
+        final InventoryMove inventoryMove = CrossSine.moduleManager.getModule(InventoryMove.class);
+        final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
+        final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
 
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
@@ -306,7 +304,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         //Run Sprint update before UpdateEvent
 
-        LiquidBounce.eventManager.callEvent(new UpdateEvent());
+        CrossSine.eventManager.callEvent(new UpdateEvent());
 
         //Update Portal Effects state (Vanilla)
 
@@ -363,7 +361,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (isCurrentUsingItem) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
-            LiquidBounce.eventManager.callEvent(slowDownEvent);
+            CrossSine.eventManager.callEvent(slowDownEvent);
             this.movementInput.moveStrafe *= slowDownEvent.getStrafe();
             this.movementInput.moveForward *= slowDownEvent.getForward();
         }
@@ -392,13 +390,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         //Overwrite: Scaffold
 
-        if (scaffold.getState() && scaffold.getScaffoldModeValue().equals("blatant")) {
+        if (scaffold.getState()) {
             this.setSprinting(scaffold.getCanSprint());
-        }
-        if (scaffold.getState() && scaffold.getScaffoldModeValue().equals("blatant")) {
-            if (scaffold.getTowerStatus() && scaffold.getTowerSprintValue().get()) {
-                this.setSprinting(scaffold.getCanSprint());
-            }
         }
 
         attemptToggle = false;
@@ -470,7 +463,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Override
     public void moveEntity(double x, double y, double z) {
         MoveEvent moveEvent = new MoveEvent(x, y, z);
-        LiquidBounce.eventManager.callEvent(moveEvent);
+        CrossSine.eventManager.callEvent(moveEvent);
 
         if (moveEvent.isCancelled())
             return;
@@ -573,7 +566,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
             if (this.stepHeight > 0.0F && flag1 && (d3 != x || d5 != z)) {
                 StepEvent stepEvent = new StepEvent(this.stepHeight, EventState.PRE);
-                LiquidBounce.eventManager.callEvent(stepEvent);
+                CrossSine.eventManager.callEvent(stepEvent);
                 double d11 = x;
                 double d7 = y;
                 double d8 = z;
@@ -653,7 +646,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                     z = d8;
                     this.setEntityBoundingBox(axisalignedbb3);
                 } else {
-                    LiquidBounce.eventManager.callEvent(new StepEvent(-1f, EventState.POST));
+                    CrossSine.eventManager.callEvent(new StepEvent(-1f, EventState.POST));
                 }
             }
 

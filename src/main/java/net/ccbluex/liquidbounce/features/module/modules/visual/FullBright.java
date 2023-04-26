@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.visual;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.UpdateEvent;
@@ -34,7 +34,7 @@ public class FullBright extends Module {
 
     @EventTarget(ignoreCondition = true)
     public void onUpdate(final UpdateEvent event) {
-        if (getState() || LiquidBounce.moduleManager.getModule(XRay.class).getState()) {
+        if (getState() || CrossSine.moduleManager.getModule(XRay.class).getState()) {
             switch(modeValue.get().toLowerCase()) {
                 case "gamma":
                     if(mc.gameSettings.gammaSetting <= 100F)

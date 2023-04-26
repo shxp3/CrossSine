@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -238,7 +238,7 @@ class Step : Module() {
 
         if (event.eventState == EventState.PRE) {
             // Phase should disable step
-            if (LiquidBounce.moduleManager[Phase::class.java]!!.state) {
+            if (CrossSine.moduleManager[Phase::class.java]!!.state) {
                 event.stepHeight = 0F
                 return
             }

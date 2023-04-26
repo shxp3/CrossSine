@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -16,7 +16,6 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.gui.inventory.GuiInventory
-import net.minecraft.entity.projectile.EntityFireball
 import net.minecraft.init.Items
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.*
@@ -184,7 +183,7 @@ class AutoBot : Module() {
                 "custom" -> autoPotThrowAngle = autoPotThrowAngleOption.get().toFloat()
             }
 
-            if (autoPotNotCombatValue.get() && LiquidBounce.combatManager.inCombat) return
+            if (autoPotNotCombatValue.get() && CrossSine.combatManager.inCombat) return
             if (autoPotOnGround.get() && !mc.thePlayer.onGround) return
             
             if (!autoPotOnGround.get()) {
@@ -283,7 +282,7 @@ class AutoBot : Module() {
         }
 
         if(autoBowValue.get()) {
-            val bowAimbot = LiquidBounce.moduleManager[BowAimbot::class.java]!!
+            val bowAimbot = CrossSine.moduleManager[BowAimbot::class.java]!!
 
             if (mc.thePlayer.isUsingItem && mc.thePlayer.heldItem?.item == Items.bow &&
                 mc.thePlayer.itemInUseDuration > 20 && (!autoBowWaitForBowAimValue.get() || !bowAimbot.state || bowAimbot.hasTarget())) {

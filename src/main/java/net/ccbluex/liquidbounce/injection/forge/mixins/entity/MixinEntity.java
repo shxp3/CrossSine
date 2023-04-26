@@ -5,14 +5,12 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.FPSBoost;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
-import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.injection.access.IWorld;
-import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
@@ -185,8 +183,8 @@ public abstract class MixinEntity {
             return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
-        final StrafeFix strafeFix = LiquidBounce.moduleManager.getModule(StrafeFix.class);
-        LiquidBounce.eventManager.callEvent(strafeEvent);
+        final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
+        CrossSine.eventManager.callEvent(strafeEvent);
         if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
             strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
         }
@@ -201,7 +199,7 @@ public abstract class MixinEntity {
             cancellable = true
     )
     public void getCollisionBorderSize(CallbackInfoReturnable callbackInfoReturnable) {
-        if (LiquidBounce.moduleManager.getModule(HitBox.class).getState()) {
+        if (CrossSine.moduleManager.getModule(HitBox.class).getState()) {
             double hitBox = HitBox.getSize();
             callbackInfoReturnable.setReturnValue((float) hitBox);
             callbackInfoReturnable.cancel();

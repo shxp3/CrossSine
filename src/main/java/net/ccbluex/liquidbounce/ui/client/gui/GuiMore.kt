@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.gui
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.client.GuiProxySelect
 import net.ccbluex.liquidbounce.ui.client.GuiServerSpoof
@@ -26,7 +26,7 @@ class GuiMore(private val prevGui: GuiScreen) : GuiScreen() {
                 I18n.format("Server Spoof"),
                 null,
                 2,
-                if (LiquidBounce.Darkmode.equals(true)) { Color(20, 20, 20, 170) } else { Color(255, 255, 255, 170) }
+                if (CrossSine.Darkmode.equals(true)) { Color(20, 20, 20, 170) } else { Color(255, 255, 255, 170) }
             )
         )
         this.buttonList.add(
@@ -39,7 +39,7 @@ class GuiMore(private val prevGui: GuiScreen) : GuiScreen() {
                 I18n.format("Proxy"),
                 null,
                 2,
-                if (LiquidBounce.Darkmode.equals(true)) { Color(20, 20, 20, 180) } else { Color(255, 255, 255, 170) }
+                if (CrossSine.Darkmode.equals(true)) { Color(20, 20, 20, 180) } else { Color(255, 255, 255, 170) }
             )
         )
         drawed = true
@@ -56,7 +56,7 @@ class GuiMore(private val prevGui: GuiScreen) : GuiScreen() {
         drawBackground(1)
         val defaultHeight = (this.height).toFloat()
         val defaultWidth = (this.width).toFloat()
-        if (LiquidBounce.Darkmode.equals(true)) { RenderUtils.drawRect(0F, 0F, defaultWidth, defaultHeight, Color(0, 0, 0, 0)) } else { RenderUtils.drawRect(0F, 0F, defaultWidth, defaultHeight, Color(0, 0, 0, 100)) }
+        if (CrossSine.Darkmode.equals(true)) { RenderUtils.drawRect(0F, 0F, defaultWidth, defaultHeight, Color(0, 0, 0, 0)) } else { RenderUtils.drawRect(0F, 0F, defaultWidth, defaultHeight, Color(0, 0, 0, 100)) }
         val i = 0
         val defaultHeight1 = (this.height).toDouble()
         val defaultWidth1 = (this.width).toDouble()

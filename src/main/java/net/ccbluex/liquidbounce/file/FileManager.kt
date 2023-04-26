@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.file
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.macro.Macro
 import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.file.configs.*
@@ -156,7 +156,7 @@ class FileManager : MinecraftInstance() {
      * @param ignoreStarting check starting
      */
     private fun saveConfig(config: FileConfig, ignoreStarting: Boolean) {
-        if (!ignoreStarting && LiquidBounce.isStarting) return
+        if (!ignoreStarting && CrossSine.isStarting) return
         try {
             if (!config.hasConfig()) config.createConfig()
             config.saveConfigFile(config.saveConfig())
@@ -173,8 +173,8 @@ class FileManager : MinecraftInstance() {
         if (backgroundFile.exists()) {
             try {
                 val bufferedImage = ImageIO.read(FileInputStream(backgroundFile)) ?: return
-                LiquidBounce.background = ResourceLocation(LiquidBounce.CLIENT_NAME.lowercase() + "/background.png")
-                mc.textureManager.loadTexture(LiquidBounce.background, DynamicTexture(bufferedImage))
+                CrossSine.background = ResourceLocation(CrossSine.CLIENT_NAME.lowercase() + "/background.png")
+                mc.textureManager.loadTexture(CrossSine.background, DynamicTexture(bufferedImage))
                 ClientUtils.logInfo("[FileManager] Loaded background.")
             } catch (e: Exception) {
                 ClientUtils.logError("[FileManager] Failed to load background.", e)
@@ -192,7 +192,7 @@ class FileManager : MinecraftInstance() {
             try {
                 val jsonElement = JsonParser().parse(BufferedReader(fr))
                 for ((key, value) in jsonElement.asJsonObject.entrySet()) {
-                    val module = LiquidBounce.moduleManager.getModule(key)
+                    val module = CrossSine.moduleManager.getModule(key)
                     if (module != null) {
                         val jsonModule = value as JsonObject
                         module.state = jsonModule["State"].asBoolean
@@ -220,7 +220,7 @@ class FileManager : MinecraftInstance() {
             try {
                 val jsonObject = JsonParser().parse(BufferedReader(fr)).asJsonObject
                 for ((key, value) in jsonObject.entrySet()) {
-                    val module = LiquidBounce.moduleManager.getModule(key)
+                    val module = CrossSine.moduleManager.getModule(key)
                     if (module != null) {
                         val jsonModule = value as JsonObject
                         for (moduleValue in module.values) {
@@ -248,7 +248,7 @@ class FileManager : MinecraftInstance() {
                 val jsonArray = JsonParser().parse(BufferedReader(fr)).asJsonArray
                 for (jsonElement in jsonArray) {
                     val macroJson = jsonElement.asJsonObject
-                    LiquidBounce.macroManager.macros
+                    CrossSine.macroManager.macros
                         .add(Macro(macroJson["key"].asInt, macroJson["command"].asString))
                 }
             } catch (t: Throwable) {

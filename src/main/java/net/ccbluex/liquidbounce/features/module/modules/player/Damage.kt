@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -39,7 +39,7 @@ class Damage : Module() {
         when (modeValue.get().lowercase()) {
             "fake" -> {
                 val event = PacketEvent(S19PacketEntityStatus(mc.thePlayer, 2.toByte()), PacketEvent.Type.RECEIVE)
-                LiquidBounce.eventManager.callEvent(event)
+                CrossSine.eventManager.callEvent(event)
                 if (!event.isCancelled) {
                     mc.thePlayer.handleStatusUpdate(2.toByte())
                 }

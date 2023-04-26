@@ -14,8 +14,8 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 @ModuleInfo(name = "LegitVelocity", category = ModuleCategory.GHOST)
 class LegitVelocity : Module() {
 
-    val horizontalValue = IntegerValue("Horizontal", 0, 0, 100)
-    val verticalValue = IntegerValue("Vertical", 0, 0, 100)
+    val horizontalValue = FloatValue("Horizontal", 0F, 0F, 1F)
+    val verticalValue = FloatValue("Vertical", 0F, 0F, 1F)
 
     fun onVelocityPacket(event: PacketEvent) {
         val packet = event.packet
@@ -23,13 +23,13 @@ class LegitVelocity : Module() {
             val horizontal = horizontalValue.get()
             val vertical = verticalValue.get()
 
-            if (horizontal.toFloat() == 0F && vertical.toFloat() == 0F) {
+            if (horizontal.toInt() == 0 && vertical.toInt() == 0) {
                 event.cancelEvent()
             }
 
-            packet.motionX = (packet.getMotionX() * horizontal)
-            packet.motionY = (packet.getMotionY() * vertical)
-            packet.motionZ = (packet.getMotionZ() * horizontal)
+            packet.motionX = (packet.getMotionX() * horizontal).toInt()
+            packet.motionY = (packet.getMotionY() * vertical).toInt()
+            packet.motionZ = (packet.getMotionZ() * horizontal).toInt()
         }
     }
 }

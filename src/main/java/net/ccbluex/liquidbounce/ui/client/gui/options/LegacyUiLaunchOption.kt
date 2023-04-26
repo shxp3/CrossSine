@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.gui.options
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.ui.client.gui.*
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.ClickGui
 import java.io.File
@@ -15,20 +15,20 @@ object modernuiLaunchOption : LaunchOption() {
     lateinit var clickGuiConfig: ClickGuiConfig
 
     override fun start() {
-        LiquidBounce.mainMenu = GuiClickToContinue()
-        LiquidBounce.moduleManager.registerModule(ClickGUIModule())
+        CrossSine.mainMenu = GuiClickToContinue()
+        CrossSine.moduleManager.registerModule(ClickGUIModule())
 
         clickGui = ClickGui()
         clickGuiConfig = ClickGuiConfig(
             File(
-                LiquidBounce.fileManager.dir,
+                CrossSine.fileManager.dir,
                 "clickgui.json"
             )
         )
-        LiquidBounce.fileManager.loadConfig(clickGuiConfig)
+        CrossSine.fileManager.loadConfig(clickGuiConfig)
     }
 
     override fun stop() {
-        LiquidBounce.fileManager.saveConfig(clickGuiConfig)
+        CrossSine.fileManager.saveConfig(clickGuiConfig)
     }
 }

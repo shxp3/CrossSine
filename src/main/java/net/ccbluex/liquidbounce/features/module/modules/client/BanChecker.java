@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
@@ -55,19 +55,19 @@ public class BanChecker extends Module {
 
                                 checkTag = STAFF_BAN_LAST_MIN+"";
 
-                                if (LiquidBounce.moduleManager.getModule(BanChecker.class).getState() && alertValue.get() && mc.thePlayer != null && (!serverCheckValue.get() || isOnHypixel()))
+                                if (CrossSine.moduleManager.getModule(BanChecker.class).getState() && alertValue.get() && mc.thePlayer != null && (!serverCheckValue.get() || isOnHypixel()))
                                     if (STAFF_BAN_LAST_MIN > 0)
-                                        LiquidBounce.hud.addNotification(new Notification("BanChecker","Staffs banned " + STAFF_BAN_LAST_MIN + " players in the last minute!", STAFF_BAN_LAST_MIN > 3 ? NotifyType.ERROR : NotifyType.WARNING, 1500, alertTimeValue.get() * 500));
+                                        CrossSine.hud.addNotification(new Notification("BanChecker","Staffs banned " + STAFF_BAN_LAST_MIN + " players in the last minute!", STAFF_BAN_LAST_MIN > 3 ? NotifyType.ERROR : NotifyType.WARNING, 1500, alertTimeValue.get() * 500));
                                     else
-                                        LiquidBounce.hud.addNotification(new Notification("BanChecker","Staffs didn't ban any player in the last minute.", NotifyType.SUCCESS, 1500, alertTimeValue.get() * 500));
+                                        CrossSine.hud.addNotification(new Notification("BanChecker","Staffs didn't ban any player in the last minute.", NotifyType.SUCCESS, 1500, alertTimeValue.get() * 500));
 
                                 // watchdog ban doesnt matter, open an issue if you want to add it.
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
 
-                            if (LiquidBounce.moduleManager.getModule(BanChecker.class).getState() && alertValue.get() && mc.thePlayer != null && (!serverCheckValue.get() || isOnHypixel()))
-                                LiquidBounce.hud.addNotification(new Notification("BanChecker","An error has occurred.", NotifyType.ERROR, 1500, alertTimeValue.get() * 500));
+                            if (CrossSine.moduleManager.getModule(BanChecker.class).getState() && alertValue.get() && mc.thePlayer != null && (!serverCheckValue.get() || isOnHypixel()))
+                                CrossSine.hud.addNotification(new Notification("BanChecker","An error has occurred.", NotifyType.ERROR, 1500, alertTimeValue.get() * 500));
                         }
                         checkTimer.reset();
                     }

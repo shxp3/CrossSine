@@ -11,25 +11,23 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.play.server.S03PacketTimeUpdate
-import net.minecraft.network.play.server.S2BPacketChangeGameState
 
-@ModuleInfo(name = "WorldTime", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "WorldTime", category = ModuleCategory.WORLD)
 class WorldTime : Module() {
-   private val customWorldTimeValue = IntegerValue("CustomTime", 1000, 0, 24000)
-
-
-    var i = 0L
-
-    override fun onDisable() {
-        i = 0
-    }
+    private val customWorldTimeValue = IntegerValue("CustomTime", 1000, 0, 24000)
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         mc.theWorld.worldTime = customWorldTimeValue.get().toLong()
+    }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+        if (packet is S03PacketTimeUpdate) {
+            event.cancelEvent()
+        }
     }
 }

@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager;

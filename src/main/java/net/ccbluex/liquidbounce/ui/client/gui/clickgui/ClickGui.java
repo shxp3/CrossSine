@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
@@ -50,7 +50,7 @@ public class ClickGui extends GuiScreen {
 
                 @Override
                 public void setupItems() {
-                    for (Module module : LiquidBounce.moduleManager.getModules())
+                    for (Module module : CrossSine.moduleManager.getModules())
                         if (module.getCategory() == category)
                             getElements().add(new ModuleElement(module));
                 }
@@ -63,18 +63,18 @@ public class ClickGui extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         float trueCguiScale;
-        if (LiquidBounce.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
+        if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
             trueCguiScale = 1;
-        } else if(LiquidBounce.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
+        } else if(CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
             trueCguiScale = 1;
         } else {
-            trueCguiScale = LiquidBounce.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
+            trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
         }
         final double scale = trueCguiScale;
         if (progress < 1) progress += 0.1 * (1 - partialTicks);
         else progress = 1;
 
-        switch (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
+        switch (Objects.requireNonNull(CrossSine.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
             case "liquidbounce":
             case "ziul":
                 slide = EaseUtils.easeOutBack(progress);
@@ -101,7 +101,7 @@ public class ClickGui extends GuiScreen {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
 
-        switch (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUIModule.class)).backgroundValue.get()) {
+        switch (Objects.requireNonNull(CrossSine.moduleManager.getModule(ClickGUIModule.class)).backgroundValue.get()) {
             case "Default":
                 drawDefaultBackground();
                 break;
@@ -116,7 +116,7 @@ public class ClickGui extends GuiScreen {
         int defaultHeight1 = (this.height);
         int defaultWidth1 = (this.width);
 
-        switch (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
+        switch (Objects.requireNonNull(CrossSine.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
             case "bread":
                 GlStateManager.translate(0, (1.0 - slide) * height * 2.0, 0);
                 GlStateManager.scale(scale, scale + (1.0 - slide) * 2.0, scale);
@@ -171,7 +171,7 @@ public class ClickGui extends GuiScreen {
         GlStateManager.disableLighting();
         RenderHelper.disableStandardItemLighting();
 
-        switch (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
+        switch (Objects.requireNonNull(CrossSine.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
             case "bread":
             case "slide":
             case "liquidbounce":
@@ -202,12 +202,12 @@ public class ClickGui extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         float trueCguiScale;
-        if (LiquidBounce.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
+        if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
             trueCguiScale = 1;
-        } else if(LiquidBounce.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
+        } else if(CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
             trueCguiScale = 1;
         } else {
-            trueCguiScale = LiquidBounce.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
+            trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
         }
         final double scale = trueCguiScale;
 
@@ -238,12 +238,12 @@ public class ClickGui extends GuiScreen {
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         float trueCguiScale;
-        if (LiquidBounce.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
+        if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
             trueCguiScale = 1;
-        } else if(LiquidBounce.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
+        } else if(CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
             trueCguiScale = 1;
         } else {
-            trueCguiScale = LiquidBounce.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
+            trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
         }
         final double scale = trueCguiScale;
 
@@ -290,7 +290,7 @@ public class ClickGui extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        LiquidBounce.fileManager.saveConfig(modernuiLaunchOption.getClickGuiConfig());
+        CrossSine.fileManager.saveConfig(modernuiLaunchOption.getClickGuiConfig());
         slide = 0;
         progress = 0;
     }

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.other
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -55,7 +55,7 @@ class AutoGG : Module() {
     fun onUpdate(event: UpdateEvent) {
         if(winning) {
             if(timer.hasTimePassed(delayValue.get().toLong())){
-                LiquidBounce.hud.addNotification(Notification("AutoGG", "Sent GG at chat", NotifyType.SUCCESS, 1000, 500))
+                CrossSine.hud.addNotification(Notification("AutoGG", "Sent GG at chat", NotifyType.SUCCESS, 1000, 500))
                 mc.thePlayer.sendChatMessage(ggMessageValue.get())
                 timer.reset()
                 winning = false

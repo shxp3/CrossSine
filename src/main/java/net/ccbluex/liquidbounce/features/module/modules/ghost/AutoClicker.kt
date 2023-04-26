@@ -20,7 +20,7 @@ import kotlin.random.Random
 @ModuleInfo(name = "AutoClicker", category = ModuleCategory.GHOST)
 class AutoClicker : Module() {
 
-    private val modeValue = ListValue("Mode", arrayOf("Normal", "Gaussian", "LegitJitter", "LegitButterfly"), "Normal")
+    private val modeValue = ListValue("Mode", arrayOf("Normal", "LegitJitter", "LegitButterfly"), "Normal")
     private val legitJitterValue = ListValue("LegitJitterMode", arrayOf("Jitter1", "Jitter2", "Jitter3", "SimpleJitter"), "Jitter1").displayable {modeValue.equals("LegitJitter")}
     private val legitButterflyValue = ListValue("LegitButterflyMode", arrayOf("Butterfly1", "Butterfly2"), "Butterfly1").displayable {modeValue.equals("LegitButterfly")}
 
@@ -272,4 +272,7 @@ class AutoClicker : Module() {
         }
         return cDelay
     }
+
+    override val tag: String?
+        get() = "${normalMinCPSValue.get()} - ${normalMaxCPSValue.get()}"
 }

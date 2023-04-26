@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
@@ -76,23 +76,21 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
 
     @Overwrite
-    protected float updateDistance(float p_110146_1_, float p_110146_2_) {
+    protected float updateDistance(float p_1101461, float p_1101462) {
         float rotationYaw = this.rotationYaw;
-        if ((EntityLivingBase) (Object)this instanceof EntityPlayerSP) {
-            HUD hud = LiquidBounce.moduleManager.getModule(HUD.class);
-            if (hud.getState() && hud.shouldRotate()) {
-                if (hud.getPlayerYaw() != null) {
-                    if (this.swingProgress > 0F){
-                        p_110146_1_ = hud.getPlayerYaw();
-                    }
-                    rotationYaw = hud.getPlayerYaw();
+        ClientRender clientRender = CrossSine.moduleManager.getModule(ClientRender.class);
+        if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
+            if (clientRender.getState()) {
+                if (clientRender.getPlayerYaw() != null) {
+                    rotationYaw = clientRender.getPlayerYaw();
                 }
             }
         }
-        float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
+        float f = MathHelper.wrapAngleTo180_float(p_1101461 - this.renderYawOffset);
         this.renderYawOffset += f * 0.3F;
         float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
-        boolean flag = f1 < -90.0F || f1 >= 90.0F;
+        boolean flag = f1 < 75.0F || f1 >= 75.0F;
+
         if (f1 < -75.0F) {
             f1 = -75.0F;
         }
@@ -107,10 +105,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         }
 
         if (flag) {
-            p_110146_2_ *= -1.0F;
+            p_1101462 *= -1.0F;
         }
 
-        return p_110146_2_;
+        return p_1101462;
     }
     /**
      * @author CCBlueX
@@ -132,13 +130,13 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
          */
 
         final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion());
-        LiquidBounce.eventManager.callEvent(jumpEvent);
+        CrossSine.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
 
         this.motionY = jumpEvent.getMotion();
-        final Sprint sprint = LiquidBounce.moduleManager.getModule(Sprint.class);
-        final StrafeFix strafeFix = LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
+        final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
 
         if (this.isSprinting()) {
             float fixedYaw = this.rotationYaw;
@@ -157,7 +155,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Inject(method = "onLivingUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;isJumping:Z", ordinal = 1))
     private void onJumpSection(CallbackInfo callbackInfo) {
-        final Jesus jesus = LiquidBounce.moduleManager.getModule(Jesus.class);
+        final Jesus jesus = CrossSine.moduleManager.getModule(Jesus.class);
 
         if (jesus.getState() && !isJumping && !isSneaking() && isInWater() &&
                 jesus.getModeValue().equals("Legit")) {
@@ -167,14 +165,14 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @ModifyConstant(method = "onLivingUpdate", constant = @Constant(doubleValue = 0.005D))
     private double ViaVersion_MovementThreshold(double constant) {
-        if (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ViaVersionFix.class)).getState())
+        if (Objects.requireNonNull(CrossSine.moduleManager.getModule(ViaVersionFix.class)).getState())
             return 0.003D;
         return 0.005D;
     }
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))
     private void headLiving(CallbackInfo callbackInfo) {
-        final JumpDelayChanger jumpDelayChanger = LiquidBounce.moduleManager.getModule(JumpDelayChanger.class);
+        final JumpDelayChanger jumpDelayChanger = CrossSine.moduleManager.getModule(JumpDelayChanger.class);
         if (jumpDelayChanger.getState())
         jumpTicks = jumpDelayChanger.getJumpDelayValue().get();
     }
@@ -187,7 +185,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Inject(method = "isPotionActive(Lnet/minecraft/potion/Potion;)Z", at = @At("HEAD"), cancellable = true)
     private void isPotionActive(Potion p_isPotionActive_1_, final CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        final NoRender NoRender = LiquidBounce.moduleManager.getModule(NoRender.class);
+        final NoRender NoRender = CrossSine.moduleManager.getModule(NoRender.class);
 
         if ((p_isPotionActive_1_ == Potion.confusion || p_isPotionActive_1_ == Potion.blindness) && NoRender.getState() && NoRender.getConfusionEffect().get())
             callbackInfoReturnable.setReturnValue(false);

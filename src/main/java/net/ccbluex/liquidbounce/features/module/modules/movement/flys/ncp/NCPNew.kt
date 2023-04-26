@@ -18,10 +18,6 @@ import java.util.concurrent.LinkedBlockingQueue
 class NCPNew : FlyMode("NCPNew") {
     private val dotimerValue = BoolValue("LowTimer", true)
     private var canBoost = false
-    private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayServer>>()
-    private var fakePlayer: EntityOtherPlayerMP? = null
-    private var disableLogger = false
-    private val positions = LinkedList<DoubleArray>()
     override fun onEnable() {
         canBoost = true
     }
@@ -41,6 +37,9 @@ class NCPNew : FlyMode("NCPNew") {
             MovementUtils.strafe(MovementUtils.getSpeed() * if (canBoost) 40f else 1f)
             if (canBoost) canBoost = false
         }
+        if (mc.thePlayer.fallDistance > 0.001) {
+            mc.thePlayer.motionY -= 0.01
+        }
     }
 
     override fun onJump(event: JumpEvent) {
@@ -51,16 +50,4 @@ class NCPNew : FlyMode("NCPNew") {
         mc.timer.timerSpeed = 1.0F
     }
 
-    private fun blink() {
-        try {
-            disableLogger = true
-            while (!packets.isEmpty()) {
-                mc.netHandler.addToSendQueue(packets.take())
-            }
-            disableLogger = false
-        } finally {
-            disableLogger = false
-        }
-        synchronized(positions) { positions.clear() }
-    }
 }

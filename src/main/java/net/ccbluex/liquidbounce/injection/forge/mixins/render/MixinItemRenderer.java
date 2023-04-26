@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.minecraft.client.Minecraft;
@@ -107,7 +107,7 @@ public abstract class MixinItemRenderer {
             GlStateManager.pushMatrix();
 
             if (this.itemToRender != null) {
-                final boolean displayBlocking = LiquidBounce.moduleManager.getModule(KillAura.class).getDisplayBlocking();
+                final boolean displayBlocking = CrossSine.moduleManager.getModule(KillAura.class).getDisplayBlocking();
 
                 if (this.itemToRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
@@ -401,7 +401,7 @@ public abstract class MixinItemRenderer {
             GlStateManager.pushMatrix();
 
             if (this.itemToRender != null) {
-                final boolean displayBlocking = LiquidBounce.moduleManager.getModule(KillAura.class).getDisplayBlocking();
+                final boolean displayBlocking = CrossSine.moduleManager.getModule(KillAura.class).getDisplayBlocking();
 
                 if (this.itemToRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
@@ -608,7 +608,7 @@ public abstract class MixinItemRenderer {
      */
     @Inject(method = "renderFireInFirstPerson", at = @At("HEAD"), cancellable = true)
     private void renderFireInFirstPerson(final CallbackInfo callbackInfo) {
-        final NoRender NoRender = LiquidBounce.moduleManager.getModule(NoRender.class);
+        final NoRender NoRender = CrossSine.moduleManager.getModule(NoRender.class);
 
         if (NoRender.getState() && NoRender.getFireEffect().get()) {
             //vanilla's method

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.TextEvent;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.minecraft.client.gui.FontRenderer;
@@ -19,21 +19,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinFontRenderer {
     @ModifyVariable(method = "renderString", at = @At("HEAD"), ordinal = 0)
     private String renderString(String string) {
-        if (string == null || LiquidBounce.eventManager == null)
+        if (string == null || CrossSine.eventManager == null)
             return string;
 
         final TextEvent textEvent = new TextEvent(string);
-        LiquidBounce.eventManager.callEvent(textEvent);
+        CrossSine.eventManager.callEvent(textEvent);
         return textEvent.getText();
     }
 
     @ModifyVariable(method = "getStringWidth", at = @At("HEAD"), ordinal = 0)
     private String getStringWidth(String string) {
-        if (string == null || LiquidBounce.eventManager == null)
+        if (string == null || CrossSine.eventManager == null)
             return string;
 
         final TextEvent textEvent = new TextEvent(string);
-        LiquidBounce.eventManager.callEvent(textEvent);
+        CrossSine.eventManager.callEvent(textEvent);
         return textEvent.getText();
     }
     // the below brreaks if u remove it idk why

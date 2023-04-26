@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -111,15 +111,15 @@ class Btn : GuiButton {
         RenderUtils.drawRoundedCornerRect(
             xPosition.toFloat()-0.7f, yPosition.toFloat()-0.7f + yOffset, (xPosition + width).toFloat()+0.7f, (
                     yPosition + height).toFloat()+0.7f + yOffset,
-            if (image != null) width.toFloat()/2 else 2f, if(LiquidBounce.Darkmode) Color(255,255,255, 30).rgb else Color(0,0,0, 70).rgb
+            if (image != null) width.toFloat()/2 else 2f, if(CrossSine.Darkmode) Color(255,255,255, 30).rgb else Color(0,0,0, 70).rgb
         )
         RenderUtils.drawRoundedCornerRect(
             xPosition.toFloat()-0.5f, yPosition.toFloat()-0.5f + yOffset, (xPosition + width).toFloat()+0.5f, (
-                    yPosition + height).toFloat()+0.5f + yOffset, if (image != null) width.toFloat()/2 else 3f, if(LiquidBounce.Darkmode) Color(255,255,255, 110+(wi*10)).rgb else  Color(0,0,0, 120+(wi*10)).rgb
+                    yPosition + height).toFloat()+0.5f + yOffset, if (image != null) width.toFloat()/2 else 3f, if(CrossSine.Darkmode) Color(255,255,255, 110+(wi*10)).rgb else  Color(0,0,0, 120+(wi*10)).rgb
         )
         RenderUtils.drawRoundedCornerRect(
             xPosition.toFloat(), yPosition.toFloat() + yOffset, (xPosition + width).toFloat(), (
-                    yPosition + height).toFloat() + yOffset, if (image != null) width.toFloat()/2 else 3f,if(LiquidBounce.Darkmode) Color(255,255,255, 80).rgb else Color(0,0,0, 50).rgb
+                    yPosition + height).toFloat() + yOffset, if (image != null) width.toFloat()/2 else 3f,if(CrossSine.Darkmode) Color(255,255,255, 80).rgb else Color(0,0,0, 50).rgb
         )
         GL11.glColor3f(2.55f, 2.55f, 2.55f)
         mouseDragged(mc, mouseX, mouseY)
@@ -142,14 +142,14 @@ class Btn : GuiButton {
                     (
                             yPosition + font.height).toFloat() + 0.5f  + height + 5 + 8,
                     3f,
-                    if(LiquidBounce.Darkmode) Color(255, 255, 255, (150*percent).toInt()).rgb else Color(0, 0, 0, (150*percent).toInt()).rgb
+                    if(CrossSine.Darkmode) Color(255, 255, 255, (150*percent).toInt()).rgb else Color(0, 0, 0, (150*percent).toInt()).rgb
                 )
                 FontLoaders.C16.DisplayFonts(
                     displayString,
                     xPosition + width / 2 - (FontLoaders.C16.DisplayFontWidths(displayString,FontLoaders.C16) / 2).toFloat(),
                     (
                             yPosition + font.height / 2 - 3).toFloat() + height + 5 + 3,
-                    if(LiquidBounce.Darkmode) Color(50, 50, 50, (254*percent).toInt()).rgb else Color(180, 180, 180, (254*percent).toInt()).rgb,FontLoaders.C16
+                    if(CrossSine.Darkmode) Color(50, 50, 50, (254*percent).toInt()).rgb else Color(180, 180, 180, (254*percent).toInt()).rgb,FontLoaders.C16
                 )
             }
         }else{
@@ -157,7 +157,7 @@ class Btn : GuiButton {
             val s = font.DisplayFonts(
                 displayString,
                 xPosition + width / 2 - (font.DisplayFontWidths(displayString,font) / 2).toFloat(), (
-                        yPosition + height / 2 - 4).toFloat() + yOffset, if(LiquidBounce.Darkmode) Color(50, 50, 50, 255).rgb else  Color(180, 180, 180, 255).rgb,FontLoaders.C16
+                        yPosition + height / 2 - 4).toFloat() + yOffset, if(CrossSine.Darkmode) Color(50, 50, 50, 255).rgb else  Color(180, 180, 180, 255).rgb,FontLoaders.C16
             )
         }
         GL11.glPopAttrib()

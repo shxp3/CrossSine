@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.disablers.verus
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -28,7 +28,7 @@ class OldVerus: DisablerMode("OldVerus") {
     private var verus2Stat = false
     private var modified = false
     private val repeatTimes: Int
-        get() = if(LiquidBounce.combatManager.inCombat) { verusRepeatTimesFightingValue.get() } else { verusRepeatTimesValue.get() }
+        get() = if(CrossSine.combatManager.inCombat) { verusRepeatTimesFightingValue.get() } else { verusRepeatTimesValue.get() }
     @EventTarget
     override fun onUpdate(event: UpdateEvent) {
         if(fakeLagDelay.hasTimePassed(490L)) {

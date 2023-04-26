@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
@@ -29,7 +29,7 @@ class IntaveVelo : VelocityMode("Intave") {
 
             // Reduce Y
             if (mc.thePlayer.hurtResistantTime > 20 && IntaveYReducerValue.get() &&
-                !LiquidBounce.moduleManager[Speed::class.java]!!.state) {
+                !CrossSine.moduleManager[Speed::class.java]!!.state) {
                 mc.thePlayer.motionY -= 2.0-6
             }
         }
@@ -48,7 +48,7 @@ class IntaveVelo : VelocityMode("Intave") {
             return
         }
 
-        if ((velocity.onlyGroundValue.get() && !mc.thePlayer.onGround) || (velocity.onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if ((velocity.onlyGroundValue.get() && !mc.thePlayer.onGround) || (velocity.onlyCombatValue.get() && !CrossSine.combatManager.inCombat)) {
             return
         }
 

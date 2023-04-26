@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.phases
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.other.Phase
 import net.ccbluex.liquidbounce.utils.ClassUtils
@@ -11,7 +11,7 @@ abstract class PhaseMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
     protected val phase: Phase
-        get() = LiquidBounce.moduleManager[Phase::class.java]!!
+        get() = CrossSine.moduleManager[Phase::class.java]!!
 
     open val values: List<Value<*>>
         get() = ClassUtils.getValues(this.javaClass, this)

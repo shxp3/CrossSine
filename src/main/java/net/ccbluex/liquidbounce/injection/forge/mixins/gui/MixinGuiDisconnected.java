@@ -6,14 +6,13 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import me.liuli.elixir.account.MinecraftAccount;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.special.AntiForge;
 import net.ccbluex.liquidbounce.features.special.AutoReconnect;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.SessionUtils;
-import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
 import net.ccbluex.liquidbounce.utils.login.LoginUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiDisconnected;
@@ -78,7 +77,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                 ServerUtils.connectToLastServer();
                 break;
             case 3:
-                final List<MinecraftAccount> accounts = LiquidBounce.fileManager.getAccountsConfig().getAltManagerMinecraftAccounts();
+                final List<MinecraftAccount> accounts = CrossSine.fileManager.getAccountsConfig().getAltManagerMinecraftAccounts();
                 if (accounts.isEmpty()) break;
 
                 final MinecraftAccount minecraftAccount = accounts.get(new Random().nextInt(accounts.size()));
@@ -92,7 +91,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
             case 5:
                 AntiForge.INSTANCE.setEnabled(!AntiForge.INSTANCE.getEnabled());
                 forgeBypassButton.displayString = "%ui.antiForge%: " + (AntiForge.INSTANCE.getEnabled() ? "%ui.on%" : "%ui.off%");
-                LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.getSpecialConfig());
+                CrossSine.fileManager.saveConfig(CrossSine.fileManager.getSpecialConfig());
                 break;
         }
     }

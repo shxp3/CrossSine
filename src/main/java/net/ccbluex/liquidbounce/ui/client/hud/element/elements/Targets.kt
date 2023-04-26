@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD
+import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
 import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
 import net.ccbluex.liquidbounce.features.module.modules.combat.InfiniteAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
@@ -25,7 +25,6 @@ import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.RenderHelper
@@ -216,7 +215,7 @@ open class Targets : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side
     }
 
     override fun drawElement(partialTicks: Float): Border? {
-        var target = LiquidBounce.combatManager.target
+        var target = CrossSine.combatManager.target
         val time = System.currentTimeMillis()
         val pct = (time - lastUpdate) / (switchAnimSpeedValue.get() * 50f)
         lastUpdate = System.currentTimeMillis()
@@ -278,7 +277,7 @@ open class Targets : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side
                 GL11.glTranslated(xAxis * percent, 0.0, 0.0)
             }
         }
-        val mixerColor = ColorMixer.getMixedColor(  HUD.mixerDistValue.get() * 10, HUD.mixerSecValue.get()).rgb
+        val mixerColor = ColorMixer.getMixedColor(  ClientRender.mixerDistValue.get() * 10, ClientRender.mixerSecValue.get()).rgb
 
         val preBarColor = when (colorModeValue.get()) {
             "mixer" -> Color(mixerColor)
@@ -290,8 +289,8 @@ open class Targets : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side
             else -> ColorUtils.slowlyRainbow(System.nanoTime(), 0, saturationValue.get(), brightnessValue.get())!!
         }
 
-        val kaTarget = (LiquidBounce.moduleManager[KillAura::class.java] as KillAura).currentTarget
-        val taTarget = (LiquidBounce.moduleManager[InfiniteAura::class.java] as InfiniteAura).lastTarget
+        val kaTarget = (CrossSine.moduleManager[KillAura::class.java] as KillAura).currentTarget
+        val taTarget = (CrossSine.moduleManager[InfiniteAura::class.java] as InfiniteAura).lastTarget
 
         val actualTarget = if (kaTarget != null && kaTarget is EntityPlayer) kaTarget
         else if (taTarget != null &&  taTarget is EntityPlayer) taTarget
@@ -891,7 +890,7 @@ open class Targets : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side
         GL11.glDisable(GL11.GL_BLEND)
         GL11.glEnable(GL11.GL_TEXTURE_2D)
         Stencil.erase(true)
-        if (LiquidBounce.combatManager.inCombat) {
+        if (CrossSine.combatManager.inCombat) {
             drawHead(target.skin, 4, 4, 30, 30, 1F - getFadeProgress()) //playerInfo.locationSkin
         } else
         if (mc.currentScreen is GuiChat) {

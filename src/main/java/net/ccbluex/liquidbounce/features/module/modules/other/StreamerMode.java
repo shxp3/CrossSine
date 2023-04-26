@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.other;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.TextEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
@@ -18,8 +18,8 @@ import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.TextValue;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
-@ModuleInfo(name = "NameProtect", category = ModuleCategory.CLIENT)
-public class NameProtect extends Module {
+@ModuleInfo(name = "StreamerMode", category = ModuleCategory.CLIENT)
+public class StreamerMode extends Module {
 
     private final TextValue fakeNameValue = new TextValue("FakeName", "&cProtected User");
     private final TextValue allFakeNameValue = new TextValue("AllPlayersFakeName", "FDP");
@@ -29,10 +29,10 @@ public class NameProtect extends Module {
 
     @EventTarget
     public void onText(final TextEvent event) {
-        if (mc.thePlayer == null || event.getText().contains("§8[§9§l" + LiquidBounce.CLIENT_NAME + "§8] §3") || event.getText().startsWith("/") || event.getText().startsWith(LiquidBounce.commandManager.getPrefix() + ""))
+        if (mc.thePlayer == null || event.getText().contains("§8[§9§l" + CrossSine.CLIENT_NAME + "§8] §3") || event.getText().startsWith("/") || event.getText().startsWith(CrossSine.commandManager.getPrefix() + ""))
             return;
 
-        for (final FriendsConfig.Friend friend : LiquidBounce.fileManager.getFriendsConfig().getFriends())
+        for (final FriendsConfig.Friend friend : CrossSine.fileManager.getFriendsConfig().getFriends())
             event.setText(StringUtils.replace(event.getText(), friend.getPlayerName(), ColorUtils.translateAlternateColorCodes(friend.getAlias()) + "§f"));
 
         event.setText(StringUtils.replace(
