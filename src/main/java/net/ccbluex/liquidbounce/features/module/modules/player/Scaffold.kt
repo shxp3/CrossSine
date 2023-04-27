@@ -51,11 +51,15 @@ class Scaffold : Module() {
     private val customPitchValue = FloatValue("CustomPitch", 82.4f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
     private val customtowerYawValue = IntegerValue("CustomTowerYaw", -145, -180, 180).displayable { rotationsValue.equals("Custom") }
     private val customtowerPitchValue = FloatValue("CustomTowerPitch", 79f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
+    private val customrotationtwo = BoolValue("CustomRotation2", false).displayable { rotationsValue.equals("Custom") }
+    private val customrotationtwoYaw = IntegerValue("RotationYaw", 0, -180 , 180).displayable { rotationsValue.equals("Custom") && customrotationtwo.get() }
+    private val customrotationtwoPitch = FloatValue("RotationPitch", 0F, -90F, 90F).displayable { rotationsValue.equals("Custom") && customrotationtwo.get() }
     private val towerModeValue = ListValue(
         "TowerMode", arrayOf(
             "Jump",
             "Motion",
             "NCP",
+            "SafeNCP",
             "Motion2",
             "ConstantMotion",
             "PlusMotion",
@@ -75,15 +79,15 @@ class Scaffold : Module() {
     )
     private val stopWhenBlockAboveValue = BoolValue("StopTowerWhenBlockAbove", true)
     private val towerFakeJumpValue = BoolValue("TowerFakeJump", true)
-    private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Post")
-    private val towerPlaceModeValue = ListValue("TowerPlaceTiming", arrayOf("Pre", "Post"), "Post")
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "LiteSpoof")
+    private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Pre")
+    private val towerPlaceModeValue = ListValue("TowerPlaceTiming", arrayOf("Pre", "Post"), "Pre")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
     private val sprintModeValue = ListValue("SprintPacket", arrayOf("Normal", "Bypass", "WatchDog", "FakeWatchDog", "Ground", "Air", "Legit", "Fast", "None"), "Normal")
     private val swingValue = BoolValue("Swing", false)
     private val searchValue = BoolValue("Search", true)
-    private val downValue = BoolValue("Downward", true)
-    private val autojumpValue = BoolValue("Autojump", true)
-    private val jumpYValue = BoolValue("JumpY", true)
+    private val downValue = BoolValue("Downward", false)
+    private val autojumpValue = BoolValue("Autojump", false)
+    private val jumpYValue = BoolValue("JumpY", false)
     private val zitterModeValue = BoolValue("Zitter", false)
     private val silentRotationValue = BoolValue("SilentRotation", true).displayable { !rotationsValue.equals("None") }
     private val minRotationSpeedValue: IntegerValue = object : IntegerValue("MinRotationSpeed", 180, 0, 180) {
@@ -120,7 +124,7 @@ class Scaffold : Module() {
     private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10).displayable { !eagleValue.equals("Off") }
     private val edgeDistanceValue = FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") }
     // Safety
-    private val sameYValue = ListValue("SameY", arrayOf("Simple", "Speed", "OFF"), "WhenSpeed")
+    private val sameYValue = ListValue("SameY", arrayOf("Simple", "Speed", "OFF"), "Speed")
     private val safeWalkValue = ListValue("SafeWalk", arrayOf("Ground", "Air", "OFF"), "OFF")
     private val hitableCheckValue = ListValue("HitableCheck", arrayOf("Simple", "Strict", "OFF"), "Simple")
 
@@ -225,11 +229,6 @@ class Scaffold : Module() {
         clickTimer.reset()
     }
 
-    fun resetPerspective() {
-        perspectiveToggled = false
-        mc.gameSettings.thirdPersonView = previousPerspective
-    }
-
     /**
      * Update event
      *
@@ -239,6 +238,9 @@ class Scaffold : Module() {
     fun onUpdate(event: UpdateEvent) {
         if (rotationsValue.equals("WatchDog")) {
             RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + 180F, 50F))
+        }
+        if (rotationsValue.equals("Custom") && customrotationtwo.get()) {
+            RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()))
         }
         if (nobobValue.get()) {
             mc.thePlayer.distanceWalkedModified = 0f
@@ -576,6 +578,23 @@ class Scaffold : Module() {
                         mc.thePlayer.posZ
                     )
                 }
+            }
+
+            "safencp" -> {
+                    if (mc.thePlayer.posY % 1 <= 0.00153598) {
+                        mc.thePlayer.setPosition(
+                            mc.thePlayer.posX,
+                            Math.floor(mc.thePlayer.posY),
+                            mc.thePlayer.posZ
+                        )
+                        mc.thePlayer.motionY = 0.3681289
+                    } else if (mc.thePlayer.posY % 1 < 0.1 && offGroundTicks != 0) {
+                        mc.thePlayer.setPosition(
+                            mc.thePlayer.posX,
+                            Math.floor(mc.thePlayer.posY),
+                            mc.thePlayer.posZ
+                        )
+                    }
             }
 
             "packet" -> {

@@ -30,11 +30,21 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
      */
     fun fixedSensitivity(sensitivity: Float) {
-            val f = sensitivity * 0.6F + 0.2F
-            val gcd = f * f * f * 1.2F
+        val f = sensitivity * 0.6F + 0.2F
+        val gcd = f * f * f * 1.2F
 
-            yaw -= yaw % gcd
-            pitch -= pitch % gcd
+        // get previous rotation
+        val rotation = RotationUtils.serverRotation
+
+        // fix yaw
+        var deltaYaw = yaw - rotation.yaw
+        deltaYaw -= deltaYaw % gcd
+        yaw = rotation.yaw + deltaYaw
+
+        // fix pitch
+        var deltaPitch = pitch - rotation.pitch
+        deltaPitch -= deltaPitch % gcd
+        pitch = rotation.pitch + deltaPitch
     }
 
     /**

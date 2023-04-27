@@ -97,6 +97,7 @@ class KillAura : Module() {
     }
     private val discoverRangeValue = FloatValue("DiscoverRange", 6f, 0f, 8f)
 
+    private val onlySword = BoolValue("onlySword", false)
     private val blinkCheck = BoolValue("BlinkCheck", true)
     private val noScaffValue = BoolValue("NoScaffold", true)
     private val noFlyValue = BoolValue("NoFly", false)
@@ -479,7 +480,7 @@ class KillAura : Module() {
      * Update event
      */
     @EventTarget
-    fun onUpdate() {
+    fun onUpdate(ignoredEvent: UpdateEvent) {
         if ((!strafeOnlyGroundValue.get() || mc.thePlayer.onGround) && !rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding) {
             strictStrafe = true
         }else {

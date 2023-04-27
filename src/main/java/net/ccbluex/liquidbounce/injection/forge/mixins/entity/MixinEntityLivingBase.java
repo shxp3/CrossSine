@@ -77,39 +77,39 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Overwrite
     protected float updateDistance(float p_1101461, float p_1101462) {
-        float rotationYaw = this.rotationYaw;
-        ClientRender clientRender = CrossSine.moduleManager.getModule(ClientRender.class);
-        if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
-            if (clientRender.getState()) {
-                if (clientRender.getPlayerYaw() != null) {
-                    rotationYaw = clientRender.getPlayerYaw();
+            float rotationYaw = this.rotationYaw;
+            ClientRender clientRender = CrossSine.moduleManager.getModule(ClientRender.class);
+            if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
+                if (clientRender.getState()) {
+                    if (clientRender.getPlayerYaw() != null) {
+                        rotationYaw = clientRender.getPlayerYaw();
+                    }
                 }
             }
-        }
-        float f = MathHelper.wrapAngleTo180_float(p_1101461 - this.renderYawOffset);
-        this.renderYawOffset += f * 0.3F;
-        float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
-        boolean flag = f1 < 75.0F || f1 >= 75.0F;
+            float f = MathHelper.wrapAngleTo180_float(p_1101461 - this.renderYawOffset);
+            this.renderYawOffset += f * 0.3F;
+            float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
+            boolean flag = f1 < 75.0F || f1 >= 75.0F;
 
-        if (f1 < -75.0F) {
-            f1 = -75.0F;
-        }
+            if (f1 < -75.0F) {
+                f1 = -75.0F;
+            }
 
-        if (f1 >= 75.0F) {
-            f1 = 75.0F;
-        }
+            if (f1 >= 75.0F) {
+                f1 = 75.0F;
+            }
 
-        this.renderYawOffset = rotationYaw - f1;
-        if (f1 * f1 > 2500.0F) {
-            this.renderYawOffset += f1 * 0.2F;
-        }
+            this.renderYawOffset = rotationYaw - f1;
+            if (f1 * f1 > 2500.0F) {
+                this.renderYawOffset += f1 * 0.2F;
+            }
 
-        if (flag) {
-            p_1101462 *= -1.0F;
-        }
+            if (flag) {
+                p_1101462 *= -1.0F;
+            }
 
-        return p_1101462;
-    }
+            return p_1101462;
+        }
     /**
      * @author CCBlueX
      * @author CoDynamic

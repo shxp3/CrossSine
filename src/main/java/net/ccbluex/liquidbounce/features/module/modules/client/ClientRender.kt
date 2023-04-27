@@ -38,6 +38,7 @@ import java.util.*
 object ClientRender : Module() {
     private val HUDText = BoolValue("HUDText", true)
     private val SmoothFontValue =BoolValue("SmoothFont", false)
+    val rotationMode = ListValue("RotationMode", arrayOf("Lock", "Smooth"), "Smooth")
     val shadowValue = ListValue("TextShadowMode", arrayOf("LiquidBounce", "Outline", "Default", "Autumn"), "Default")
     val clolormode = ListValue("ColorMode", arrayOf("Rainbow", "Light Rainbow", "Static", "Double Color", "Default"), "Light Rainbow")
     val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10)

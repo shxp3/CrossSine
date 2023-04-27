@@ -24,8 +24,10 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Util;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -35,6 +37,7 @@ import org.lwjgl.opengl.Display;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -55,6 +58,9 @@ public abstract class MixinMinecraft {
 
     @Shadow
     public boolean skipRenderWorld;
+
+    @Shadow
+    private Entity renderViewEntity;
 
     @Shadow
     private int leftClickCounter;
@@ -216,11 +222,43 @@ public abstract class MixinMinecraft {
             Minecraft.getMinecraft().playerController.resetBlockRemoving();
         }
     }
-
+    @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
+    public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir) {
+        if (RotationUtils.targetRotation != null && thePlayer != null) {
+            final ClientRender clientRender = CrossSine.moduleManager.getModule(ClientRender.class);
+            final float yaw = RotationUtils.targetRotation.getYaw();
+            if (clientRender.getRotationMode().equals("Lock")) {
+                thePlayer.rotationYawHead = yaw;
+            }
+            if (clientRender.getRotationMode().equals("Lock")) {
+                thePlayer.renderYawOffset = yaw;
+            }
+        }
+    }
     /**
      * @author CCBlueX
      * @reason
      */
+    @Overwrite
+    private void sendClickBlockToController(boolean leftClick) {
+        if (!leftClick)
+            this.leftClickCounter = 0;
+            if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                BlockPos blockPos = this.objectMouseOver.getBlockPos();
+
+                if (this.leftClickCounter == 0)
+                    CrossSine.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
+
+
+                if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
+                    this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
+                    this.thePlayer.swingItem();
+                }
+            } else {
+                this.playerController.resetBlockRemoving();
+            }
+        }
+
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
         try {

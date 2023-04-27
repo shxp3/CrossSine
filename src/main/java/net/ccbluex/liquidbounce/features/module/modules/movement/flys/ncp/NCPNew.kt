@@ -37,9 +37,6 @@ class NCPNew : FlyMode("NCPNew") {
             MovementUtils.strafe(MovementUtils.getSpeed() * if (canBoost) 40f else 1f)
             if (canBoost) canBoost = false
         }
-        if (mc.thePlayer.fallDistance > 0.001) {
-            mc.thePlayer.motionY -= 0.01
-        }
     }
 
     override fun onJump(event: JumpEvent) {
