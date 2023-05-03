@@ -16,7 +16,6 @@ import net.minecraft.client.shader.ShaderGroup
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE
-
 import java.io.IOException
 
 object ShadowUtils : MinecraftInstance() {
@@ -129,5 +128,4 @@ object ShadowUtils : MinecraftInstance() {
         GlStateManager.enableBlend()
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
     }
-
 }

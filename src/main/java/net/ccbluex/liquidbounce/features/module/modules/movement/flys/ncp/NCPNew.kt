@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.network.Packet
@@ -16,7 +17,7 @@ import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
 class NCPNew : FlyMode("NCPNew") {
-    private val dotimerValue = BoolValue("LowTimer", true)
+    private val timerSpeedValue = FloatValue("TimerSpeed", 0.1F,0.1F,1.0F)
     private var canBoost = false
     override fun onEnable() {
         canBoost = true
@@ -30,9 +31,9 @@ class NCPNew : FlyMode("NCPNew") {
                 mc.thePlayer.jump()
             }
         }
-        if (!mc.thePlayer.onGround && dotimerValue.get()) {
-            mc.timer.timerSpeed = 0.2F
-        } else mc.timer.timerSpeed = 0.7F
+        if (!mc.thePlayer.onGround) {
+            mc.timer.timerSpeed = timerSpeedValue.get()
+        }
         if (!mc.thePlayer.onGround) {
             MovementUtils.strafe(MovementUtils.getSpeed() * if (canBoost) 40f else 1f)
             if (canBoost) canBoost = false

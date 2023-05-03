@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.Velocit
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.ccbluex.liquidbounce.utils.MovementUtils
 
-class MinemenVelocity : VelocityMode("Minemen") {
+class MinemenVelo : VelocityMode("Minemen") {
 
     // created by dg636 $$
 

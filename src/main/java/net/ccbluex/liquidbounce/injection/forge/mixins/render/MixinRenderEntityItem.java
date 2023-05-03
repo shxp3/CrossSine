@@ -81,7 +81,7 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
 
             if (flag || this.renderManager.options != null)
             {
-                float f3 = (((float)itemIn.getAge() + p_177077_8_) / 20.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
+                float f3 = (((float)itemIn.getAge() + p_177077_8_) / 5.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
                 if (itemPhysics.getState()) {
                         if (itemPhysics.getCleanValue().get()) {
                             GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.0f);

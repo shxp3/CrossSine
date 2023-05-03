@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.features.module.modules.client.HotbarSettings;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Crosshair;
@@ -55,7 +55,7 @@ public abstract class MixinGuiInGame extends MixinGui {
         if (scoreObjective != null) ColorUtils.stripColor(scoreObjective.getDisplayName());
 
         final NoRender NoRender = CrossSine.moduleManager.getModule(NoRender.class);
-        if ((NoRender.getState() && NoRender.getScoreBoard().get()) || CrossSine.moduleManager.getModule(ClientRender.class).getState())
+        if ((NoRender.getState() && NoRender.getScoreBoard().get()) || CrossSine.moduleManager.getModule(Interface.class).getState())
             callbackInfo.cancel();
     }
     /**
@@ -63,7 +63,7 @@ public abstract class MixinGuiInGame extends MixinGui {
      */
     @Overwrite
     protected void renderTooltip(ScaledResolution sr, float partialTicks) {
-        final ClientRender hud = CrossSine.moduleManager.getModule(ClientRender.class);
+        final Interface hud = CrossSine.moduleManager.getModule(Interface.class);
         final HotbarSettings HotbarSettings = CrossSine.moduleManager.getModule(HotbarSettings.class);
         final EntityPlayer entityplayer = (EntityPlayer) mc.getRenderViewEntity();
 

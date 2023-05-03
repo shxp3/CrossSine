@@ -17,11 +17,11 @@ class AAC4ReduceVelocity : VelocityMode("AAC4Reduce") {
     }
 
     override fun onVelocityPacket(event: PacketEvent) {
-        val packet = event.packet
-        if(packet is S12PacketEntityVelocity) {
+        val p = event.packet
+        if(p is S12PacketEntityVelocity) {
             velocity.velocityInput = true
-            packet.motionX = (packet.getMotionX() * 0.6).toInt()
-            packet.motionZ = (packet.getMotionZ() * 0.6).toInt()
+            p.motionX = (p.getMotionX() * 0.6).toInt()
+            p.motionZ = (p.getMotionZ() * 0.6).toInt()
         }
     }
 }

@@ -8,9 +8,9 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 class Vulcan: VelocityMode("Vulcan") {
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-        if (packet is C0FPacketConfirmTransaction) {
-            val transUID = (packet.uid).toInt()
+        val p = event.packet
+        if (p is C0FPacketConfirmTransaction) {
+            val transUID = (p.uid).toInt()
             if (transUID >= -31767 && transUID <= -30769) {
                 event.cancelEvent()
             }

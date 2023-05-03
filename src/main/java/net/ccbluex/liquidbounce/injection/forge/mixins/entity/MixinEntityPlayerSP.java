@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
+import net.ccbluex.liquidbounce.features.module.modules.ghost.KeepSprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -245,6 +246,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.movementInput.updatePlayerMoveState();
 
         final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
+        final KeepSprint keepSprint = CrossSine.moduleManager.getModule(KeepSprint.class);
         final NoSlow noSlow = CrossSine.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
         final InventoryMove inventoryMove = CrossSine.moduleManager.getModule(InventoryMove.class);
@@ -302,6 +304,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.setSprinting(false);
         }
 
+        if (keepSprint.getState()) {
+            this.setSprinting(true);
+        } else {
+            this.setSprinting(false);
+        }
         //Run Sprint update before UpdateEvent
 
         CrossSine.eventManager.callEvent(new UpdateEvent());

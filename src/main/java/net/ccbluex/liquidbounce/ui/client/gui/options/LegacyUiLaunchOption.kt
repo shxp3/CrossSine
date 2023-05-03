@@ -15,7 +15,7 @@ object modernuiLaunchOption : LaunchOption() {
     lateinit var clickGuiConfig: ClickGuiConfig
 
     override fun start() {
-        CrossSine.mainMenu = GuiClickToContinue()
+        CrossSine.mainMenu = GuiMainMenu()
         CrossSine.moduleManager.registerModule(ClickGUIModule())
 
         clickGui = ClickGui()

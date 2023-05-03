@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.glu.DirectTessCallback;
 import net.ccbluex.liquidbounce.utils.render.glu.VertexData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
@@ -24,16 +25,14 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityEgg;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.*;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
@@ -49,6 +48,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -61,9 +61,15 @@ import static net.ccbluex.liquidbounce.utils.render.AnimationUtil.getAnimationSt
 import static net.minecraft.client.renderer.GlStateManager.disableBlend;
 import static net.minecraft.client.renderer.GlStateManager.enableTexture2D;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 
 public final class RenderUtils extends MinecraftInstance {
     private static final Map<String, Map<Integer, Boolean>> glCapMap = new HashMap<>();
+    private static Framebuffer initialFB, frameBuffer, blackBuffer;
+    private static ShaderGroup mainShader = null;
+    private static float lastWidth = 0, lastHeight = 0, lastStrength = 0;
+    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static final ResourceLocation blurDirectory = new ResourceLocation("crosssine/shadow.json");
 
     public static int deltaTime;
 
@@ -110,7 +116,27 @@ public final class RenderUtils extends MinecraftInstance {
 
         glEndList();
     }
-
+    public static Color getGradientOffset(Color color1, Color color2, double offset) {
+        double inverse_percent;
+        int redPart;
+        if(offset > 1.0D) {
+            inverse_percent = offset % 1.0D;
+            redPart = (int)offset;
+            offset = redPart % 2 == 0?inverse_percent:1.0D - inverse_percent;
+        }
+        inverse_percent = 1.0D - offset;
+        redPart = (int)((double)color1.getRed() * inverse_percent + (double)color2.getRed() * offset);
+        int greenPart = (int)((double)color1.getGreen() * inverse_percent + (double)color2.getGreen() * offset);
+        int bluePart = (int)((double)color1.getBlue() * inverse_percent + (double)color2.getBlue() * offset);
+        return new Color(redPart, greenPart, bluePart);
+    }
+    public static void drawRectBordered(double x, double y, double x1, double y1, double width, int internalColor, int borderColor) {
+        rectangle(x + width, y + width, x1 - width, y1 - width, internalColor);
+        rectangle(x + width, y, x1 - width, y + width, borderColor);
+        rectangle(x, y, x + width, y1, borderColor);
+        rectangle(x1 - width, y, x1, y1, borderColor);
+        rectangle(x + width, y1 - width, x1 - width, y1, borderColor);
+    }
     public static void connectPoints(float xOne, float yOne, float xTwo, float yTwo) {
         glPushMatrix();
         glEnable(GL_LINE_SMOOTH);
@@ -128,7 +154,17 @@ public final class RenderUtils extends MinecraftInstance {
         glEnable(GL_TEXTURE_2D);
         glPopMatrix();
     }
+    public static void targetHudRect(double x, double y, double x1, double y1, double size) {
+        rectangleBordered(x, y + -4.0D, x1 + size, y1 + size, 0.5D, (new Color(60, 60, 60)).getRGB(), (new Color(10, 10, 10)).getRGB());
+        rectangleBordered(x + 1.0D, y + -3.0D, x1 + size - 1.0D, y1 + size - 1.0D, 1.0D, (new Color(40, 40, 40)).getRGB(), (new Color(40, 40, 40)).getRGB());
+        rectangleBordered(x + 2.5D, y - 1.5D, x1 + size - 2.5D, y1 + size - 2.5D, 0.5D, (new Color(40, 40, 40)).getRGB(), (new Color(60, 60, 60)).getRGB());
+        rectangleBordered(x + 2.5D, y - 1.5D, x1 + size - 2.5D, y1 + size - 2.5D, 0.5D, (new Color(22, 22, 22)).getRGB(), (new Color(255, 255, 255, 0)).getRGB());
+    }
 
+    public static void targetHudRect1(double x, double y, double x1, double y1, double size) {
+        rectangleBordered(x + 4.35D, y + 0.5D, x1 + size - 84.5D, y1 + size - 4.35D, 0.5D, (new Color(48, 48, 48)).getRGB(), (new Color(10, 10, 10)).getRGB());
+        rectangleBordered(x + 5.0D, y + 1.0D, x1 + size - 85.0D, y1 + size - 5.0D, 0.5D, (new Color(17, 17, 17)).getRGB(), (new Color(255, 255, 255, 0)).getRGB());
+    }
     public static int reAlpha(int color, float alpha) {
         Color c = new Color(color);
         float r = 0.003921569f * (float)c.getRed();
@@ -156,6 +192,8 @@ public final class RenderUtils extends MinecraftInstance {
         worldrenderer.pos((x), (y), zLevel).tex(((float)(textureX) * f), ((float)(textureY) * f1)).endVertex();
         tessellator.draw();
     }
+
+
     public static double getAnimationStateSmooth(double target, double current, double speed) {
         boolean larger;
         boolean bl = larger = target > current;
@@ -358,7 +396,139 @@ public final class RenderUtils extends MinecraftInstance {
         glDisable(GL_BLEND);
         setGlState(GL_CULL_FACE, hasCull);
     }
+    public static void fastShadowRoundedRect(float x, float y, float x2, float y2, float rad, float width, float r, float g, float b, float al) {
+        Stencil.write(true);
+        RenderUtils.drawRoundedRect(x, y, x2, y2, rad, new Color(r, g, b, al).getRGB());
+        Stencil.erase(false);
 
+        glPushMatrix();
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+
+        glColor4f(r, g, b, al);
+        glBegin(GL_QUAD_STRIP);
+        glVertex2f(x + width / 2F, y + width / 2F);
+        glColor4f(r, g, b, 0F);
+        glVertex2f(x - width, y - width);
+        glColor4f(r, g, b, al);
+        glVertex2f(x2 - width / 2F, y + width / 2F);
+        glColor4f(r, g, b, 0F);
+        glVertex2f(x2 + width, y - width);
+        glColor4f(r, g, b, al);
+        glVertex2f(x2 - width / 2F, y2 - width / 2F);
+        glColor4f(r, g, b, 0F);
+        glVertex2f(x2 + width, y2 + width);
+        glColor4f(r, g, b, al);
+        glVertex2f(x + width / 2F, y2 - width / 2F);
+        glColor4f(r, g, b, 0F);
+        glVertex2f(x - width, y2 + width);
+        glColor4f(r, g, b, al);
+        glVertex2f(x + width / 2F, y + width / 2F);
+        glColor4f(r, g, b, 0F);
+        glVertex2f(x - width, y - width);
+        glColor4f(1f, 1f, 1f, 1f);
+        glEnd();
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glShadeModel(7424);
+        glColor4f(1, 1, 1, 1);
+        glPopMatrix();
+
+        Stencil.dispose();
+    }
+    public static void fastShadowRoundedRect(float x, float y, float x2, float y2, float rad, float width, Color color) {
+        fastShadowRoundedRect(x, y, x2, y2, rad, width, color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, color.getAlpha() / 255.0F);
+    }
+    public static void initBlur(final ScaledResolution sc, float strength) throws IOException {
+        int w = sc.getScaledWidth();
+        int h = sc.getScaledHeight();
+        int f = sc.getScaleFactor();
+        if (lastWidth != w || lastHeight != h || initialFB == null || frameBuffer == null || mainShader == null) {
+            initialFB = new Framebuffer(w * f, h * f, true);
+            initialFB.setFramebufferColor(0, 0, 0, 0);
+            initialFB.setFramebufferFilter(GL_LINEAR);
+            mainShader = new ShaderGroup(mc.getTextureManager(), mc.getResourceManager(), initialFB, blurDirectory);
+            mainShader.createBindFramebuffers(w * f, h * f);
+            frameBuffer = mainShader.mainFramebuffer;
+            blackBuffer = mainShader.getFramebufferRaw("braindead");
+        }
+
+        lastWidth = w;
+        lastHeight = h;
+
+        if (strength != lastStrength) {
+            lastStrength = strength;
+            for (int i = 0; i < 2; i++) {
+                mainShader.listShaders.get(i).getShaderManager().getShaderUniform("Radius").set(strength);
+            }
+        }
+    }
+    public static void processShadow(boolean begin, float strength) throws IOException {
+        if (!OpenGlHelper.isFramebufferEnabled())
+            return;
+
+        final ScaledResolution sc = new ScaledResolution(mc);
+        initBlur(sc, strength);
+
+        if (begin) {
+            mc.getFramebuffer().unbindFramebuffer();
+            initialFB.framebufferClear();
+            blackBuffer.framebufferClear();
+            initialFB.bindFramebuffer(true);
+        } else {
+            frameBuffer.bindFramebuffer(true);
+            mainShader.loadShaderGroup(mc.timer.renderPartialTicks);
+            mc.getFramebuffer().bindFramebuffer(true);
+            // Variables
+            float f = (float)sc.getScaledWidth();
+            float f1 = (float)sc.getScaledHeight();
+            float f2 = (float)blackBuffer.framebufferWidth / (float)blackBuffer.framebufferTextureWidth;
+            float f3 = (float)blackBuffer.framebufferHeight / (float)blackBuffer.framebufferTextureHeight;
+
+            // Enable/Disable required things
+            GlStateManager.pushMatrix();
+            GlStateManager.disableLighting();
+            GlStateManager.disableAlpha();
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableDepth();
+            GlStateManager.depthMask(false);
+            GlStateManager.colorMask(true, true, true, true);
+
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+            blackBuffer.bindFramebufferTexture();
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            Tessellator tessellator = Tessellator.getInstance();
+            WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+            worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            worldrenderer.pos(0.0D, f1, 0.0D).tex(0.0D, 0.0D).color(255, 255, 255, 255).endVertex();
+            worldrenderer.pos(f, f1, 0.0D).tex((double)f2, 0.0D).color(255, 255, 255, 255).endVertex();
+            worldrenderer.pos(f, 0.0D, 0.0D).tex((double)f2, f3).color(255, 255, 255, 255).endVertex();
+            worldrenderer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, f3).color(255, 255, 255, 255).endVertex();
+            tessellator.draw();
+            blackBuffer.unbindFramebufferTexture();
+
+            GlStateManager.disableBlend();
+            GlStateManager.enableAlpha();
+            GlStateManager.enableDepth();
+            GlStateManager.depthMask(true);
+            GlStateManager.enableTexture2D();
+            GlStateManager.popMatrix();
+
+            GlStateManager.resetColor();
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(770, 771);
+        }
+    }
     public static void drawGradientRect(int left, int top, int right, int bottom, int startColor, int endColor) {
         float f = (float)(startColor >> 24 & 255) / 255.0F;
         float f1 = (float)(startColor >> 16 & 255) / 255.0F;
@@ -2579,7 +2749,7 @@ public final class RenderUtils extends MinecraftInstance {
     public static void drawRoundedRect(float paramXStart, float paramYStart, float paramXEnd, float paramYEnd, float radius, int color) {
         drawRoundedRect(paramXStart, paramYStart, paramXEnd, paramYEnd, radius, color, true);
     }
-    public static void drawEntityOnScreen(final int posX, final int posY, final int scale, final EntityLivingBase entity) {
+    public static void drawEntityOnScreen(final double posX, final double posY, final float scale, final EntityLivingBase entity) {
         GlStateManager.pushMatrix();
         GlStateManager.enableColorMaterial();
 
@@ -2591,30 +2761,11 @@ public final class RenderUtils extends MinecraftInstance {
         GlStateManager.rotate(-135F, 0F, 1F, 0F);
         GlStateManager.translate(0.0, 0.0, 0.0);
 
-        float renderYawOffset = entity.renderYawOffset;
-        float rotationYaw = entity.rotationYaw;
-        float rotationPitch = entity.rotationPitch;
-        float prevRotationYawHead = entity.prevRotationYawHead;
-        float rotationYawHead = entity.rotationYawHead;
-
-
-        entity.renderYawOffset = 0;
-        entity.rotationYaw = 0;
-        entity.rotationPitch = 90;
-        entity.rotationYawHead = entity.rotationYaw;
-        entity.prevRotationYawHead = entity.rotationYaw;
-
         RenderManager rendermanager = mc.getRenderManager();
         rendermanager.setPlayerViewY(180F);
         rendermanager.setRenderShadow(false);
         rendermanager.renderEntityWithPosYaw(entity, 0.0, 0.0, 0.0, 0F, 1F);
         rendermanager.setRenderShadow(true);
-
-        entity.renderYawOffset = renderYawOffset;
-        entity.rotationYaw = rotationYaw;
-        entity.rotationPitch = rotationPitch;
-        entity.prevRotationYawHead = prevRotationYawHead;
-        entity.rotationYawHead = rotationYawHead;
 
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
@@ -2624,6 +2775,9 @@ public final class RenderUtils extends MinecraftInstance {
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
+    public static void drawEntityOnScreen(final int posX, final int posY, final int scale, final EntityLivingBase entity) {
+        drawEntityOnScreen(posX, posY, (float) scale, entity);
+    }
     public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
         float f = 1.0F / tileWidth;
         float f1 = 1.0F / tileHeight;
@@ -2993,5 +3147,137 @@ public final class RenderUtils extends MinecraftInstance {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         return textureId;
+    }
+    public static void drawModel(final float yaw, final float pitch, final EntityLivingBase entityLivingBase) {
+        GlStateManager.resetColor();
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableColorMaterial();
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0.0f, 0.0f, 50.0f);
+        GlStateManager.scale(-50.0f, 50.0f, 50.0f);
+        GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
+        final float renderYawOffset = entityLivingBase.renderYawOffset;
+        final float rotationYaw = entityLivingBase.rotationYaw;
+        final float rotationPitch = entityLivingBase.rotationPitch;
+        final float prevRotationYawHead = entityLivingBase.prevRotationYawHead;
+        final float rotationYawHead = entityLivingBase.rotationYawHead;
+        GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate((float) (-Math.atan(pitch / 40.0f) * 20.0), 1.0f, 0.0f, 0.0f);
+        entityLivingBase.renderYawOffset = yaw - yaw / yaw * 0.4f;
+        entityLivingBase.rotationYaw = yaw - yaw / yaw * 0.2f;
+        entityLivingBase.rotationPitch = pitch;
+        entityLivingBase.rotationYawHead = entityLivingBase.rotationYaw;
+        entityLivingBase.prevRotationYawHead = entityLivingBase.rotationYaw;
+        GlStateManager.translate(0.0f, 0.0f, 0.0f);
+        final RenderManager renderManager = mc.getRenderManager();
+        renderManager.setPlayerViewY(180.0f);
+        renderManager.setRenderShadow(false);
+        entityLivingBase.getAlwaysRenderNameTag();
+        renderManager.renderEntityWithPosYaw(entityLivingBase, 0.0, 0.0, 0.0, 0.0f, 1.0f);
+        renderManager.setRenderShadow(true);
+        entityLivingBase.renderYawOffset = renderYawOffset;
+        entityLivingBase.rotationYaw = rotationYaw;
+        entityLivingBase.rotationPitch = rotationPitch;
+        entityLivingBase.prevRotationYawHead = prevRotationYawHead;
+        entityLivingBase.rotationYawHead = rotationYawHead;
+        GlStateManager.popMatrix();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.disableTexture2D();
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.resetColor();
+    }
+    public static void drawOutlinedStringCock(FontRenderer fr, String s, float x, float y, int color, int outlineColor) {
+        fr.drawString(ColorUtils.stripColor(s), (int) (x - 1.0f), (int) y, outlineColor);
+        fr.drawString(ColorUtils.stripColor(s), (int) x, (int) (y - 1.0f), outlineColor);
+        fr.drawString(ColorUtils.stripColor(s), (int) (x + 1.0f), (int) y, outlineColor);
+        fr.drawString(ColorUtils.stripColor(s), (int) x, (int) (y + 1.0f), outlineColor);
+        fr.drawString(s, (int) x, (int) y, color);
+    }
+    private static void drawEnchantTag(String text, int x, float y) {
+        GlStateManager.pushMatrix();
+        GlStateManager.disableDepth();
+        GL11.glScalef(0.5f, 0.5f, 0.5f);
+        drawOutlinedStringCock(Minecraft.getMinecraft().fontRendererObj, text, x, y, -1, new Color(0, 0, 0, 220).darker().getRGB());
+        GL11.glScalef(1.0f, 1.0f, 1.0f);
+        GlStateManager.enableDepth();
+        GlStateManager.popMatrix();
+    }
+    public static void renderEnchantText(ItemStack stack, int x, float y) {
+        RenderHelper.disableStandardItemLighting();
+        float enchantmentY = y + 24f;
+        if (stack.getItem() instanceof ItemArmor) {
+            int protectionLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.protection.effectId, stack);
+            int unbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.unbreaking.effectId, stack);
+            int thornLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.thorns.effectId, stack);
+            if (protectionLevel > 0) {
+                RenderUtils.drawEnchantTag("P" + ColorUtils.getColor(protectionLevel) + protectionLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (unbreakingLevel > 0) {
+                RenderUtils.drawEnchantTag("U" + ColorUtils.getColor(unbreakingLevel) + unbreakingLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (thornLevel > 0) {
+                RenderUtils.drawEnchantTag("T" + ColorUtils.getColor(thornLevel) + thornLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+        }
+        if (stack.getItem() instanceof ItemBow) {
+            int powerLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, stack);
+            int punchLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.punch.effectId, stack);
+            int flameLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.flame.effectId, stack);
+            int unbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.unbreaking.effectId, stack);
+            if (powerLevel > 0) {
+                RenderUtils.drawEnchantTag("Pow" + ColorUtils.getColor(powerLevel) + powerLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (punchLevel > 0) {
+                RenderUtils.drawEnchantTag("Pun" + ColorUtils.getColor(punchLevel) + punchLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (flameLevel > 0) {
+                RenderUtils.drawEnchantTag("F" + ColorUtils.getColor(flameLevel) + flameLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (unbreakingLevel > 0) {
+                RenderUtils.drawEnchantTag("U" + ColorUtils.getColor(unbreakingLevel) + unbreakingLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+        }
+        if (stack.getItem() instanceof ItemSword) {
+            int sharpnessLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.sharpness.effectId, stack);
+            int knockbackLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.knockback.effectId, stack);
+            int fireAspectLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fireAspect.effectId, stack);
+            int unbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.unbreaking.effectId, stack);
+            if (sharpnessLevel > 0) {
+                RenderUtils.drawEnchantTag("S" +  ColorUtils.getColor(sharpnessLevel) + sharpnessLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (knockbackLevel > 0) {
+                RenderUtils.drawEnchantTag("K" + ColorUtils.getColor(knockbackLevel) + knockbackLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (fireAspectLevel > 0) {
+                RenderUtils.drawEnchantTag("F" + ColorUtils.getColor(fireAspectLevel) + fireAspectLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+            if (unbreakingLevel > 0) {
+                RenderUtils.drawEnchantTag("U" + ColorUtils.getColor(unbreakingLevel) + unbreakingLevel, x * 2, enchantmentY);
+                enchantmentY += 8;
+            }
+        }
+        if (stack.getRarity() == EnumRarity.EPIC) {
+            GlStateManager.pushMatrix();
+            GlStateManager.disableDepth();
+            GL11.glScalef(0.5f, 0.5f, 0.5f);
+            drawOutlinedStringCock(Minecraft.getMinecraft().fontRendererObj, "God", x * 2, enchantmentY, new Color(255, 255, 0).getRGB(), new Color(100, 100, 0, 200).getRGB());
+            GL11.glScalef(1.0f, 1.0f, 1.0f);
+            GlStateManager.enableDepth();
+            GlStateManager.popMatrix();
+        }
     }
 }

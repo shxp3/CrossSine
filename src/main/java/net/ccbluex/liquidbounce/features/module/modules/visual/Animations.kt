@@ -19,10 +19,11 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 
 @ModuleInfo(name = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true)
 object Animations : Module() {
+    val AnimationMode = ListValue("AnimationMode", arrayOf("Full", "Normal"), "Normal")
     val blockingModeValue = ListValue(
         "BlockingMode",
         arrayOf(
-            "Vanilla",
+            "1.7",
             "Akrien",
             "Avatar",
             "ETB",
@@ -42,7 +43,6 @@ object Animations : Module() {
             "Swank",
             "Jello",
             "Rotate",
-            "Liquid",
             "Fall",
             "Yeet",
             "Yeet2",
@@ -54,12 +54,12 @@ object Animations : Module() {
         ),
         "Vanilla"
     )
-    val itemPosXValue = FloatValue("ItemPosX", 0.56F, -1.0F, 1.0F)
-    val itemPosYValue = FloatValue("ItemPosY", -0.52F, -1.0F, 1.0F)
-    val itemPosZValue = FloatValue("ItemPosZ", -0.71999997F, -1.0F, 1.0F)
-    val itemScaleValue = FloatValue("ItemScale", 0.42f, 0.0f, 2.0f)
-    val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f)
-    val fluxAnimation = BoolValue("FluxSwing", false)
+    val itemPosXValue = FloatValue("ItemPosX", 0.56F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
+    val itemPosYValue = FloatValue("ItemPosY", -0.52F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
+    val itemPosZValue = FloatValue("ItemPosZ", -0.71999997F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
+    val itemScaleValue = FloatValue("ItemScale", 0.40f, 0.0f, 2.0f).displayable { AnimationMode.get().equals("full", true)}
+    val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f).displayable { AnimationMode.get().equals("full", true)}
+    val fluxAnimation = BoolValue("FluxSwing", false).displayable { AnimationMode.get().equals("full", true)}
     val anythingBlockValue = false
     @JvmField
     val Equip = 1.8F

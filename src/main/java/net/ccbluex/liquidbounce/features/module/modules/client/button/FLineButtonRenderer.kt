@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.client.button
 
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface
 import net.ccbluex.liquidbounce.utils.render.EaseUtils.easeInOutQuad
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.shadowRenderUtils
-import net.ccbluex.liquidbounce.features.module.modules.visual.UIEffects
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import java.awt.Color
@@ -48,7 +48,7 @@ class FLineButtonRenderer(button: GuiButton) : AbstractButtonRenderer(button) {
 
         lastUpdate = time
 
-            if (UIEffects.buttonShadowValue.equals(true)){
+            if (Interface.buttonShadowValue.equals(true)){
             shadowRenderUtils.drawShadowWithCustomAlpha(button.xPosition.toFloat(), button.yPosition.toFloat(), button.width.toFloat(), button.height.toFloat(), 240f)
             }
     }

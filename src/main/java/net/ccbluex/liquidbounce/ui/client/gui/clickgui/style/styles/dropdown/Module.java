@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.dropdown;
 import net.ccbluex.liquidbounce.CrossSine;
 
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.timer.Timer;
@@ -81,7 +81,7 @@ public class Module {
             }
         }
 
-        ClientRender hud = (ClientRender) CrossSine.moduleManager.getModule(ClientRender.class);
+        Interface hud = (Interface) CrossSine.moduleManager.getModule(Interface.class);
         Color colorHUD = ClickGUIModule.generateColor();
         Color white = new Color(0xFFFFFF);
 

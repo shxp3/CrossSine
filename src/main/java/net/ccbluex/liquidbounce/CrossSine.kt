@@ -1,3 +1,5 @@
+@file:Suppress("UNREACHABLE_CODE")
+
 package net.ccbluex.liquidbounce
 
 import com.google.gson.JsonParser
@@ -93,7 +95,7 @@ object CrossSine {
     lateinit var clientRichPresence: CrossSineRPC
 
     // Menu Background
-    var background: ResourceLocation? = ResourceLocation("crosssine/background.png")
+    var background: ResourceLocation? = null
 
     val launchFilters = mutableListOf<EnumLaunchFilter>()
     val dynamicLaunchOptions: Array<LaunchOption>

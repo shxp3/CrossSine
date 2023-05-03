@@ -63,4 +63,7 @@ class DamageBoost : Module() {
             }
         }
     }
+
+    override val tag: String?
+        get() = DamageBoostMode.get()
 }

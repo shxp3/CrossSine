@@ -1,10 +1,9 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
 import net.ccbluex.liquidbounce.features.module.modules.client.GuiHUDEdit
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender.mixerDistValue
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender.mixerSecValue
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface.mixerDistValue
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface.mixerSecValue
 import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -18,10 +17,8 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.file.config.ConfigManager
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ChatAllowedCharacters
-import net.minecraft.world.gen.structure.StructureMineshaftPieces.Cross
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -58,7 +55,7 @@ class Text(
     private val blueValue = IntegerValue("Blue", 255, 0, 255)
     private val alphaValue = IntegerValue("Alpha", 255, 0, 255)
     val colorModeValue = ListValue("Color", arrayOf("Custom", "Rainbow", "AnotherRainbow", "SkyRainbow", "Mixer", "HUDSync"), "Custom")
-    private val shadow = BoolValue("Shadow", false)
+    private val shadow = BoolValue("TextShadow", false)
     val rectValue = ListValue("Rect", arrayOf("Normal", "RNormal", "OneTap", "Skeet", "Rounded", "None"), "None")
     val rectColorModeValue = ListValue("RectColor", arrayOf("Custom", "Rainbow", "AnotherRainbow", "SkyRainbow", "Mixer", "HUDSync"), "Custom")
     private val rectRedValue = IntegerValue("RectRed", 0, 0, 255)

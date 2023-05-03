@@ -22,6 +22,10 @@ object PlayerUtils {
         }
         return stringBuilder.toString()
     }
+    fun getIncremental(`val`: Double, inc: Double): Double {
+        val one = 1.0 / inc
+        return Math.round(`val` * one) / one
+    }
     fun getAr(player : EntityLivingBase):Double{
         var arPercentage: Double = (player!!.totalArmorValue / player!!.maxHealth).toDouble()
         arPercentage = MathHelper.clamp_double(arPercentage, 0.0, 1.0)

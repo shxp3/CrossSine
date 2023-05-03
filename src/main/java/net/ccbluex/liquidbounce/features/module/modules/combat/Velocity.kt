@@ -19,7 +19,6 @@ import kotlin.math.sqrt
 
 @ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
 class Velocity : Module() {
-    private val showModeValue = BoolValue("ShowMode", false)
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
         .map { it.newInstance() as VelocityMode }
         .sortedBy { it.modeName }
@@ -27,7 +26,7 @@ class Velocity : Module() {
     private val mode: VelocityMode
         get() = modes.find { modeValue.equals(it.modeName) } ?: throw NullPointerException() // this should not happen
 
-    val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "Cancel") {
+    val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "Standard") {
         override fun onChange(oldValue: String, newValue: String) {
             if (state) onDisable()
         }
@@ -36,17 +35,12 @@ class Velocity : Module() {
             if (state) onEnable()
         }
     }
-    val horizontalValue = FloatValue("Horizontal", 0F, 0F, 1F).displayable { modeValue.equals("Standard") }
-    val verticalValue = FloatValue("Vertical", 0F, 0F, 1F).displayable { modeValue.equals("Standard") }
-    val velocityTickValue = IntegerValue("VelocityTick", 1, 0, 10).displayable { modeValue.equals("Tick") || modeValue.equals("OldSpartan")}
+    val h = IntegerValue("Horizontal", 0, 0, 100).displayable { modeValue.equals("Standard") }
+    val v = IntegerValue("Vertical", 0, 0, 100).displayable { modeValue.equals("Standard") }
     val onlyGroundValue = BoolValue("OnlyGround", false)
     val onlyCombatValue = BoolValue("OnlyCombat", false)
     // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
     private val noFireValue = BoolValue("noFire", false)
-
-    private val overrideDirectionValue = ListValue("OverrideDirection", arrayOf("None", "Hard", "Offset"), "None")
-    private val overrideDirectionYawValue = FloatValue("OverrideDirectionYaw", 0F, -180F, 180F)
-        .displayable { !overrideDirectionValue.equals("None") }
 
     val velocityTimer = MSTimer()
     var wasTimer = false
@@ -124,21 +118,6 @@ class Velocity : Module() {
             velocityTimer.reset()
             velocityTick = 0
 
-            if (!overrideDirectionValue.equals("None")) {
-                val yaw = Math.toRadians(
-                    if (overrideDirectionValue.get() == "Hard") {
-                        overrideDirectionYawValue.get()
-                    } else {
-                        mc.thePlayer.rotationYaw + overrideDirectionYawValue.get() + 90
-                    }.toDouble()
-                )
-                val dist = sqrt((packet.motionX * packet.motionX + packet.motionZ * packet.motionZ).toDouble())
-                val x = cos(yaw) * dist
-                val z = sin(yaw) * dist
-                packet.motionX = x.toInt()
-                packet.motionZ = z.toInt()
-            }
-
             mode.onVelocityPacket(event)
         }
 
@@ -170,11 +149,9 @@ class Velocity : Module() {
     }
     override val tag: String?
         get() = if (modeValue.get() == "Standard")
-            "${verticalValue.get()}% ${horizontalValue.get()}%"
-            else if (showModeValue.get())
-            modeValue.get()
+            "${v.get()}% ${h.get()}%"
     else
-        null
+            modeValue.get()
 
     /**
      * 读取mode中的value并和本体中的value合并

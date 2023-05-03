@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 
-@ModuleInfo(name = "WorldTime", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "WorldTime", category = ModuleCategory.VISUAL)
 class WorldTime : Module() {
     private val customWorldTimeValue = IntegerValue("CustomTime", 1000, 0, 24000)
 

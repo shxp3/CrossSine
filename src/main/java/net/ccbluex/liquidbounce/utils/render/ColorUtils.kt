@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface
 import net.minecraft.util.ChatAllowedCharacters
 import java.awt.Color
 import java.util.*
@@ -200,31 +200,49 @@ object ColorUtils {
         val hue = System.currentTimeMillis() % speed.toInt() / speed
         return Color.HSBtoRGB(hue - hueoffset / 54, saturation, brightness)
     }
+    @JvmStatic
+    fun getColor(n: Int): String? {
+        if (n != 1) {
+            if (n == 2) {
+                return "\u00a7a"
+            }
+            if (n == 3) {
+                return "\u00a73"
+            }
+            if (n == 4) {
+                return "\u00a74"
+            }
+            if (n >= 5) {
+                return "\u00a7e"
+            }
+        }
+        return "\u00a7f"
+    }
 
     @JvmStatic
     fun hslRainbow(
         index: Int,
-        lowest: Float = ClientRender.rainbowStartValue.get(),
-        bigest: Float = ClientRender.rainbowStopValue.get(),
+        lowest: Float = Interface.rainbowStartValue.get(),
+        bigest: Float = Interface.rainbowStopValue.get(),
         indexOffset: Int = 300,
-        timeSplit: Int = ClientRender.rainbowSpeedValue.get(),
-        saturation: Float = ClientRender.rainbowSaturationValue.get(),
-        brightness: Float = ClientRender.rainbowBrightnessValue.get()
+        timeSplit: Int = Interface.rainbowSpeedValue.get(),
+        saturation: Float = Interface.rainbowSaturationValue.get(),
+        brightness: Float = Interface.rainbowBrightnessValue.get()
     ): Color {
         return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
     }
 
     @JvmStatic
-    fun astolfoColor(
+    fun Astolfo(
         index: Int,
         lowest: Float = 0.55F,
         bigest: Float = 0.85F,
         indexOffset: Int = 300,
-        timeSplit: Int = 2000,
-        saturation: Float = 0.45F,
-        brightness: Float = 0.85F
+        timeSplit: Int = 1500,
+        saturation: Float = 0.55F,
+        brightness: Float = 1F
     ): Color {
-        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (lowest - bigest)) + bigest, saturation, brightness)
     }
 
     fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double? {
@@ -245,42 +263,15 @@ object ColorUtils {
 
     }
 
-    @JvmStatic
-    fun astolfoRainbow2(counter: Int, alpha: Int): Int {
-        val width = 110
-        var rainbowState = Math.ceil((System.currentTimeMillis() - counter.toLong() * width).toDouble()) / 11
-        rainbowState %= 360.0
-        val hue =
-            if ((rainbowState / 360).toFloat() < 0.5) -(rainbowState / 360).toFloat() else (rainbowState / 360).toFloat()
-        val color = Color.getHSBColor(hue, 0.7f, 1f)
-        return Color(color.red, color.green, color.blue, alpha).rgb
-    }
 
     @JvmStatic
-    fun astolfoRainbow2(offset: Int, distance: Float, speedl: Float): Color? {
-        val speed = (30 * 100).toFloat()
-        var hue = System.currentTimeMillis() % speed.toInt() + (distance - offset) * speedl
-        while (hue > speed) {
-            hue -= speed
-        }
-        hue /= speed
-        if (hue > 0.5) hue = 0.5f - (hue - 0.5f)
-        hue += 0.5f
-        return Color.getHSBColor(hue, 0.4f, 1f)
+    fun rainbow(offset: Long): Color {
+        val currentColor = Color(Color.HSBtoRGB((System.nanoTime() + offset) / 10000000000F % 1, 1F, 1F))
+        return Color(currentColor.red / 255F * 1F, currentColor.green / 255F * 1F, currentColor.blue / 255F * 1F,
+            currentColor.alpha / 255F)
     }
 
-    @JvmStatic
-    fun astolfoRainbow(offset: Int): Color? {
-        val speed = (30 * 100).toFloat()
-        var hue = (System.currentTimeMillis() % speed.toInt() + offset).toFloat()
-        while (hue > speed) {
-            hue -= speed
-        }
-        hue /= speed
-        if (hue > 0.5) hue = 0.5f - (hue - 0.5f)
-        hue += 0.5f
-        return Color.getHSBColor(hue, 0.4f, 1f)
-    }
+
 
     @JvmStatic
     fun hsbTransition(from: Float, to: Float, angle: Int, s: Float = 1f, b: Float = 1f): Color {
@@ -400,19 +391,8 @@ object ColorUtils {
     
     }
 
-    @JvmStatic
-    fun Astolfo(var2: Int, st: Float, bright: Float): Int {
-        var currentColor = Math.ceil((System.currentTimeMillis() + (var2 * 130).toLong()).toDouble()) / 6
-        return Color.getHSBColor(if ((360.0.also { currentColor %= it } / 360.0).toFloat()
-                .toDouble() < 0.5) -(currentColor / 360.0).toFloat() else (currentColor / 360.0).toFloat(), st, bright).rgb
-    }
 
-    @JvmStatic
-    fun otherAstolfo(delay: Int, offset: Int, index: Int): Int {
-        var rainbowDelay = Math.ceil((System.currentTimeMillis() + (delay * index).toLong()).toDouble()) / offset
-        return Color.getHSBColor(if ((360.0.also { rainbowDelay %= it } / 360.0).toFloat()
-                .toDouble() < 0.5) -(rainbowDelay / 360.0).toFloat() else (rainbowDelay / 360.0).toFloat(), 0.5f, 1.0f).rgb
-    }
+
 
     @JvmStatic
     fun fade(color: Color, index: Int, count: Int): Color {

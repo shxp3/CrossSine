@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.KeyEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryManager;
-import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer;
+import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
 import net.minecraft.client.Minecraft;
@@ -73,14 +73,14 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         if (button.id == 1024576)
             CrossSine.moduleManager.getModule(KillAura.class).setState(false);
         if (button.id == 727)
-            CrossSine.moduleManager.getModule(ChestStealer.class).setState(false);
+            CrossSine.moduleManager.getModule(Stealer.class).setState(false);
         if (button.id == 321123)
             CrossSine.moduleManager.getModule(InventoryManager.class).setState(false);
     }
 
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private void drawScreenHead(CallbackInfo callbackInfo) {
-        ChestStealer stealer = CrossSine.moduleManager.getModule(ChestStealer.class);
+        Stealer stealer = CrossSine.moduleManager.getModule(Stealer.class);
         Minecraft mc = Minecraft.getMinecraft();
         GuiScreen guiScreen = mc.currentScreen;
         if (stealer.getState() && stealer.getSilentValue().get() && guiScreen instanceof GuiChest) {
@@ -90,7 +90,9 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
                 mc.setIngameFocus();
                 mc.currentScreen = guiScreen;
                 // hide GUI
+                if (stealer.getSilentTitleValue().get() && stealer.getSilentValue().get()){
                     RendererExtensionKt.drawCenteredString(Fonts.fontSFUI35, "ChestStealer Silent", width / 2, (height / 2) + 30, 0xffffffff, true);
+                }
                 callbackInfo.cancel();
             }
         } else {
@@ -129,7 +131,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
 
     @Inject(method = "keyTyped", at = @At("HEAD"))
     private void keyTyped(char typedChar, int keyCode, CallbackInfo ci) {
-        ChestStealer stealer = CrossSine.moduleManager.getModule(ChestStealer.class);
+        Stealer stealer = CrossSine.moduleManager.getModule(Stealer.class);
         try {
             if (stealer.getState() && mc.currentScreen instanceof GuiChest)
                 CrossSine.eventManager.callEvent(new KeyEvent(keyCode == 0 ? typedChar + 256 : keyCode));

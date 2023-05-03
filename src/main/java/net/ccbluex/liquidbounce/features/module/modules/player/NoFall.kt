@@ -129,9 +129,6 @@ class NoFall : Module() {
     fun onStep(event: StepEvent) {
         mode.onStep(event)
     }
-
-    override val tag: String
-        get() = modeValue.get()
         
     private fun checkVoid(): Boolean {
         var i = (-(mc.thePlayer.posY-1.4857625)).toInt()

@@ -16,6 +16,8 @@ import org.lwjgl.input.Keyboard
 class SpeedBridge : Module() {
 
     private val airValue = BoolValue("Air", false)
+    private val noSpeedPotion = BoolValue("NoPotionSpeed", false)
+    private val onHoldShift = BoolValue("OnHoldShift", false)
     private val PitchLitmit = BoolValue("Pitch", false)
     private val PitchMax: IntegerValue = object : IntegerValue("Pitch-Max", 0, 0, 90) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -25,7 +27,7 @@ class SpeedBridge : Module() {
             }
         }
     }.displayable { PitchLitmit.get() } as IntegerValue
-    private val PitchMin : IntegerValue = object :  IntegerValue("Pitch-Min", 0, 0, 90) {
+    private val PitchMin: IntegerValue = object : IntegerValue("Pitch-Min", 0, 0, 90) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val PitchMax = PitchMax.get()
             if (PitchMax < newValue) {
@@ -33,28 +35,29 @@ class SpeedBridge : Module() {
             }
         }
     }.displayable { PitchLitmit.get() } as IntegerValue
-    private val noSpeedPotion = BoolValue("NoPotionSpeed", false)
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
 
-        if (mc.gameSettings.keyBindBack.isKeyDown){
+        if (mc.gameSettings.keyBindBack.isKeyDown) {
 
-
-            if (airValue.get() || mc.thePlayer.onGround) {
-                if (!noSpeedPotion.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                    if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
-                        mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
-                            BlockPos(
-                                mc.thePlayer.posX + mc.thePlayer.motionX * 0.2,
-                                mc.thePlayer.posY - 1.0,
-                                mc.thePlayer.posZ + mc.thePlayer.motionZ * 0.2
-                            )
-                        ).block == Blocks.air
-                        return
+            if (!onHoldShift.get() || mc.gameSettings.keyBindSneak.isKeyDown) {
+                if (airValue.get() || mc.thePlayer.onGround) {
+                    if (!noSpeedPotion.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                        if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
+                            mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
+                                BlockPos(
+                                    mc.thePlayer.posX + mc.thePlayer.motionX * 0.2,
+                                    mc.thePlayer.posY - 1.0,
+                                    mc.thePlayer.posZ + mc.thePlayer.motionZ * 0.2
+                                )
+                            ).block == Blocks.air
+                            return
+                        }
                     }
                 }
-            }
+            } else
+                mc.gameSettings.keyBindSneak.pressed = false
 
 
         }

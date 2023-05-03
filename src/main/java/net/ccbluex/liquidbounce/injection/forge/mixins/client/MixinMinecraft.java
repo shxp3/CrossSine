@@ -2,10 +2,11 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.features.module.modules.client.SoundModule;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
+import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimation;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
@@ -24,9 +25,6 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Util;
@@ -35,7 +33,6 @@ import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -45,7 +42,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.nio.ByteBuffer;
 
 import static org.objectweb.asm.Opcodes.PUTFIELD;
@@ -81,14 +77,7 @@ public abstract class MixinMinecraft {
     public PlayerControllerMP playerController;
 
     @Shadow
-    public int rightClickDelayTimer;
-
-    @Shadow
     public GameSettings gameSettings;
-
-    @Shadow
-    @Final
-    public File mcDataDir;
 
     @Shadow
     public int displayWidth;
@@ -97,9 +86,6 @@ public abstract class MixinMinecraft {
     public int displayHeight;
     @Shadow
     private boolean fullscreen;
-
-    private float prevYaw = 0.0f;
-
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
         if (displayWidth < 1067)
@@ -168,6 +154,7 @@ public abstract class MixinMinecraft {
         CrossSine.eventManager.callEvent(new TickEvent());
     }
 
+
     @Inject(method = "dispatchKeypresses", at = @At(value = "HEAD"))
     private void onKey(CallbackInfo callbackInfo) {
         try {
@@ -215,17 +202,10 @@ public abstract class MixinMinecraft {
         MinecraftForgeClientAccessor.getRegionCache().invalidateAll();
         MinecraftForgeClientAccessor.getRegionCache().cleanUp();
     }
-
-    @Inject(method = "rightClickMouse", at = @At("HEAD"))
-    public void rightClickMouse(CallbackInfo ci) {
-        if (Minecraft.getMinecraft().playerController.getIsHittingBlock() && Minecraft.getMinecraft().thePlayer.getHeldItem() != null && (Minecraft.getMinecraft().thePlayer.getHeldItem().getItemUseAction() != EnumAction.NONE || Minecraft.getMinecraft().thePlayer.getHeldItem().getItem() instanceof ItemBlock)) {
-            Minecraft.getMinecraft().playerController.resetBlockRemoving();
-        }
-    }
     @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
     public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir) {
         if (RotationUtils.targetRotation != null && thePlayer != null) {
-            final ClientRender clientRender = CrossSine.moduleManager.getModule(ClientRender.class);
+            final Interface clientRender = CrossSine.moduleManager.getModule(Interface.class);
             final float yaw = RotationUtils.targetRotation.getYaw();
             if (clientRender.getRotationMode().equals("Lock")) {
                 thePlayer.rotationYawHead = yaw;
@@ -241,23 +221,31 @@ public abstract class MixinMinecraft {
      */
     @Overwrite
     private void sendClickBlockToController(boolean leftClick) {
-        if (!leftClick)
-            this.leftClickCounter = 0;
-            if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                BlockPos blockPos = this.objectMouseOver.getBlockPos();
+        if (!leftClick) leftClickCounter = 0;
+        final OldAnimation oldAnimation = CrossSine.moduleManager.getModule(OldAnimation.class);
+        if (leftClickCounter <= 0 && (!thePlayer.isUsingItem() || oldAnimation.getState())) {
+            if (leftClick && objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                BlockPos blockPos = objectMouseOver.getBlockPos();
 
-                if (this.leftClickCounter == 0)
-                    CrossSine.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
+                if (leftClickCounter == 0)
+                    CrossSine.eventManager.callEvent(new ClickBlockEvent(blockPos, objectMouseOver.sideHit));
 
 
-                if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
-                    this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
-                    this.thePlayer.swingItem();
+                if (Minecraft.getMinecraft().thePlayer.isUsingItem()){
+                    if (theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
+                        thePlayer.swingItem();
+                    }
+                } else {
+                    if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
+                        this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
+                        this.thePlayer.swingItem();
+                    }
                 }
-            } else {
-                this.playerController.resetBlockRemoving();
             }
+            else
+                playerController.resetBlockRemoving();
         }
+    }
 
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {

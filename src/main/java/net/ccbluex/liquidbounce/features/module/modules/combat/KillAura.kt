@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.player.FreeCam
@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.settings.KeyBinding
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -36,7 +37,6 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
-import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.glu.Cylinder
 import java.awt.Color
@@ -97,7 +97,6 @@ class KillAura : Module() {
     }
     private val discoverRangeValue = FloatValue("DiscoverRange", 6f, 0f, 8f)
 
-    private val onlySword = BoolValue("onlySword", false)
     private val blinkCheck = BoolValue("BlinkCheck", true)
     private val noScaffValue = BoolValue("NoScaffold", true)
     private val noFlyValue = BoolValue("NoFly", false)
@@ -496,16 +495,6 @@ class KillAura : Module() {
             return
         }
 
-        if (autoBlockValue.equals("Damage")) {
-            if (mc.thePlayer.hurtTime > 0) {
-                canBlock
-                mc.gameSettings.keyBindUseItem.pressed = true
-            } else {
-                stopBlocking()
-                mc.gameSettings.keyBindUseItem.pressed = false
-            }
-        }
-
         if (noInventoryAttackValue.equals("CancelRun") && (mc.currentScreen is GuiContainer ||
                     System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())
         ) {
@@ -646,9 +635,9 @@ class KillAura : Module() {
                         RenderUtils.glColor(
                             Color.getHSBColor(
                                 if (i < 180) {
-                                    ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (i / 180f)
+                                    Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (i / 180f)
                                 } else {
-                                    ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (-(i - 360) / 180f)
+                                    Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (-(i - 360) / 180f)
                                 }, 0.7f, 1.0f
                             )
                         )
@@ -770,9 +759,9 @@ class KillAura : Module() {
                     for (i in 5..360 step 5) {
                         val color = Color.getHSBColor(
                             if (i < 180) {
-                                ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (i / 180f)
+                                Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (i / 180f)
                             } else {
-                                ClientRender.rainbowStartValue.get() + (ClientRender.rainbowStopValue.get() - ClientRender.rainbowStartValue.get()) * (-(i - 360) / 180f)
+                                Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (-(i - 360) / 180f)
                             }, 0.7f, 1.0f
                         )
                         val x1 = x - sin(i * Math.PI / 180F) * radius
@@ -1242,11 +1231,12 @@ class KillAura : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
-        if (autoBlockPacketValue.get().equals("damage", true)) {
-            if(mc.thePlayer.hurtTime == 0) {
-                Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.keyCode)
-            } else
-                !Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.keyCode)
+        if (autoBlockValue.get().equals("damage", true)) {
+            if (mc.thePlayer.hurtTime > 6) {
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, true)
+            } else {
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, false)
+            }
         }
         if (interact) {
             mc.netHandler.addToSendQueue(C02PacketUseEntity(interactEntity, interactEntity.positionVector))
@@ -1263,6 +1253,9 @@ class KillAura : Module() {
      */
     private fun stopBlocking() {
         if (blockingStatus) {
+            if (autoBlockValue.get().equals("damage", true)) {
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, false)
+            }
             if (packetSent && noBadPacketsValue.get()) {
                 return
             }

@@ -21,11 +21,11 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 @ModuleInfo(name = "StreamerMode", category = ModuleCategory.CLIENT)
 public class StreamerMode extends Module {
 
-    private final TextValue fakeNameValue = new TextValue("FakeName", "&cProtected User");
-    private final TextValue allFakeNameValue = new TextValue("AllPlayersFakeName", "FDP");
-    public final BoolValue selfValue = new BoolValue("Yourself", true);
-    public final BoolValue tagValue = new BoolValue("Tag", false);
-    public final BoolValue allPlayersValue = new BoolValue("AllPlayers", false);
+    private final String fakeNameValue = "CrossSineUser";
+    private final String allFakeNameValue = "Player";
+    public final Boolean selfValue = true;
+    public final Boolean tagValue = false;
+    public final BoolValue allPlayersValue = new BoolValue("SensorPlayer", false);
 
     @EventTarget
     public void onText(final TextEvent event) {
@@ -38,12 +38,12 @@ public class StreamerMode extends Module {
         event.setText(StringUtils.replace(
                 event.getText(),
                 mc.thePlayer.getName(),
-                (selfValue.get() ? (tagValue.get() ? StringUtils.injectAirString(mc.thePlayer.getName()) + " §7(§r" + ColorUtils.translateAlternateColorCodes(fakeNameValue.get() + "§r§7)") : ColorUtils.translateAlternateColorCodes(fakeNameValue.get()) + "§r") : mc.thePlayer.getName())
+                (selfValue ? (tagValue ? StringUtils.injectAirString(mc.thePlayer.getName()) + " §7(§r" + ColorUtils.translateAlternateColorCodes(fakeNameValue + "§r§7)") : ColorUtils.translateAlternateColorCodes(fakeNameValue) + "§r") : mc.thePlayer.getName())
         ));
 
         if(allPlayersValue.get())
             for(final NetworkPlayerInfo playerInfo : mc.getNetHandler().getPlayerInfoMap())
-                event.setText(StringUtils.replace(event.getText(), playerInfo.getGameProfile().getName(), ColorUtils.translateAlternateColorCodes(allFakeNameValue.get()) + "§f"));
+                event.setText(StringUtils.replace(event.getText(), playerInfo.getGameProfile().getName(), ColorUtils.translateAlternateColorCodes(allFakeNameValue) + "§f"));
     }
 
 }

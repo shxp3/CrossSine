@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.client.Target.invisibleV
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.mobValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.playerValue
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot.isBot
+import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
 import net.ccbluex.liquidbounce.features.module.modules.world.Teams
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.entity.Entity
@@ -37,7 +38,7 @@ object EntityUtils : MinecraftInstance() {
                             return false
                         }
 
-                        if (isFriend(entity)) {
+                        if (isFriend(entity) && !NoFriends.state) {
                             return false
                         }
 

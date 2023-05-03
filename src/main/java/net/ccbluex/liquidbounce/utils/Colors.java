@@ -12,7 +12,10 @@ public class Colors {
     public static int getColor(Color color) {
         return getColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
-
+    public static double getIncremental(double val, double inc) {
+        double one = 1.0D / inc;
+        return Math.round(val * one) / one;
+    }
     public static int getColor(int brightness) {
         return getColor(brightness, brightness, brightness, 255);
     }

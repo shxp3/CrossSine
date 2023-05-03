@@ -3,8 +3,8 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender.mixerDistValue
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender.mixerSecValue
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface.mixerDistValue
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface.mixerSecValue
 import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -38,7 +38,7 @@ class Arraylist(
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
 
-    private val colorModeValue = ListValue("Text-Color", arrayOf("Custom", "Random", "Rainbow", "AnotherRainbow", "Slowly", "SkyRainbow", "Static", "mixer"), "Slowly")
+    private val colorModeValue = ListValue("Text-Color", arrayOf("Custom", "Random", "Rainbow", "AnotherRainbow", "Slowly", "SkyRainbow", "Static", "mixer", "Astolfo"), "Slowly")
     private val colorRedValue = IntegerValue("Text-R", 255, 0, 255)
     private val colorGreenValue = IntegerValue("Text-G", 255, 0, 255)
     private val colorBlueValue = IntegerValue("Text-B", 255, 0, 255)
@@ -46,7 +46,6 @@ class Arraylist(
     private val tagColorRedValue = IntegerValue("Tag-R", 195, 0, 255)
     private val tagColorGreenValue = IntegerValue("Tag-G", 195, 0, 255)
     private val tagColorBlueValue = IntegerValue("Tag-B", 195, 0, 255)
-    private val speed = IntegerValue("AllSpeed", 0, 0, 400)
     private val saturationValue = FloatValue("Random-Saturation", 0.9f, 0f, 1f)
     private val brightnessValue = FloatValue("Random-Brightness", 1f, 0f, 1f)
     private val tagsValue = ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "Space", "None"), "Space")
@@ -178,7 +177,7 @@ class Arraylist(
                                             colorModeValue.equals("Random") -> Color.getHSBColor(module.hue, saturation, brightness).rgb
                                             colorModeValue.equals("Rainbow") -> ColorUtils.hslRainbow(index + 1, indexOffset = 100 * rainbowSpeed.get()).rgb
                                             colorModeValue.equals("SkyRainbow") -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble()).rgb
-                                            colorModeValue.equals("Astolfo") -> ColorUtils.astolfoColor(index = 1, indexOffset = 100 * 1).rgb
+                                            colorModeValue.equals("astolfo") -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 ).rgb
                                             colorModeValue.equals("Static") -> ColorUtils.StaticRainbow(rainbowSpeed.get(), index + 1).rgb
                                             colorModeValue.equals("Slowly") -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get()).rgb
                                             colorModeValue.equals("AnotherRainbow") -> ColorUtils.fade(customColor, 100, index + 1).rgb
@@ -237,7 +236,7 @@ class Arraylist(
                             "random" -> moduleColor
                             "CRainbow" -> CRainbow
                             "skyrainbow" -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble()).rgb
-                            "Astolfo" -> ColorUtils.astolfoColor(index = 1, indexOffset = 100 * 1).rgb
+                            "astolfo" -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 ).rgb
                             "slowly" -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get()).rgb
                             "anotherrainbow" -> ColorUtils.fade(backgroundCustomColor, 100, index + 1).rgb
                             "mixer" -> mixerColor
@@ -253,7 +252,7 @@ class Arraylist(
                             "random" -> moduleColor
                             "CRainbow" -> CRainbow
                             "skyrainbow" -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble()).rgb
-                            "Astolfo" -> ColorUtils.astolfoColor(index = 1, indexOffset = 100 * 1).rgb
+                            "astolfo" -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 ).rgb
                             "Static" -> ColorUtils.StaticRainbow(rainbowSpeed.get(), index + 1).rgb
                             "slowly" -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get()).rgb
                             "anotherrainbow" -> ColorUtils.fade(customColor, 100, index + 1).rgb
@@ -279,7 +278,7 @@ class Arraylist(
                             "random" -> moduleColor
                             "CRainbow" -> CRainbow
                             "skyrainbow" -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble()).rgb
-                            "Astolfo" -> ColorUtils.astolfoColor(index = 1, indexOffset = 100 * 1).rgb
+                            "astolfo" -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 ).rgb
                             "Static" -> ColorUtils.StaticRainbow(rainbowSpeed.get(), index + 1).rgb
                             "slowly" -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get()).rgb
                             "anotherrainbow" -> ColorUtils.fade(rectCustomColor, 100, index + 1).rgb
@@ -357,7 +356,7 @@ class Arraylist(
                             "random" -> moduleColor
                             "CRainbow" -> CRainbow
                             "skyrainbow" -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble()).rgb
-                            "Astolfo" -> RenderUtils.Astolfo(index * speed.get(), saturationValue.get(), brightnessValue.get())
+                            "astolfo" -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 ).rgb
                             "Static" -> ColorUtils.StaticRainbow(rainbowSpeed.get(), index + 1).rgb
                             "slowly" -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get()).rgb
                             "anotherrainbow" -> ColorUtils.fade(backgroundCustomColor, 100, index + 1).rgb
@@ -386,7 +385,7 @@ class Arraylist(
                             "random" -> Color(moduleColor)
                             "crainbow" -> Color(RenderUtils.getRainbowOpaque(cRainbowSecValue.get(), saturationValue.get(), brightnessValue.get(), counter[0] * (50 * cRainbowDistValue.get())))
                             "skyrainbow" -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble())
-                            "Astolfo" -> Color(RenderUtils.Astolfo(index * speed.get(), saturationValue.get(), brightnessValue.get()))
+                            "astolfo" -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 )
                             "Static" -> ColorUtils.StaticRainbow(rainbowSpeed.get(), index + 1)
                             "slowly" -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get())
                             "anotherrainbow" -> ColorUtils.reverseColor(ColorUtils.fade(tagCustomColor, 100, index + 1))
@@ -399,7 +398,7 @@ class Arraylist(
                             "random" -> moduleColor
                             "CRainbow" -> CRainbow
                             "skyrainbow" -> ColorUtils.skyRainbow(index, saturationValue.get(), brightnessValue.get(), rainbowSpeed.get().toDouble()).rgb
-                            "Astolfo" -> RenderUtils.Astolfo(index * speed.get(), saturationValue.get(), brightnessValue.get())
+                            "astolfo" -> ColorUtils.Astolfo(index + 1, indexOffset = 100 * 1 ).rgb
                             "Static" -> ColorUtils.StaticRainbow(rainbowSpeed.get(), index + 1).rgb
                             "slowly" -> ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * rainbowSpeed.get(), saturationValue.get(), brightnessValue.get()).rgb
                             "anotherrainbow" -> ColorUtils.fade(rectCustomColor, 100, index + 1).rgb

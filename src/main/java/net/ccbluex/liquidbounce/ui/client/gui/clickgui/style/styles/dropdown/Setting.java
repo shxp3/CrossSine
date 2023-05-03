@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.dropdown;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts;
 import net.ccbluex.liquidbounce.utils.math.MathUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -42,7 +42,7 @@ public class Setting {
 
     public void drawScreen(int mouseX, int mouseY) {
         int y = getY();
-        ClientRender hud = (ClientRender) CrossSine.moduleManager.getModule(ClientRender.class);
+        Interface hud = (Interface) CrossSine.moduleManager.getModule(Interface.class);
         ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
         boolean scissor = scaledResolution.getScaleFactor() != 1;
         double clamp = MathHelper.clamp_double(Minecraft.getMinecraft().getDebugFPS() / 30, 1, 9999);

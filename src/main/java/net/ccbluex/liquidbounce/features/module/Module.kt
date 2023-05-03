@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface
 import net.ccbluex.liquidbounce.features.module.modules.client.SoundModule
 import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
@@ -58,7 +58,12 @@ open class Module : MinecraftInstance(), Listenable {
     var triggerType: EnumTriggerType
     val moduleCommand: Boolean
     val moduleInfo = javaClass.getAnnotation(ModuleInfo::class.java)!!
+
+    var slideStep = 0F
+
     var splicedName = ""
+
+
         get() {
 //            val translatedName=LanguageManager.replace(localizedName)
 //            if(field.replace(" ","") != translatedName){
@@ -149,7 +154,7 @@ open class Module : MinecraftInstance(), Listenable {
         }
         set(value) {
             if (slideAnimation == null || (slideAnimation != null && slideAnimation!!.to != value.toDouble())) {
-                slideAnimation = Animation(EaseUtils.EnumEasingType.valueOf(ClientRender.arraylistXAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(ClientRender.arraylistXAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), ClientRender.arraylistXAxisAnimSpeedValue.get() * 30L).start()
+                slideAnimation = Animation(EaseUtils.EnumEasingType.valueOf(Interface.arraylistXAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(Interface.arraylistXAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), Interface.arraylistXAxisAnimSpeedValue.get() * 30L).start()
             }
         }
     var yPosAnimation: Animation? = null
@@ -165,7 +170,7 @@ open class Module : MinecraftInstance(), Listenable {
         }
         set(value) {
             if (yPosAnimation == null || (yPosAnimation != null && yPosAnimation!!.to != value.toDouble())) {
-                yPosAnimation = Animation(EaseUtils.EnumEasingType.valueOf(ClientRender.arraylistYAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(ClientRender.arraylistYAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), ClientRender.arraylistYAxisAnimSpeedValue.get() * 30L).start()
+                yPosAnimation = Animation(EaseUtils.EnumEasingType.valueOf(Interface.arraylistYAxisAnimTypeValue.get()), EaseUtils.EnumEasingOrder.valueOf(Interface.arraylistYAxisAnimOrderValue.get()), field.toDouble(), value.toDouble(), Interface.arraylistYAxisAnimSpeedValue.get() * 30L).start()
             }
         }
 

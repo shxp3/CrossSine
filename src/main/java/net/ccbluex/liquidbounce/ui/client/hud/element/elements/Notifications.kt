@@ -79,7 +79,7 @@ class Notification(
 ) {
     var width = 100
     var height = 30
-    
+
     private val classicHeight = 30
     var x = 0F
     var textLengthtitle = 0
@@ -104,11 +104,11 @@ class Notification(
         index: Int, font: CFontRenderer, alpha: Int, blurRadius: Float, x: Float, y: Float, scale: Float,
         contentShadow: Boolean,
         titleShadow: Boolean,
-        motionBlur: Boolean, 
+        motionBlur: Boolean,
         whiteText: Boolean,
         modeColored: Boolean,
         parent: Notifications.Companion
-        
+
     ): Boolean {
         this.width = 100.coerceAtLeast(
             font.getStringWidth(content)
@@ -119,9 +119,9 @@ class Notification(
         var transY = nowY.toDouble()
         var lbtl = font.getStringWidth(title + ": " + content)
         var x = 0f
-        
+
         var textColor = Color(255, 255, 255).rgb
-        
+
         if (whiteText) {
             textColor = Color(255, 255, 255).rgb
         } else {
@@ -193,17 +193,17 @@ class Notification(
             var colorRed = type.renderColor.red
             var colorGreen = type.renderColor.green
             var colorBlue = type.renderColor.blue
-            
+
             if (modeColored) {
                 //success
                 if (colorRed    == 60)   colorRed    = 36
                 if (colorGreen  == 224)  colorGreen  = 211
-                if (colorBlue   == 92)   colorBlue   = 99 
+                if (colorBlue   == 92)   colorBlue   = 99
 
                 //error
                 if (colorRed    == 255) colorRed    = 248
                 if (colorGreen  == 47)  colorGreen  = 72
-                if (colorBlue   == 47)  colorBlue   = 72 
+                if (colorBlue   == 47)  colorBlue   = 72
 
                 //warning
                 if (colorRed    == 245) colorRed    = 251
@@ -215,10 +215,10 @@ class Notification(
                 if (colorGreen  == 90)  colorGreen  = 242
                 if (colorBlue   == 167)  colorBlue   = 242
             }
-   
-            
+
+
             val colors = Color(colorRed, colorGreen, colorBlue, alpha / 3)
-            
+
             if (motionBlur) {
                 when (fadeState) {
                     FadeState.IN -> {
@@ -247,15 +247,15 @@ class Notification(
             font.DisplayFont2(font, content, 4F, 10F, textColor, contentShadow)
             return false
         }
-        
+
         if (style.equals("FDP")) {
 
             if (blurRadius != 0f) {
                 BlurUtils.draw(4 + (x + transX).toFloat() * scale, (y + transY).toFloat() * scale, (width * scale), (27f - 5f) * scale, blurRadius)
             }
-            
+
             val colors = Color(0, 0, 0, alpha / 4)
-            
+
             if (motionBlur) {
                 when (fadeState) {
                     FadeState.IN -> {
@@ -285,7 +285,7 @@ class Notification(
             return false
         }
 
-         if(style.equals("LiquidBounce")) {
+        if(style.equals("LiquidBounce")) {
             RenderUtils.drawRect(-1F, 0F, lbtl + 9F, -20F, Color(0, 0, 0, alpha))
             FontLoaders.C12.DisplayFont2(FontLoaders.C12, title + ": " + content, -4F, 3F, textColor, titleShadow)
             RenderUtils.drawRect(-1F + max(lbtl + 5F - (lbtl+ 5F) * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F), 0F, 4F + max(lbtl + 5F - (lbtl+ 5F) * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F), -20F, Color(0, 0, 0, alpha))
@@ -298,7 +298,7 @@ class Notification(
             RenderUtils.customRoundedinf(-x + 8F + lbtl, -y, -x - 2F, -18F - y, 0F, 3F, 3F, 0F, Color(0,0,0, alpha).rgb)
             RenderUtils.customRoundedinf(-x - 2F, -y, -x - 5F, -18F - y, 3F, 0F, 0F, 3F, textColor)
             Fonts.font40.drawString("$title: $content", -x + 3, -13F - y, -1)
-            }
+        }
 
         if(style.equals("Skid")){
 
@@ -312,106 +312,106 @@ class Notification(
             FontLoaders.C12.DisplayFont2(FontLoaders.C12,title, 4F, 3F, textColor,titleShadow)
             font.DisplayFont2(font,content, 4F, 10F, textColor,contentShadow)
             return false
-            }
-
-        if(style.equals("Tenacity")){ 
-        val fontRenderer = Fonts.font35
-        val thisWidth=100.coerceAtLeast(fontRenderer.getStringWidth(this.title).coerceAtLeast(fontRenderer.getStringWidth(this.content)) + 40)
-        val error = ResourceLocation("crosssine/ui/notifications/icons/tenacity/cross.png")
-        val successful = ResourceLocation("crosssine/ui/notifications/icons/tenacity/tick.png")
-        val warn = ResourceLocation("crosssine/ui/notifications/icons/tenacity/warning.png")
-        val info = ResourceLocation("crosssine/ui/notifications/icons/tenacity/info.png")
-        if(type.renderColor == Color(0xFF2F2F)){
-            RenderUtils.drawRoundedCornerRect(-18F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(180,0,0,190).rgb)
-            RenderUtils.drawImage(error,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        }else if(type.renderColor == Color(0x60E092)){
-            RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,180,0,190).rgb)
-            RenderUtils.drawImage(successful,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        } else if(type.renderColor == Color(0xF5FD00)){
-            RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
-            RenderUtils.drawImage(warn,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        } else {
-            RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
-            RenderUtils.drawImage(info,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
         }
-        return false
+
+        if(style.equals("Tenacity")){
+            val fontRenderer = Fonts.font35
+            val thisWidth=100.coerceAtLeast(fontRenderer.getStringWidth(this.title).coerceAtLeast(fontRenderer.getStringWidth(this.content)) + 40)
+            val error = ResourceLocation("crosssine/ui/notifications/icons/tenacity/cross.png")
+            val successful = ResourceLocation("crosssine/ui/notifications/icons/tenacity/tick.png")
+            val warn = ResourceLocation("crosssine/ui/notifications/icons/tenacity/warning.png")
+            val info = ResourceLocation("crosssine/ui/notifications/icons/tenacity/info.png")
+            if(type.renderColor == Color(0xFF2F2F)){
+                RenderUtils.drawRoundedCornerRect(-18F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(180,0,0,190).rgb)
+                RenderUtils.drawImage(error,-13,5,18,18)
+                Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+            }else if(type.renderColor == Color(0x60E092)){
+                RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,180,0,190).rgb)
+                RenderUtils.drawImage(successful,-13,5,18,18)
+                Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+            } else if(type.renderColor == Color(0xF5FD00)){
+                RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
+                RenderUtils.drawImage(warn,-13,5,18,18)
+                Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+            } else {
+                RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
+                RenderUtils.drawImage(info,-13,5,18,18)
+                Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+            }
+            return false
         }
 
         if(style.equals("Classic")) {
             if (blurRadius != 0f)
-                BlurUtils.draw((x + transX).toFloat() * scale, (y + transY).toFloat() * scale, width * scale, classicHeight * scale, blurRadius) 
-                
+                BlurUtils.draw((x + transX).toFloat() * scale, (y + transY).toFloat() * scale, width * scale, classicHeight * scale, blurRadius)
+
             RenderUtils.drawRect(0F, 0F, width.toFloat(), classicHeight.toFloat(), Color(0, 0, 0, alpha))
             shadowRenderUtils.drawShadowWithCustomAlpha(0F, 0F, width.toFloat(), classicHeight.toFloat(), 240f)
             RenderUtils.drawRect(0F, classicHeight - 2F, max(width - width * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F), classicHeight.toFloat(), type.renderColor)
             font.drawString(title, 4F, 4F, textColor, false)
             font.drawString(content, 4F, 17F, textColor, false)
             return false
-       }
+        }
 
         if(style.equals("Intellij")) {
-                val notifyDir = "crosssine/notifications/icons/noti/intellij/"
-                val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
-                val imgError = ResourceLocation("${notifyDir}error.png")
-                val imgWarning = ResourceLocation("${notifyDir}warning.png")
-                val imgInfo = ResourceLocation("${notifyDir}info.png")
+            val notifyDir = "crosssine/notifications/icons/noti/intellij/"
+            val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
+            val imgError = ResourceLocation("${notifyDir}error.png")
+            val imgWarning = ResourceLocation("${notifyDir}warning.png")
+            val imgInfo = ResourceLocation("${notifyDir}info.png")
 
-                val dist = (x + 1 + 26F) - (x - 8 - textLength)
-                val kek = -x - 1 - 20F
+            val dist = (x + 1 + 26F) - (x - 8 - textLength)
+            val kek = -x - 1 - 20F
 
-                GlStateManager.resetColor()
+            GlStateManager.resetColor()
 
-                Stencil.write(true)
-                if(nTypeError){
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, 1f, kek - 1, -28F - 1, 0F, Color(115,69,75).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(89,61,65).rgb)
-                    FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(249,130,108).rgb, true)
-                }
-                if(nTypeInfo) {
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength,  1f, kek - 1, -28F - 1, 0F, Color(70,94,115).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(61,72,87).rgb)
-                    FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(119,145,147).rgb, true)
-                }
-                if(nTypeSuccess){
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, 1f, kek - 1, -28F - 1, 0F, Color(67,104,67).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(55,78,55).rgb)
-                    FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(10,142,2).rgb, true)
-                }
-                if(nTypeWarning){
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, 1f, kek - 1, -28F - 1, 0F, Color(103,103,63).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(80,80,57).rgb)
-                    FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(175,163,0).rgb, true)
-                }
+            Stencil.write(true)
+            if(nTypeError){
+                RenderUtils.drawRoundedRect(-x + 9 + textLength, 1f, kek - 1, -28F - 1, 0F, Color(115,69,75).rgb)
+                RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(89,61,65).rgb)
+                FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(249,130,108).rgb, true)
+            }
+            if(nTypeInfo) {
+                RenderUtils.drawRoundedRect(-x + 9 + textLength,  1f, kek - 1, -28F - 1, 0F, Color(70,94,115).rgb)
+                RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(61,72,87).rgb)
+                FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(119,145,147).rgb, true)
+            }
+            if(nTypeSuccess){
+                RenderUtils.drawRoundedRect(-x + 9 + textLength, 1f, kek - 1, -28F - 1, 0F, Color(67,104,67).rgb)
+                RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(55,78,55).rgb)
+                FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(10,142,2).rgb, true)
+            }
+            if(nTypeWarning){
+                RenderUtils.drawRoundedRect(-x + 9 + textLength, 1f, kek - 1, -28F - 1, 0F, Color(103,103,63).rgb)
+                RenderUtils.drawRoundedRect(-x + 8 + textLength, 0f, kek, -28F, 0F, Color(80,80,57).rgb)
+                FontLoaders.M16.DisplayFont2(FontLoaders.M16,title, -x + 6, -25F, Color(175,163,0).rgb, true)
+            }
 
-                Stencil.erase(true)
+            Stencil.erase(true)
 
-                GlStateManager.resetColor()
+            GlStateManager.resetColor()
 
-                Stencil.dispose()
+            Stencil.dispose()
 
-                GL11.glPushMatrix()
-                GlStateManager.disableAlpha()
-                GlStateManager.resetColor()
-                GL11.glColor4f(1F, 1F, 1F, 1F)
-                RenderUtils.drawImage2(if(nTypeSuccess){imgSuccess} else if(nTypeError){imgError} else if(nTypeWarning){imgWarning} else {imgInfo}, kek + 5, -25F - y, 7, 7)
-                GlStateManager.enableAlpha()
-                GL11.glPopMatrix()
+            GL11.glPushMatrix()
+            GlStateManager.disableAlpha()
+            GlStateManager.resetColor()
+            GL11.glColor4f(1F, 1F, 1F, 1F)
+            RenderUtils.drawImage2(if(nTypeSuccess){imgSuccess} else if(nTypeError){imgError} else if(nTypeWarning){imgWarning} else {imgInfo}, kek + 5, -25F - y, 7, 7)
+            GlStateManager.enableAlpha()
+            GL11.glPopMatrix()
 
 
-                FontLoaders.M16.DisplayFont2(FontLoaders.M16,content, -x + 6, -13F, -1, true)
-                return false
-        } 
-    return false
+            FontLoaders.M16.DisplayFont2(FontLoaders.M16,content, -x + 6, -13F, -1, true)
+            return false
+        }
+        return false
     }
-      
+
 }
 
 //NotifyType Color
@@ -421,16 +421,16 @@ enum class NotifyType(var renderColor: Color) {
     WARNING(Color(0xF5FD00)),
     INFO(Color(0x6490A7));
 }
-    //classic
-   // SUCCESS(Color((0x60E092)),
-   // ERROR(Color(0xFF2F2F)),
-   // WARNING(Color(0xF5FD00)),
-   // INFO(Color( 0x6490A7)));
-   //modern (shitty)
-   //    SUCCESS(Color(0x36D399)),
-   // ERROR(Color(0xF87272)),
-   // WARNING(Color(0xFBBD23)),
-   // INFO(Color(0xF2F2F2));
+//classic
+// SUCCESS(Color((0x60E092)),
+// ERROR(Color(0xFF2F2F)),
+// WARNING(Color(0xF5FD00)),
+// INFO(Color( 0x6490A7)));
+//modern (shitty)
+//    SUCCESS(Color(0x36D399)),
+// ERROR(Color(0xF87272)),
+// WARNING(Color(0xFBBD23)),
+// INFO(Color(0xF2F2F2));
 
 
 enum class FadeState { IN, STAY, OUT, END }

@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
@@ -76,39 +76,41 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
 
     @Overwrite
-    protected float updateDistance(float p_1101461, float p_1101462) {
-            float rotationYaw = this.rotationYaw;
-            ClientRender clientRender = CrossSine.moduleManager.getModule(ClientRender.class);
-            if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
-                if (clientRender.getState()) {
-                    if (clientRender.getPlayerYaw() != null) {
-                        rotationYaw = clientRender.getPlayerYaw();
+    protected float updateDistance(float p_110146_1_, float p_110146_2_) {
+        float rotationYaw = this.rotationYaw;
+        if ((EntityLivingBase) (Object)this instanceof EntityPlayerSP) {
+            Interface clientRender = CrossSine.moduleManager.getModule(Interface.class);
+            if (clientRender.getState() && clientRender.shouldRotate()) {
+                if (clientRender.getPlayerYaw() != null) {
+                    if (this.swingProgress > 0F){
+                        p_110146_1_ = clientRender.getPlayerYaw();
                     }
+                    rotationYaw = clientRender.getPlayerYaw();
                 }
             }
-            float f = MathHelper.wrapAngleTo180_float(p_1101461 - this.renderYawOffset);
-            this.renderYawOffset += f * 0.3F;
-            float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
-            boolean flag = f1 < 75.0F || f1 >= 75.0F;
+        }
+        float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
+        this.renderYawOffset += f * 0.3F;
+        float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
+        boolean flag = f1 < -90.0F || f1 >= 90.0F;
+        if (f1 < -75.0F) {
+            f1 = -75.0F;
+        }
 
-            if (f1 < -75.0F) {
-                f1 = -75.0F;
-            }
+        if (f1 >= 75.0F) {
+            f1 = 75.0F;
+        }
 
-            if (f1 >= 75.0F) {
-                f1 = 75.0F;
-            }
+        this.renderYawOffset = rotationYaw - f1;
+        if (f1 * f1 > 2500.0F) {
+            this.renderYawOffset += f1 * 0.2F;
+        }
 
-            this.renderYawOffset = rotationYaw - f1;
-            if (f1 * f1 > 2500.0F) {
-                this.renderYawOffset += f1 * 0.2F;
-            }
+        if (flag) {
+            p_110146_2_ *= -1.0F;
+        }
 
-            if (flag) {
-                p_1101462 *= -1.0F;
-            }
-
-            return p_1101462;
+        return p_110146_2_;
         }
     /**
      * @author CCBlueX
@@ -198,7 +200,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     private int getArmSwingAnimationEnd() {
         int speed = this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);
 
-        if (Animations.INSTANCE.getState()) {
+        if (Animations.INSTANCE.getState() && Animations.INSTANCE.getAnimationMode().equals("Full")) {
             if (this.equals(Minecraft.getMinecraft().thePlayer)) {
                 speed = (int) (speed * Animations.INSTANCE.getSwingSpeedValue().get());
             }

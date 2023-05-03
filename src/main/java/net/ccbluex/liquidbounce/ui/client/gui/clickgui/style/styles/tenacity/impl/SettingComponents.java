@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.objects.PasswordFie
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.render.DrRenderUtils;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.render.GuiEvents;
 import net.ccbluex.liquidbounce.features.module.Module;
-import net.ccbluex.liquidbounce.features.module.modules.client.ClientRender;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.animations.Animation;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.animations.Direction;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.animations.impl.DecelerateAnimation;
@@ -131,7 +131,7 @@ public class SettingComponents extends Component {
 
 
     public void handle(int mouseX, int mouseY, int button, GuiEvents type) {
-        ClientRender hud = (ClientRender) CrossSine.moduleManager.getModule(ClientRender.class);
+        Interface hud = (Interface) CrossSine.moduleManager.getModule(Interface.class);
         //Setting up the colors
         Color textColor = new Color(255, 255, 255, alphaAnimation);
         Color darkRectColor = new Color(48, 50, 55, alphaAnimation);
