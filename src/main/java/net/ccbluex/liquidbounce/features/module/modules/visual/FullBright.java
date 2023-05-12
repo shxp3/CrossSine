@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 
-@ModuleInfo(name = "FullBright", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "FullBright", spacedName = "Full Bright",category = ModuleCategory.VISUAL)
 public class FullBright extends Module {
     private final ListValue modeValue = new ListValue("Mode", new String[] {"Gamma", "NightVision"}, "Gamma");
 
@@ -44,9 +44,9 @@ public class FullBright extends Module {
                     mc.thePlayer.addPotionEffect(new PotionEffect(Potion.nightVision.id, 1337, 1));
                     break;
             }
-        }else if(prevGamma != -1) {
+        }else if(prevGamma != -1F) {
             mc.gameSettings.gammaSetting = prevGamma;
-            prevGamma = -1;
+            prevGamma = -1F;
         }
     }
 

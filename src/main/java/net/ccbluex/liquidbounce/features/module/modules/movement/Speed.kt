@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "Speed", category = ModuleCategory.MOVEMENT, keyBind = Keyboard.KEY_V)
+@ModuleInfo(name = "Speed", spacedName = "Speed", category = ModuleCategory.MOVEMENT, keyBind = Keyboard.KEY_V)
 class Speed : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.speeds", SpeedMode::class.java)
         .map { it.newInstance() as SpeedMode }
@@ -42,7 +42,7 @@ class Speed : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.isSneaking || (mc.thePlayer.isInWater && noWater.get())) return
-        if (MovementUtils.isMoving() && !modes.equals("Jump")) mc.thePlayer.isSprinting = true
+        if (mc.thePlayer.moveForward > 0 && modes.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
         mode.onUpdate()
     }
 
@@ -52,10 +52,8 @@ class Speed : Module() {
             alert("Speed: " + MovementUtils.getSpeed().toString())
             alert("YMotion: " + mc.thePlayer.motionY.toString())
         }
-        
-        if (MovementUtils.isMoving() && !modes.equals("Jump")) {
-            mc.thePlayer.isSprinting = true
-        }
+
+        if (mc.thePlayer.moveForward > 0 && modes.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
 
         mode.onMotion(event)
 

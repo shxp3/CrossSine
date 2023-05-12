@@ -29,13 +29,14 @@ import org.lwjgl.opengl.GL11
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
-@ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Blink", spacedName = "Blink", category = ModuleCategory.PLAYER)
 class Blink : Module() {
 
     private val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000).displayable { pulseValue.get() }
     private val C0FPacket = BoolValue("C0FCancel", false)
     private val VeloPacket = BoolValue("VeloCancel", false)
+    private val renderValue = BoolValue("Render", false)
 
     private val pulseTimer = MSTimer()
     private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayServer>>()
@@ -45,7 +46,7 @@ class Blink : Module() {
 
     override fun onEnable() {
         if (mc.thePlayer == null) return
-        if (!pulseValue.get()) {
+        if (!pulseValue.get() && renderValue.get()) {
             fakePlayer = EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.gameProfile)
             fakePlayer!!.clonePlayer(mc.thePlayer, true)
             fakePlayer!!.copyLocationAndAnglesFrom(mc.thePlayer)

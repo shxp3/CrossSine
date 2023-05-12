@@ -26,7 +26,7 @@ import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.util.IChatComponent
 import kotlin.concurrent.schedule
 
-@ModuleInfo(name = "AutoPlay", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "AutoPlay", spacedName = "Auto Play", category = ModuleCategory.OTHER)
 class AutoPlay : Module() {
 
     private val modeValue = ListValue("Server", arrayOf("RedeSky", "BlocksMC", "Minemora", "Hypixel", "Jartex", "Pika", "Hydracraft", "HyCraft", "MineFC/HeroMC_Bedwars", "Supercraft"), "RedeSky")

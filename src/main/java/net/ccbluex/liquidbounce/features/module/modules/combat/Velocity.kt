@@ -11,13 +11,11 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.network.play.server.S12PacketEntityVelocity
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
-@ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "Velocity", "Velocity",category = ModuleCategory.COMBAT)
 class Velocity : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
         .map { it.newInstance() as VelocityMode }
@@ -37,8 +35,11 @@ class Velocity : Module() {
     }
     val h = IntegerValue("Horizontal", 0, 0, 100).displayable { modeValue.equals("Standard") }
     val v = IntegerValue("Vertical", 0, 0, 100).displayable { modeValue.equals("Standard") }
-    val onlyGroundValue = BoolValue("OnlyGround", false)
-    val onlyCombatValue = BoolValue("OnlyCombat", false)
+    val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") }
+    val m = BoolValue("StandardTag", false).displayable { modeValue.equals("Standard") }
+    val og = BoolValue("OnlyGround", false)
+    val oc = BoolValue("OnlyCombat", false)
+    val om = BoolValue("OnlyMove", false)
     // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
     private val noFireValue = BoolValue("noFire", false)
 
@@ -84,7 +85,7 @@ class Velocity : Module() {
             return
         }
 
-        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !CrossSine.combatManager.inCombat)) {
+        if ((og.get() && !mc.thePlayer.onGround) || (oc.get() && !CrossSine.combatManager.inCombat) || (om.get() && !MovementUtils.isMoving())) {
             return
         }
         if (noFireValue.get() && mc.thePlayer.isBurning) return
@@ -104,7 +105,7 @@ class Velocity : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         mode.onPacket(event)
-        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !CrossSine.combatManager.inCombat)) {
+        if ((og.get() && !mc.thePlayer.onGround) || (oc.get() && !CrossSine.combatManager.inCombat) || (om.get() && !MovementUtils.isMoving())) {
             return
         }
 
@@ -148,9 +149,14 @@ class Velocity : Module() {
         mode.onStep(event)
     }
     override val tag: String?
-        get() = if (modeValue.get() == "Standard")
-            "${v.get()}% ${h.get()}%"
-    else
+        get() = if (modeValue.get() == "Standard") {
+            if (m.get()) {
+                modeValue.get()
+            } else {
+                "${v.get()}% ${h.get()}%"
+            }
+        }
+            else
             modeValue.get()
 
     /**

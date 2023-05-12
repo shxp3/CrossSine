@@ -18,12 +18,9 @@ class HypixelNewSpeed: SpeedMode("HypixelNew") {
                     MovementUtils.strafe()
                 }
             }
-            if (mc.thePlayer.hurtTime > 0 && mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                MovementUtils.strafe(0.5F)
-            } else {
-                if (mc.thePlayer.hurtTime > 0 && CrossSine.combatManager.inCombat) {
-                    MovementUtils.strafe(0.42F)
-                }
+
+                if (mc.thePlayer.hurtTime > 6 && CrossSine.combatManager.inCombat) {
+                    MovementUtils.strafe()
             }
     }
 }

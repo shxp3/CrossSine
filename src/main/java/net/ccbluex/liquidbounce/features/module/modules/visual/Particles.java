@@ -23,7 +23,7 @@ import net.minecraft.entity.EntityLivingBase;
 
 import java.util.List;
 
-@ModuleInfo(name = "Particles", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Particles", spacedName = "Particles",category = ModuleCategory.VISUAL)
 public final class Particles extends Module {
 
     private final IntegerValue amount = new IntegerValue("Amount", 10, 1, 20);

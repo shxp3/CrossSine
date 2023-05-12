@@ -38,16 +38,15 @@ object CrossSine {
     const val CLIENT_NAME = "CrossSine"
 
     var Darkmode = true
-    var CLIENT_STATUS = true
+    var CLIENT_STATUS = false
     const val COLORED_NAME = "Cross§CSine§F"
     const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"
     const val CLIENT_WEBSITE = "crosssine.github.io"
-    const val MINECRAFT_VERSION = "1.8.9"
-    const val CLIENT_VERSION = "B32"
+    const val CLIENT_VERSION = "B32.5"
     @JvmField
-    val CLIENT_LOADING = "Initializing game..."
+    val CLIENT_LOADING = "Opening CrossSine Client...."
     @JvmField
-    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION}" + if (CLIENT_STATUS) " - *CRACK BETA LEAK* CRACK BY shxp3 Discord : https://dsc.gg/crosssinecommunity " else " Download : ${CLIENT_WEBSITE}"
+    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION}" + if (CLIENT_STATUS) "?BETA GET YOU DO HOW *****THIS IS FAKE CROSSSINE***** FOR FAKE!!" else " Download : ${CLIENT_WEBSITE}"
 
     @JvmField
     val gitInfo = Properties().also {

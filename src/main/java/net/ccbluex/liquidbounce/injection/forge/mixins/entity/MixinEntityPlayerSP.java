@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.ghost.KeepSprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -19,7 +18,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.*;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C03PacketPlayer;
@@ -118,14 +117,14 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
     /**
      * @author CCBlueX, liulihaocai
-     *
+     * <p>
      * use inject to make sure this works with ViaForge mod
      */
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
     public void onUpdateWalkingPlayer(CallbackInfo ci) {
         try {
-            final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
-            strafeFix.updateOverwrite();
+            final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
+            movementFix.updateOverwrite();
 
             CrossSine.eventManager.callEvent(new MotionEvent(EventState.PRE));
 
@@ -246,12 +245,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.movementInput.updatePlayerMoveState();
 
         final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
-        final KeepSprint keepSprint = CrossSine.moduleManager.getModule(KeepSprint.class);
         final NoSlow noSlow = CrossSine.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
-        final InventoryMove inventoryMove = CrossSine.moduleManager.getModule(InventoryMove.class);
+        final Inventory inventory = CrossSine.moduleManager.getModule(Inventory.class);
         final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
-        final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
+        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
 
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
@@ -268,12 +266,12 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean isSprintDirection = false;
         boolean movingStat = Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f;
 
-        boolean runStrictStrafe = strafeFix.getDoFix() && !strafeFix.getSilentFix();
-        boolean noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
+        boolean runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
+        boolean noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
 
         if (!movingStat || runStrictStrafe || noStrafe) {
             isSprintDirection = this.movementInput.moveForward > 0.05f;
-        }else {
+        } else {
             isSprintDirection = Math.abs(RotationUtils.getAngleDifference(MovementUtils.INSTANCE.getMovingYaw(), RotationUtils.targetRotation.getYaw())) < 67.0f;
         }
 
@@ -288,7 +286,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
         boolean isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || this.isUsingItem());
 
-        baseSprintState = baseSprintState && !(inventoryMove.getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
+        baseSprintState = baseSprintState && !(inventory.getNoSprintValue().equals("Real") && inventory.getInvOpen());
 
         if (!attemptToggle && !lastForwardToggleState && baseSprintState && !this.isSprinting() && canToggleSprint && !isCurrentUsingItem && !this.isPotionActive(Potion.blindness)) {
             if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
@@ -299,12 +297,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         }
 
         if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || (sprint.getUseItemValue().get() && (!sprint.getUseItemSwordValue().get() || isCurrentUsingSword))) && attemptToggle) {
-            this.setSprinting(true);
-        } else {
-            this.setSprinting(false);
-        }
-
-        if (keepSprint.getState()) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);
@@ -360,8 +352,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
          */
 
         movingStat = Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f;
-        runStrictStrafe = strafeFix.getDoFix() && !strafeFix.getSilentFix();
-        noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
+        runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
+        noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
 
         isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
         isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || this.isUsingItem());
@@ -380,7 +372,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (!movingStat || runStrictStrafe || noStrafe) {
             isSprintDirection = this.movementInput.moveForward > 0.05f;
-        }else {
+        } else {
             isSprintDirection = Math.abs(RotationUtils.getAngleDifference(MovementUtils.INSTANCE.getMovingYaw(), RotationUtils.targetRotation.getYaw())) < 67.0f;
         }
 

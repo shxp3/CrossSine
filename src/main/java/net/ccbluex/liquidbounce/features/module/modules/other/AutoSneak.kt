@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 
-@ModuleInfo(name = "AutoSneak", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "AutoSneak", spacedName = "Auto Sneak", category = ModuleCategory.OTHER)
 class AutoSneak : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {

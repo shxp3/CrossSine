@@ -20,6 +20,7 @@ import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.potion.Potion
 
+
 object InventoryUtils : MinecraftInstance(), Listenable {
     @kotlin.jvm.JvmField
     val CLICK_TIMER = MSTimer()
@@ -38,6 +39,21 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             }
         }
         return -1
+    }
+    fun findHighBlock(): Int {
+        var aefeefisbcebfsecibkujfseadcbgujfseadibugjfseadiugbjfsdaeibugjfeygbdfhusjdmhfgvbryesuaerogfdhusbhjsdufvybohyobhdgsfgbvyuhisdbghyfu = -1
+        var asedfoeidfgwnhlkbefdgwlnihkbedwsafgilejvfhdhveyfdgswhyfewdjshyhgbewdfshjbgefdwsbggbsdafadsfsdafadfewfawefdfesdafsdfeaedfsesdawfedswrfewardewdarfewrrew = 0
+        for (i in 36..44) {
+            if (mc.thePlayer.inventoryContainer.getSlot(i).hasStack) {
+                val efklergsdhfbaserdgferasgfergfretgferiwfuiujgerbfvbhreufbiujkerwsbdhnfiujnhbwersuijfhuewbfiguwebgifugbwedifsdwkfbdkfkujsdkufuisnshdfujidrfbnujirsbwijnef = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
+                var wieohnwevbfyhvbuikewfdyihvbuewyidhfbvuewyiuhbvdgfyubwedrfuigbyjkewdibufgjkyhuigjkbeyhwdfrigjkbuewdsfuigjkbbgjkuidefwscjbkdesfcwjkbiuedswkbiufgjikgjbeudfwscbuigjkefwdbuigjk = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                if (efklergsdhfbaserdgferasgfergfretgferiwfuiujgerbfvbhreufbiujkerwsbdhnfiujnhbwersuijfhuewbfiguwebgifugbwedifsdwkfbdkfkujsdkufuisnshdfujidrfbnujirsbwijnef is ItemBlock && wieohnwevbfyhvbuikewfdyihvbuewyidhfbvuewyiuhbvdgfyubwedrfuigbyjkewdibufgjkyhuigjkbeyhwdfrigjkbuewdsfuigjkbbgjkuidefwscjbkdesfcwjkbiuedswkbiufgjikgjbeudfwscbuigjkefwdbuigjk.stackSize > asedfoeidfgwnhlkbefdgwlnihkbedwsafgilejvfhdhveyfdgswhyfewdjshyhgbewdfshjbgefdwsbggbsdafadsfsdafadfewfawefdfesdafsdfeaedfsesdawfedswrfewardewdarfewrrew) {
+                    asedfoeidfgwnhlkbefdgwlnihkbedwsafgilejvfhdhveyfdgswhyfewdjshyhgbewdfshjbgefdwsbggbsdafadsfsdafadfewfawefdfesdafsdfeaedfsesdawfedswrfewardewdarfewrrew = wieohnwevbfyhvbuikewfdyihvbuewyidhfbvuewyiuhbvdgfyubwedrfuigbyjkewdibufgjkyhuigjkbeyhwdfrigjkbuewdsfuigjkbbgjkuidefwscjbkdesfcwjkbiuedswkbiufgjikgjbeudfwscbuigjkefwdbuigjk.stackSize
+                    aefeefisbcebfsecibkujfseadcbgujfseadibugjfseadiugbjfsdaeibugjfeygbdfhusjdmhfgvbryesuaerogfdhusbhjsdufvybohyobhdgsfgbvyuhisdbghyfu = i
+                }
+            }
+        }
+        return aefeefisbcebfsecibkujfseadcbgujfseadibugjfseadiugbjfsdaeibugjfeygbdfhusjdmhfgvbryesuaerogfdhusbhjsdufvybohyobhdgsfgbvyuhisdbghyfu
     }
     fun findSword(): Int {
         var bestDurability = -1

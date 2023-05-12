@@ -32,7 +32,7 @@ import java.util.*
 /***
  * @author liulihaocai (redesky / remicraft)
  */
-@ModuleInfo(name = "AuthBypass", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "AuthBypass", spacedName = "Auth Bypass", category = ModuleCategory.OTHER)
 class AuthBypass : Module() {
     private val modeValue = ListValue("Mode", arrayOf("RedeSky", "RemiCraft", "OldHyCraft"), "RedeSky")
     private val delayValue = IntegerValue("Delay", 1500, 100, 5000)

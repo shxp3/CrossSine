@@ -28,7 +28,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-@ModuleInfo(name = "Step", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "Step", spacedName = "Step", category = ModuleCategory.MOVEMENT)
 class Step : Module() {
 
     /**

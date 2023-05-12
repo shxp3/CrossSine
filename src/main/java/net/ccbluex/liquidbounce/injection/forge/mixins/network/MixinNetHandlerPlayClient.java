@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EntityDamageEvent;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.other.PackSpoofer;
-import net.ccbluex.liquidbounce.features.module.modules.other.NoRotateSet;
+import net.ccbluex.liquidbounce.features.module.modules.other.NoRotate;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
 import net.ccbluex.liquidbounce.utils.TransferUtils;
 import net.minecraft.client.ClientBrandRetriever;
@@ -249,7 +249,7 @@ public abstract class MixinNetHandlerPlayClient {
      */
     @Overwrite
     public void handlePlayerPosLook(S08PacketPlayerPosLook packetIn) {
-        final NoRotateSet noRotateSet = CrossSine.moduleManager.getModule(NoRotateSet.class);
+        final NoRotate noRotate = CrossSine.moduleManager.getModule(NoRotate.class);
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
         EntityPlayer entityplayer = this.gameController.thePlayer;
         double d0 = packetIn.getX();
@@ -301,17 +301,17 @@ public abstract class MixinNetHandlerPlayClient {
             this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(d0, d1, d2, f, f1, false));
             TransferUtils.INSTANCE.setSilentConfirm(false);
         } else {
-            if (noRotateSet.getState()) {
-                if (!noRotateSet.getNoLoadingValue().get() || this.doneLoadingTerrain) {
+            if (noRotate.getState()) {
+                if (!noRotate.getNoLoadingValue().get() || this.doneLoadingTerrain) {
                     flag = true;
-                    if (!noRotateSet.getOverwriteTeleportValue().get()) {
+                    if (!noRotate.getOverwriteTeleportValue().get()) {
                         overwriteYaw = entityplayer.rotationYaw;
                         overwritePitch = entityplayer.rotationPitch;
                     }
                 }
             }
             if (flag) {
-                if (noRotateSet.getRotateValue().get()) {
+                if (noRotate.getRotateValue().get()) {
                     entityplayer.setPositionAndRotation(d0, d1, d2, entityplayer.rotationYaw, entityplayer.rotationPitch);
                 } else {
                     entityplayer.setPosition(d0, d1, d2);

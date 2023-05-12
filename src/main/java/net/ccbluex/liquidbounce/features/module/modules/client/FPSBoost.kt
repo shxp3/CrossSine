@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 
-@ModuleInfo(name = "FPSBoost", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
+@ModuleInfo(name = "FPSBoost", "FPS Boost", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
 object FPSBoost : Module() {
 }
 

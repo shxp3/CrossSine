@@ -18,7 +18,7 @@ import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 
-@ModuleInfo(name = "KillEffect", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "KillEffect", spacedName = "Kill Effect", category = ModuleCategory.VISUAL)
 class KillEffect : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Lighting", "Blood", "Fire"), "Lighting")
     private val timesValue = IntegerValue("Times", 1, 1, 10)

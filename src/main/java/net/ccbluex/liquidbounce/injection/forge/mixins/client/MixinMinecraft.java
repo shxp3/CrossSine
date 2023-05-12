@@ -2,7 +2,8 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
+//import net.ccbluex.liquidbounce.features.module.modules.client.FPSSpoofer;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.client.SoundModule;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
@@ -86,6 +87,10 @@ public abstract class MixinMinecraft {
     public int displayHeight;
     @Shadow
     private boolean fullscreen;
+
+    @Shadow
+    public static int debugFPS;
+
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
         if (displayWidth < 1067)
@@ -95,6 +100,14 @@ public abstract class MixinMinecraft {
             displayHeight = 622;
     }
 
+//    @Overwrite
+//    public static int getDebugFPS() {
+//        FPSSpoofer fpsSpoofer = CrossSine.moduleManager.getModule(FPSSpoofer.class);
+//        if (fpsSpoofer.getState()) {
+//            return fpsSpoofer.getFakeFPS();
+//        }
+//        return debugFPS;
+//    }
 
     @Inject(method = "startGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;checkGLError(Ljava/lang/String;)V", ordinal = 2, shift = At.Shift.AFTER))
     private void startGame(CallbackInfo callbackInfo) {
@@ -205,7 +218,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
     public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir) {
         if (RotationUtils.targetRotation != null && thePlayer != null) {
-            final Interface clientRender = CrossSine.moduleManager.getModule(Interface.class);
+            final HUD clientRender = CrossSine.moduleManager.getModule(HUD.class);
             final float yaw = RotationUtils.targetRotation.getYaw();
             if (clientRender.getRotationMode().equals("Lock")) {
                 thePlayer.rotationYawHead = yaw;
@@ -231,10 +244,12 @@ public abstract class MixinMinecraft {
                     CrossSine.eventManager.callEvent(new ClickBlockEvent(blockPos, objectMouseOver.sideHit));
 
 
-                if (Minecraft.getMinecraft().thePlayer.isUsingItem()){
+                if (thePlayer.isUsingItem() && Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()){
                     if (theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
                         thePlayer.swingItem();
                     }
+                    thePlayer.isUsingItem();
+                    thePlayer.isBlocking();
                 } else {
                     if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
                         this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);

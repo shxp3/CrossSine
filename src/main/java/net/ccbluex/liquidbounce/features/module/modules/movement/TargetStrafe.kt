@@ -23,7 +23,7 @@ import java.awt.Color
 import kotlin.math.cos
 import kotlin.math.sin
 
-@ModuleInfo(name = "TargetStrafe",  category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "TargetStrafe",  spacedName = "Target Strafe", category = ModuleCategory.MOVEMENT)
 class TargetStrafe : Module() {
     private val thirdPersonViewValue = BoolValue("ThirdPersonView", false)
     private val renderModeValue = ListValue("RenderMode", arrayOf("Circle", "Polygon", "None"), "Polygon")

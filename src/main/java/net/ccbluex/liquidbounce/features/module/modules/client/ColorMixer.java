@@ -16,12 +16,7 @@ public class ColorMixer extends Module {
     private static float[] lastFraction = new float[]{};
     public static Color[] lastColors = new Color[]{};
 
-    public final IntegerValue blendAmount = new IntegerValue("Mixer-Amount", 2, 2, 10) {
-        @Override
-        protected void onChanged(final Integer oldValue, final Integer newValue) {
-            regenerateColors(oldValue != newValue);
-        }
-    };
+    public final IntegerValue blendAmount = new IntegerValue("Mixer-Amount", 2, 2, 10);
     /*
     @Override
     public void onInitialize() {
@@ -32,41 +27,42 @@ public class ColorMixer extends Module {
     public final ColorElement col1GreenValue = new ColorElement(1, ColorElement.Material.GREEN);
     public final ColorElement col1BlueValue = new ColorElement(1, ColorElement.Material.BLUE);
 
-    public final ColorElement col2RedValue = new ColorElement(2, ColorElement.Material.RED);
-    public final ColorElement col2GreenValue = new ColorElement(2, ColorElement.Material.GREEN);
-    public final ColorElement col2BlueValue = new ColorElement(2, ColorElement.Material.BLUE);
+    public final ColorElement col2RedValue = (ColorElement) new ColorElement(2, ColorElement.Material.RED).displayable(() -> blendAmount.getValue() > 1);
+    public final ColorElement col2GreenValue = (ColorElement) new ColorElement(2, ColorElement.Material.GREEN).displayable(() -> blendAmount.getValue() > 1);
+    public final ColorElement col2BlueValue = (ColorElement) new ColorElement(2, ColorElement.Material.BLUE).displayable(() -> blendAmount.getValue() > 1);
 
-    public final ColorElement col3RedValue = new ColorElement(3, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col3GreenValue = new ColorElement(3, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col3BlueValue = new ColorElement(3, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col3RedValue = (ColorElement) new ColorElement(3, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 2);
+    public final ColorElement col3GreenValue = (ColorElement) new ColorElement(3, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 2);
+    public final ColorElement col3BlueValue = (ColorElement) new ColorElement(3, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 2);
 
-    public final ColorElement col4RedValue = new ColorElement(4, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col4GreenValue = new ColorElement(4, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col4BlueValue = new ColorElement(4, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col4RedValue = (ColorElement) (ColorElement) new ColorElement(4, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 3);
+    public final ColorElement col4GreenValue = (ColorElement) (ColorElement) new ColorElement(4, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 3);
+    public final ColorElement col4BlueValue = (ColorElement) (ColorElement) new ColorElement(4, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 3);
 
-    public final ColorElement col5RedValue = new ColorElement(5, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col5GreenValue = new ColorElement(5, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col5BlueValue = new ColorElement(5, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col5RedValue = (ColorElement) (ColorElement) new ColorElement(5, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 4);
+    public final
+    ColorElement col5GreenValue = (ColorElement) new ColorElement(5, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 4);
+    public final ColorElement col5BlueValue = (ColorElement) (ColorElement) new ColorElement(5, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 4);
 
-    public final ColorElement col6RedValue = new ColorElement(6, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col6GreenValue = new ColorElement(6, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col6BlueValue = new ColorElement(6, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col6RedValue = (ColorElement) (ColorElement) new ColorElement(6, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 5);
+    public final ColorElement col6GreenValue = (ColorElement) (ColorElement) new ColorElement(6, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 5);
+    public final ColorElement col6BlueValue = (ColorElement) (ColorElement) new ColorElement(6, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 5);
 
-    public final ColorElement col7RedValue = new ColorElement(7, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col7GreenValue = new ColorElement(7, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col7BlueValue = new ColorElement(7, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col7RedValue = (ColorElement) (ColorElement) new ColorElement(7, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 6);
+    public final ColorElement col7GreenValue = (ColorElement) (ColorElement) new ColorElement(7, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 6);
+    public final ColorElement col7BlueValue = (ColorElement) (ColorElement) new ColorElement(7, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 6);
 
-    public final ColorElement col8RedValue = new ColorElement(8, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col8GreenValue = new ColorElement(8, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col8BlueValue = new ColorElement(8, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col8RedValue = (ColorElement) (ColorElement) new ColorElement(8, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 7);
+    public final ColorElement col8GreenValue = (ColorElement) new ColorElement(8, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 7);
+    public final ColorElement col8BlueValue = (ColorElement) (ColorElement) new ColorElement(8, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 7);
 
-    public final ColorElement col9RedValue = new ColorElement(9, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col9GreenValue = new ColorElement(9, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col9BlueValue = new ColorElement(9, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col9RedValue = (ColorElement) (ColorElement) new ColorElement(9, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 8);
+    public final ColorElement col9GreenValue = (ColorElement) (ColorElement) new ColorElement(9, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 8);
+    public final ColorElement col9BlueValue = (ColorElement) (ColorElement) new ColorElement(9, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 8);
 
-    public final ColorElement col10RedValue = new ColorElement(10, ColorElement.Material.RED, blendAmount);
-    public final ColorElement col10GreenValue = new ColorElement(10, ColorElement.Material.GREEN, blendAmount);
-    public final ColorElement col10BlueValue = new ColorElement(10, ColorElement.Material.BLUE, blendAmount);
+    public final ColorElement col10RedValue = (ColorElement) (ColorElement) (ColorElement) new ColorElement(10, ColorElement.Material.RED, blendAmount).displayable(() -> blendAmount.getValue() > 7);
+    public final ColorElement col10GreenValue = (ColorElement) new ColorElement(10, ColorElement.Material.GREEN, blendAmount).displayable(() -> blendAmount.getValue() > 7);
+    public final ColorElement col10BlueValue = (ColorElement) new ColorElement(10, ColorElement.Material.BLUE, blendAmount).displayable(() -> blendAmount.getValue() > 7);
 
     public static Color getMixedColor(int index, int seconds) {
         final ColorMixer colMixer = (ColorMixer) CrossSine.moduleManager.getModule(ColorMixer.class);

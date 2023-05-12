@@ -17,7 +17,7 @@ import net.minecraft.util.ResourceLocation
 @ModuleInfo(name = "SoundModules", category = ModuleCategory.CLIENT, canEnable = false)
 object SoundModule : Module() {
     val toggleIgnoreScreenValue = BoolValue("ToggleIgnoreScreen", false)
-    private val toggleSoundValue = ListValue("ToggleSound", arrayOf("None", "Click", "Custom"), "None")
+    private val toggleSoundValue = ListValue("ToggleSound", arrayOf("None", "Click", "Sigma", "Herta", "Ting"), "None")
 
     fun playSound(enable: Boolean) {
         when (toggleSoundValue.get().lowercase()) {
@@ -25,11 +25,18 @@ object SoundModule : Module() {
                 mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("random.click"), 1F))
             }
 
-            "custom" -> {
+            "sigma" -> {
                 if (enable) {
                     CrossSine.tipSoundManager.enableSound.asyncPlay()
                 } else {
                     CrossSine.tipSoundManager.disableSound.asyncPlay()
+                }
+            }
+            "herta" -> {
+                if (enable) {
+                    CrossSine.tipSoundManager.HertaEnableSound.asyncPlay()
+                } else {
+                    CrossSine.tipSoundManager.HertaDisableSound.asyncPlay()
                 }
             }
         }

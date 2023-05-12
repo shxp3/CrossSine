@@ -23,7 +23,7 @@ import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 
-@ModuleInfo(name = "Radar", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Radar", spacedName = "Radar",category = ModuleCategory.VISUAL)
 public class Radar extends Module
 {
     private boolean dragging;

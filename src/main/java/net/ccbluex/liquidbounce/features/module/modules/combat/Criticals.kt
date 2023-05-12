@@ -22,7 +22,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S0BPacketAnimation
 
-@ModuleInfo(name = "Criticals", category = ModuleCategory.COMBAT, autoDisable = EnumAutoDisableType.FLAG)
+@ModuleInfo(name = "Criticals", "Criticals",category = ModuleCategory.COMBAT, autoDisable = EnumAutoDisableType.FLAG)
 class Criticals : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.criticals", CriticalMode::class.java)
         .map { it.newInstance() as CriticalMode }

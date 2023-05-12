@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.ghost
 
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
@@ -15,9 +16,10 @@ import net.ccbluex.liquidbounce.utils.math.MathUtils
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemSword
+import org.lwjgl.input.Mouse
 import kotlin.random.Random
 
-@ModuleInfo(name = "AutoClicker", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "AutoClicker", "Auto Clicker",category = ModuleCategory.GHOST)
 class AutoClicker : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Normal", "LegitJitter", "LegitButterfly"), "Normal")
@@ -47,8 +49,8 @@ class AutoClicker : Module() {
     private val leftValue = BoolValue("LeftClick", true)
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false).displayable { leftValue.get() }
     private val blockValue = BoolValue("AutoBlock", false). displayable { leftValue.get() }
+    private val blockModeValue = ListValue("AutoBlockMode", arrayOf("Auto", "Manual"), "Auto").displayable {blockValue.get() && leftValue.get()}
     private val jitterValue = BoolValue("Jitter", false)
-    private val hitDelayFix = BoolValue("HitDelayFix", false)
 
 
     // Gaussian
@@ -79,15 +81,6 @@ class AutoClicker : Module() {
             leftDelay = updateClicks().toLong()
         }
 
-        @EventTarget
-        fun onMotion(event: MotionEvent) {
-            if (hitDelayFix.get()){
-                if (mc.thePlayer != null && mc.theWorld != null) {
-                    mc.leftClickCounter = 0
-                }
-            }
-        }
-
         if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem && rightValue.get() && System.currentTimeMillis() - rightLastSwing >= rightDelay && (!rightBlockOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemBlock) && rightValue.get()) {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
@@ -113,8 +106,15 @@ class AutoClicker : Module() {
                     mc.thePlayer.rotationPitch = -90F
             }
         }
-        if (blockValue.get() && timer.hasTimePassed(1) && mc.gameSettings.keyBindAttack.isKeyDown && leftValue.get()) {
-            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+        if (blockValue.get() && timer.hasTimePassed(1) && mc.gameSettings.keyBindAttack.isKeyDown && leftValue.get() && mc.thePlayer.heldItem.item is ItemSword) {
+            when (blockModeValue.get().lowercase()) {
+                "auto" -> {
+                    if (CrossSine.combatManager.inCombat) KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+                }
+                "manual" -> {
+                        KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+                }
+            }
         }
     }
 

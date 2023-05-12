@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C0APacketAnimation
 
-@ModuleInfo(name = "ComboOneHit", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "ComboOneHit", "Combo OneHit", category = ModuleCategory.COMBAT)
 @SuppressWarnings("ALL")
 class ComboOneHit : Module() {
 

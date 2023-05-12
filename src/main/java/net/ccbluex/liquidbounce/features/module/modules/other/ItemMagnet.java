@@ -34,7 +34,7 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
-@ModuleInfo(name = "ItemMagnet", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "ItemMagnet", spacedName = "Item Magnet",category = ModuleCategory.OTHER)
 public class ItemMagnet extends Module {
 
     private final ListValue modeValue = new ListValue("Mode", new String[] {"New", "Old"}, "New");

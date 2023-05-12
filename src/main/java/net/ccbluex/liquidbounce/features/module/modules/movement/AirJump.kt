@@ -13,7 +13,7 @@ import net.minecraft.block.BlockVine
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.BlockPos
 
-@ModuleInfo(name = "AirJump", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "AirJump", "Air Jump", category = ModuleCategory.MOVEMENT)
 class AirJump : Module() {
     private val airSpoofValue = BoolValue("AirSpoof", false)
     @EventTarget

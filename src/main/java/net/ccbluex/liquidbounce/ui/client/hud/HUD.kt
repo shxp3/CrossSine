@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Target
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -38,7 +37,7 @@ open class HUD : MinecraftInstance() {
                 .addElement(ScoreboardElement())
                 .addElement(Armor())
                 .addElement(Notifications())
-                .addElement(Target())
+                .addElement(TargetHUD())
         }
     }
 

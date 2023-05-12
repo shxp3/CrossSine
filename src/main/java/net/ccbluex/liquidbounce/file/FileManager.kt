@@ -19,6 +19,7 @@ class FileManager : MinecraftInstance() {
     val fontsDir = File(dir, "fonts")
     val configsDir = File(dir, "configs")
     val soundsDir = File(dir, "sounds")
+    val hertaSoundDir = File(dir, "sounds/herta")
     val legacySettingsDir = File(dir, "legacy-settings")
     val capesDir = File(dir, "capes")
     val themesDir = File(dir, "themes")
@@ -56,6 +57,9 @@ class FileManager : MinecraftInstance() {
 
         if (!soundsDir.exists()) {
             soundsDir.mkdir()
+        }
+        if (!hertaSoundDir.exists()) {
+            hertaSoundDir.mkdir()
         }
 
         if (!capesDir.exists()) {

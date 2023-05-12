@@ -21,7 +21,7 @@ import net.minecraft.network.play.server.*
 import net.minecraft.network.status.client.*
 import net.minecraft.network.status.server.*
 
-@ModuleInfo(name = "PacketDebugger", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "PacketDebugger", "Packet Debugger",category = ModuleCategory.OTHER)
 class PacketDebugger : Module() {
 
     private val printFieldsValue = BoolValue("PrintFields",true)

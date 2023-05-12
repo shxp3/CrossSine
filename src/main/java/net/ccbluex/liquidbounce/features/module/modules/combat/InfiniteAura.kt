@@ -35,7 +35,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.concurrent.thread
 
-@ModuleInfo(name = "InfiniteAura", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "InfiniteAura", "InfinitrAura",category = ModuleCategory.COMBAT)
 class InfiniteAura : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Aura", "Click"), "Aura")

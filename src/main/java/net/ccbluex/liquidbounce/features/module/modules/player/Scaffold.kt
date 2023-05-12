@@ -27,22 +27,26 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.settings.GameSettings
-import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.potion.Potion
 import net.minecraft.stats.StatList
 import net.minecraft.util.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import kotlin.math.*
+import java.util.Objects
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.roundToInt
+import kotlin.math.truncate
 
 
-@ModuleInfo(name = "Scaffold", category = ModuleCategory.PLAYER, keyBind = Keyboard.KEY_G)
+@ModuleInfo(name = "Scaffold", spacedName = "Scaffold", category = ModuleCategory.PLAYER, keyBind = Keyboard.KEY_G)
 class Scaffold : Module() {
 
     private val rotationsValue = ListValue("Rotations", arrayOf("None", "Snap", "Normal", "Simple", "AAC", "Custom", "WatchDog", "Grim" ,"Grim2"), "AAC")
@@ -59,7 +63,7 @@ class Scaffold : Module() {
             "Jump",
             "Motion",
             "NCP",
-            "SafeNCP",
+            "WatchDog",
             "Motion2",
             "ConstantMotion",
             "PlusMotion",
@@ -82,8 +86,9 @@ class Scaffold : Module() {
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Pre")
     private val towerPlaceModeValue = ListValue("TowerPlaceTiming", arrayOf("Pre", "Post"), "Pre")
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
-//    private val randomBlock = BoolValue("RandomSwitch", false)
+    private val highBlock = ListValue("PickerMode", arrayOf("AAC", "NCP"), "NCP").displayable {autoBlockValue.equals("Spoof")}
     val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "FakeWatchDog", "Ground", "Air", "Legit", "Fast", "None"), "Normal")
+    val bypassSpoof = BoolValue("SprintSpoof", false).displayable { sprintModeValue.equals("Bypass") }
     private val swingValue = BoolValue("Swing", false)
     private val searchValue = BoolValue("Search", true)
     private val downValue = BoolValue("Downward", false)
@@ -240,7 +245,7 @@ class Scaffold : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (rotationsValue.equals("WatchDog")) {
-            RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + 180F, 75F))
+            RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + 180F, 83F))
         }
         if (rotationsValue.equals("Simple")) {
             RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + 145F, 82F))
@@ -318,7 +323,6 @@ class Scaffold : Module() {
                 MovementUtils.setMotion(0.18.toDouble())
             }
         }
-
         shouldGoDown =
             downValue.get() && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && blocksAmount > 1
         if (shouldGoDown) mc.gameSettings.keyBindSneak.pressed = false
@@ -461,7 +465,7 @@ class Scaffold : Module() {
         if (towerStatus) move()
 
         // Lock Rotation
-        if (rotationsValue.equals("Snap") || rotationsValue.equals("WatchDog") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")) {
+        if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")) {
             if (rotationsValue.get() != "None" && 0 > 0 && lockRotation != null && silentRotationValue.get()) {
                 val limitedRotation =
                     RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
@@ -585,7 +589,7 @@ class Scaffold : Module() {
                 }
             }
 
-            "safencp" -> {
+            "watchdog" -> {
                     if (mc.thePlayer.posY % 1 <= 0.00153598) {
                         mc.thePlayer.setPosition(
                             mc.thePlayer.posX,
@@ -773,36 +777,23 @@ class Scaffold : Module() {
     }
 
     private fun update() {
-//        if (!randomBlock.get()){
-            if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
-                        !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock))
-            ) {
-                return
-            }
-//        } else {
-//            ticks++
-//            when (ticks) {
-//                in 1..15 -> {
-//                    if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
-//                                !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock))
-//                    ) {
-//                        return
-//                    }
-//                }
-//                in 16..30 -> {
-//                    if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
-//                                !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock))
-//                    ) {
-//                        return
-//                    }
-//                }
-//            }
-//            if(ticks>=30) {
-//                ticks = 0
-//            }
-//        }
+            if (!highBlock.equals("NCP")) {
+                if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
+                            !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock))
+                ) {
+                    return
+                }
 
-        findBlock(expandLengthValue.get() > 1)
+                findBlock(expandLengthValue.get() > 1)
+            } else {
+                if (if (!autoBlockValue.equals("off")) InventoryUtils.findHighBlock() == -1 else mc.thePlayer.heldItem == null ||
+                            !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock))
+                ) {
+                    return
+                }
+
+                findBlock(expandLengthValue.get() > 1)
+            }
     }
 
     /**
@@ -888,15 +879,27 @@ class Scaffold : Module() {
                 mc.thePlayer.heldItem.item as ItemBlock
             ))
         ) {
-            if (autoBlockValue.equals("off")) return
-            blockSlot = InventoryUtils.findAutoBlockBlock()
-            if (blockSlot == -1) return
-            if (autoBlockValue.equals("LiteSpoof") || autoBlockValue.equals("Spoof")) {
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(blockSlot - 36))
+            if (!highBlock.equals("NCP")) {
+                if (autoBlockValue.equals("off")) return
+                blockSlot = InventoryUtils.findAutoBlockBlock()
+                if (blockSlot == -1) return
+                if (autoBlockValue.equals("LiteSpoof") || autoBlockValue.equals("Spoof")) {
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(blockSlot - 36))
+                } else {
+                    mc.thePlayer.inventory.currentItem = blockSlot - 36
+                }
+                itemStack = mc.thePlayer.inventoryContainer.getSlot(blockSlot).stack
             } else {
-                mc.thePlayer.inventory.currentItem = blockSlot - 36
+                if (autoBlockValue.equals("off")) return
+                blockSlot = InventoryUtils.findHighBlock()
+                if (blockSlot == -1) return
+                if (autoBlockValue.equals("LiteSpoof") || autoBlockValue.equals("Spoof")) {
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(blockSlot - 36))
+                } else {
+                    mc.thePlayer.inventory.currentItem = blockSlot - 36
+                }
+                itemStack = mc.thePlayer.inventoryContainer.getSlot(blockSlot).stack
             }
-            itemStack = mc.thePlayer.inventoryContainer.getSlot(blockSlot).stack
         }
         if (isDynamicSprint) {
             mc.netHandler.addToSendQueue(
@@ -919,8 +922,8 @@ class Scaffold : Module() {
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
             if (mc.thePlayer.onGround) {
                 val modifier = XZModifierValue.get()
-                mc.thePlayer.motionX *= modifier.toDouble()
-                mc.thePlayer.motionZ *= modifier.toDouble()
+                mc.thePlayer.motionX *= modifier.toInt()
+                mc.thePlayer.motionZ *= modifier.toInt()
             }
 
             if (swingValue.get()) {
@@ -1062,7 +1065,7 @@ class Scaffold : Module() {
         if (counterMode.equals("astolfo", ignoreCase = true)) {
             Fonts.minecraftFont.drawString(
                 blocksAmount.toString() + " Blocks",
-                scaledResolution.scaledWidth / 1.8f,
+                scaledResolution.scaledWidth / 1.85f,
                 (scaledResolution.scaledHeight / 2 - 3).toFloat(),
                 -1,
                 true
@@ -1279,7 +1282,7 @@ class Scaffold : Module() {
 
                 else -> return false // this should not happen
             }
-            if (rotationsValue.equals("Snap") || rotationsValue.equals("WatchDog") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")) {
+            if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")) {
                 if (silentRotationValue.get()) {
                     val limitedRotation =
                         RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
@@ -1343,7 +1346,7 @@ class Scaffold : Module() {
 
                 else -> return false // this should not happen
             }
-            if (rotationsValue.equals("Snap") || rotationsValue.equals("WatchDog") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")) {
+            if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")) {
                 if (silentRotationValue.get()) {
                     val limitedRotation =
                         RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)

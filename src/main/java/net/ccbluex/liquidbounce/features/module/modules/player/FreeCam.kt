@@ -20,7 +20,7 @@ import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
-@ModuleInfo(name = "FreeCam", category = ModuleCategory.PLAYER, autoDisable = EnumAutoDisableType.RESPAWN)
+@ModuleInfo(name = "FreeCam", spacedName = "Free Cam", category = ModuleCategory.PLAYER, autoDisable = EnumAutoDisableType.RESPAWN)
 class FreeCam : Module() {
     private val speedValue = FloatValue("Speed", 0.8f, 0.1f, 2f)
     private val flyValue = BoolValue("Fly", true)

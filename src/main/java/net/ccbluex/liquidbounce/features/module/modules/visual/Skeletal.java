@@ -1,8 +1,3 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.features.module.modules.visual;
 
 import net.ccbluex.liquidbounce.event.EventTarget;
@@ -11,18 +6,17 @@ import net.ccbluex.liquidbounce.event.UpdateModelEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
-
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-@ModuleInfo(name = "Skeletal", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Skeletal", spacedName = "Skeletal", category = ModuleCategory.VISUAL)
 public class Skeletal extends Module {
 
     private final Map playerRotationMap = new WeakHashMap();
@@ -31,11 +25,7 @@ public class Skeletal extends Module {
     private final IntegerValue green = new IntegerValue("Green", 255, 0, 255);
     private final IntegerValue blue = new IntegerValue("Blue", 255, 0, 255);
 
-    private final BoolValue smoothLines = new BoolValue("SmoothLines", false);
-
-    public static double interpolate(double current, double old, double scale) {
-        return old + (current - old) * scale;
-    }
+    private final BoolValue smoothLines = new BoolValue("SmoothLines", true);
 
     @EventTarget
     public final void onModelUpdate(UpdateModelEvent event) {
@@ -234,5 +224,8 @@ public class Skeletal extends Module {
     private boolean contain(EntityPlayer var0) {
         return !mc.theWorld.playerEntities.contains(var0);
     }
-}
 
+    public static double interpolate(double current, double old, double scale) {
+        return old + (current - old) * scale;
+    }
+}

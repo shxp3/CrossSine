@@ -19,7 +19,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
 // TODO: recode
-@ModuleInfo(name = "GhostHand", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "GhostHand", spacedName = "Ghost Hand", category = ModuleCategory.OTHER)
 class GhostInteract : Module() {
     private val blockValue = BlockValue("Block", 54)
     private val radiusValue = IntegerValue("Radius", 4, 2, 7)

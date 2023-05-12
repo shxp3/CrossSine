@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
-@ModuleInfo(name = "DamageBoost", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "DamageBoost", spacedName = "Damage Boost",category = ModuleCategory.MOVEMENT)
 class DamageBoost : Module() {
     private val DamageBoostMode = ListValue("Mode", arrayOf("Minemen", "LegitBoost", "FireBall", "Hypixel", "Custom"), "Minemen")
     private val BoostCustomXZValue = FloatValue("CustomXZBoost", 0F, -10F, 10F).displayable { DamageBoostMode.get().equals("Custom")}

@@ -47,5 +47,4 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
 
     @Shadow
     public abstract boolean isUsingItem();
-
 }

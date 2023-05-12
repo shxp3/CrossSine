@@ -15,10 +15,9 @@ import org.lwjgl.opengl.Display;
 
 import java.util.Locale;
 
-@ModuleInfo(name = "FreeLook", category = ModuleCategory.VISUAL, triggerType = EnumTriggerType.PRESS)
+@ModuleInfo(name = "FreeLook", spacedName = "Free Look",category = ModuleCategory.VISUAL, triggerType = EnumTriggerType.PRESS, array = false)
 public final class FreeLook extends Module {
 
-    public final ListValue modeValue = new ListValue("Mode", new String[]{"1", "2", "3"}, "1");
     private static final Minecraft mc = Minecraft.getMinecraft();
     public static boolean perspectiveToggled = false;
     public static float cameraYaw = 0F;

@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@ModuleInfo(name = "JumpCircle", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "JumpCircle", spacedName = "Jump Circle",category = ModuleCategory.VISUAL)
 public class JumpCircle extends Module {
     private final IntegerValue redValue = new IntegerValue("Red", 255, 0, 255);
     private final IntegerValue greenValue = new IntegerValue("Green", 255, 0, 255);

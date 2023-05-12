@@ -149,6 +149,43 @@ public abstract class MixinItemRenderer {
                                     doBlockTransformations();
                                     break;
                                 }
+                                case "Tap" : {
+                                    this.tap(f, f1);
+                                    doBlockTransformations();
+                                    break;
+                                }
+                                case "Tap2" : {
+                                    this.tap2(f, f1);
+                                    doBlockTransformations();
+                                    break;
+                                }
+                                case "Chill" : {
+                                    this.transformFirstPersonItem(f / 2.0f - 0.18f, 0.0f);
+                                    GL11.glRotatef(f1 * 60.0f / 2.0f, -f1 / 2.0f, -0.0f, -16.0f);
+                                    GL11.glRotatef(-f1 * 30.0f, 1.0f, f1 / 2.0f, -1.0f);
+                                    this.doBlockTransformations();
+                                }
+                                case "Leaked": {
+                                    this.transformFirstPersonItem(f, 0);
+                                    this.doBlockTransformations();
+                                    GlStateManager.rotate(-MathHelper.sin((float) (MathHelper.sqrt_float(equippedProgress) * Math.PI)) * 30.0F, 0.5F, 0.5F, 0);
+                                }
+                                case "Leaked2": {
+                                    this.transformFirstPersonItem(f, 0);
+                                    GlStateManager.translate(0.0F, 0.1F, 0.0F);
+                                    this.doBlockTransformations();
+                                    GlStateManager.rotate(MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927F) * 35.0F / 2.0F, 0.0F, 1.0F, 1.5F);
+                                    GlStateManager.rotate(-MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927F) * 135.0F / 4.0F, 1.0F, 1.0F, 0.0F);
+                                }
+                                case "Remix": {
+                                    float f4 = MathHelper.sin((float) (MathHelper.sqrt_float(f1) * 3.1));
+                                    GL11.glTranslated(-0.1D, 0.00D, 0.0D);
+                                    this.transformFirstPersonItem(-0.45F, 0F);
+                                    GlStateManager.rotate(-f4 * 60.0F / 2.0F, f4 / 2.0F, -0.0F, 4.0F);
+                                    GlStateManager.rotate(-f4 * 40.0F, 1.0F, f4 / 2.0F, -0.0F);
+                                    this.doBlockTransformations();
+                                    break;
+                                }
                                 case "Avatar": {
                                     avatar(f1);
                                     doBlockTransformations();
@@ -384,7 +421,7 @@ public abstract class MixinItemRenderer {
                         this.doBowTransformations(partialTicks, abstractclientplayer);
                 }
             }else{
-                if (!animations.getState() || !animations.getAnimationMode().equals("Normal") || !animations.getFluxAnimation().get())
+                if (animations.getState() && animations.getAnimationMode().equals("Normal") || !animations.getState() || animations.getState() && !animations.getFluxAnimation().get() && animations.getAnimationMode().equals("Full"))
                     this.doItemUsedTransformations(f1);
                 this.transformFirstPersonItem(f, f1);
             }
@@ -541,6 +578,22 @@ public abstract class MixinItemRenderer {
         GlStateManager.rotate(var3 * -20.0F, 0.0F, 0.0F, 0.0F);
         GlStateManager.rotate(var4 * -20.0F, 0.0F, 0.0F, 0.0F);
         GlStateManager.rotate(var4 * -20.0F, 0.0F, 0.0F, 0.0F);
+        doItemRenderGLScale();
+    }
+    private void tap(float var2, float swingProgress) {
+        float smooth = (swingProgress*0.8f - (swingProgress*swingProgress)*0.8f);
+        GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
+        GlStateManager.translate(0.0F,  var2 * -0.15F, 0.0F);
+        GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(smooth * -90.0F, 0.0F, 1.0F, 0.0F);
+        doItemRenderGLScale();
+    }
+    private void tap2(float var2, float swing) {
+        float var4 = MathHelper.sin(MathHelper.sqrt_float(swing) * (float) Math.PI);
+        GlStateManager.translate(0.56F, -0.42F, -0.71999997F);
+        GlStateManager.translate(0.0F,  var2 * -0.15F, 0.0F);
+        GlStateManager.rotate(30 , 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(var4 * -30.0F, 0.0F, 1.0F, 0.0F);
         doItemRenderGLScale();
     }
 

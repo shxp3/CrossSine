@@ -50,6 +50,10 @@ object MovementUtils : MinecraftInstance() {
         return mc.thePlayer != null && (mc.thePlayer.movementInput.moveForward != 0f || mc.thePlayer.movementInput.moveStrafe != 0f)
     }
 
+    fun isStrafing(): Boolean {
+        return mc.thePlayer != null && (mc.thePlayer.movementInput.moveStrafe != 0f)
+    }
+
     fun hasMotion(): Boolean {
         return mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0 && mc.thePlayer.motionY != 0.0
     }

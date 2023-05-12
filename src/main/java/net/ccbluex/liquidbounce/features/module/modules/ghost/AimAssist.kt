@@ -13,15 +13,17 @@ import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.block.*
 import net.minecraft.init.Blocks
 import kotlin.random.Random
 
-@ModuleInfo(name = "AimAssist", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "AimAssist", "AimAssist",category = ModuleCategory.GHOST)
 class AimAssist : Module() {
 
-    private val rangeValue = FloatValue("Range", 50F, 1F, 50F)
-    private val turnSpeedValue = FloatValue("TurnSpeed", 180F, 1F, 180F)
+    private val rangeValue = FloatValue("Range", 50F, 1F, 5F)
+    private val turnSpeedValue = IntegerValue("TurnSpeed", 1, 1, 10)
+    private val turntwo = BoolValue("TurnTwo", false)
     private val fovValue = FloatValue("FOV", 180F, 1F, 180F)
     private val centerValue = BoolValue("Center", true)
     private val lockValue = BoolValue("Lock", true)
@@ -67,14 +69,23 @@ class AimAssist : Module() {
         } else {
             RotationUtils.searchCenter(boundingBox, false, false, true, false, range).rotation
         }
-        val rotation = RotationUtils.limitAngleChange(
-            player.rotation,
-            destinationRotation,
-            (turnSpeedValue.get() + Math.random()).toFloat()
-        )
+        if (turntwo.get()){
+            val rotation = RotationUtils.limitAngleChangeYaw(
+                player.rotation,
+                destinationRotation,
+                (turnSpeedValue.get() + Math.random()).toFloat()
+            )
 
-        rotation.toPlayer(player)
+            rotation.toPlayer(player)
+        } else {
+            val rotation = RotationUtils.limitAngleChange(
+                player.rotation,
+                destinationRotation,
+                (turnSpeedValue.get() + Math.random()).toFloat()
+            )
 
+            rotation.toPlayer(player)
+        }
         if (jitterValue.get()) {
             val yaw = Random.nextBoolean()
             val pitch = Random.nextBoolean()

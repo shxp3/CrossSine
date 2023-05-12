@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
@@ -56,7 +56,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Shadow
     public void onLivingUpdate() {
     }
-
+    @Shadow
+    private EntityLivingBase lastAttacker;
+    @Shadow
+    private int lastAttackerTime;
     @Shadow
     public float swingProgress;
     @Shadow
@@ -79,7 +82,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     protected float updateDistance(float p_110146_1_, float p_110146_2_) {
         float rotationYaw = this.rotationYaw;
         if ((EntityLivingBase) (Object)this instanceof EntityPlayerSP) {
-            Interface clientRender = CrossSine.moduleManager.getModule(Interface.class);
+            HUD clientRender = CrossSine.moduleManager.getModule(HUD.class);
             if (clientRender.getState() && clientRender.shouldRotate()) {
                 if (clientRender.getPlayerYaw() != null) {
                     if (this.swingProgress > 0F){
@@ -138,11 +141,11 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
         this.motionY = jumpEvent.getMotion();
         final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
-        final StrafeFix strafeFix = CrossSine.moduleManager.getModule(StrafeFix.class);
+        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
 
         if (this.isSprinting()) {
             float fixedYaw = this.rotationYaw;
-            if(RotationUtils.targetRotation != null && strafeFix.getDoFix()) {
+            if(RotationUtils.targetRotation != null && movementFix.getDoFix()) {
                 fixedYaw = RotationUtils.targetRotation.getYaw();
             }
             if(sprint.getState() && sprint.getJumpDirectionsValue().get()) {
@@ -174,9 +177,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))
     private void headLiving(CallbackInfo callbackInfo) {
-        final JumpDelayChanger jumpDelayChanger = CrossSine.moduleManager.getModule(JumpDelayChanger.class);
-        if (jumpDelayChanger.getState())
-        jumpTicks = jumpDelayChanger.getJumpDelayValue().get();
+        final NoJumpDelay noJumpDelay = CrossSine.moduleManager.getModule(NoJumpDelay.class);
+        if (noJumpDelay.getState())
+        jumpTicks = 0;
     }
 
     @Inject(method = "getLook", at = @At("HEAD"), cancellable = true)
@@ -211,5 +214,12 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         }
 
         return speed;
+    }
+    public EntityLivingBase getLastAttacker() {
+        return this.lastAttacker;
+    }
+
+    public int getLastAttackerTime() {
+        return this.lastAttackerTime;
     }
 }

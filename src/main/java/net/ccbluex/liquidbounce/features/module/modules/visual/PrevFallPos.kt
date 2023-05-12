@@ -17,7 +17,7 @@ import net.minecraft.util.BlockPos
 import java.awt.Color
 import kotlin.math.abs
 
-@ModuleInfo(name = "PrevFallPos", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "PrevFallPos", spacedName = "PrevFall Pos", category = ModuleCategory.VISUAL)
 class PrevFallPos : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline"), "Box")
     private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }

@@ -34,15 +34,14 @@ import org.lwjgl.util.vector.Vector3f
 import java.awt.Color
 import java.text.DecimalFormat
 
-@ModuleInfo(name = "ESP", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "ESP", spacedName = "ESP", category = ModuleCategory.VISUAL)
 class ESP : Module() {
     val modeValue = ListValue(
         "Mode",
-        arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow", "Outline"),
+        arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow"),
         "CSGO"
     )
     private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
-    val wireframeWidthValue = FloatValue("WireFrame-Width", 2f, 0.5f, 5f).displayable { modeValue.equals("WireFrame") }
     private val shaderOutlineRadiusValue = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f).displayable { modeValue.equals("ShaderOutline") }
     private val shaderGlowRadiusValue = FloatValue("ShaderGlow-Radius", 2.3f, 2f, 3f).displayable { modeValue.equals("ShaderGlow") }
     private val csgoDirectLineValue = BoolValue("CSGO-DirectLine", false).displayable { modeValue.equals("CSGO") }

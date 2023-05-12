@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.world.Teams
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
@@ -30,7 +29,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-@ModuleInfo(name = "FightBot", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "FightBot", "Fight Bot",category = ModuleCategory.GHOST)
 class FightBot : Module() {
     private val pathRenderValue = BoolValue("PathRender", true)
     private val jumpResetValue = BoolValue("JumpReset", true)
@@ -39,6 +38,7 @@ class FightBot : Module() {
     private val blockMode = ListValue("blockMode", arrayOf("Skill", "Always", "Manual"), "Manual")
     private val findWay = ListValue("findWay", arrayOf("None", "Point", "Entity"), "Point")
     private val workReach = FloatValue("workReach", 10f, 1f, 50f)
+    private val ignorefriend = BoolValue("IgnoreFriend", false)
 
     private var mainPos: FloatArray = floatArrayOf(0f, 0f, 0f)
     private var entity: EntityLivingBase? = null
@@ -62,7 +62,23 @@ class FightBot : Module() {
         backThread?.stop()
         mc.gameSettings.keyBindForward.pressed = false
     }
+    fun isInYourTeam(entity: EntityLivingBase): Boolean {
+        if (ignorefriend.get()){
+            mc.thePlayer ?: return false
 
+            if (mc.thePlayer.team != null && entity.team != null &&
+                mc.thePlayer.team.isSameTeam(entity.team)
+            ) {
+                return true
+            }
+            if (mc.thePlayer.displayName != null && entity.displayName != null) {
+                val targetName = entity.displayName.formattedText.replace("§r", "")
+                val clientName = mc.thePlayer.displayName.formattedText.replace("§r", "")
+                return targetName.startsWith("§${clientName[1]}")
+            }
+        }
+        return false
+    }
     @EventTarget
     fun onAttack(event: AttackEvent) {
         when (blockMode.get().lowercase()) {
@@ -117,7 +133,6 @@ class FightBot : Module() {
                 )
                 return
             }
-            val teams = CrossSine.moduleManager[Teams::class.java]!!
             for (entity in mc.theWorld.loadedEntityList) {
                 if (entity is EntityLivingBase) {
                     if (entity != mc.thePlayer) {
@@ -132,14 +147,14 @@ class FightBot : Module() {
                                                 mainPos[1],
                                                 mainPos[2],
                                                 entity
-                                            ) < workReach.get() && !teams.isInYourTeam(entity)
+                                            ) < workReach.get() && !isInYourTeam(entity)
                                         ) {
                                             discoveredTargets.add(entity)
                                         }
                                     }
 
                                     "none" -> {
-                                        if (mc.thePlayer.getDistanceToEntity(entity) < workReach.get() && !teams.isInYourTeam(
+                                        if (mc.thePlayer.getDistanceToEntity(entity) < workReach.get() && !isInYourTeam(
                                                 entity
                                             )
                                         ) {
@@ -148,7 +163,7 @@ class FightBot : Module() {
                                     }
 
                                     "entity" -> {
-                                        if (entity.getDistanceToEntity(findWither()) < workReach.get() && !teams.isInYourTeam(
+                                        if (entity.getDistanceToEntity(findWither()) < workReach.get() && !isInYourTeam(
                                                 entity
                                             )
                                         ) {

@@ -34,4 +34,14 @@ public final class ServerUtils extends MinecraftInstance {
 
         return serverIp;
     }
+    public static boolean isHypixelDomain(String s1) {
+        int chars = 0;
+        String str = "www.hypixel.net";
+
+        for (char c : str.toCharArray()) {
+            if (s1.contains(String.valueOf(c))) chars++;
+        }
+
+        return chars == str.length();
+    }
 }

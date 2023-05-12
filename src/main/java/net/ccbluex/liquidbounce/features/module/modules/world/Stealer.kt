@@ -39,7 +39,7 @@ import net.minecraft.util.Vec3
 import kotlin.concurrent.schedule
 import kotlin.random.Random
 
-@ModuleInfo(name = "Stealer", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "Stealer", spacedName = "Stealer", category = ModuleCategory.WORLD)
 object Stealer : Module() {
     /**
      * OPTIONS

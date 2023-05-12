@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD
 import net.minecraft.util.ChatAllowedCharacters
 import java.awt.Color
 import java.util.*
@@ -222,18 +222,18 @@ object ColorUtils {
     @JvmStatic
     fun hslRainbow(
         index: Int,
-        lowest: Float = Interface.rainbowStartValue.get(),
-        bigest: Float = Interface.rainbowStopValue.get(),
+        lowest: Float = HUD.rainbowStartValue.get(),
+        bigest: Float = HUD.rainbowStopValue.get(),
         indexOffset: Int = 300,
-        timeSplit: Int = Interface.rainbowSpeedValue.get(),
-        saturation: Float = Interface.rainbowSaturationValue.get(),
-        brightness: Float = Interface.rainbowBrightnessValue.get()
+        timeSplit: Int = HUD.rainbowSpeedValue.get(),
+        saturation: Float = HUD.rainbowSaturationValue.get(),
+        brightness: Float = HUD.rainbowBrightnessValue.get()
     ): Color {
         return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
     }
 
     @JvmStatic
-    fun Astolfo(
+    fun astolfo(
         index: Int,
         lowest: Float = 0.55F,
         bigest: Float = 0.85F,
@@ -242,7 +242,7 @@ object ColorUtils {
         saturation: Float = 0.55F,
         brightness: Float = 1F
     ): Color {
-        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (lowest - bigest)) + bigest, saturation, brightness)
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
     }
 
     fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double? {

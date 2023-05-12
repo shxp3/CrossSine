@@ -12,7 +12,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "SpeedBridge", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "SpeedBridge", "Speed Bridge",category = ModuleCategory.GHOST)
 class SpeedBridge : Module() {
 
     private val airValue = BoolValue("Air", false)
@@ -40,8 +40,7 @@ class SpeedBridge : Module() {
     fun onUpdate(event: UpdateEvent) {
 
         if (mc.gameSettings.keyBindBack.isKeyDown) {
-
-            if (!onHoldShift.get() || mc.gameSettings.keyBindSneak.isKeyDown) {
+            if (!onHoldShift.get() || Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
                 if (airValue.get() || mc.thePlayer.onGround) {
                     if (!noSpeedPotion.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                         if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
@@ -58,8 +57,6 @@ class SpeedBridge : Module() {
                 }
             } else
                 mc.gameSettings.keyBindSneak.pressed = false
-
-
         }
         if (mc.thePlayer.moveForward > 0 && mc.thePlayer.isSneaking && !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
             mc.gameSettings.keyBindSneak.pressed = false

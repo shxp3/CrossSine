@@ -412,6 +412,12 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
         ));
     }
+    @NotNull
+    public static Rotation limitAngleChangeYaw(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
+        final float yawDifference = getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw());
+
+        return new Rotation(currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)), mc.thePlayer.rotationPitch);
+    }
 
 //    @NotNull
 //    public static Rotation limitAngleChangeHumanizing(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {

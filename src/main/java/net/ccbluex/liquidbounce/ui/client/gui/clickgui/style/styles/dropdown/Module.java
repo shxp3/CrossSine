@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.dropdown;
 import net.ccbluex.liquidbounce.CrossSine;
 
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.timer.Timer;
@@ -81,7 +81,7 @@ public class Module {
             }
         }
 
-        Interface hud = (Interface) CrossSine.moduleManager.getModule(Interface.class);
+        HUD hud = (HUD) CrossSine.moduleManager.getModule(HUD.class);
         Color colorHUD = ClickGUIModule.generateColor();
         Color white = new Color(0xFFFFFF);
 
@@ -95,7 +95,7 @@ public class Module {
         } else {
             RenderUtils.drawRect(tab.getPosX(), y, tab.getPosX() + 100, y + 14, interpolateColor(new Color(40, 40, 40, 255), colorHUD, MathHelper.clamp_float(fraction, 0, 1)));
         }
-        Fonts.SF.SF_18.SF_18.drawString(module.getName(), tab.getPosX() + 2, (float) (y + 4), 0xffffffff, true);
+        Fonts.SF.SF_18.SF_18.drawString(module.getSpacedName(), tab.getPosX() + 2, (float) (y + 4), 0xffffffff, true);
 
         if (!settings.isEmpty()) {
             double val = debugFPS / 8.3;

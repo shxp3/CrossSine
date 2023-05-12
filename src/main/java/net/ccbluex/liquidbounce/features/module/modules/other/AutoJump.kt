@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 
-@ModuleInfo(name = "AutoJump", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "AutoJump", spacedName = "Auto Jump", category = ModuleCategory.OTHER)
 class AutoJump : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {

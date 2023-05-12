@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
-@ModuleInfo(name = "NoWeb", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "NoWeb", "No Web",category = ModuleCategory.MOVEMENT)
 class NoWeb : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("None", "OldAAC", "LAAC", "Rewinside", "Horizon", "Spartan", "AAC4", "AAC5", "Matrix", "Test"), "None")

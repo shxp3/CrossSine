@@ -18,7 +18,7 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.abs
 
-@ModuleInfo(name = "SuperheroFX", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "SuperheroFX", spacedName = "Superhero FX", category = ModuleCategory.VISUAL)
 class SuperheroFX : Module() {
 
     private val textParticles = mutableListOf<FXParticle>()

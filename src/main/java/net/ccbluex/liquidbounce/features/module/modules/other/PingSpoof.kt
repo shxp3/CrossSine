@@ -22,7 +22,7 @@ import java.util.*
 import java.util.Timer
 import kotlin.concurrent.schedule
 
-@ModuleInfo(name = "PingSpoof", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "PingSpoof", spacedName = "Ping Spoof", category = ModuleCategory.OTHER)
 class PingSpoof : Module() {
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0, 5000) {
         override fun onChanged(oldValue: Int, newValue: Int) {

@@ -37,11 +37,11 @@ import java.awt.Color
 import java.text.SimpleDateFormat
 import kotlin.math.max
 
-@ModuleInfo(name = "Hotbar", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
+@ModuleInfo(name = "Hotbar", "Hotbar", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
 object HotbarSettings : Module() {
     val hotbarValue = ListValue("HotbarMode", arrayOf("Minecraft", "Rounded", "Full", "LB", "Rise", "Gradient", "Overflow", "Glow", "Glowing", "Dock", "Exhi", "BlueIce", "Win11", "Bread"), "Rounded")
     val hotbarAlphaValue = IntegerValue("HotbarAlpha", 70, 0, 255)
-    val hotbarEaseValue = BoolValue("HotbarEase", true)
+    val hotbarEaseValue = BoolValue("HotbarEase", false)
     private val BlurValue = BoolValue("Blur", false)
     private val BlurAmount = FloatValue("BlurAmount", 10F, 1F, 100F)
     private val ItemCountValue = BoolValue("ItemColorCount", false)

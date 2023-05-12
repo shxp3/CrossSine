@@ -20,7 +20,7 @@ import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.C03PacketPlayer
 
-@ModuleInfo(name = "FastUse", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "FastUse", spacedName = "Fast Use", category = ModuleCategory.PLAYER)
 class FastUse : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("NCP","Instant", "Timer", "CustomDelay", "DelayedInstant", "MinemoraTest", "AAC", "NewAAC","Medusa","Matrix","Fast"), "DelayedInstant")

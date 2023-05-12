@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import net.minecraft.client.gui.inventory.GuiInventory
 
-@ModuleInfo(name = "NoInvClose", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "NoInvClose", spacedName = "NoInvClose",category = ModuleCategory.OTHER)
 class NoInvClose : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent){

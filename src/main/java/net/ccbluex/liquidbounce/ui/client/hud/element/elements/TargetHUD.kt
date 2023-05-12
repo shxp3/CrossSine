@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD
 import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
 import net.ccbluex.liquidbounce.features.module.modules.combat.InfiniteAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
@@ -46,7 +46,8 @@ import kotlin.math.roundToInt
 @ElementInfo(name = "TargetHUD")
 open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side.Vertical.MIDDLE)) {
 
-    val modeValue = ListValue("Mode", arrayOf("FDP", "Bar", "Chill", "ChillLite", "Moon", "Stitch", "Rice", "Slowly", "Remix", "Novoline", "Novoline2", "Novoline3", "Astolfo", "Astolfo2", "Liquid", "Flux", "Flux2", "Rise", "Exhibition", "ExhibitionOld", "Zamorozka", "Arris", "Tenacity", "Tenacity5", "WaterMelon", "SparklingWater", "Hanabi"), "Chill")
+    val modeValue = ListValue("Mode", arrayOf("FDP", "Bar", "Chill", "ChillLite", "Moon", "Stitch", "Rice", "Slowly", "Remix", "Novoline", "Novoline2", "Novoline3", "Astolfo", "Astolfo2", "Liquid", "Flux", "Flux2", "Rise", "Exhibition", "ExhibitionOld", "Zamorozka", "Arris", "Tenacity", "Tenacity5", "WaterMelon", "SparklingWater", "Hanabi", "Clean"), "Chill")
+    private val modeAstolfo = ListValue("AstolfoMode", arrayOf("1", "2"), "1").displayable { modeValue.equals("Astolfo") || modeValue.equals("Astolfo2")}
     private val modeRise = ListValue("RiseMode", arrayOf("Original", "New1", "New2", "Rise6"), "Rise6").displayable { modeValue.equals("Rise") }
 
     private val chillFontSpeed = FloatValue("Chill-FontSpeed", 0.5F, 0.01F, 1F).displayable { modeValue.get().equals("chill", true) }
@@ -276,7 +277,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
                 GL11.glTranslated(xAxis * percent, 0.0, 0.0)
             }
         }
-        val mixerColor = ColorMixer.getMixedColor(  Interface.mixerDistValue.get() * 10, Interface.mixerSecValue.get()).rgb
+        val mixerColor = ColorMixer.getMixedColor(  HUD.mixerDistValue.get() * 10, HUD.mixerSecValue.get()).rgb
 
         val preBarColor = when (colorModeValue.get()) {
             "mixer" -> Color(mixerColor)
@@ -301,10 +302,10 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
         val preBgColor = Color(bgRedValue.get(), bgGreenValue.get(), bgBlueValue.get(), bgAlphaValue.get())
 
         if (fadeValue.get())
-            animProgress += (0.0075F * fadeSpeed.get() * RenderUtils.deltaTime * if (actualTarget != null) -1F else 1F)
+            animProgress += (0.0075F * fadeSpeed.get() * RenderUtils.deltaTime * if (actualTarget != null) -1F else 0.5F)
         else animProgress = 0F
 
-        animProgress = animProgress.coerceIn(0F, 1F)
+        animProgress = animProgress.coerceIn(0F, 0.5F)
 
         barColor = ColorUtils.reAlpha(preBarColor, preBarColor.alpha / 255F * (1F - animProgress))
         bgColor = ColorUtils.reAlpha(preBgColor, preBgColor.alpha / 255F * (1F - animProgress))
@@ -337,6 +338,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             "moon" -> drawMoonOld(prevTarget!! as EntityPlayer)
             "astolfo" -> drawAstolfo(prevTarget!!)
             "astolfo2" -> drawAstolfo2(prevTarget!! as EntityPlayer)
+
             "liquid" -> drawLiquid(prevTarget!!)
             "flux" -> drawFlux(prevTarget!!)
             "flux2" -> drawFlux2(prevTarget!!)
@@ -364,19 +366,20 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             "exhibitionold" -> drawExhibitionOld(prevTarget!! as EntityPlayer)
             "bar" -> drawBar(prevTarget!!)
             "hanabi" -> drawHanabi(prevTarget!! as EntityPlayer)
+            "clean" -> drawClean(prevTarget!! as EntityPlayer)
         }
 
         return getTBorder()
 
     }
 
-    private fun drawAstolfo(target: EntityLivingBase) {
+    private fun drawAstolfo(entity: EntityLivingBase) {
         val font = Fonts.minecraftFont
         val color = barColor
 
-        easingHealth += ((target.health - easingHealth) / 2.0F.pow(10.0F - fadeSpeed.get())) * RenderUtils.deltaTime
+        easingHealth += ((entity.health - easingHealth) / 2.0F.pow(10.0F - fadeSpeed.get())) * RenderUtils.deltaTime
 
-        val hpPct = easingHealth / target.maxHealth
+        val hpPct = easingHealth / entity.maxHealth
 
         RenderUtils.drawRect(0F, 0F, 140F, 60F, bgColor.rgb)
 
@@ -386,12 +389,16 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
 
         GlStateManager.resetColor()
         GL11.glColor4f(1F, 1F, 1F, 1F)
-        RenderUtils.drawEntityOnScreen(18, 46, 20, target)
+        RenderUtils.drawEntityOnScreen(18, 46, 20, entity)
 
-        font.drawStringWithShadow(target.name, 37F, 6F, -1)
+        font.drawStringWithShadow(entity.name, 37F, 6F, -1)
         GL11.glPushMatrix()
         GL11.glScalef(2F,2F,2F)
-        font.drawString("${decimalFormat3.format(target.health)} ❤", 19, 9, color.rgb)
+        if (modeAstolfo.equals("1")) {
+            font.drawString("${decimalFormat3.format(entity.health)} ❤", 19, 9, color.rgb)
+        } else {
+            font.drawString("${decimalFormat3.format(entity.health / 2)} ❤", 19, 9, color.rgb)
+        }
         GL11.glPopMatrix()
     }
     private fun drawAstolfo2(entity: EntityPlayer) {
@@ -403,11 +410,15 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
         GL11.glColor4f(1F, 1F, 1F, 1F)
         RenderUtils.drawEntityOnScreen(16, 55, 25, entity)
 
-        Fonts.minecraftFont.drawString(entity.name, 32F, 5F, -1, true)
+        Fonts.minecraftFont.drawStringWithShadow(entity.name, 32F, 5F, -1)
         GL11.glPushMatrix()
         GL11.glTranslatef(32F, 20F, 32F)
         GL11.glScalef(2F, 2F, 2F)
-        Fonts.minecraftFont.drawString("${decimalFormat3.format(entity.health)} ❤", 0, 0, barColor.rgb);
+        if (modeAstolfo.equals("1")) {
+            Fonts.minecraftFont.drawStringWithShadow("${decimalFormat3.format(entity.health)} ❤", 0F, 0F, barColor.rgb);
+        } else {
+            Fonts.minecraftFont.drawStringWithShadow("${decimalFormat3.format(entity.health / 2)} ❤", 0F, 0F, barColor.rgb);
+        }
         GL11.glPopMatrix()
 
         RenderUtils.drawRect(32F, 48F, 32F + 122F, 55F, barColor.darker().rgb)
@@ -467,7 +478,51 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
 
         font.drawString((decimalFormat.format((easingHP / target.maxHealth) * 100)) + "%", 40, 20, Color.WHITE.rgb)
     }
+    private fun drawClean(target: EntityLivingBase) {
+        if (target != lastTarget || easingHealth < 0 || easingHealth > target.maxHealth ||
+            abs(easingHealth - target.health) < 0.01) {
+            easingHealth = target.health
+        }
 
+        val width = (38 + Fonts.font40.getStringWidth(target.name))
+            .coerceAtLeast(120)
+            .toFloat()
+
+        // Draw rect box
+        RenderUtils.drawBorderedRect(0F, 0F, width, 36F, 3F, Color(bgRedValue.get(), bgGreenValue.get(), bgBlueValue.get(), bgAlphaValue.get()).rgb, bgColor.rgb)
+
+        // Damage animation
+        if (easingHealth > target.health)
+            RenderUtils.drawRect(0F, 34F, (easingHealth / target.maxHealth) * width,
+                36F, Color(252, 185, 65).rgb)
+
+        // Health bar
+        RenderUtils.drawRect(0F, 34F, (target.health / target.maxHealth) * width,
+            36F, barColor.rgb)
+
+        easingHealth += ((target.health - easingHealth) / 2.0F.pow(10.0F - fadeSpeed.get())) * RenderUtils.deltaTime
+
+        Fonts.font40.drawString(target.name, 36, 3, 0xffffff)
+        Fonts.font35.drawString("Distance: ${decimalFormat.format(mc.thePlayer.getDistanceToEntityBox(target))}", 36, 15, 0xffffff)
+
+        // Draw info
+        val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
+        if (playerInfo != null) {
+            Fonts.font35.drawString("Ping: ${playerInfo.responseTime.coerceAtLeast(0)}",
+                36, 24, 0xffffff)
+
+            // Draw head
+            val locationSkin = playerInfo.locationSkin
+
+            val scaleHT = (target.hurtTime.toFloat() / target.maxHurtTime.coerceAtLeast(1).toFloat()).coerceIn(0F, 1F)
+            drawHead(locationSkin,
+                2F + 15F * (scaleHT * 0.2F),
+                2F + 15F * (scaleHT * 0.2F),
+                1F - scaleHT * 0.2F,
+                30, 30,
+                1F, 0.4F + (1F - scaleHT) * 0.6F, 0.4F + (1F - scaleHT) * 0.6F)
+        }
+    }
     private fun drawNovo3(target: EntityLivingBase) {
         val font = Fonts.minecraftFont
         val fontHeight = font.FONT_HEIGHT
@@ -2182,6 +2237,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             "novoline3" -> Border(-1F, -2F, 90F, 38F)
             "astolfo" -> Border(0F, 0F, 140F, 60F)
             "astolfo2" -> Border(0F, 0F, 160F, 60F)
+            "astolfo3" -> Border(0F, 0F, 160F, 60F)
             "moon" -> Border(0F, 0F, 118F + 40.5f, 51.5F)
             "liquid" -> Border(0F, 0F, (38 + mc.thePlayer.name.let(Fonts.font40::getStringWidth)).coerceAtLeast(118).toFloat(), 36F)
             "fdp" -> Border(0F, 0F, 150F, 47F)

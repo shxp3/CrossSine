@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 
-@ModuleInfo(name = "Timer", category = ModuleCategory.PLAYER, autoDisable = EnumAutoDisableType.RESPAWN)
+@ModuleInfo(name = "Timer", spacedName = "Timer", category = ModuleCategory.PLAYER, autoDisable = EnumAutoDisableType.RESPAWN)
 class Timer : Module() {
 
     private val speedValue = FloatValue("Speed", 2F, 0.1F, 10F)
@@ -32,31 +32,9 @@ class Timer : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (onMoveValue.get() && onStrafeValue.get()) {
-            if (mc.gameSettings.keyBindForward.isKeyDown && mc.gameSettings.keyBindLeft.isKeyDown && !mc.gameSettings.keyBindRight.isKeyDown && !mc.gameSettings.keyBindBack.isKeyDown) {
-                mc.timer.timerSpeed = speedValue.get()
-            } else {
-                if (mc.gameSettings.keyBindForward.isKeyDown && !mc.gameSettings.keyBindLeft.isKeyDown && mc.gameSettings.keyBindRight.isKeyDown && !mc.gameSettings.keyBindBack.isKeyDown) {
-                    mc.timer.timerSpeed = speedValue.get()
-                } else {
-                    if (!mc.gameSettings.keyBindForward.isKeyDown && mc.gameSettings.keyBindLeft.isKeyDown && !mc.gameSettings.keyBindRight.isKeyDown && mc.gameSettings.keyBindBack.isKeyDown) {
-                        mc.timer.timerSpeed = speedValue.get()
-                    } else {
-                        if (!mc.gameSettings.keyBindForward.isKeyDown && !mc.gameSettings.keyBindLeft.isKeyDown && mc.gameSettings.keyBindRight.isKeyDown && mc.gameSettings.keyBindBack.isKeyDown) {
-                            mc.timer.timerSpeed = speedValue.get()
-                        }
-                    }
-                }
-            }
-        } else {
-            mc.timer.timerSpeed = 1.0F
-        }
-        if (onMoveValue.get() && !onStrafeValue.get() && MovementUtils.isMoving()) {
+        if (onMoveValue.get() && MovementUtils.isMoving() || onStrafeValue.get() && MovementUtils.isStrafing()) {
             mc.timer.timerSpeed = speedValue.get()
         } else {
-            mc.timer.timerSpeed = 1.0F
-        }
-        if (!onMoveValue.get() && !onStrafeValue.get()) {
             mc.timer.timerSpeed = speedValue.get()
         }
     }

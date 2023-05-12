@@ -25,8 +25,8 @@ import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "InventoryMove", category = ModuleCategory.MOVEMENT)
-class InventoryMove : Module() {
+@ModuleInfo(name = "Inventory", "Inventory", category = ModuleCategory.MOVEMENT)
+class Inventory : Module() {
 
     private val noDetectableValue = BoolValue("NoDetectable", false)
     private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv", "None"), "None")

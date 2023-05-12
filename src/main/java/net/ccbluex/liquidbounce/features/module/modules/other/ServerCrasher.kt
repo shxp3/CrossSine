@@ -30,7 +30,7 @@ import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.util.BlockPos
 import java.util.*
 
-@ModuleInfo(name = "ServerCrasher", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "Crasher", spacedName = "Crasher", category = ModuleCategory.OTHER)
 class ServerCrasher : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf(

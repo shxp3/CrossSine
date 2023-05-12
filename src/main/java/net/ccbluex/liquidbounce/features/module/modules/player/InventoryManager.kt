@@ -57,7 +57,6 @@ class InventoryManager : Module() {
     private val randomSlotValue = BoolValue("RandomSlot", false)
     private val sortValue = BoolValue("Sort", true)
     private val throwValue = BoolValue("Drop", true)
-    private val armorValue = BoolValue("Armor", true)
     private val noCombatValue = BoolValue("NoCombat", false)
     private val itemDelayValue = IntegerValue("ItemDelay", 0, 0, 5000)
     private val swingValue = BoolValue("Swing", true)
@@ -130,26 +129,6 @@ class InventoryManager : Module() {
 
         if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || (mc.currentScreen !is GuiInventory && invOpenValue.get())) {
             return
-        }
-
-        if (armorValue.get()) {
-            // Find best armor
-            val bestArmor = findBestArmor()
-
-            // Swap armor
-            for (i in 0..3) {
-                val armorPiece = bestArmor[i] ?: continue
-                val armorSlot = 3 - i
-                val oldArmor: ItemStack? = mc.thePlayer.inventory.armorItemInSlot(armorSlot)
-                if (oldArmor == null || oldArmor.item !is ItemArmor || ItemUtils.compareArmor(ArmorPiece(oldArmor, -1), armorPiece, nbtArmorPriority.get(), goal) < 0) {
-                    if (oldArmor != null && move(8 - armorSlot, true)) {
-                        return
-                    }
-                    if (mc.thePlayer.inventory.armorItemInSlot(armorSlot) == null && move(armorPiece.slot, false)) {
-                        return
-                    }
-                }
-            }
         }
 
         if (sortValue.get()) {

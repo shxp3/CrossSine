@@ -18,7 +18,7 @@ import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 
-@ModuleInfo(name = "KillSound", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "KillSound", spacedName = "Kill Sound", category = ModuleCategory.WORLD)
 class KillSound : Module() {
 
     @EventTarget

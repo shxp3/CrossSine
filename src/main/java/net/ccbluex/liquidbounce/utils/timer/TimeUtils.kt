@@ -15,8 +15,4 @@ object TimeUtils {
     fun randomClickDelay(minCPS: Int, maxCPS: Int): Long {
         return (Math.random() * (1000 / minCPS - 1000 / maxCPS + 1) + 1000 / maxCPS).toLong()
     }
-
-    fun randomReach(minReach: Float, maxReach: Float): Long {
-        return RandomUtils.nextFloat(minReach, maxReach).toLong()
-    }
 }

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.item.ItemBlock
 
-@ModuleInfo(name = "FastPlace", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "FastPlace", "Fast Place",category = ModuleCategory.GHOST)
 class FastPlace : Module() {
     val speedValue = IntegerValue("Speed", 0, 0, 4)
     val blockonlyValue = BoolValue("BlockOnly", false)

@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.player.FreeCam
@@ -46,14 +46,14 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 
-@ModuleInfo(name = "KillAura", category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
+@ModuleInfo(name = "KillAura", "Kill Aura",category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
     /**
      * OPTIONS
      */
 
     // CPS - Attack speed
-    private val ThirdViewValue = BoolValue("ThirdView", false)
+    private val tagModeValue = ListValue("TagMode", arrayOf("Target", "Priority", "AutoBlock", "None"), "Target")
     private val maxCpsValue: IntegerValue = object : IntegerValue("MaxCPS", 12, 1, 20) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minCpsValue.get()
@@ -96,7 +96,6 @@ class KillAura : Module() {
         }
     }
     private val discoverRangeValue = FloatValue("DiscoverRange", 6f, 0f, 8f)
-
     private val blinkCheck = BoolValue("BlinkCheck", true)
     private val noScaffValue = BoolValue("NoScaffold", true)
     private val noFlyValue = BoolValue("NoFly", false)
@@ -113,7 +112,7 @@ class KillAura : Module() {
     private val noBadPacketsValue = BoolValue("NoBadPackets", false)
 
     // AutoBlock
-    val autoBlockValue = ListValue("AutoBlock", arrayOf("Range", "Damage", "Fake", "Off"), "Off")
+    val autoBlockValue = ListValue("AutoBlock", arrayOf("Range", "Fake", "Off"), "Off")
 
     // vanilla will send block packet at pre
     private val autoBlockRangeValue = object : FloatValue("AutoBlockRange", 2.5f, 0f, 8f) {
@@ -174,7 +173,6 @@ class KillAura : Module() {
     // Strafe
     private val silentRotationValue =       BoolValue("SilentRotation", true).displayable { !rotationModeValue.equals("None") }
     private val rotationStrafeValue =       ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Silent").displayable { silentRotationValue.get() && !rotationModeValue.equals("None") }
-    private val strafeOnlyGroundValue =     BoolValue("StrafeOnlyGround", true).displayable { rotationStrafeValue.displayable && !rotationStrafeValue.equals("Off") }
     private val StrafeFixValue = BoolValue("StrafeFix", false).displayable {!rotationStrafeValue.equals("Off")}
     // Backtrace
     private val backtraceValue =            BoolValue("Backtrace", false)
@@ -211,8 +209,8 @@ class KillAura : Module() {
     private val limitedMultiTargetsValue = IntegerValue("LimitedMultiTargets", 0, 0, 50).displayable { targetModeValue.equals("Multi") }
 
     // Visuals
-    private val markValue = ListValue("Mark", arrayOf("Liquid", "Vape", "FDP", "Block", "Jello", "Sims", "Lies", "None"), "Jello")
-    private val circleValue = BoolValue("Circle", true)
+    private val markValue = ListValue("Mark", arrayOf("Liquid", "Vape", "FDP", "Block", "Jello", "Sims", "Lies", "None"), "None")
+    private val circleValue = BoolValue("Circle", false )
     private val circleRedValue = IntegerValue("CircleRed", 255, 0, 255).displayable { circleValue.get() }
     private val circleGreenValue = IntegerValue("CircleGreen", 255, 0, 255).displayable { circleValue.get() }
     private val circleBlueValue = IntegerValue("CircleBlue", 255, 0, 255).displayable { circleValue.get() }
@@ -282,16 +280,8 @@ class KillAura : Module() {
         mc.theWorld ?: return
 
         updateTarget()
-        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[StrafeFix::class.java]!!.state = true
-        if (ThirdViewValue.get() && currentTarget !== null) {
-            perspectiveToggled = !perspectiveToggled
-            if (perspectiveToggled) {
-                previousPerspective = mc.gameSettings.thirdPersonView
-                mc.gameSettings.thirdPersonView = 1
-            } else {
-                mc.gameSettings.thirdPersonView = previousPerspective
-            }
-        }
+        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[MovementFix::class.java]!!.state = true
+
     }
 
     /**
@@ -314,10 +304,8 @@ class KillAura : Module() {
 
         stopBlocking()
         RotationUtils.setTargetRotationReverse(RotationUtils.serverRotation, 0, 0)
-        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[StrafeFix::class.java]!!.state = false
-        if (ThirdViewValue.get()) {
-            resetPerspective()
-        }
+        if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[MovementFix::class.java]!!.state = false
+
     }
     fun resetPerspective() {
         perspectiveToggled = false
@@ -401,38 +389,38 @@ class KillAura : Module() {
         // if(event.eventState == EventState.PRE)
         update()
 
-        if (strafeOnlyGroundValue.get() && !mc.thePlayer.onGround) {
-            strictStrafe = false
-            return
-        }
-
         // TODO: Fix Rotation issue on Strafe POST Event
 
         if (discoveredTargets.isNotEmpty() && RotationUtils.targetRotation != null) {
+            val (yaw) = RotationUtils.targetRotation ?: return
+            var strafe = event.strafe
+            var forward = event.forward
+            var friction = event.friction
+            var factor = strafe * strafe + forward * forward
+            var angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0).toDouble() / (45.0).toDouble()).toInt()
+            //alert("Diff: " + angleDiff + " friction: " + friction + " factor: " + factor);
+            var calcYaw =  yaw
+
+            var calcMoveDir = Math.max(Math.abs(strafe), Math.abs(forward)).toFloat()
+            calcMoveDir = calcMoveDir * calcMoveDir
+            var calcMultiplier = MathHelper.sqrt_float(calcMoveDir / Math.min(1.0f, calcMoveDir * 2.0f))
+
             when (rotationStrafeValue.get().lowercase()) {
                 "strict" -> {
                     if(strictStrafe) {
-                        strictStrafe = false
-                        val (yaw) = RotationUtils.targetRotation ?: return
-                        var strafe = event.strafe
-                        var forward = event.forward
-                        val friction = event.friction
+                        if (factor >= 1.0E-4F) {
+                            factor = MathHelper.sqrt_float(factor)
 
-                        var f = strafe * strafe + forward * forward
-
-                        if (f >= 1.0E-4F) {
-                            f = MathHelper.sqrt_float(f)
-
-                            if (f < 1.0F) {
-                                f = 1.0F
+                            if (factor < 1.0F) {
+                                factor = 1.0F
                             }
 
-                            f = friction / f
-                            strafe *= f
-                            forward *= f
+                             factor = friction / factor
+                            strafe *= factor
+                            forward *= factor
 
-                            val yawSin = MathHelper.sin((yaw * Math.PI / 180F).toFloat())
-                            val yawCos = MathHelper.cos((yaw * Math.PI / 180F).toFloat())
+                            val yawSin = MathHelper.sin((calcYaw * Math.PI / 180F).toFloat())
+                            val yawCos = MathHelper.cos((calcYaw * Math.PI / 180F).toFloat())
 
                             mc.thePlayer.motionX += strafe * yawCos - forward * yawSin
                             mc.thePlayer.motionZ += forward * yawCos + strafe * yawSin
@@ -442,15 +430,16 @@ class KillAura : Module() {
                 }
                 "silent" -> {
                     if(strictStrafe) {
-                        strictStrafe = false
-                        RotationUtils.targetRotation.applyStrafeToPlayer(event)
-                        event.cancelEvent()
+                            if ((Math.abs(forward) > 0.005 || Math.abs(strafe) > 0.005) && !(Math.abs(forward) > 0.005 && Math.abs(strafe) > 0.005)) {
+                                friction = friction / calcMultiplier
+                            } else if (Math.abs(forward) > 0.005 && Math.abs(strafe) > 0.005) {
+                                friction = friction * calcMultiplier
+                            }
                     }
                 }
             }
         }
     }
-
     fun update() {
         if (cancelRun) {
             return
@@ -480,7 +469,7 @@ class KillAura : Module() {
      */
     @EventTarget
     fun onUpdate(ignoredEvent: UpdateEvent) {
-        if ((!strafeOnlyGroundValue.get() || mc.thePlayer.onGround) && !rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding) {
+        if (!rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding) {
             strictStrafe = true
         }else {
             strictStrafe = false
@@ -635,9 +624,9 @@ class KillAura : Module() {
                         RenderUtils.glColor(
                             Color.getHSBColor(
                                 if (i < 180) {
-                                    Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (i / 180f)
+                                    HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (i / 180f)
                                 } else {
-                                    Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (-(i - 360) / 180f)
+                                    HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (-(i - 360) / 180f)
                                 }, 0.7f, 1.0f
                             )
                         )
@@ -759,9 +748,9 @@ class KillAura : Module() {
                     for (i in 5..360 step 5) {
                         val color = Color.getHSBColor(
                             if (i < 180) {
-                                Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (i / 180f)
+                                HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (i / 180f)
                             } else {
-                                Interface.rainbowStartValue.get() + (Interface.rainbowStopValue.get() - Interface.rainbowStartValue.get()) * (-(i - 360) / 180f)
+                                HUD.rainbowStartValue.get() + (HUD.rainbowStopValue.get() - HUD.rainbowStartValue.get()) * (-(i - 360) / 180f)
                             }, 0.7f, 1.0f
                         )
                         val x1 = x - sin(i * Math.PI / 180F) * radius
@@ -1331,6 +1320,18 @@ class KillAura : Module() {
      * HUD Tag
      */
 
-    override val tag: String
-        get() = targetModeValue.get()
+    override val tag: String?
+        get() = if (!tagModeValue.equals("None")) {
+            if (tagModeValue.equals("Target")) {
+                targetModeValue.get()
+            } else {
+                if (tagModeValue.equals("Priority")) {
+                    priorityValue.get()
+                } else {
+                    if (autoBlockValue.equals("Range")) {
+                        autoBlockPacketValue.get()
+                    } else null
+                }
+            }
+        } else null
 }

@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.play.server.S2BPacketChangeGameState
 
-@ModuleInfo(name = "WorldWeather", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "WorldWeather", spacedName = "World Weather", category = ModuleCategory.VISUAL)
 class WorldWeather : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Clear", "Rain", "Thunder"), "Clear")
 

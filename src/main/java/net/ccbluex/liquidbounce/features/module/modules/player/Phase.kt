@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
-@ModuleInfo(name = "Phase", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Phase", spacedName = "Phase", category = ModuleCategory.PLAYER)
 class Phase : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.phases", PhaseMode::class.java)
         .map { it.newInstance() as PhaseMode }

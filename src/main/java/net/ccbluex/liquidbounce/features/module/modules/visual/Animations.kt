@@ -17,13 +17,19 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
 
-@ModuleInfo(name = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true)
+@ModuleInfo(name = "Animations", spacedName = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true, array = false)
 object Animations : Module() {
     val AnimationMode = ListValue("AnimationMode", arrayOf("Full", "Normal"), "Normal")
     val blockingModeValue = ListValue(
         "BlockingMode",
         arrayOf(
             "1.7",
+            "Tap",
+            "Tap2",
+            "Remix",
+            "Chill",
+            "Leaked",
+            "Leaked2",
             "Akrien",
             "Avatar",
             "ETB",
@@ -52,7 +58,7 @@ object Animations : Module() {
             "Zoom",
             "None"
         ),
-        "Vanilla"
+        "1.7"
     )
     val itemPosXValue = FloatValue("ItemPosX", 0.56F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
     val itemPosYValue = FloatValue("ItemPosY", -0.52F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}

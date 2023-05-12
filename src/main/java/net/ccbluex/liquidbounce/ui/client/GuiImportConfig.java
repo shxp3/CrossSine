@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client;
 
 import net.ccbluex.liquidbounce.CrossSine;
-import net.ccbluex.liquidbounce.features.module.modules.client.button.FlatButtonRenderer;
 import net.ccbluex.liquidbounce.font.FontLoaders;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType;
@@ -103,8 +102,6 @@ public class GuiImportConfig extends GuiScreen
         final FontRenderer var1 = this.mc.fontRendererObj;
         final int var2 = this.height / 2;
         super.initGui();
-        this.loginButton = new FlatButtonRenderer(1, this.width/3 + 90, this.height / 2 + 20, 20, 20, "→", new Color(50,109,224).getRGB());
-        this.freeButton = new FlatButtonRenderer(3, 20, this.height - 50, this.width/3 + 90, 20, "Copy Token", new Color(66,67,70).getRGB());
         this.buttonList.add(this.loginButton);  //Designed By XiGua
         this.buttonList.add(this.freeButton);
         username = new GuiTextField(var2, var1, 20, this.height / 2 + 20, this.width/3 + 60, 20);

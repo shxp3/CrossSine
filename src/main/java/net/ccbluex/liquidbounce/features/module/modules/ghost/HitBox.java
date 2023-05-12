@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
 import org.jetbrains.annotations.Nullable;
 
-@ModuleInfo(name = "HitBox", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "HitBox", spacedName = "HitBox",category = ModuleCategory.GHOST)
 public class HitBox extends Module {
     public static FloatValue HitboxMax = new FloatValue("Max", 3.5f, 3f, 7f);
     public static FloatValue HitboxMin = new FloatValue("Min", 3.5f, 3f, 7f);

@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.TextValue;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
-@ModuleInfo(name = "StreamerMode", category = ModuleCategory.CLIENT)
+@ModuleInfo(name = "StreamerMode", spacedName = "Streamer Mode",category = ModuleCategory.CLIENT)
 public class StreamerMode extends Module {
 
     private final String fakeNameValue = "CrossSineUser";

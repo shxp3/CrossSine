@@ -18,7 +18,7 @@ import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
 
-@ModuleInfo(name = "PackSpoofer", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "PackSpoofer", spacedName = "Packet Spoofer", category = ModuleCategory.OTHER)
 class PackSpoofer : Module() {
     val notifyValue = BoolValue("Notify", true)
 

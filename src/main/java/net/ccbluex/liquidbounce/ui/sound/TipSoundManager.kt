@@ -5,8 +5,12 @@ import net.ccbluex.liquidbounce.utils.FileUtils
 import java.io.File
 
 class TipSoundManager {
+    //Classic
     var enableSound: TipSoundPlayer
     var disableSound: TipSoundPlayer
+    //Herta
+    var HertaEnableSound: TipSoundPlayer
+    var HertaDisableSound: TipSoundPlayer
 
     init {
         val enableSoundFile = File(CrossSine.fileManager.soundsDir, "enable.wav")
@@ -18,8 +22,20 @@ class TipSoundManager {
         if (!disableSoundFile.exists()) {
             FileUtils.unpackFile(disableSoundFile, "assets/minecraft/crosssine/sound/disable.wav")
         }
+        val HertaEnableSoundFile = File(CrossSine.fileManager.hertaSoundDir, "enable.wav")
+        val HertaDisableSoundFile = File(CrossSine.fileManager.hertaSoundDir, "disable.wav")
 
+        if (!HertaEnableSoundFile.exists()) {
+            FileUtils.unpackFile(HertaEnableSoundFile, "assets/minecraft/crosssine/sound/herta/enable.wav")
+        }
+        if (!HertaDisableSoundFile.exists()) {
+            FileUtils.unpackFile(HertaDisableSoundFile, "assets/minecraft/crosssine/sound/herta/disable.wav")
+        }
+        //Classic
         enableSound = TipSoundPlayer(enableSoundFile)
         disableSound = TipSoundPlayer(disableSoundFile)
+        //Herta
+        HertaEnableSound = TipSoundPlayer(HertaEnableSoundFile)
+        HertaDisableSound = TipSoundPlayer(HertaDisableSoundFile)
     }
 }

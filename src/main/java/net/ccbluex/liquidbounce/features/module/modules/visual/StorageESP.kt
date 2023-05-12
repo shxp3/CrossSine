@@ -23,7 +23,7 @@ import net.minecraft.tileentity.*
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-@ModuleInfo(name = "StorageESP", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "StorageESP", spacedName = "StorageESP", category = ModuleCategory.VISUAL)
 class StorageESP : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "ShaderOutline", "ShaderGlow", "2D", "WireFrame"), "Outline")
     private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }

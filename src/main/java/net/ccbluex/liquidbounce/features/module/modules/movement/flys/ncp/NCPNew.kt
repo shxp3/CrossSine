@@ -18,9 +18,11 @@ import java.util.concurrent.LinkedBlockingQueue
 
 class NCPNew : FlyMode("NCPNew") {
     private val timerSpeedValue = FloatValue("TimerSpeed", 0.1F,0.1F,1.0F)
-    private var canBoost = false
+    private var c = false
     override fun onEnable() {
-        canBoost = true
+        c = true
+        mc.thePlayer.motionX = 0.0
+        mc.thePlayer.motionZ = 0.0
     }
 
     @EventTarget
@@ -30,18 +32,16 @@ class NCPNew : FlyMode("NCPNew") {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
             }
+            if (!mc.thePlayer.onGround) mc.timer.timerSpeed = timerSpeedValue.get()
         }
         if (!mc.thePlayer.onGround) {
-            mc.timer.timerSpeed = timerSpeedValue.get()
-        }
-        if (!mc.thePlayer.onGround) {
-            MovementUtils.strafe(MovementUtils.getSpeed() * if (canBoost) 40f else 1f)
-            if (canBoost) canBoost = false
+            MovementUtils.strafe(MovementUtils.getSpeed() * if (c) 55.80269f else 1f)
+            if (c) c = false
         }
     }
 
     override fun onJump(event: JumpEvent) {
-        canBoost = true
+        c = true
     }
 
     override fun onDisable() {

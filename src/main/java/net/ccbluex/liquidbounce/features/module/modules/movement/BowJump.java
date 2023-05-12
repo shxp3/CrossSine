@@ -24,7 +24,7 @@ import net.minecraft.util.EnumFacing;
 
 import java.awt.*;
 
-@ModuleInfo(name = "BowJump", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "BowJump", spacedName = "Bow Jump",category = ModuleCategory.MOVEMENT)
 public class BowJump extends Module {
 
     private final BoolValue hypixelBypassValue = new BoolValue("hypixelBypass", true);

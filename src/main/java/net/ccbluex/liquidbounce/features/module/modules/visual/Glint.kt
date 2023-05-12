@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import java.awt.Color
 
-@ModuleInfo(name = "Glint", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Glint", spacedName = "Glint", category = ModuleCategory.VISUAL)
 class Glint : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Rainbow", "AnotherRainbow", "Custom"), "Custom")

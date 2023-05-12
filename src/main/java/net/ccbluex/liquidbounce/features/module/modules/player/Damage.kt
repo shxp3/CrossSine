@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.server.S19PacketEntityStatus
 
-@ModuleInfo(name = "Damage", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "Damage", spacedName = "Damage", category = ModuleCategory.OTHER)
 class Damage : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Fake","NCP","AAC","Verus"), "NCP")

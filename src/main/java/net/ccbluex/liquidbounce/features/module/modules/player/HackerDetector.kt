@@ -1,8 +1,3 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.CrossSine
@@ -31,7 +26,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.*
 
-@ModuleInfo(name = "AntiCheat", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "HackerDetector", spacedName = "Hacker Detector", category = ModuleCategory.PLAYER)
 class AntiCheat : Module() {
     private val combatCheckValue = BoolValue("Combat", true)
     private val movementCheckValue = BoolValue("Movement", true)

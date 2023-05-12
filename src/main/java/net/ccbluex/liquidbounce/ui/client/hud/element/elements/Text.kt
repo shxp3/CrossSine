@@ -1,9 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.client.GuiHUDEdit
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface.mixerDistValue
-import net.ccbluex.liquidbounce.features.module.modules.client.Interface.mixerSecValue
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD.mixerDistValue
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD.mixerSecValue
 import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -24,6 +23,8 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.sqrt
 
 /**
@@ -43,6 +44,8 @@ class Text(
         val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
         val HOUR_FORMAT = SimpleDateFormat("HH:mm")
 
+        val timeValue = LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"))
+
         val DECIMAL_FORMAT = DecimalFormat("#.##")
         val NO_DECIMAL_FORMAT = DecimalFormat("#")
     }
@@ -50,22 +53,10 @@ class Text(
     val displayString = TextValue("DisplayText", "")
     val shadowValue = BoolValue("Shadow", false)
     val shadowStrength = FloatValue("Shadow-Strength", 1F, 0.01F, 8F).displayable { shadowValue.get() }
-    private val redValue = IntegerValue("Red", 255, 0, 255)
-    private val greenValue = IntegerValue("Green", 255, 0, 255)
-    private val blueValue = IntegerValue("Blue", 255, 0, 255)
-    private val alphaValue = IntegerValue("Alpha", 255, 0, 255)
-    val colorModeValue = ListValue("Color", arrayOf("Custom", "Rainbow", "AnotherRainbow", "SkyRainbow", "Mixer", "HUDSync"), "Custom")
     private val shadow = BoolValue("TextShadow", false)
     val rectValue = ListValue("Rect", arrayOf("Normal", "RNormal", "OneTap", "Skeet", "Rounded", "None"), "None")
-    val rectColorModeValue = ListValue("RectColor", arrayOf("Custom", "Rainbow", "AnotherRainbow", "SkyRainbow", "Mixer", "HUDSync"), "Custom")
-    private val rectRedValue = IntegerValue("RectRed", 0, 0, 255)
-    private val rectGreenValue = IntegerValue("RectGreen", 0, 0, 255)
-    private val rectBlueValue = IntegerValue("RectBlue", 0, 0, 255)
-    private val rectAlphaValue = IntegerValue("RectAlpha", 255, 0, 255)
     private val rectExpandValue = FloatValue("RectExpand", 0.3F, 0F, 1F)
     private val rectRoundValue = FloatValue("RectRoundingMultiplier", 1.5F, 0.1F, 4F)
-    private val rainbowSpeed = IntegerValue("RainbowSpeed", 10, 1, 10)
-    private val rainbowIndex = IntegerValue("RainbowIndex", 1, 1, 20)
     private val fontValue = FontValue("Font", Fonts.font40)
 
     private var editMode = false
@@ -77,6 +68,7 @@ class Text(
     private var displayText = display
     private var pointer = 0
 
+    val Interface = CrossSine.moduleManager.getModule(net.ccbluex.liquidbounce.features.module.modules.client.HUD::class.java)!!
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode) {
@@ -127,7 +119,7 @@ class Text(
             "clientCreator" -> CrossSine.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
-            "time" -> HOUR_FORMAT.format(System.currentTimeMillis())
+            "time" -> timeValue
             "serverIp" -> ServerUtils.getRemoteIp()
             "cps", "lcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.LEFT).toString()
             "mcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE).toString()
@@ -191,21 +183,17 @@ class Text(
      * Draw element
      */
     override fun drawElement(partialTicks: Float): Border {
-        val color = Color(redValue.get(), greenValue.get(), blueValue.get(), alphaValue.get())
-        val colorNoAlpha = Color(redValue.get(), greenValue.get(), blueValue.get())
 
 
         val fontRenderer = fontValue.get()
 
-        val mixerColor = ColorMixer.getMixedColor(  mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-
-        val rectColor = when (rectColorModeValue.get().lowercase()) {
-            "rainbow" -> ColorUtils.hslRainbow(rainbowIndex.get(), indexOffset = 100 * rainbowSpeed.get()).rgb
-            "skyrainbow" -> ColorUtils.skyRainbow(rainbowIndex.get(), 1F, 1F, rainbowSpeed.get().toDouble()).rgb
-            "anotherrainbow" -> ColorUtils.fade(Color(rectRedValue.get(), rectGreenValue.get(), rectBlueValue.get(), rectAlphaValue.get()), 100, rainbowIndex.get()).rgb
+        val mixerColor = ColorMixer.getMixedColor( mixerDistValue.get() * 10, mixerSecValue.get()).rgb
+        val rectColor = when (Interface.ClientColorMode.get().lowercase()) {
+            "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
+            "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
             "mixer" -> mixerColor
-            "hudsync" -> Color(GuiHUDEdit.textRedValue.get(), GuiHUDEdit.textGreenValue.get(), GuiHUDEdit.textBlueValue.get(), GuiHUDEdit.textAlphaValue.get()).rgb
-            else -> Color(rectRedValue.get(), rectGreenValue.get(), rectBlueValue.get(), rectAlphaValue.get()).rgb
+            "fade" -> ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), Interface.fadeDistanceValue.get(), 100).rgb
+            else -> Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
         }
         val expand = fontRenderer.FONT_HEIGHT * rectExpandValue.get()
         when (rectValue.get().lowercase()) {
@@ -239,13 +227,12 @@ class Text(
                 GL11.glPushMatrix()
                 GL11.glTranslated(renderX, renderY, 0.0)
                 fontRenderer.drawString(
-                    displayText, 0F*scale, 0F*scale, when (colorModeValue.get().lowercase()) {
-                        "rainbow" -> ColorUtils.hslRainbow(rainbowIndex.get(), indexOffset = 100 * rainbowSpeed.get()).rgb
-                        "skyrainbow" -> ColorUtils.skyRainbow(rainbowIndex.get(), 1F, 1F, rainbowSpeed.get().toDouble()).rgb
-                        "anotherrainbow" -> ColorUtils.fade(color, 100, rainbowIndex.get()).rgb
+                    displayText, 0F*scale, 0F*scale, when (Interface.ClientColorMode.get().lowercase()) {
+                        "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
+                        "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
                         "mixer" -> mixerColor
-                        "hudsync" -> Color(GuiHUDEdit.textRedValue.get(), GuiHUDEdit.textGreenValue.get(), GuiHUDEdit.textBlueValue.get(), GuiHUDEdit.textAlphaValue.get()).rgb
-                        else -> colorNoAlpha.rgb
+                        "fade" -> ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), Interface.fadeDistanceValue.get(), 100).rgb
+                        else -> Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
                     }, false)
                 GL11.glPopMatrix()
             }, {})
@@ -254,14 +241,14 @@ class Text(
         }
 
         fontRenderer.drawString(
-                displayText, 0F, 0F, when (colorModeValue.get().lowercase()) {
-                    "rainbow" -> ColorUtils.hslRainbow(rainbowIndex.get(), indexOffset = 100 * rainbowSpeed.get()).rgb
-                    "skyrainbow" -> ColorUtils.skyRainbow(rainbowIndex.get(), 1F, 1F, rainbowSpeed.get().toDouble()).rgb
-                    "anotherrainbow" -> ColorUtils.fade(color, 100, rainbowIndex.get()).rgb
-                    "mixer" -> mixerColor
-                    "hudsync" -> Color(GuiHUDEdit.textRedValue.get(), GuiHUDEdit.textGreenValue.get(), GuiHUDEdit.textBlueValue.get(), GuiHUDEdit.textAlphaValue.get()).rgb
-                    else -> color.rgb
-                }, shadow.get())
+                displayText, 0F, 0F, when (Interface.ClientColorMode.get().lowercase()) {
+                "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
+                "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
+                "mixer" -> mixerColor
+                "fade" -> ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), Interface.fadeDistanceValue.get(), 100).rgb
+                else -> Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+
+            }, shadow.get())
 
 
         if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
@@ -409,12 +396,5 @@ class Text(
 
             updateElement()
         }
-    }
-
-    fun setColor(c: Color): Text {
-        redValue.set(c.red)
-        greenValue.set(c.green)
-        blueValue.set(c.blue)
-        return this
     }
 }

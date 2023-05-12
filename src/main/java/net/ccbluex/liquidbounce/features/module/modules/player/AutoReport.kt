@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
@@ -14,7 +13,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot
-import net.ccbluex.liquidbounce.features.module.modules.world.Teams
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -22,14 +20,16 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.TextValue
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.server.S3FPacketCustomPayload
 
-@ModuleInfo(name = "AutoReport", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "AutoReport", spacedName = "Auto Report", category = ModuleCategory.PLAYER)
 class AutoReport : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Hit", "All"), "Hit")
     private val commandValue = TextValue("Command", "/reportar %name%")
     private val tipValue = BoolValue("Tip", true)
+    private val friendValue = BoolValue("NoFriend", false)
     private val allDelayValue = IntegerValue("AllDelay", 500, 0, 1000)
     private val blockBooksValue = BoolValue("BlockBooks", false) // 绕过Hypixel /report举报弹出书
 
@@ -69,7 +69,24 @@ class AutoReport : Module() {
             event.cancelEvent()
         }
     }
+    fun isInYourTeam(entity: EntityLivingBase): Boolean {
+        if (friendValue.get()){
+            mc.thePlayer ?: return false
 
+            if (mc.thePlayer.team != null && entity.team != null &&
+                mc.thePlayer.team.isSameTeam(entity.team)
+            ) {
+                return true
+            }
+            if (mc.thePlayer.displayName != null && entity.displayName != null) {
+                val targetName = entity.displayName.formattedText.replace("§r", "")
+                val clientName = mc.thePlayer.displayName.formattedText.replace("§r", "")
+                return targetName.startsWith("§${clientName[1]}")
+            }
+
+        }
+        return false
+    }
     fun doReport(player: EntityPlayer) = doReport(player.name)
 
     fun doReport(name: String): Boolean {
@@ -104,8 +121,7 @@ class AutoReport : Module() {
                 return false
             }
 
-            val teams = CrossSine.moduleManager[Teams::class.java]!!
-            return !teams.state || !teams.isInYourTeam(entity)
+            return !friendValue.get() || !isInYourTeam(entity)
         }
 
         return false

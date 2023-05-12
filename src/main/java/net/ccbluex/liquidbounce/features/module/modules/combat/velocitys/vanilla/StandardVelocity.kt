@@ -11,16 +11,18 @@ class StandardVelocity : VelocityMode("Standard") {
     override fun onVelocityPacket(event: PacketEvent) {
         val p = event.packet
         if (p is S12PacketEntityVelocity) {
-            val h = velocity.h.get()
-            val v = velocity.v.get()
+            if (RandomUtils.nextInt(1, 100) <= velocity.c.get()) {
+                val h = velocity.h.get()
+                val v = velocity.v.get()
 
-            if (h == 0 && v == 0) {
-                event.cancelEvent()
+                if (h == 0 && v == 0) {
+                    event.cancelEvent()
+                }
+
+                p.motionX = (p.getMotionX() * h / 100)
+                p.motionY = (p.getMotionY() * v / 100)
+                p.motionZ = (p.getMotionZ() * h / 100)
             }
-
-            p.motionX = (p.getMotionX() * h / 100)
-            p.motionY = (p.getMotionY() * v / 100)
-            p.motionZ = (p.getMotionZ() * h / 100)
         }
     }
 }

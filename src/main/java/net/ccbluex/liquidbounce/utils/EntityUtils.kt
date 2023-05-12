@@ -6,14 +6,15 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.client.Target
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.animalValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.deadValue
+import net.ccbluex.liquidbounce.features.module.modules.client.Target.friendValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.invisibleValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.mobValue
 import net.ccbluex.liquidbounce.features.module.modules.client.Target.playerValue
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
-import net.ccbluex.liquidbounce.features.module.modules.world.Teams
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -54,8 +55,7 @@ object EntityUtils : MinecraftInstance() {
                             return false
                         }
 
-                        val teams = CrossSine.moduleManager.getModule(Teams::class.java)
-                        return !teams!!.state || !teams.isInYourTeam(entity)
+                        return !friendValue.get() || !Target.isInYourTeam(entity)
                     }
 
                     return true
@@ -69,8 +69,7 @@ object EntityUtils : MinecraftInstance() {
     fun canRayCast(entity: Entity): Boolean {
         if (entity is EntityLivingBase) {
             if (entity is EntityPlayer) {
-                val teams = CrossSine.moduleManager.getModule(Teams::class.java)
-                return !teams!!.state || !teams.isInYourTeam(entity)
+                return !friendValue.get() || !Target.isInYourTeam(entity)
             } else {
                 return mobValue.get() && isMob(entity) || animalValue.get() && isAnimal(entity)
             }

@@ -11,10 +11,8 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
 
 class GrimVelocity : VelocityMode("Grim") {
-    private val cancelPacket = IntegerValue("S32", 4, 2, 6).displayable {velocity.modeValue.equals("Grim")}
-    private val resetPersec = IntegerValue("Time", 6, 4, 10).displayable {velocity.modeValue.equals("Grim")}
-    private val noscaffold = BoolValue("NoScaffold", false).displayable {velocity.modeValue.equals("Grim")}
-    private val scaffold = CrossSine.moduleManager[Scaffold::class.java]!!
+    var cancelPacket = 6
+    var resetPersec = 10
     var grimTCancel = 0
     var updates = 0
 
@@ -23,27 +21,22 @@ class GrimVelocity : VelocityMode("Grim") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        var packet = event.packet
-        if (!scaffold.state || !noscaffold.get()) {
+        val packet = event.packet
             if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
                 event.cancelEvent()
-                grimTCancel = cancelPacket.get()
+                grimTCancel = cancelPacket
             }
             if (packet is S32PacketConfirmTransaction && grimTCancel > 0) {
                 event.cancelEvent()
                 grimTCancel--
             }
-        }
-        else {
-            grimTCancel = 0
-        }
     }
 
     override fun onUpdate(event: UpdateEvent) {
         updates++
 
-        if (resetPersec.get() > 0) {
-            if (updates >= 0 || updates >= resetPersec.get()) {
+        if (resetPersec > 0) {
+            if (updates >= 0 || updates >= resetPersec) {
                 updates = 0
                 if (grimTCancel > 0){
                     grimTCancel--

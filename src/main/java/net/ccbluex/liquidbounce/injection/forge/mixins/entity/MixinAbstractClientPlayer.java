@@ -6,9 +6,12 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Cape;
+import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,6 +28,19 @@ public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
         final Cape cape = CrossSine.moduleManager.getModule(Cape.class);
         if (cape.getState() && Objects.equals(getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
             callbackInfoReturnable.setReturnValue(cape.getCapeLocation(cape.getStyleValue().get()));
+        }
+    }
+    @Inject(method = "getFovModifier", at = @At("HEAD"), cancellable = true)
+    private void getFovModifier(CallbackInfoReturnable<Float> callbackInfoReturnable) {
+        final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
+        float f5Fov = 1.15f;
+        f5Fov *= 1.0f;
+        if (scaffold.getState() && scaffold.getSprintModeValue().equals("Bypass") && MovementUtils.INSTANCE.isMoving() && scaffold.getBypassSpoof().get()) {
+            if(!Minecraft.getMinecraft().thePlayer.isPotionActive(Potion.moveSpeed)) {
+                callbackInfoReturnable.setReturnValue(f5Fov);
+            } else {
+                callbackInfoReturnable.setReturnValue(f5Fov + 0.3F);
+            }
         }
     }
 }

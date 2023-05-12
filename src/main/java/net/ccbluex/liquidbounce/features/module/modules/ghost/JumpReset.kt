@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 
-@ModuleInfo(name = "JumpReset", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "JumpReset", "JumpReset", category = ModuleCategory.GHOST)
 class JumpReset : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {

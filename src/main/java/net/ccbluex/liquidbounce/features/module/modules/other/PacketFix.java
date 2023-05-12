@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification;
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType;
 
-@ModuleInfo(name = "PacketFix", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "PacketFix",spacedName = "Packet Fix",category = ModuleCategory.OTHER)
 public class PacketFix extends Module {
 
 

@@ -115,7 +115,7 @@ object BedNuker : Module() {
             val targetId = 26
 
             if (pos == null || Block.getIdFromBlock(BlockUtils.getBlock(pos)) != targetId ||
-                    BlockUtils.getCenterDistance(pos!!) > rangeValue.get()
+                BlockUtils.getCenterDistance(pos!!) > rangeValue.get()
             ) {
                 pos = find(targetId)
             }
@@ -135,8 +135,8 @@ object BedNuker : Module() {
             if (!throughWall.get()) {
                 val eyes = mc.thePlayer.getPositionEyes(1F)
                 val blockPos = mc.theWorld.rayTraceBlocks(
-                        eyes, rotations.vec, false,
-                        false, false
+                    eyes, rotations.vec, false,
+                    false, false
                 ).blockPos
 
                 if (blockPos != null && blockPos.getBlock() !is BlockAir) {
@@ -195,10 +195,10 @@ object BedNuker : Module() {
                     if (instantValue.get()) {
                         // CivBreak style block breaking
                         mc.netHandler.addToSendQueue(
-                                C07PacketPlayerDigging(
-                                        C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                                        currentPos, EnumFacing.DOWN
-                                )
+                            C07PacketPlayerDigging(
+                                C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
+                                currentPos, EnumFacing.DOWN
+                            )
                         )
                         if (swingValue.get()) {
                             mc.thePlayer.swingItem()
@@ -206,10 +206,10 @@ object BedNuker : Module() {
                             mc.netHandler.addToSendQueue(C0APacketAnimation())
                         }
                         mc.netHandler.addToSendQueue(
-                                C07PacketPlayerDigging(
-                                        C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                                        currentPos, EnumFacing.DOWN
-                                )
+                            C07PacketPlayerDigging(
+                                C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
+                                currentPos, EnumFacing.DOWN
+                            )
                         )
                         currentDamage = 0F
                         return
@@ -220,14 +220,14 @@ object BedNuker : Module() {
 
                     if (currentDamage == 0F) {
                         mc.netHandler.addToSendQueue(
-                                C07PacketPlayerDigging(
-                                        C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                                        currentPos, EnumFacing.DOWN
-                                )
+                            C07PacketPlayerDigging(
+                                C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
+                                currentPos, EnumFacing.DOWN
+                            )
                         )
 
                         if (mc.thePlayer.capabilities.isCreativeMode ||
-                                block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos) >= 1.0F
+                            block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos) >= 1.0F
                         ) {
                             if (swingValue.get()) {
                                 mc.thePlayer.swingItem()
@@ -249,17 +249,17 @@ object BedNuker : Module() {
                     }
                     currentDamage += block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, currentPos)
                     mc.theWorld.sendBlockBreakProgress(
-                            mc.thePlayer.entityId,
-                            currentPos,
-                            (currentDamage * 10F).toInt() - 1
+                        mc.thePlayer.entityId,
+                        currentPos,
+                        (currentDamage * 10F).toInt() - 1
                     )
 
                     if (currentDamage >= 1F) {
                         mc.netHandler.addToSendQueue(
-                                C07PacketPlayerDigging(
-                                        C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                                        currentPos, EnumFacing.DOWN
-                                )
+                            C07PacketPlayerDigging(
+                                C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
+                                currentPos, EnumFacing.DOWN
+                            )
                         )
                         mc.playerController.onPlayerDestroyBlock(currentPos, EnumFacing.DOWN)
                         blockHitDelay = 4
@@ -270,9 +270,9 @@ object BedNuker : Module() {
 
                 else -> {
                     if (mc.playerController.onPlayerRightClick(
-                                    mc.thePlayer, mc.theWorld, mc.thePlayer.heldItem, pos, EnumFacing.DOWN,
-                                    Vec3(currentPos.x.toDouble(), currentPos.y.toDouble(), currentPos.z.toDouble())
-                            )
+                            mc.thePlayer, mc.theWorld, mc.thePlayer.heldItem, pos, EnumFacing.DOWN,
+                            Vec3(currentPos.x.toDouble(), currentPos.y.toDouble(), currentPos.z.toDouble())
+                        )
                     ) {
                         if (swingValue.get()) {
                             mc.thePlayer.swingItem()
@@ -290,21 +290,21 @@ object BedNuker : Module() {
             fun onRender3D(event: Render3DEvent) {
                 when (renderValue.get().lowercase()) {
                     "box" -> RenderUtils.drawBlockBox(
-                            pos ?: return,
-                            if (!coolDownTimer.hasTimePassed(0 * 1000L)) Color.DARK_GRAY else Color.RED,
-                            false
+                        pos ?: return,
+                        if (!coolDownTimer.hasTimePassed(0 * 1000L)) Color.DARK_GRAY else Color.RED,
+                        false
                     )
 
                     "outline" -> RenderUtils.drawBlockBox(
-                            pos ?: return,
-                            if (!coolDownTimer.hasTimePassed(0 * 1000L)) Color.DARK_GRAY else Color.RED,
-                            true
+                        pos ?: return,
+                        if (!coolDownTimer.hasTimePassed(0 * 1000L)) Color.DARK_GRAY else Color.RED,
+                        true
                     )
 
                     "2d" -> RenderUtils.draw2D(
-                            pos ?: return,
-                            if (!coolDownTimer.hasTimePassed(0 * 1000L)) Color.DARK_GRAY.rgb else Color.RED.rgb,
-                            Color.BLACK.rgb
+                        pos ?: return,
+                        if (!coolDownTimer.hasTimePassed(0 * 1000L)) Color.DARK_GRAY.rgb else Color.RED.rgb,
+                        Color.BLACK.rgb
                     )
                 }
             }
@@ -317,34 +317,34 @@ object BedNuker : Module() {
                     val strWidth = Fonts.minecraftFont.getStringWidth(timeLeft)
 
                     Fonts.minecraftFont.drawString(
-                            timeLeft,
-                            sc.getScaledWidth() / 2 - strWidth / 2 - 1,
-                            sc.getScaledHeight() / 2 - 70,
-                            0x000000
+                        timeLeft,
+                        sc.getScaledWidth() / 2 - strWidth / 2 - 1,
+                        sc.getScaledHeight() / 2 - 70,
+                        0x000000
                     )
                     Fonts.minecraftFont.drawString(
-                            timeLeft,
-                            sc.getScaledWidth() / 2 - strWidth / 2 + 1,
-                            sc.getScaledHeight() / 2 - 70,
-                            0x000000
+                        timeLeft,
+                        sc.getScaledWidth() / 2 - strWidth / 2 + 1,
+                        sc.getScaledHeight() / 2 - 70,
+                        0x000000
                     )
                     Fonts.minecraftFont.drawString(
-                            timeLeft,
-                            sc.getScaledWidth() / 2 - strWidth / 2,
-                            sc.getScaledHeight() / 2 - 69,
-                            0x000000
+                        timeLeft,
+                        sc.getScaledWidth() / 2 - strWidth / 2,
+                        sc.getScaledHeight() / 2 - 69,
+                        0x000000
                     )
                     Fonts.minecraftFont.drawString(
-                            timeLeft,
-                            sc.getScaledWidth() / 2 - strWidth / 2,
-                            sc.getScaledHeight() / 2 - 71,
-                            0x000000
+                        timeLeft,
+                        sc.getScaledWidth() / 2 - strWidth / 2,
+                        sc.getScaledHeight() / 2 - 71,
+                        0x000000
                     )
                     Fonts.minecraftFont.drawString(
-                            timeLeft,
-                            sc.getScaledWidth() / 2 - strWidth / 2,
-                            sc.getScaledHeight() / 2 - 70,
-                            -1
+                        timeLeft,
+                        sc.getScaledWidth() / 2 - strWidth / 2,
+                        sc.getScaledHeight() / 2 - 70,
+                        -1
                     )
                 }
             }
@@ -370,8 +370,8 @@ object BedNuker : Module() {
             for (y in radius downTo -radius + 1) {
                 for (z in radius downTo -radius + 1) {
                     val blockPos = BlockPos(
-                            mc.thePlayer.posX.toInt() + x, mc.thePlayer.posY.toInt() + y,
-                            mc.thePlayer.posZ.toInt() + z
+                        mc.thePlayer.posX.toInt() + x, mc.thePlayer.posY.toInt() + y,
+                        mc.thePlayer.posZ.toInt() + z
                     )
                     val block = getBlock(blockPos) ?: continue
 
@@ -390,34 +390,34 @@ object BedNuker : Module() {
             if (firstPos == null) {
                 firstPos = nearestBlock
                 CrossSine.hud.addNotification(
-                        Notification(
-                                name,
-                                "Found first ${getBlockName(targetID)} block at ${nearestBlock!!.x.toInt()} ${nearestBlock!!.y.toInt()} ${nearestBlock!!.z.toInt()}",
-                                NotifyType.SUCCESS
-                        )
+                    Notification(
+                        name,
+                        "Found first ${getBlockName(targetID)} block at ${nearestBlock!!.x.toInt()} ${nearestBlock!!.y.toInt()} ${nearestBlock!!.z.toInt()}",
+                        NotifyType.SUCCESS
+                    )
                 )
             }
             if (targetID == 26 && firstPos != null && firstPosBed == null) { // bed
                 when (true) {
                     getBlock(firstPos!!.east()) != null && Block.getIdFromBlock(getBlock(firstPos!!.east())!!) == 26 -> firstPosBed =
-                            firstPos!!.east()
+                        firstPos!!.east()
 
                     getBlock(firstPos!!.west()) != null && Block.getIdFromBlock(getBlock(firstPos!!.west())!!) == 26 -> firstPosBed =
-                            firstPos!!.west()
+                        firstPos!!.west()
 
                     getBlock(firstPos!!.south()) != null && Block.getIdFromBlock(getBlock(firstPos!!.south())!!) == 26 -> firstPosBed =
-                            firstPos!!.south()
+                        firstPos!!.south()
 
                     getBlock(firstPos!!.north()) != null && Block.getIdFromBlock(getBlock(firstPos!!.north())!!) == 26 -> firstPosBed =
-                            firstPos!!.north()
+                        firstPos!!.north()
                 }
                 if (firstPosBed != null)
                     CrossSine.hud.addNotification(
-                            Notification(
-                                    name,
-                                    "Found second Bed block at ${firstPosBed!!.x.toInt()} ${firstPosBed!!.y.toInt()} ${firstPosBed!!.z.toInt()}",
-                                    NotifyType.SUCCESS
-                            )
+                        Notification(
+                            name,
+                            "Found second Bed block at ${firstPosBed!!.x.toInt()} ${firstPosBed!!.y.toInt()} ${firstPosBed!!.z.toInt()}",
+                            NotifyType.SUCCESS
+                        )
                     )
             }
         }
@@ -448,10 +448,10 @@ object BedNuker : Module() {
      */
     private fun isHitable(blockPos: BlockPos): Boolean {
         return !BlockUtils.isFullBlock(blockPos.down()) || !BlockUtils.isFullBlock(blockPos.up()) || !BlockUtils.isFullBlock(
-                blockPos.north()
+            blockPos.north()
         ) ||
                 !BlockUtils.isFullBlock(blockPos.east()) || !BlockUtils.isFullBlock(blockPos.south()) || !BlockUtils.isFullBlock(
-                blockPos.west()
+            blockPos.west()
         )
     }
 

@@ -15,46 +15,52 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
 
-@ModuleInfo(name = "AutoTool", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "AutoTool", spacedName = "Auto Tool",category = ModuleCategory.PLAYER)
 class AutoTool : Module() {
     var bestSlot = -1
     var serverSideSlot = -1
+    private val nousing = BoolValue("NoPlayerUsing", false)
     private val swordValue = BoolValue("Sword", false)
 
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
-        switchSlot(event.clickedBlock ?: return)
+        if (!nousing.get() || !mc.thePlayer.isUsingItem){
+            switchSlot(event.clickedBlock ?: return)
+        }
     }
 
     fun switchSlot(blockPos: BlockPos) {
-        var bestSpeed = 1F
+        if (!nousing.get() || !mc.thePlayer.isUsingItem){
+            var bestSpeed = 1F
 
-        val block = mc.theWorld.getBlockState(blockPos).block
+            val block = mc.theWorld.getBlockState(blockPos).block
 
-        for (i in 0..8) {
-            val item = mc.thePlayer.inventory.getStackInSlot(i) ?: continue
-            val speed = item.getStrVsBlock(block)
+            for (i in 0..8) {
+                val item = mc.thePlayer.inventory.getStackInSlot(i) ?: continue
+                val speed = item.getStrVsBlock(block)
 
-            if (speed > bestSpeed) {
-                bestSpeed = speed
-                bestSlot = i
+                if (speed > bestSpeed) {
+                    bestSpeed = speed
+                    bestSlot = i
+                }
             }
-        }
 
-        if (bestSlot != -1) {
-            mc.thePlayer.inventory.currentItem = bestSlot
+            if (bestSlot != -1) {
+                mc.thePlayer.inventory.currentItem = bestSlot
+            }
         }
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
+        if (!nousing.get() || !mc.thePlayer.isUsingItem) {
+            if (swordValue.get()) {
+                val slot: Int = InventoryUtils.findSword()
 
-        if (swordValue.get()) {
-            val slot: Int = InventoryUtils.findSword()
-
-            if (slot != -1) {
-                bestSlot = slot
-                serverSideSlot = bestSlot
+                if (slot != -1) {
+                    bestSlot = slot
+                    serverSideSlot = bestSlot
+                }
             }
         }
     }

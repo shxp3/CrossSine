@@ -40,7 +40,7 @@ import java.util.Objects;
 
 import static org.lwjgl.opengl.GL11.*;
 
-@ModuleInfo(name = "Teleport", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "Teleport", spacedName = "Teleport",category = ModuleCategory.OTHER)
 public class Teleport extends Module {
 
     private final BoolValue ignoreNoCollision = new BoolValue("IgnoreNoCollision", true);

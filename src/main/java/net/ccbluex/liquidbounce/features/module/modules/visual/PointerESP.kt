@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.*
 
-@ModuleInfo(name = "PointerESP", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "PointerESP", spacedName = "Pointer ESP", category = ModuleCategory.VISUAL)
 class PointerESP : Module() {
     private val dimensionValue = ListValue("Dimension", arrayOf("2d", "3d"), "2d")
     private val modeValue = ListValue("Mode", arrayOf("Solid", "Line", "LoopLine"), "Solid")

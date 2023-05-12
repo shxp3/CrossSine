@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.minecraft.client.entity.EntityOtherPlayerMP
 
-@ModuleInfo(name = "FakePlayer", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "FakePlayer", spacedName = "Fake Player", category = ModuleCategory.OTHER)
 class FakePlayer : Module() {
     private var fakePlayer: EntityOtherPlayerMP? = null
 

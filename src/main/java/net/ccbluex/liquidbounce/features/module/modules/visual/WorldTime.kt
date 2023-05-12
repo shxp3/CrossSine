@@ -13,14 +13,21 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.server.S03PacketTimeUpdate
+import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "WorldTime", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "WorldTime", spacedName = "World Time", category = ModuleCategory.VISUAL)
 class WorldTime : Module() {
-    private val customWorldTimeValue = IntegerValue("CustomTime", 1000, 0, 24000)
-
+    private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 20)
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        mc.theWorld.worldTime = customWorldTimeValue.get().toLong()
+        mc.theWorld.worldTime = customWorldTimeValue.get().toLong() * 1000
+
+        if (Keyboard.isKeyDown(203)) {
+            customWorldTimeValue.set(customWorldTimeValue.value - 1)
+        }
+        if (Keyboard.isKeyDown(205)) {
+            customWorldTimeValue.set(customWorldTimeValue.value + 1)
+        }
     }
 
     @EventTarget

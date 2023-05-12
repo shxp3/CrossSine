@@ -59,7 +59,7 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
     @Overwrite
     private int func_177077_a(EntityItem itemIn, double p_177077_2_, double p_177077_4_, double p_177077_6_, float p_177077_8_, IBakedModel p_177077_9_)
     {
-        final ItemPhysics itemPhysics = (ItemPhysics) CrossSine.moduleManager.getModule(ItemPhysics.class);
+        final ItemPhysics itemPhysics = CrossSine.moduleManager.getModule(ItemPhysics.class);
         ItemStack itemstack = itemIn.getEntityItem();
         Item item = itemstack.getItem();
 
@@ -81,20 +81,31 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
 
             if (flag || this.renderManager.options != null)
             {
-                float f3 = (((float)itemIn.getAge() + p_177077_8_) / 5.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
+                float f3 = (((float)itemIn.getAge() + p_177077_8_) / 20.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
+                float f4 = (((float)itemIn.getAge() + p_177077_8_) / itemPhysics.getItemSpeedOutPut() + itemIn.hoverStart) * (180F / (float)Math.PI);
                 if (itemPhysics.getState()) {
-                        if (itemPhysics.getCleanValue().get()) {
-                            GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.0f);
-                            GL11.glRotatef(itemIn.rotationPitch + 90.0f, 1.0f, 0.0f, 0.0f);
-                        } else
+                    switch (itemPhysics.getPhysicsModeValue().get()) {
+                        case "Physics" : {
                             if (itemIn.onGround) {
-                            GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.0f);
-                            GL11.glRotatef(itemIn.rotationPitch + 90.0f, 1.0f, 0.0f, 0.0f);
-                        } else {
+                                GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.0f);
+                                GL11.glRotatef(itemIn.rotationPitch + 90.0f, 1.0f, 0.0f, 0.0f);
+                            } else {
                                 for (int a = 0; a < 10; ++a) {
                                     GL11.glRotatef(f3, itemPhysics.getItemPhysicsSpeed().get(), itemPhysics.getItemPhysicsSpeed().get(), 0.0f);
                                 }
                             }
+                            break;
+                        }
+                        case "Speed" : {
+                            GlStateManager.rotate(f4, 0.0F, 1.0F, 0.0F);
+                            break;
+                        }
+                        case "Clean" : {
+                            GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.0f);
+                            GL11.glRotatef(itemIn.rotationPitch + 90.0f, 1.0f, 0.0f, 0.0f);
+                            break;
+                        }
+                    }
                 } else {
                     GlStateManager.rotate(f3, 0.0F, 1.0F, 0.0F);
                 }

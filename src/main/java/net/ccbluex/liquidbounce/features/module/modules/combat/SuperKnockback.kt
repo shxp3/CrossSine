@@ -21,7 +21,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C03PacketPlayer.*
 
-@ModuleInfo(name = "SuperKnockback", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "SuperKnockback", "Super Knockback",category = ModuleCategory.COMBAT)
 class SuperKnockback : Module() {
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val modeValue = ListValue("Mode", arrayOf("Legit", "DelayPacket", "Packet", "SneakPacket"), "DelayPacket")

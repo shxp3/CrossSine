@@ -25,7 +25,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
-@ModuleInfo(name = "AntiVoid", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "AntiVoid", spacedName = "Anti Void",category = ModuleCategory.PLAYER)
 class AntiVoid : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Blink", "TPBack", "MotionFlag", "PacketFlag", "GroundSpoof", "OldHypixel", "Jartex", "OldCubecraft", "Packet", "Watchdog", "Vulcan", "Freeze"), "Blink")
     private val maxFallDistValue = FloatValue("MaxFallDistance", 10F, 5F, 20F)

@@ -27,7 +27,7 @@ import org.lwjgl.util.glu.GLU
 import org.lwjgl.util.glu.Sphere
 import java.awt.Color
 
-@ModuleInfo(name = "Trails", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Trails", spacedName = "Trails", category = ModuleCategory.VISUAL)
 class Trails : Module() {
     private val typeValue = ListValue("Type", arrayOf("Line", "Rect",  "heart", "lava", "smoke", "cloud", "flame", "slime", "water", "firework"), "Lava")
     private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() }

@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.features.value.TextValue
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.network.play.server.S1DPacketEntityEffect
 
-@ModuleInfo(name = "StaffChecker", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "StaffChecker", spacedName = "StaffChecker", category = ModuleCategory.WORLD)
 class StaffChecker : Module() {
 
     private val serverValue = ListValue("Server", arrayOf("BlocksMC", "Jartex", "Pika", "Minebox", "Minemora", "Zonecraft", "Hycraft", "Librecraft","Custom"),"BlocksMC")

@@ -34,7 +34,7 @@ import net.minecraft.util.Vec3
 import java.awt.Color
 import kotlin.math.roundToInt
 
-@ModuleInfo(name = "Nuker", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "Nuker", spacedName = "Nuker", category = ModuleCategory.WORLD)
 class Nuker : Module() {
 
     private val radiusValue = FloatValue("Radius", 5.2F, 1F, 6F)

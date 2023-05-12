@@ -17,7 +17,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 import java.awt.Color
 
-@ModuleInfo(name = "BlockFinder", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "BlockFinder", spacedName = "Block Finder", category = ModuleCategory.VISUAL)
 class BlockFinder : Module() {
     private val blockfinder = BlockValue("Block", 1)
     private val searchTimer = MSTimer()

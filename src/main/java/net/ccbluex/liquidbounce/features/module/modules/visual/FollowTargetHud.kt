@@ -12,7 +12,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot
-import net.ccbluex.liquidbounce.features.module.modules.world.Teams
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -26,11 +25,12 @@ import java.awt.Color
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
-@ModuleInfo(name = "FollowTargetHud", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "FollowTargetHUD", spacedName = "Follow TargetHUD", category = ModuleCategory.VISUAL)
 class FollowTargetHud : Module() {
     private val zoomIn = BoolValue("ZoomIn", true)
     private val zoomTicks = IntegerValue("ZoomInTicks", 4, 2, 15).displayable {zoomIn.get()}
     private val modeValue = ListValue("Mode", arrayOf("Juul", "Jello", "Material", "Material2", "Arris", "FDP"), "Juul")
+    private val friendValue = BoolValue("Friend", false)
     private val fontValue = FontValue("Font", Fonts.font40)
     private val materialShadow = BoolValue("MaterialShadow", false).displayable {modeValue.equals("Material") || modeValue.equals("Material2")}
     private val fdpVertical = BoolValue("FDPVertical", false).displayable {modeValue.equals("FDP")}
@@ -72,21 +72,37 @@ class FollowTargetHud : Module() {
             }
         }
     }
+    fun isInYourTeam(entity: EntityLivingBase): Boolean {
+        if (friendValue.get()){
+            mc.thePlayer ?: return false
 
+            if (mc.thePlayer.team != null && entity.team != null &&
+                mc.thePlayer.team.isSameTeam(entity.team)
+            ) {
+                return true
+            }
+            if (mc.thePlayer.displayName != null && entity.displayName != null) {
+                val targetName = entity.displayName.formattedText.replace("§r", "")
+                val clientName = mc.thePlayer.displayName.formattedText.replace("§r", "")
+                return targetName.startsWith("§${clientName[1]}")
+            }
+
+        }
+        return false
+    }
     private fun getPlayerName(entity: EntityLivingBase): String {
         val name = entity.displayName.formattedText
         var pre = ""
-        val teams = CrossSine.moduleManager[Teams::class.java]!!
         if (CrossSine.fileManager.friendsConfig.isFriend(entity.name)) {
             pre = "$pre§b[Friend] "
         }
-        if (teams.isInYourTeam(entity)) {
+        if (isInYourTeam(entity)) {
             pre = "$pre§a[TEAM] "
         }
         if (AntiBot.isBot(entity)) {
             pre = "$pre§e[BOT] "
         }
-        if (!AntiBot.isBot(entity) && !teams.isInYourTeam(entity)) {
+        if (!AntiBot.isBot(entity) && !isInYourTeam(entity)) {
             pre = if (CrossSine.fileManager.friendsConfig.isFriend(entity.name)) {
                 "§b[Friend] §c"
             } else {

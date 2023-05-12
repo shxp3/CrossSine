@@ -34,6 +34,9 @@ public final class AnimationUtils {
         return current;
     }
 
+    public static float easeOut(float t, float d) {
+        return (t = t / d - 1) * t * t + 1;
+    }
     public static float animate(float target, float current, float speed) {
         if (current == target) return current;
 

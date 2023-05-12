@@ -20,7 +20,7 @@ import java.util.*
 import java.util.Timer
 import kotlin.concurrent.schedule
 
-@ModuleInfo(name = "AutoLogin", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "AutoLogin", spacedName = "Auto Login", category = ModuleCategory.OTHER)
 class AutoLogin : Module() {
     private val registerCommandValue = TextValue("Register", "/register %p %p")
     private val loginCommandValue = TextValue("Login", "/login %p")

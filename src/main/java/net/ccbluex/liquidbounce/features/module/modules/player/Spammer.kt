@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.TextValue
 import net.minecraft.client.gui.GuiChat
 
-@ModuleInfo(name = "Spammer", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Spammer", spacedName = "Spammer", category = ModuleCategory.PLAYER)
 class Spammer : Module() {
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0, 5000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -64,14 +64,14 @@ class Spammer : Module() {
         if (msTimer.hasTimePassed(delay)) {
             mc.thePlayer.sendChatMessage(when (modeValue.get().lowercase()) {
                 "insult" -> {
-                    replaceAbuse(Insult.getRandomOne())
+                    replaceAbuse(KillSay.getRandomOne())
                 }
                 "orderinsult" -> {
                     lastIndex++
-                    if (lastIndex >= (Insult.insultWords.size - 1)) {
+                    if (lastIndex >= (KillSay.insultWords.size - 1)) {
                         lastIndex = 0
                     }
-                    replaceAbuse(Insult.insultWords[lastIndex])
+                    replaceAbuse(KillSay.insultWords[lastIndex])
                 }
                 else -> replace(messageValue.get())
             })

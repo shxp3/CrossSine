@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.utils
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.command.CommandManager
-import net.ccbluex.liquidbounce.features.module.modules.player.Insult
+import net.ccbluex.liquidbounce.features.module.modules.player.KillSay
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.minecraft.client.Minecraft
 import net.minecraft.util.IChatComponent
@@ -62,7 +62,7 @@ ClientUtils : MinecraftInstance() {
         CrossSine.scriptManager.enableScripts()
         Fonts.loadFonts()
         CrossSine.configManager.load(CrossSine.configManager.nowConfig, false)
-        Insult.loadFile()
+        KillSay.loadFile()
         CrossSine.fileManager.loadConfig(CrossSine.fileManager.accountsConfig)
         CrossSine.fileManager.loadConfig(CrossSine.fileManager.friendsConfig)
         CrossSine.fileManager.loadConfig(CrossSine.fileManager.xrayConfig)

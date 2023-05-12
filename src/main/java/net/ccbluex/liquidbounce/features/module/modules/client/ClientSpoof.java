@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue;
 import net.ccbluex.liquidbounce.features.value.TextValue;
 import org.jetbrains.annotations.Nullable;
 
-@ModuleInfo(name = "ClientSpoofer",  category = ModuleCategory.CLIENT)
+@ModuleInfo(name = "ClientSpoofer", spacedName = "Client Spoofer",category = ModuleCategory.CLIENT)
 public final class ClientSpoof extends Module {
     public final ListValue modeValue = new ListValue("Mode", new String[]{
             "Vanilla",
