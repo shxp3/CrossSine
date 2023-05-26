@@ -7,6 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.StrafeEvent
+import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -15,6 +17,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 
 @ModuleInfo(name = "Animations", spacedName = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true, array = false)
@@ -66,10 +69,10 @@ object Animations : Module() {
     val itemScaleValue = FloatValue("ItemScale", 0.40f, 0.0f, 2.0f).displayable { AnimationMode.get().equals("full", true)}
     val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f).displayable { AnimationMode.get().equals("full", true)}
     val fluxAnimation = BoolValue("FluxSwing", false).displayable { AnimationMode.get().equals("full", true)}
+    val BlockAnimation = BoolValue("Block Animation", false)
     val anythingBlockValue = false
-    @JvmField
+   @JvmField
     val Equip = 1.8F
-
 
     var flagRenderTabOverlay = false
         get() = field

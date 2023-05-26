@@ -33,6 +33,7 @@ class TargetStrafe : Module() {
     private val ongroundValue = BoolValue("OnlyOnGround",false)
     private val holdSpaceValue = BoolValue("HoldSpace", false)
     private val onlySpeedValue = BoolValue("OnlySpeed", true)
+    private val onlyFlightValue = BoolValue("OnlyFlight", true)
     private var direction = -1.0
 
     var targetEntity : EntityLivingBase?=null
@@ -216,7 +217,7 @@ class TargetStrafe : Module() {
     }
 
         private fun canStrafe(target: EntityLivingBase?): Boolean {
-            return target != null && (!holdSpaceValue.get() || mc.thePlayer.movementInput.jump) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state)
+            return target != null && (!holdSpaceValue.get() || mc.gameSettings.keyBindJump.isKeyDown) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state) && (!onlyFlightValue.get() || CrossSine.moduleManager[Flight::class.java]!!.state)
         }
 
     fun modifyStrafe(event: StrafeEvent):Boolean {
@@ -229,7 +230,7 @@ class TargetStrafe : Module() {
     }
 
     fun toggleStrafe(): Boolean {
-        return targetEntity != null && (!holdSpaceValue.get() || mc.thePlayer.movementInput.jump) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state)
+        return targetEntity != null && (!holdSpaceValue.get() || mc.gameSettings.keyBindJump.isKeyDown) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state) && (!onlyFlightValue.get() || CrossSine.moduleManager[Flight::class.java]!!.state)
     }
 
     @EventTarget

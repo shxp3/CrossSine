@@ -17,9 +17,9 @@ public class ClientSpoof extends MinecraftInstance implements Listenable {
 
     @EventTarget
     public void onPacket(PacketEvent event) {
-        if (CrossSine.moduleManager.getModule(net.ccbluex.liquidbounce.features.module.modules.client.ClientSpoof.class).getState()){
+        if (CrossSine.moduleManager.getModule(net.ccbluex.liquidbounce.features.module.modules.player.ClientSpoof.class).getState()){
             final Packet<?> packet = event.getPacket();
-            final net.ccbluex.liquidbounce.features.module.modules.client.ClientSpoof clientSpoof = CrossSine.moduleManager.getModule(net.ccbluex.liquidbounce.features.module.modules.client.ClientSpoof.class);
+            final net.ccbluex.liquidbounce.features.module.modules.player.ClientSpoof clientSpoof = CrossSine.moduleManager.getModule(net.ccbluex.liquidbounce.features.module.modules.player.ClientSpoof.class);
 
             if (enabled && !Minecraft.getMinecraft().isIntegratedServerRunning() && clientSpoof.modeValue.get().equals("Vanilla")) {
                 try {

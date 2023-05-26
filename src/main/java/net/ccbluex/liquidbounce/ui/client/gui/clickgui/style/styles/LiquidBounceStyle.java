@@ -1,6 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles;
 
 import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.event.EventTarget;
+import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ButtonElement;
@@ -10,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
+import net.ccbluex.liquidbounce.utils.render.Render;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.features.value.*;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -55,7 +58,6 @@ public class LiquidBounceStyle extends Style {
         GlStateManager.resetColor();
         Fonts.font35.drawString(LanguageManager.INSTANCE.get(buttonElement.getDisplayName().replaceAll("%","")), (int) (buttonElement.getX() - (Fonts.font35.getStringWidth(LanguageManager.INSTANCE.get(buttonElement.getDisplayName().replaceAll("%",""))) - 100.0f) / 2.0f), buttonElement.getY() + 6, buttonElement.getColor());
     }
-
     @Override
     public void drawModuleElement(int mouseX, int mouseY, ModuleElement moduleElement) {
         int guiColor = ClickGUIModule.generateColor().getRGB();

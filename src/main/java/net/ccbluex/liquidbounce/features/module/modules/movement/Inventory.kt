@@ -9,9 +9,11 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.other.CustomSpeed
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.inventory.GuiContainer
@@ -26,13 +28,14 @@ import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 
 @ModuleInfo(name = "Inventory", "Inventory", category = ModuleCategory.MOVEMENT)
-class Inventory : Module() {
+class  Inventory : Module() {
 
     private val noDetectableValue = BoolValue("NoDetectable", false)
     private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv", "None"), "None")
     private val rotateValue = BoolValue("Rotate", true)
     private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
     val noSprintValue = ListValue("NoSprint", arrayOf("Real", "PacketSpoof", "None"), "None")
+    private val customSpeed = FloatValue("CustomSpeed", 1.0F, 0.1F, 1.0F)
 
     private val blinkPacketList = mutableListOf<C03PacketPlayer>()
     private val packetListYes = mutableListOf<C0EPacketClickWindow>()
@@ -80,7 +83,13 @@ class Inventory : Module() {
     fun onScreen(event: ScreenEvent) {
         updateKeyState()
     }
-
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+        if (customSpeed.get() < 1.0F) {
+            mc.thePlayer.motionX = customSpeed.get().toDouble()
+            mc.thePlayer.motionZ = customSpeed.get().toDouble()
+        }
+    }
     @EventTarget
     fun onClick(event: ClickWindowEvent) {
         if (noMoveClicksValue.get() && MovementUtils.isMoving()) {

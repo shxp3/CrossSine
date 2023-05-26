@@ -7,10 +7,12 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.StrafeEvent;
-import net.ccbluex.liquidbounce.features.module.modules.client.FPSBoost;
+import net.ccbluex.liquidbounce.features.module.modules.world.FPSBoost;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix;
+import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.injection.access.IWorld;
+import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
@@ -81,6 +83,7 @@ public abstract class MixinEntity {
     @Shadow
     public void moveEntity(double x, double y, double z) {
     }
+
     @Shadow
     public boolean isInWeb;
 
@@ -111,11 +114,6 @@ public abstract class MixinEntity {
     @Shadow
     public int fireResistance;
 
-    @Shadow
-    public int ticksExisted;
-
-    @Shadow
-    public float fallDistance;
     @Shadow
     protected boolean inPortal;
 
@@ -187,10 +185,11 @@ public abstract class MixinEntity {
             return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
-        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
+        final MovementFix strafeFix = CrossSine.moduleManager.getModule(MovementFix.class);
+        //alert("Strafe: " + strafe + " Forward: " + forward + " Factor: " + friction + " DoFix: " + strafeFix.getDoFix());
         CrossSine.eventManager.callEvent(strafeEvent);
-        if (movementFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
-            movementFix.runStrafeFixLoop(movementFix.getSilentFix(), strafeEvent);
+        if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
+            strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
         }
 
         if (strafeEvent.isCancelled())

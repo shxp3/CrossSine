@@ -18,10 +18,9 @@ import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.TextValue;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
-@ModuleInfo(name = "StreamerMode", spacedName = "Streamer Mode",category = ModuleCategory.CLIENT)
+@ModuleInfo(name = "StreamerMode", spacedName = "Streamer Mode",category = ModuleCategory.OTHER)
 public class StreamerMode extends Module {
 
-    private final String fakeNameValue = "CrossSineUser";
     private final String allFakeNameValue = "Player";
     public final Boolean selfValue = true;
     public final Boolean tagValue = false;
@@ -38,7 +37,7 @@ public class StreamerMode extends Module {
         event.setText(StringUtils.replace(
                 event.getText(),
                 mc.thePlayer.getName(),
-                (selfValue ? (tagValue ? StringUtils.injectAirString(mc.thePlayer.getName()) + " §7(§r" + ColorUtils.translateAlternateColorCodes(fakeNameValue + "§r§7)") : ColorUtils.translateAlternateColorCodes(fakeNameValue) + "§r") : mc.thePlayer.getName())
+                (selfValue ? (tagValue ? StringUtils.injectAirString(mc.thePlayer.getName()) + " §7(§r" + ColorUtils.translateAlternateColorCodes("CrossSineUser" + "§r§7)") : ColorUtils.translateAlternateColorCodes("CrossSineUser") + "§r") : mc.thePlayer.getName())
         ));
 
         if(allPlayersValue.get())

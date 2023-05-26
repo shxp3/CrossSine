@@ -36,7 +36,7 @@ class Matrix117Fly : FlyMode("Matrix1.17") {
             }
         }
         if(!hasEmptySlot) {
-            fly.state = false
+            flight.state = false
             ClientUtils.displayChatMessage("§8[§c§lMatrix1.17-§a§lFly§8] §aYou need to have an empty slot to fly.")
         }
     }
@@ -49,7 +49,7 @@ class Matrix117Fly : FlyMode("Matrix1.17") {
 
     override fun onMotion(event: MotionEvent) {
         if(event.eventState == EventState.PRE && resetFallDistValue.get()) {
-            if(mc.thePlayer.posY < fly.launchY + 0.15 && mc.thePlayer.posY > fly.launchY + 0.05) {
+            if(mc.thePlayer.posY < flight.launchY + 0.15 && mc.thePlayer.posY > flight.launchY + 0.05) {
                 airCount++
                 if(airCount >= 3) {
                     PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true))
@@ -72,7 +72,7 @@ class Matrix117Fly : FlyMode("Matrix1.17") {
                 break
             }
         }
-        if(!dontPlace || mc.thePlayer.posY + 1 > fly.launchY) {
+        if(!dontPlace || mc.thePlayer.posY + 1 > flight.launchY) {
             dontPlace = true
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), -1, null, 0f, 0f, 0f))
         }
@@ -80,10 +80,10 @@ class Matrix117Fly : FlyMode("Matrix1.17") {
             if (!yChanged) {
                 if(mc.gameSettings.keyBindJump.pressed) {
                     yChanged = true
-                    fly.launchY += 1
+                    flight.launchY += 1
                 } else if(mc.gameSettings.keyBindSneak.pressed) {
                     yChanged = true
-                    fly.launchY -= 1
+                    flight.launchY -= 1
                 }
             } else {
                 yChanged = false
@@ -112,8 +112,8 @@ class Matrix117Fly : FlyMode("Matrix1.17") {
     }
 
     override fun onBlockBB(event: BlockBBEvent) {
-        if (event.block is BlockAir && event.y <= fly.launchY) {
-            event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, fly.launchY, event.z + 1.0)
+        if (event.block is BlockAir && event.y <= flight.launchY) {
+            event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, flight.launchY, event.z + 1.0)
         }
     }
 }

@@ -13,8 +13,8 @@ public class Reach extends Module {
 
 
     public static double getReach() {
-        double min = Math.min(ReachMin.getValue() + 0.6, ReachMax.getValue() + 0.6);
-        double max = Math.max(ReachMin.getValue() + 0.6, ReachMax.getValue() + 0.6);
+        double min = Math.min(ReachMin.getValue() + 0.55, ReachMax.getValue() + 0.55);
+        double max = Math.max(ReachMin.getValue() + 0.55, ReachMax.getValue() + 0.55);
         return Math.random() * (max - min) + min;
     }
     @Nullable

@@ -8,23 +8,36 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.math.MathUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.utils.timer.tickTimer
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.utils.math.MathUtils
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemSword
 import org.lwjgl.input.Mouse
+import java.lang.reflect.Method
 import kotlin.random.Random
 
-@ModuleInfo(name = "AutoClicker", "Auto Clicker",category = ModuleCategory.GHOST)
+@ModuleInfo(name = "AutoClicker", "Auto Clicker", category = ModuleCategory.GHOST)
 class AutoClicker : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Normal", "LegitJitter", "LegitButterfly"), "Normal")
-    private val legitJitterValue = ListValue("LegitJitterMode", arrayOf("Jitter1", "Jitter2", "Jitter3", "SimpleJitter"), "Jitter1").displayable {modeValue.equals("LegitJitter")}
-    private val legitButterflyValue = ListValue("LegitButterflyMode", arrayOf("Butterfly1", "Butterfly2"), "Butterfly1").displayable {modeValue.equals("LegitButterfly")}
+    private val legitJitterValue = ListValue(
+        "LegitJitterMode",
+        arrayOf("Jitter1", "Jitter2", "Jitter3", "SimpleJitter"),
+        "Jitter1"
+    ).displayable { modeValue.equals("LegitJitter") }
+    private val legitButterflyValue = ListValue(
+        "LegitButterflyMode",
+        arrayOf("Butterfly1", "Butterfly2"),
+        "Butterfly1"
+    ).displayable { modeValue.equals("LegitButterfly") }
 
 
     // Normal
@@ -36,7 +49,7 @@ class AutoClicker : Module() {
             }
         }
     }
-    private val normalMinCPSValue: IntegerValue = object : IntegerValue("Normal-MinCPS", 5, 1, 40)  {
+    private val normalMinCPSValue: IntegerValue = object : IntegerValue("Normal-MinCPS", 5, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val maxCPS = normalMaxCPSValue.get()
             if (maxCPS < newValue) {
@@ -48,14 +61,20 @@ class AutoClicker : Module() {
     private val rightBlockOnlyValue = BoolValue("RightBlockOnly", false).displayable { rightValue.get() }
     private val leftValue = BoolValue("LeftClick", true)
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false).displayable { leftValue.get() }
-    private val blockValue = BoolValue("AutoBlock", false). displayable { leftValue.get() }
-    private val blockModeValue = ListValue("AutoBlockMode", arrayOf("Auto", "Manual"), "Auto").displayable {blockValue.get() && leftValue.get()}
+    private val blockValue = BoolValue("AutoBlock", false).displayable { leftValue.get() }
+    private val blockModeValue = ListValue(
+        "AutoBlockMode",
+        arrayOf("Auto", "Manual"),
+        "Auto"
+    ).displayable { blockValue.get() && leftValue.get() }
     private val jitterValue = BoolValue("Jitter", false)
+    private val container = BoolValue("InventoryFill", false)
 
 
     // Gaussian
     private val gaussianCpsValue = IntegerValue("Gaussian-CPS", 5, 1, 40).displayable { modeValue.equals("Gaussian") }
-    private val gaussianSigmaValue = FloatValue("Gaussian-Sigma", 0.5F, 0.1F, 5F).displayable { modeValue.equals("Gaussian") }
+    private val gaussianSigmaValue =
+        FloatValue("Gaussian-Sigma", 0.5F, 0.1F, 5F).displayable { modeValue.equals("Gaussian") }
 
 
     private var gaussianClickDelay = 0F
@@ -69,12 +88,14 @@ class AutoClicker : Module() {
     private var cDelay = 0
     private val timer = tickTimer()
 
-
+    private val playerMouseInput: Method? = null
+    var mouseDownTicks = 0
 
     @EventTarget
     fun onRender(event: Render3DEvent) {
         if (mc.gameSettings.keyBindAttack.isKeyDown && leftValue.get() &&
-            System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword) && mc.playerController.curBlockDamageMP == 0F) {
+            System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword) && mc.playerController.curBlockDamageMP == 0F
+        ) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
 
             leftLastSwing = System.currentTimeMillis()
@@ -94,10 +115,16 @@ class AutoClicker : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (jitterValue.get() && (leftValue.get() && mc.gameSettings.keyBindAttack.isKeyDown || rightValue.get() && mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem)) {
-            if (Random.nextBoolean()) mc.thePlayer.rotationYaw += if (Random.nextBoolean()) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+            if (Random.nextBoolean()) mc.thePlayer.rotationYaw += if (Random.nextBoolean()) -RandomUtils.nextFloat(
+                0F,
+                1F
+            ) else RandomUtils.nextFloat(0F, 1F)
 
             if (Random.nextBoolean()) {
-                mc.thePlayer.rotationPitch += if (Random.nextBoolean()) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                mc.thePlayer.rotationPitch += if (Random.nextBoolean()) -RandomUtils.nextFloat(
+                    0F,
+                    1F
+                ) else RandomUtils.nextFloat(0F, 1F)
 
                 // Make sure pitch does not go in to blatant values
                 if (mc.thePlayer.rotationPitch > 90)
@@ -111,15 +138,16 @@ class AutoClicker : Module() {
                 "auto" -> {
                     if (CrossSine.combatManager.inCombat) KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
                 }
+
                 "manual" -> {
-                        KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+                    KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
                 }
             }
         }
     }
 
     override fun onEnable() {
-        if(modeValue.equals("Gaussian")) {
+        if (modeValue.equals("Gaussian")) {
             gaussianUpdateDelay()
         }
         timer.update()
@@ -130,8 +158,10 @@ class AutoClicker : Module() {
     }
 
     private fun gaussianUpdateDelay(): Float {
-        gaussianClickDelay = 1000F / (MathUtils.calculateGaussianDistribution(gaussianCpsValue.get().toFloat(), gaussianSigmaValue.get()).toFloat()
-            .coerceAtLeast(1F)) // 1000ms = 1s
+        gaussianClickDelay =
+            1000F / (MathUtils.calculateGaussianDistribution(gaussianCpsValue.get().toFloat(), gaussianSigmaValue.get())
+                .toFloat()
+                .coerceAtLeast(1F)) // 1000ms = 1s
         return gaussianClickDelay
     }
 
@@ -271,6 +301,37 @@ class AutoClicker : Module() {
             }
         }
         return cDelay
+    }
+
+    @EventTarget
+    fun onMotion(event: MotionEvent) {
+            if (container.get()) {
+                val container = mc.currentScreen as GuiContainer;
+                if (mc.currentScreen is GuiContainer) {
+                    var i = Mouse.getEventX() * container.width / mc.displayHeight
+                    var j = container.height - Mouse.getEventY() * container.height / mc.displayHeight - 1
+
+                    try {
+                        if (Mouse.isButtonDown(0)) {
+                            mouseDownTicks++
+                            if (mouseDownTicks > 2 && Math.random() > 1) this.playerMouseInput!!.invoke(
+                                container,
+                                i,
+                                j,
+                                0
+                            )
+                        } else if (Mouse.isButtonDown(1)) {
+                            mouseDownTicks++
+                            if (mouseDownTicks > 2 && Math.random() > 1) playerMouseInput!!.invoke(container, i, j, 1)
+                        } else {
+                            mouseDownTicks = 0
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+            }
     }
 
     override val tag: String?

@@ -29,7 +29,7 @@ class Vulcan2Fly : FlyMode("Vulcan2") {
         vticks = 0
         doCancel = false
         if(mc.thePlayer.posY % 1 != 0.0) {
-            fly.state = false
+            flight.state = false
             ClientUtils.displayChatMessage("§8[§c§lVulcan-Fly§8] §cPlease stand on a solid block to fly!")
             isSuccess = true
             return
@@ -131,7 +131,7 @@ class Vulcan2Fly : FlyMode("Vulcan2") {
                              +(packet.y-mc.thePlayer.posY)*(packet.y-mc.thePlayer.posY)
                              +(packet.z-mc.thePlayer.posZ)*(packet.z-mc.thePlayer.posZ)) < 1.4) {
                     isSuccess = true
-                    fly.state = false
+                    flight.state = false
                     return
                 }
             }

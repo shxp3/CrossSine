@@ -32,7 +32,6 @@ class AntiCheat : Module() {
     private val movementCheckValue = BoolValue("Movement", true)
     private val debugModeValue = BoolValue("Debug", false)
     private val notifyValue = BoolValue("Notify", true)
-    private val reportValue = BoolValue("AutoReport", true)
     private val vlValue = IntegerValue("VL", 300, 100, 500)
 
     private val hackerDataMap = HashMap<EntityPlayer, HackerData>()
@@ -266,10 +265,6 @@ class AntiCheat : Module() {
                 CrossSine.hud.addNotification(Notification(name, "${this.player.name} might use hack ($use)", NotifyType.WARNING))
             }
             this.vl = -vlValue.get()
-
-            if (reportValue.get()) {
-                CrossSine.moduleManager[AutoReport::class.java]!!.doReport(this.player)
-            }
         }
     }
 

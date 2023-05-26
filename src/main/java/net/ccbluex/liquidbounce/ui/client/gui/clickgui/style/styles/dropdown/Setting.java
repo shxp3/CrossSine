@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.dropdown;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts;
 import net.ccbluex.liquidbounce.utils.math.MathUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -58,7 +58,7 @@ public class Setting {
 
             double rounded = (int) (numberValue.get() * 100.0D) / 100.0D;
             final double percentBar = (numberValue.get()- numberValue.getMinimum()
-                  ) / (numberValue.getMaximum() - numberValue.getMinimum());
+            ) / (numberValue.getMaximum() - numberValue.getMinimum());
 
             percent = Math.max(0, Math.min(1, (float) (percent + (Math.max(0, Math.min(percentBar, 1)) - percent) * (0.2 / clamp))));
             RenderUtils.drawRect(module.tab.getPosX() + 1, y + 3, module.tab.getPosX() + 99, y + 14, new Color(0, 0, 0, 50).getRGB());
@@ -72,7 +72,7 @@ public class Setting {
                 double set = MathUtils.incValue(value,0.01);
 
                 numberValue.set(set);
-             //   EventManager.call(new SettingEvent(module.getModule(), setting.getName(), setting.getSliderNumber()));
+                //   EventManager.call(new SettingEvent(module.getModule(), setting.getName(), setting.getSliderNumber()));
             }
 
             if (module.yPerModule == module.getY() && scissor) {
@@ -114,6 +114,39 @@ public class Setting {
             }
 
         }
+//        if (setting instanceof MinMaxValue) {
+//            final MinMaxValue minMaxValue = (MinMaxValue) setting;
+//            if (module.yPerModule == module.getY() && scissor) {
+//                GL11.glPushMatrix();
+//                GL11.glScissor((int) (module.tab.getPosX() * 2 + 1), 0, 197, 999999999);
+//                GL11.glEnable(GL11.GL_SCISSOR_TEST);
+//            }
+//
+//            double rounded = (int) (minMaxValue.get() * 100.0D) / 100.0D;
+//            final double percentBar = (minMaxValue.get().doubleValue()- minMaxValue.getMin()
+//            ) / (minMaxValue.getMax() - minMaxValue.getMin()) / (minMaxValue.getMin() - minMaxValue.getMax());
+//
+//            percent = Math.max(0, Math.min(1, (float) (percent + (Math.max(0, Math.min(percentBar, 1)) - percent) * (0.2 / clamp))));
+//            RenderUtils.drawRect(module.tab.getPosX() + 1, y + 3, module.tab.getPosX() + 99, y + 14, new Color(0, 0, 0, 50).getRGB());
+//            RenderUtils.drawRect(module.tab.getPosX() + 1, y + 3, module.tab.getPosX() + 1 + 98 * percent, y + 14, ClickGUIModule.generateColor());
+//            Fonts.SF.SF_18.SF_18.drawString(minMaxValue.getName() + " " + rounded, module.tab.getPosX() + 4, y + 5.5f, 0xffffffff, true);
+//
+//            if (this.dragging2) {
+//                double difference = minMaxValue.getMaximum() - minMaxValue.getMinimum();
+//                double value = minMaxValue.getMinimum() +
+//                        MathHelper.clamp_double((mouseX - (module.tab.getPosX() + 1)) / 99, 0, 1) * difference;
+//                double set = MathUtils.incValue(value,1);
+//
+//                integerValue.set(set);
+//                //   EventManager.call(new SettingEvent(module.getModule(), setting.getName(), setting.getSliderNumber()));
+//            }
+//
+//            if (module.yPerModule == module.getY() && scissor) {
+//                GL11.glDisable(GL11.GL_SCISSOR_TEST);
+//                GL11.glPopMatrix();
+//            }
+//
+//        }
         if (setting instanceof BoolValue) {
             final BoolValue boolValue = (BoolValue) setting;
             RenderUtils.drawRect(module.tab.getPosX() + 89, y + 4, module.tab.getPosX() + 99, y + 14, new Color(0, 0, 0, 50).getRGB());
@@ -134,28 +167,28 @@ public class Setting {
                     new Color(255, 255, 255, 255).getRGB(), true);
         }
 
-       if (setting instanceof TextValue){
-           final TextValue textValue = (TextValue) setting;
-        final String s = textValue.get();
+        if (setting instanceof TextValue){
+            final TextValue textValue = (TextValue) setting;
+            final String s = textValue.get();
 
-        if (textValue.getTextHovered() && Keyboard.isKeyDown(Keyboard.KEY_BACK) && this.backSpace.delay(100) && s.length() >= 1) {
-            textValue.set(s.substring(0, s.length() - 1));
-            this.backSpace.reset();
+            if (textValue.getTextHovered() && Keyboard.isKeyDown(Keyboard.KEY_BACK) && this.backSpace.delay(100) && s.length() >= 1) {
+                textValue.set(s.substring(0, s.length() - 1));
+                this.backSpace.reset();
+            }
+
+            RenderUtils.drawRect(module.tab.getPosX() + 6, y + 16, module.tab.getPosX() + 84, y + 16.5, new Color(195, 195, 195, 220).getRGB());
+            Fonts.SF.SF_16.SF_16.drawString(textValue.getName(), module.tab.getPosX() + 5.5f, y + 1.5f, new Color(227, 227, 227, 255).getRGB());
+
+            if (Fonts.SF.SF_16.SF_16.stringWidth(s) > 65) {
+                Fonts.SF.SF_16.SF_16.drawString(Fonts.SF.SF_16.SF_16.trimStringToWidth(s, 78, true), module.tab.getPosX() + 6, y + 10, 0xFFFFFFFF);
+            } else {
+                Fonts.SF.SF_16.SF_16.drawString(s, module.tab.getPosX() + 6, y + 10, 0xFFFFFFFF);
+            }
+
         }
 
-        RenderUtils.drawRect(module.tab.getPosX() + 6, y + 16, module.tab.getPosX() + 84, y + 16.5, new Color(195, 195, 195, 220).getRGB());
-        Fonts.SF.SF_16.SF_16.drawString(textValue.getName(), module.tab.getPosX() + 5.5f, y + 1.5f, new Color(227, 227, 227, 255).getRGB());
-
-        if (Fonts.SF.SF_16.SF_16.stringWidth(s) > 65) {
-            Fonts.SF.SF_16.SF_16.drawString(Fonts.SF.SF_16.SF_16.trimStringToWidth(s, 78, true), module.tab.getPosX() + 6, y + 10, 0xFFFFFFFF);
-        } else {
-            Fonts.SF.SF_16.SF_16.drawString(s, module.tab.getPosX() + 6, y + 10, 0xFFFFFFFF);
-        }
 
     }
-
-
-        }
 
     private int getY() {
         int y = module.y + 14;
@@ -170,7 +203,7 @@ public class Setting {
     }
 
     public int getHeight() {
-            return 15;
+        return 15;
     }
 
     private boolean dragging,dragging2;
@@ -181,28 +214,28 @@ public class Setting {
             if (setting instanceof BoolValue) {
                 final BoolValue boolValue = (BoolValue) setting;
                 if (mouseButton == 0) {
-                  if (boolValue.get()){
-                      boolValue.set(false);
-                  }else {
-                      boolValue.set(true);
-                  }
+                    if (boolValue.get()){
+                        boolValue.set(false);
+                    }else {
+                        boolValue.set(true);
+                    }
                     //   EventManager.call(new SettingEvent(module.getModule(), boolValue.getName(), boolValue.getName(), setting.getCheckBoxProperty()));
                 }
             }
-          if (setting instanceof ListValue){
+            if (setting instanceof ListValue){
                 if (mouseButton == 0) {
                     ListValue m = (ListValue)this.setting;
                     String current = m.get();
                     this.setting.set(m.getValues()[m.getModeListNumber(current) + 1 >= m.getValues().length?0:m.getModeListNumber(current) + 1]);
-                   // EventManager.call(new SettingEvent(module.getModule(), setting.getName(), setting.getComboBoxProperty()));
+                    // EventManager.call(new SettingEvent(module.getModule(), setting.getName(), setting.getComboBoxProperty()));
                 }
-        }
+            }
 
-         if (setting instanceof IntegerValue) {
-             if (mouseButton == 0) {
-                 dragging2 = true;
-             }
-         }
+            if (setting instanceof IntegerValue) {
+                if (mouseButton == 0) {
+                    dragging2 = true;
+                }
+            }
             if (setting instanceof FloatValue) {
                 if (mouseButton == 0) {
                     dragging = true;
@@ -211,10 +244,11 @@ public class Setting {
 
         }
         if (setting instanceof TextValue) {
-            if (isHovered(mouseX, mouseY)) {
-                setting.setTextHovered(!setting.getTextHovered());
-            } else if (setting.getTextHovered()) {
-                setting.setTextHovered(false);
+            if (this.isHovered(mouseX, mouseY)) {
+                this.setting.setTextHovered(!this.setting.getTextHovered());
+            }
+            else if (this.setting.getTextHovered()) {
+                this.setting.setTextHovered(false);
             }
         }
 /*
@@ -281,9 +315,9 @@ public class Setting {
 
         if (setting instanceof IntegerValue){}
 
-          if (setting instanceof BoolValue)
-              return mouseX >= module.tab.getPosX() + 89 && mouseY >= y + 4 && mouseX <= module.tab
-                      .getPosX() + 99 && mouseY <= y + 14;
+        if (setting instanceof BoolValue)
+            return mouseX >= module.tab.getPosX() + 89 && mouseY >= y + 4 && mouseX <= module.tab
+                    .getPosX() + 99 && mouseY <= y + 14;
 
           /*
             case BINDABLE:
@@ -293,8 +327,8 @@ public class Setting {
            */
 
 
-              return mouseX >= module.tab.getPosX() && mouseY >= y && mouseX <= module.tab
-                      .getPosX() + 90 && mouseY <= y + 17;
+        return mouseX >= module.tab.getPosX() && mouseY >= y && mouseX <= module.tab
+                .getPosX() + 90 && mouseY <= y + 17;
 
 
     }

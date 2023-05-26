@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMod
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.potion.Potion
 
-class HypixelNewSpeed: SpeedMode("HypixelNew") {
+class HypixelNewSpeed: SpeedMode("Hypixel") {
 
     @EventTarget
     override fun onUpdate() {
@@ -15,12 +15,8 @@ class HypixelNewSpeed: SpeedMode("HypixelNew") {
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                     MovementUtils.strafe(0.48F)
                 } else {
-                    MovementUtils.strafe()
+                    MovementUtils.strafe(0.34)
                 }
-            }
-
-                if (mc.thePlayer.hurtTime > 6 && CrossSine.combatManager.inCombat) {
-                    MovementUtils.strafe()
             }
     }
 }

@@ -12,6 +12,8 @@ import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.other.PackSpoofer;
 import net.ccbluex.liquidbounce.features.module.modules.other.NoRotate;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
+import net.ccbluex.liquidbounce.utils.BlinkUtils;
+import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.TransferUtils;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
@@ -19,6 +21,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -29,6 +32,7 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.network.play.client.C19PacketResourcePackStatus;
 import net.minecraft.network.play.server.*;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.WorldSettings;
 import org.spongepowered.asm.mixin.Final;
@@ -65,7 +69,7 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Shadow
     public abstract void handleEntityVelocity(S12PacketEntityVelocity packetIn);
-
+    
     @Shadow
     private boolean doneLoadingTerrain;
 
@@ -78,44 +82,44 @@ public abstract class MixinNetHandlerPlayClient {
 
         final PackSpoofer ps = CrossSine.moduleManager.getModule(PackSpoofer.class);
 
-        if (ClientFixes.blockResourcePackExploit) {
-            try {
-                final String scheme = new URI(url).getScheme();
-                final boolean isLevelProtocol = "level".equals(scheme);
+            if (ClientFixes.blockResourcePackExploit) {
+                try {
+                    final String scheme = new URI(url).getScheme();
+                    final boolean isLevelProtocol = "level".equals(scheme);
 
-                if(!"http".equals(scheme) && !"https".equals(scheme) && !isLevelProtocol)
-                    throw new URISyntaxException(url, "Wrong protocol");
+                    if(!"http".equals(scheme) && !"https".equals(scheme) && !isLevelProtocol)
+                        throw new URISyntaxException(url, "Wrong protocol");
 
-                if(isLevelProtocol && (url.contains("..") || !url.endsWith(".zip"))) {
-                    String s2 = url.substring("level://".length());
-                    File file1 = new File(this.gameController.mcDataDir, "saves");
-                    File file2 = new File(file1, s2);
+            if(isLevelProtocol && (url.contains("..") || !url.endsWith(".zip"))) {
+                String s2 = url.substring("level://".length());
+                File file1 = new File(this.gameController.mcDataDir, "saves");
+                File file2 = new File(file1, s2);
 
-                    if (file2.isFile() && !url.toLowerCase().contains("crosssine")) {
-                        netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.ACCEPTED));
-                        netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.SUCCESSFULLY_LOADED));
-                    } else {
-                        netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
-                    }
-
-                    if (ps.getState() && ps.getNotifyValue().get()) {
-                        alert("§7[§b!§7] §b§lFDPCLIENT §c» §6Resourcepack exploit detected.");
-                        alert("§7[§b!§7] §b§lFDPCLIENT §c» §7Exploit target directory: §r" + url);
-
-                        throw new IllegalStateException("Invalid levelstorage resourcepack path");
-                    } else {
-                        callbackInfo.cancel(); // despite not having it enabled we still prevents anything from illegally checking files in your computer.
-                    }
-
+                if (file2.isFile() && !url.toLowerCase().contains("crosssine")) {
+                    netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.ACCEPTED));
+                    netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.SUCCESSFULLY_LOADED));
+                } else {
+                    netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
                 }
-            } catch (final URISyntaxException e) {
-                alert("Failed to handle resource pack");
-                netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
-                callbackInfo.cancel();
-            } catch (final IllegalStateException e) {
-                alert("Failed to handle resource pack");
-                callbackInfo.cancel();
+
+                if (ps.getState() && ps.getNotifyValue().get()) {
+                    alert("§7[§b!§7] §b§lCrossSine §c» §6Resourcepack exploit detected.");
+                    alert("§7[§b!§7] §b§lCrossSine §c» §7Exploit target directory: §r" + url);
+
+                    throw new IllegalStateException("Invalid levelstorage resourcepack path");
+                } else {
+                    callbackInfo.cancel(); // despite not having it enabled we still prevents anything from illegally checking files in your computer.
+                }
+
             }
+        } catch (final URISyntaxException e) {
+            alert("Failed to handle resource pack");
+            netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
+            callbackInfo.cancel();
+        } catch (final IllegalStateException e) {
+            alert("Failed to handle resource pack");
+            callbackInfo.cancel();
+        }
         }
     }
 
@@ -167,9 +171,9 @@ public abstract class MixinNetHandlerPlayClient {
         // ONLY when it's a valid explosion (in affected range)
         if (!(Math.abs(packetIn.func_149149_c() * 8000.0) < 0.0001 && Math.abs(packetIn.func_149144_d() * 8000.0) < 0.0001 && Math.abs(packetIn.func_149147_e() * 8000.0) < 0.0001)) {
             S12PacketEntityVelocity packet = new S12PacketEntityVelocity(this.gameController.thePlayer.getEntityId(),
-                    (this.gameController.thePlayer.motionX + packetIn.func_149149_c()) * 8000.0,
-                    (this.gameController.thePlayer.motionY + packetIn.func_149144_d()) * 8000.0,
-                    (this.gameController.thePlayer.motionZ + packetIn.func_149147_e()) * 8000.0);
+                (this.gameController.thePlayer.motionX + packetIn.func_149149_c()) * 8000.0,
+                (this.gameController.thePlayer.motionY + packetIn.func_149144_d()) * 8000.0,
+                (this.gameController.thePlayer.motionZ + packetIn.func_149147_e()) * 8000.0);
             PacketEvent packetEvent = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
             CrossSine.eventManager.callEvent(packetEvent);
             if (!packetEvent.isCancelled()) {
@@ -242,14 +246,14 @@ public abstract class MixinNetHandlerPlayClient {
     private void handleTimeUpdate(S03PacketTimeUpdate s03PacketTimeUpdate, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.gameController.theWorld, callbackInfo);
     }
-
+    
     /**
      * @author Co Dynamic
      * @reason NoRotateSet / S08 Silent Confirm
      */
     @Overwrite
     public void handlePlayerPosLook(S08PacketPlayerPosLook packetIn) {
-        final NoRotate noRotate = CrossSine.moduleManager.getModule(NoRotate.class);
+        final NoRotate noRotateSet = CrossSine.moduleManager.getModule(NoRotate.class);
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
         EntityPlayer entityplayer = this.gameController.thePlayer;
         double d0 = packetIn.getX();
@@ -301,17 +305,17 @@ public abstract class MixinNetHandlerPlayClient {
             this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(d0, d1, d2, f, f1, false));
             TransferUtils.INSTANCE.setSilentConfirm(false);
         } else {
-            if (noRotate.getState()) {
-                if (!noRotate.getNoLoadingValue().get() || this.doneLoadingTerrain) {
+            if (noRotateSet.getState()) {
+                if (!noRotateSet.getNoLoadingValue().get() || this.doneLoadingTerrain) {
                     flag = true;
-                    if (!noRotate.getOverwriteTeleportValue().get()) {
+                    if (!noRotateSet.getOverwriteTeleportValue().get()) {
                         overwriteYaw = entityplayer.rotationYaw;
                         overwritePitch = entityplayer.rotationPitch;
                     }
                 }
             }
             if (flag) {
-                if (noRotate.getRotateValue().get()) {
+                if (noRotateSet.getRotateValue().get()) {
                     entityplayer.setPositionAndRotation(d0, d1, d2, entityplayer.rotationYaw, entityplayer.rotationPitch);
                 } else {
                     entityplayer.setPosition(d0, d1, d2);

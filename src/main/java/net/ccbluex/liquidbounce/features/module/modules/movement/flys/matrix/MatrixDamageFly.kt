@@ -50,7 +50,7 @@ class MatrixDamageFly : FlyMode("MatrixDamage") {
 
     override fun onUpdate(event: UpdateEvent) {
         if(motionreduceonend.get()) {
-            fly.needReset = false
+            flight.needReset = false
         }
         if(velocitypacket) {
             val yaw = Math.toRadians(mc.thePlayer.rotationYaw.toDouble())

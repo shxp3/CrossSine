@@ -56,7 +56,7 @@ class MinemoraFly : FlyMode("Minemora") {
         }
     }
     override fun onUpdate(event: UpdateEvent) {
-        fly.antiDesync = false
+        flight.antiDesync = false
         if(boost) {
             MovementUtils.resetMotion(false)
             repeat(10) {
@@ -64,7 +64,7 @@ class MinemoraFly : FlyMode("Minemora") {
                 mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX , mc.thePlayer.posY , mc.thePlayer.posZ , true))
             }
 
-            fly.state = false
+            flight.state = false
         }
     }
     override fun onMotion(event: MotionEvent) {
@@ -88,7 +88,7 @@ class MinemoraFly : FlyMode("Minemora") {
             } else if (mc.gameSettings.keyBindSneak.pressed) {
                 mc.thePlayer.motionY = -1.7
                 if(mc.thePlayer.onGround) {
-                    if(!noGround) fly.state = false else boost = true
+                    if(!noGround) flight.state = false else boost = true
                 }
             } else {
                 mc.thePlayer.motionY = 0.0

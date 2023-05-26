@@ -13,7 +13,7 @@ class FunCraftFly : FlyMode("FunCraft") {
     private val timer = tickTimer()
 
     override fun onUpdate(event: UpdateEvent) {
-        fly.antiDesync = true
+        flight.antiDesync = true
         mc.timer.timerSpeed = timescale.get()
         timer.update()
 

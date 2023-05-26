@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flys
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.Flight
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.features.value.Value
@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.features.value.Value
 abstract class FlyMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
-    protected val fly: Fly
-        get() = CrossSine.moduleManager[Fly::class.java]!!
+    protected val flight: Flight
+        get() = CrossSine.moduleManager[Flight::class.java]!!
 
     open val values: List<Value<*>>
         get() = ClassUtils.getValues(this.javaClass, this)

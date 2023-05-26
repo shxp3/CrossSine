@@ -1,9 +1,10 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD.mixerDistValue
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD.mixerSecValue
-import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD.mixerDistValue
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD.mixerSecValue
+import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -68,7 +69,7 @@ class Text(
     private var displayText = display
     private var pointer = 0
 
-    val Interface = CrossSine.moduleManager.getModule(net.ccbluex.liquidbounce.features.module.modules.client.HUD::class.java)!!
+    val Interface = CrossSine.moduleManager.getModule(HUD::class.java)!!
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode) {

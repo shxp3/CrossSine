@@ -21,8 +21,8 @@ class OldNCPFly : FlyMode("OldNCP") {
     }
 
     override fun onUpdate(event: UpdateEvent) {
-        fly.antiDesync = true
-        if (fly.launchY > mc.thePlayer.posY) {
+        flight.antiDesync = true
+        if (flight.launchY > mc.thePlayer.posY) {
             mc.thePlayer.motionY = -0.000000000000000000000000000000001
         }
 
@@ -30,7 +30,7 @@ class OldNCPFly : FlyMode("OldNCP") {
             mc.thePlayer.motionY = -0.2
         }
 
-        if (mc.gameSettings.keyBindJump.isKeyDown && mc.thePlayer.posY < fly.launchY - 0.1) {
+        if (mc.gameSettings.keyBindJump.isKeyDown && mc.thePlayer.posY < flight.launchY - 0.1) {
             mc.thePlayer.motionY = 0.2
         }
 

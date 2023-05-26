@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD
-import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
+import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
 import net.ccbluex.liquidbounce.features.module.modules.combat.InfiniteAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -20,17 +20,20 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.*
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.interpolateColorC
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
+import net.minecraft.item.ItemStack
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
@@ -46,7 +49,7 @@ import kotlin.math.roundToInt
 @ElementInfo(name = "TargetHUD")
 open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side.Vertical.MIDDLE)) {
 
-    val modeValue = ListValue("Mode", arrayOf("FDP", "Bar", "Chill", "ChillLite", "Moon", "Stitch", "Rice", "Slowly", "Remix", "Novoline", "Novoline2", "Novoline3", "Astolfo", "Astolfo2", "Liquid", "Flux", "Flux2", "Rise", "Exhibition", "ExhibitionOld", "Zamorozka", "Arris", "Tenacity", "Tenacity5", "WaterMelon", "SparklingWater", "Hanabi", "Clean"), "Chill")
+    val modeValue = ListValue("Mode", arrayOf("FDP", "Bar", "Chill", "ChillLite", "Moon", "Stitch", "Rice", "Slowly", "Remix", "Novoline", "Novoline2", "Novoline3", "Astolfo", "Astolfo2", "Liquid", "Flux", "Flux2", "Rise", "Exhibition", "ExhibitionOld", "Zamorozka", "Arris", "Tenacity", "Tenacity5", "WaterMelon", "SparklingWater", "Hanabi", "Clean"), "Astolfo2")
     private val modeAstolfo = ListValue("AstolfoMode", arrayOf("1", "2"), "1").displayable { modeValue.equals("Astolfo") || modeValue.equals("Astolfo2")}
     private val modeRise = ListValue("RiseMode", arrayOf("Original", "New1", "New2", "Rise6"), "Rise6").displayable { modeValue.equals("Rise") }
 
@@ -338,7 +341,6 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             "moon" -> drawMoonOld(prevTarget!! as EntityPlayer)
             "astolfo" -> drawAstolfo(prevTarget!!)
             "astolfo2" -> drawAstolfo2(prevTarget!! as EntityPlayer)
-
             "liquid" -> drawLiquid(prevTarget!!)
             "flux" -> drawFlux(prevTarget!!)
             "flux2" -> drawFlux2(prevTarget!!)
@@ -654,7 +656,6 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             GL11.glTranslated(renderX, renderY, 0.0)
         }
     }
-
     private fun drawZamorozka(target: EntityLivingBase) {
         val font = fontValue.get()
 
@@ -2264,6 +2265,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             "stitch" -> Border(0F, 0F, 150F, 65F)
             "remix" -> Border(0F, 0F, 146F, 49F)
             "rice" -> Border(0F, 0F, 135F, 55F)
+            "vape" -> Border(0F, 0F, 110F, 40F)
             "slowly" -> Border(0F, 0F, 102F, 36F)
             "exhibition" -> Border(0F, 0F, 126F, 45F)
             "exhibitionold" -> Border(2F, 1F, 122F, 40F)

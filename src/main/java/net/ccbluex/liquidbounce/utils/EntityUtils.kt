@@ -6,13 +6,13 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.client.Target
-import net.ccbluex.liquidbounce.features.module.modules.client.Target.animalValue
-import net.ccbluex.liquidbounce.features.module.modules.client.Target.deadValue
-import net.ccbluex.liquidbounce.features.module.modules.client.Target.friendValue
-import net.ccbluex.liquidbounce.features.module.modules.client.Target.invisibleValue
-import net.ccbluex.liquidbounce.features.module.modules.client.Target.mobValue
-import net.ccbluex.liquidbounce.features.module.modules.client.Target.playerValue
+import net.ccbluex.liquidbounce.features.module.modules.world.Target
+import net.ccbluex.liquidbounce.features.module.modules.world.Target.animalValue
+import net.ccbluex.liquidbounce.features.module.modules.world.Target.deadValue
+import net.ccbluex.liquidbounce.features.module.modules.world.Target.friendValue
+import net.ccbluex.liquidbounce.features.module.modules.world.Target.invisibleValue
+import net.ccbluex.liquidbounce.features.module.modules.world.Target.mobValue
+import net.ccbluex.liquidbounce.features.module.modules.world.Target.playerValue
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor

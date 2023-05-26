@@ -17,8 +17,7 @@ enum class ModuleCategory(val displayName: String, val configName: String, val h
     VISUAL("Visual", "Visual", "&#xe417;"),
     WORLD("World", "World", "&#xe55b;"),
     GHOST("Ghost", "Ghost", "%#xe594"),
-    OTHER("Other", "Other", "&#xe868;"),
-    CLIENT("Client", "Client", "&#xe869;"),;
+    OTHER("Other", "Other", "&#xe868;");
 
     var namee: String? = null
     var posX = 0

@@ -6,12 +6,18 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import com.mojang.authlib.GameProfile;
+import net.ccbluex.liquidbounce.utils.CooldownHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.FoodStats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.Minecraft;
 
 @Mixin(EntityPlayer.class)
 public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
@@ -47,4 +53,25 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
 
     @Shadow
     public abstract boolean isUsingItem();
+    
+    @Shadow public InventoryPlayer inventory;
+    
+    private ItemStack cooldownStack;
+    private int cooldownStackSlot;
+
+    @Inject(method = "onUpdate", at = @At("RETURN"))
+    private void injectCooldown(final CallbackInfo callbackInfo) {
+        if (this.getGameProfile() == Minecraft.getMinecraft().thePlayer.getGameProfile()) {
+            CooldownHelper.INSTANCE.incrementLastAttackedTicks();
+            CooldownHelper.INSTANCE.updateGenericAttackSpeed(getHeldItem());
+
+            if (cooldownStackSlot != inventory.currentItem || !ItemStack.areItemStacksEqual(cooldownStack, getHeldItem())) {
+                CooldownHelper.INSTANCE.resetLastAttackedTicks();
+            }
+
+            cooldownStack = getHeldItem();
+            cooldownStackSlot = inventory.currentItem;
+        }
+    }
+
 }

@@ -35,7 +35,7 @@ class AAC520VanillaFly : FlyMode("AAC5.2.0-Vanilla") {
     override fun onEnable() {
         if (mc.isSingleplayer) {
             CrossSine.hud.addNotification(Notification("Fly", "Use AAC5.2.0 Fly will crash single player", NotifyType.ERROR, 2000, 500))
-            fly.state = false
+            flight.state = false
             return
         }
 
@@ -57,7 +57,7 @@ class AAC520VanillaFly : FlyMode("AAC5.2.0-Vanilla") {
     }
 
     override fun onUpdate(event: UpdateEvent) {
-        fly.antiDesync = true
+        flight.antiDesync = true
         mc.thePlayer.noClip = !MovementUtils.isMoving()
         if (smoothValue.get()) {
             if (!timer.hasTimePassed(1000) || !flyStart) {

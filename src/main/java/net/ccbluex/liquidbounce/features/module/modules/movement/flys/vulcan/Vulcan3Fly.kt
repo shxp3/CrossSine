@@ -126,7 +126,7 @@ class Vulcan3Fly : FlyMode("Vulcan3") {
             if (stage == FlyStage.WAIT_APPLY) {
                 if(Math.sqrt((packet.x - groundX) * (packet.x - groundX)
                     + (packet.z - groundZ) * (packet.z - groundZ)) < 1.4 && packet.y >= (groundY - 0.5)) {
-                    fly.state = false
+                    flight.state = false
                     return
                 }
             }

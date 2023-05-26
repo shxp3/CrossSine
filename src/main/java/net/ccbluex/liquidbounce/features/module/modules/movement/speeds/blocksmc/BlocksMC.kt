@@ -9,7 +9,7 @@ import net.minecraft.potion.Potion
 class BlocksMC : SpeedMode("BlocksMC") {
 
     private val ResetOnDisableValue = BoolValue("MotionStop", false)
-    private val DamageBoostValue = BoolValue("DamageBoost", false)
+    val DamageBoostValue = BoolValue("DamageBoost", false)
     private val TimerValue = BoolValue("Timer?", false).displayable { DamageBoostValue.get() }
 
     override fun onUpdate() {

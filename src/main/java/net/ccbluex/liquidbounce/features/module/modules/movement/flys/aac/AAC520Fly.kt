@@ -17,7 +17,7 @@ class AAC520Fly : FlyMode("AAC5.2.0") {
     override fun onEnable() {
         if (mc.isSingleplayer) {
             CrossSine.hud.addNotification(Notification("Fly", "Use AAC5.2.0 Fly will crash single player", NotifyType.ERROR, 2000, 500))
-            fly.state = false
+            flight.state = false
             return
         }
 

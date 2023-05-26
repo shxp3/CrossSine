@@ -78,7 +78,7 @@ class MLGNofall : NoFallMode("MLG") {
                 }
 
                 currentMlgRotation = RotationUtils.faceBlock(collision)
-                currentMlgRotation!!.rotation.toPlayer(mc.thePlayer)
+                currentMlgRotation!!.rotation.toPlayer(mc.thePlayer, true)
             }
         } else if (currentMlgRotation != null) {
             val stack = mc.thePlayer.inventory.mainInventory[currentMlgItemIndex]

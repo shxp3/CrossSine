@@ -32,21 +32,19 @@ import java.util.*
 import kotlin.concurrent.thread
 
 object CrossSine {
-
     // Client information
 
     const val CLIENT_NAME = "CrossSine"
-
+    val CLIENT_STATUS = true
     var Darkmode = true
-    var CLIENT_STATUS = false
     const val COLORED_NAME = "Cross§CSine§F"
     const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"
     const val CLIENT_WEBSITE = "crosssine.github.io"
-    const val CLIENT_VERSION = "B32.5"
+    const val CLIENT_VERSION = "B33"
     @JvmField
-    val CLIENT_LOADING = "Opening CrossSine Client...."
+    val CLIENT_LOADING = if (CLIENT_STATUS) "Beta Loading" else "Installing CrossSine"
     @JvmField
-    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION}" + if (CLIENT_STATUS) "?BETA GET YOU DO HOW *****THIS IS FAKE CROSSSINE***** FOR FAKE!!" else " Download : ${CLIENT_WEBSITE}"
+    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION}" + if (CLIENT_STATUS) " Beta" else " Download : ${CLIENT_WEBSITE}"
 
     @JvmField
     val gitInfo = Properties().also {

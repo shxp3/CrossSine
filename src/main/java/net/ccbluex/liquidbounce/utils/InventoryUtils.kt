@@ -41,19 +41,19 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return -1
     }
     fun findHighBlock(): Int {
-        var aefeefisbcebfsecibkujfseadcbgujfseadibugjfseadiugbjfsdaeibugjfeygbdfhusjdmhfgvbryesuaerogfdhusbhjsdufvybohyobhdgsfgbvyuhisdbghyfu = -1
-        var asedfoeidfgwnhlkbefdgwlnihkbedwsafgilejvfhdhveyfdgswhyfewdjshyhgbewdfshjbgefdwsbggbsdafadsfsdafadfewfawefdfesdafsdfeaedfsesdawfedswrfewardewdarfewrrew = 0
+        var a = -1
+        var aa = 0
         for (i in 36..44) {
             if (mc.thePlayer.inventoryContainer.getSlot(i).hasStack) {
-                val efklergsdhfbaserdgferasgfergfretgferiwfuiujgerbfvbhreufbiujkerwsbdhnfiujnhbwersuijfhuewbfiguwebgifugbwedifsdwkfbdkfkujsdkufuisnshdfujidrfbnujirsbwijnef = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
-                var wieohnwevbfyhvbuikewfdyihvbuewyidhfbvuewyiuhbvdgfyubwedrfuigbyjkewdibufgjkyhuigjkbeyhwdfrigjkbuewdsfuigjkbbgjkuidefwscjbkdesfcwjkbiuedswkbiufgjikgjbeudfwscbuigjkefwdbuigjk = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                if (efklergsdhfbaserdgferasgfergfretgferiwfuiujgerbfvbhreufbiujkerwsbdhnfiujnhbwersuijfhuewbfiguwebgifugbwedifsdwkfbdkfkujsdkufuisnshdfujidrfbnujirsbwijnef is ItemBlock && wieohnwevbfyhvbuikewfdyihvbuewyidhfbvuewyiuhbvdgfyubwedrfuigbyjkewdibufgjkyhuigjkbeyhwdfrigjkbuewdsfuigjkbbgjkuidefwscjbkdesfcwjkbiuedswkbiufgjikgjbeudfwscbuigjkefwdbuigjk.stackSize > asedfoeidfgwnhlkbefdgwlnihkbedwsafgilejvfhdhveyfdgswhyfewdjshyhgbewdfshjbgefdwsbggbsdafadsfsdafadfewfawefdfesdafsdfeaedfsesdawfedswrfewardewdarfewrrew) {
-                    asedfoeidfgwnhlkbefdgwlnihkbedwsafgilejvfhdhveyfdgswhyfewdjshyhgbewdfshjbgefdwsbggbsdafadsfsdafadfewfawefdfesdafsdfeaedfsesdawfedswrfewardewdarfewrrew = wieohnwevbfyhvbuikewfdyihvbuewyidhfbvuewyiuhbvdgfyubwedrfuigbyjkewdibufgjkyhuigjkbeyhwdfrigjkbuewdsfuigjkbbgjkuidefwscjbkdesfcwjkbiuedswkbiufgjikgjbeudfwscbuigjkefwdbuigjk.stackSize
-                    aefeefisbcebfsecibkujfseadcbgujfseadibugjfseadiugbjfsdaeibugjfeygbdfhusjdmhfgvbryesuaerogfdhusbhjsdufvybohyobhdgsfgbvyuhisdbghyfu = i
+                val aaa = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
+                var aaaa = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                if (aaa is ItemBlock && aaaa.stackSize > aa) {
+                    aa = aaaa.stackSize
+                    a = i
                 }
             }
         }
-        return aefeefisbcebfsecibkujfseadcbgujfseadibugjfseadiugbjfsdaeibugjfeygbdfhusjdmhfgvbryesuaerogfdhusbhjsdufvybohyobhdgsfgbvyuhisdbghyfu
+        return a
     }
     fun findSword(): Int {
         var bestDurability = -1

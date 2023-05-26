@@ -61,6 +61,7 @@ public abstract class MixinBlock {
         if(axisalignedbb != null && mask.intersectsWith(axisalignedbb))
             list.add(axisalignedbb);
     }
+
     @Inject(method = "shouldSideBeRendered", at = @At("HEAD"), cancellable = true)
     private void shouldSideBeRendered(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         final XRay xray = CrossSine.moduleManager.getModule(XRay.class);

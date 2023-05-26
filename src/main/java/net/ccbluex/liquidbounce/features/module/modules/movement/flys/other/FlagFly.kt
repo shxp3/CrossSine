@@ -11,7 +11,7 @@ class FlagFly : FlyMode("Flag") {
     override fun onEnable() {
         if(mc.isSingleplayer) {
             CrossSine.hud.addNotification(Notification("FlagFly", "Using FlagFly in SinglePlayer will crash your client while saving world!", NotifyType.ERROR))
-            fly.state = false
+            flight.state = false
         }
     }
     override fun onUpdate(event: UpdateEvent) {

@@ -93,13 +93,6 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
      * @param callback JavaScript function to which the corresponding instance of [ScriptModule] is passed.
      * @see ScriptModule
      */
-    @Suppress("unused")
-    fun registerModule(moduleObject: JSObject, callback: JSObject) {
-        val module = ScriptModule(moduleObject)
-        CrossSine.moduleManager.registerModule(module)
-        registeredModules += module
-        callback.call(moduleObject, module)
-    }
 
     /**
      * Registers a new script command.
@@ -122,9 +115,9 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
 
     fun supportLegacyScripts() {
         if (!scriptText.lines().first().contains("api_version=2")) {
-            ClientUtils.logWarn("[ScriptAPI] Running script '${scriptFile.name}' with legacy support.")
+            ClientUtils.logWarn("[FDPScriptAPI] Running script '${scriptFile.name}' with legacy support.")
             val legacyScript =
-                CrossSine::class.java.getResource("/assets/minecraft/crosssine/scriptapi/legacy.js").readText()
+                CrossSine::class.java.getResource("/assets/minecraft/fdpclient/scriptapi/legacy.js")?.readText()
             scriptEngine.eval(legacyScript)
         }
     }
@@ -174,7 +167,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
      * Calls the handler of a registered event.
      * @param eventName Name of the event to be called.
      */
-    public fun callEvent(eventName: String) {
+    fun callEvent(eventName: String) {
         when(eventName) {
             "enable" -> isEnable = true
             "disable" -> isEnable = false
@@ -182,7 +175,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
         try {
             events[eventName]?.call(null)
         } catch (throwable: Throwable) {
-            ClientUtils.logError("[ScriptAPI] Exception in script '$scriptName'!", throwable)
+            ClientUtils.logError("[FDPScriptAPI] Exception in script '$scriptName'!", throwable)
         }
     }
 }

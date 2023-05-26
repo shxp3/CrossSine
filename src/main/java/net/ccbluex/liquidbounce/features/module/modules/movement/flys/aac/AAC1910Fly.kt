@@ -20,7 +20,7 @@ class AAC1910Fly : FlyMode("AAC1.9.10") {
 
         if (mc.gameSettings.keyBindSneak.isKeyDown) aacJump -= 0.2
 
-        if (fly.launchY + aacJump > mc.thePlayer.posY) {
+        if (flight.launchY + aacJump > mc.thePlayer.posY) {
             mc.netHandler.addToSendQueue(C03PacketPlayer(true))
             mc.thePlayer.motionY = 0.8
             MovementUtils.strafe(speedValue.get())

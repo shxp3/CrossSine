@@ -19,7 +19,7 @@ import org.lwjgl.input.Keyboard
 
 @ModuleInfo(name = "Speed", spacedName = "Speed", category = ModuleCategory.MOVEMENT, keyBind = Keyboard.KEY_V)
 class Speed : Module() {
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.speeds", SpeedMode::class.java)
+    val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.speeds", SpeedMode::class.java)
         .map { it.newInstance() as SpeedMode }
         .sortedBy { it.modeName }
 

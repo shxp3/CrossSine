@@ -116,6 +116,23 @@ public final class RenderUtils extends MinecraftInstance {
 
         glEndList();
     }
+    public static void drawClickGuiArrow(final float x, final float y, final float size, final AnimationUnit animation, final int color) {
+        GL11.glTranslatef(x, y, 0.0f);
+        final double[] interpolation = new double[1];
+        setup2DRendering(() -> render(5, () -> {
+            color(color);
+            interpolation[0] = interpolate(0.0, size / 2.0, animation.getOutput());
+            if (animation.getOutput() >= 0.48) {
+                GL11.glVertex2d((size / 2.0f), interpolate(size / 2.0, 0.0, animation.getOutput()));
+            }
+            GL11.glVertex2d(0.0, interpolation[0]);
+            if (animation.getOutput() < 0.48) {
+                GL11.glVertex2d((size / 2.0f), interpolate(size / 2.0, 0.0, animation.getOutput()));
+            }
+            GL11.glVertex2d(size, interpolation[0]);
+        }));
+        GL11.glTranslatef(-x, -y, 0.0f);
+    }
     public static Color getGradientOffset(Color color1, Color color2, double offset) {
         double inverse_percent;
         int redPart;
@@ -154,6 +171,47 @@ public final class RenderUtils extends MinecraftInstance {
         glEnable(GL_TEXTURE_2D);
         glPopMatrix();
     }
+    public static void drawGradientRect(final double left, final double top, final double right, final double bottom, final boolean sideways, final int startColor, final int endColor) {
+        GL11.glDisable(3553);
+        GL11.glEnable(3042);
+        GL11.glBlendFunc(770, 771);
+        GL11.glShadeModel(7425);
+        GL11.glBegin(7);
+        color(startColor);
+        if (sideways) {
+            GL11.glVertex2d(left, top);
+            GL11.glVertex2d(left, bottom);
+            color(endColor);
+            GL11.glVertex2d(right, bottom);
+            GL11.glVertex2d(right, top);
+        }
+        else {
+            GL11.glVertex2d(left, top);
+            color(endColor);
+            GL11.glVertex2d(left, bottom);
+            GL11.glVertex2d(right, bottom);
+            color(startColor);
+            GL11.glVertex2d(right, top);
+        }
+        GL11.glEnd();
+        GL11.glDisable(3042);
+        GL11.glShadeModel(7424);
+        GL11.glEnable(3553);
+    }
+    public static int darker(int hexColor, int factor) {
+        float alpha = (float) (hexColor >> 24 & 255);
+        float red = Math.max((float) (hexColor >> 16 & 255) - (float) (hexColor >> 16 & 255) / (100.0F / (float) factor), 0.0F);
+        float green = Math.max((float) (hexColor >> 8 & 255) - (float) (hexColor >> 8 & 255) / (100.0F / (float) factor), 0.0F);
+        float blue = Math.max((float) (hexColor & 255) - (float) (hexColor & 255) / (100.0F / (float) factor), 0.0F);
+        return (int) ((float) (((int) alpha << 24) + ((int) red << 16) + ((int) green << 8)) + blue);
+    }
+    public static int darker(final int color, final float factor) {
+        final int r = (int)((color >> 16 & 0xFF) * factor);
+        final int g = (int)((color >> 8 & 0xFF) * factor);
+        final int b = (int)((color & 0xFF) * factor);
+        final int a = color >> 24 & 0xFF;
+        return (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF) | (a & 0xFF) << 24;
+    }
     public static void targetHudRect(double x, double y, double x1, double y1, double size) {
         rectangleBordered(x, y + -4.0D, x1 + size, y1 + size, 0.5D, (new Color(60, 60, 60)).getRGB(), (new Color(10, 10, 10)).getRGB());
         rectangleBordered(x + 1.0D, y + -3.0D, x1 + size - 1.0D, y1 + size - 1.0D, 1.0D, (new Color(40, 40, 40)).getRGB(), (new Color(40, 40, 40)).getRGB());
@@ -172,8 +230,143 @@ public final class RenderUtils extends MinecraftInstance {
         float b = 0.003921569f * (float)c.getBlue();
         return new Color(r, g, b, alpha).getRGB();
     }
-
-
+    public static void drawRoundedRect(final float x, final float y, final float width, final float height, float edgeRadius, int color, final float borderWidth, int borderColor) {
+        if (color == 16777215) {
+            color = -65794;
+        }
+        if (borderColor == 16777215) {
+            borderColor = -65794;
+        }
+        if (edgeRadius < 0.0f) {
+            edgeRadius = 0.0f;
+        }
+        if (edgeRadius > width / 2.0f) {
+            edgeRadius = width / 2.0f;
+        }
+        if (edgeRadius > height / 2.0f) {
+            edgeRadius = height / 2.0f;
+        }
+        drawRDRect(x + edgeRadius, y + edgeRadius, width - edgeRadius * 2.0f, height - edgeRadius * 2.0f, color);
+        drawRDRect(x + edgeRadius, y, width - edgeRadius * 2.0f, edgeRadius, color);
+        drawRDRect(x + edgeRadius, y + height - edgeRadius, width - edgeRadius * 2.0f, edgeRadius, color);
+        drawRDRect(x, y + edgeRadius, edgeRadius, height - edgeRadius * 2.0f, color);
+        drawRDRect(x + width - edgeRadius, y + edgeRadius, edgeRadius, height - edgeRadius * 2.0f, color);
+        enableRender2D();
+        color(color);
+        GL11.glBegin(6);
+        float centerX = x + edgeRadius;
+        float centerY = y + edgeRadius;
+        GL11.glVertex2d(centerX, centerY);
+        for (int vertices = (int)Math.min(Math.max(edgeRadius, 10.0f), 90.0f), i = 0; i < vertices + 1; ++i) {
+            final double angleRadians = 6.283185307179586 * (i + 180) / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glEnd();
+        GL11.glBegin(6);
+        centerX = x + width - edgeRadius;
+        centerY = y + edgeRadius;
+        GL11.glVertex2d(centerX, centerY);
+        for (int vertices = (int)Math.min(Math.max(edgeRadius, 10.0f), 90.0f), i = 0; i < vertices + 1; ++i) {
+            final double angleRadians = 6.283185307179586 * (i + 90) / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glEnd();
+        GL11.glBegin(6);
+        centerX = x + edgeRadius;
+        centerY = y + height - edgeRadius;
+        GL11.glVertex2d(centerX, centerY);
+        for (int vertices = (int)Math.min(Math.max(edgeRadius, 10.0f), 90.0f), i = 0; i < vertices + 1; ++i) {
+            final double angleRadians = 6.283185307179586 * (i + 270) / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glEnd();
+        GL11.glBegin(6);
+        centerX = x + width - edgeRadius;
+        centerY = y + height - edgeRadius;
+        GL11.glVertex2d(centerX, centerY);
+        for (int vertices = (int)Math.min(Math.max(edgeRadius, 10.0f), 90.0f), i = 0; i < vertices + 1; ++i) {
+            final double angleRadians = 6.283185307179586 * i / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glEnd();
+        color(borderColor);
+        GL11.glLineWidth(borderWidth);
+        GL11.glBegin(3);
+        centerX = x + edgeRadius;
+        centerY = y + edgeRadius;
+        int vertices;
+        int i;
+        for (vertices = (i = (int)Math.min(Math.max(edgeRadius, 10.0f), 90.0f)); i >= 0; --i) {
+            final double angleRadians = 6.283185307179586 * (i + 180) / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glVertex2d((x + edgeRadius), y);
+        GL11.glVertex2d((x + width - edgeRadius), y);
+        centerX = x + width - edgeRadius;
+        centerY = y + edgeRadius;
+        for (i = vertices; i >= 0; --i) {
+            final double angleRadians = 6.283185307179586 * (i + 90) / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glVertex2d((x + width), (y + edgeRadius));
+        GL11.glVertex2d((x + width), (y + height - edgeRadius));
+        centerX = x + width - edgeRadius;
+        centerY = y + height - edgeRadius;
+        for (i = vertices; i >= 0; --i) {
+            final double angleRadians = 6.283185307179586 * i / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glVertex2d((x + width - edgeRadius), (y + height));
+        GL11.glVertex2d((x + edgeRadius), (y + height));
+        centerX = x + edgeRadius;
+        centerY = y + height - edgeRadius;
+        for (i = vertices; i >= 0; --i) {
+            final double angleRadians = 6.283185307179586 * (i + 270) / (vertices * 4);
+            GL11.glVertex2d(centerX + Math.sin(angleRadians) * edgeRadius, centerY + Math.cos(angleRadians) * edgeRadius);
+        }
+        GL11.glVertex2d(x, (y + height - edgeRadius));
+        GL11.glVertex2d(x, (y + edgeRadius));
+        GL11.glEnd();
+        disableRender2D();
+    }
+    public static void drawRDRect(final float left, final float top, final float width, final float height, final int color) {
+        final float f3 = (color >> 24 & 0xFF) / 255.0f;
+        final float f4 = (color >> 16 & 0xFF) / 255.0f;
+        final float f5 = (color >> 8 & 0xFF) / 255.0f;
+        final float f6 = (color & 0xFF) / 255.0f;
+        final Tessellator tessellator = Tessellator.getInstance();
+        final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(f4, f5, f6, f3);
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(left, (top + height), 0.0).endVertex();
+        worldrenderer.pos((left + width), (top + height), 0.0).endVertex();
+        worldrenderer.pos((left + width), top, 0.0).endVertex();
+        worldrenderer.pos(left, top, 0.0).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
+    public static void enableRender2D() {
+        GL11.glEnable(3042);
+        GL11.glDisable(2884);
+        GL11.glDisable(3553);
+        GL11.glEnable(2848);
+        GL11.glBlendFunc(770, 771);
+        GL11.glLineWidth(1.0f);
+    }
+    public static void disableRender2D() {
+        GL11.glDisable(3042);
+        GL11.glEnable(2884);
+        GL11.glEnable(3553);
+        GL11.glDisable(2848);
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.shadeModel(7424);
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
+    }
     protected static float zLevel = 0F;
 
     /**
@@ -2064,7 +2257,15 @@ public final class RenderUtils extends MinecraftInstance {
     public static void color(final double red, final double green, final double blue, final double alpha) {
         GL11.glColor4d(red, green, blue, alpha);
     }
-
+    public static void color(final int color, final float alpha) {
+        final float r = (color >> 16 & 0xFF) / 255.0f;
+        final float g = (color >> 8 & 0xFF) / 255.0f;
+        final float b = (color & 0xFF) / 255.0f;
+        GlStateManager.color(r, g, b, alpha);
+    }
+    public static void color(final int color) {
+        color(color, (color >> 24 & 0xFF) / 255.0f);
+    }
     public static void disable(final int glTarget) {
         GL11.glDisable(glTarget);
     }

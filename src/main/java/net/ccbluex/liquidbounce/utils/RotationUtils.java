@@ -131,7 +131,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
             setTargetRotation(rotation);
         else
             limitAngleChange(new Rotation(player.rotationYaw, player.rotationPitch), rotation,10 +
-                    new Random().nextInt(6)).toPlayer(mc.thePlayer);
+                    new Random().nextInt(6)).toPlayer(mc.thePlayer, true);
     }
 
     /**
@@ -419,6 +419,42 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         return new Rotation(currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)), mc.thePlayer.rotationPitch);
     }
 
+    public static void aim(Entity en, float ps, boolean pc) {
+        if (en != null) {
+            float[] t = getTargetRotations(en);
+            if (t != null) {
+                float y = t[0];
+                float p = t[1] + 4.0F + ps;
+                if (pc) {
+                    mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(y, p, mc.thePlayer.onGround));
+                } else {
+                    mc.thePlayer.rotationYaw = y;
+                    mc.thePlayer.rotationPitch = p;
+                }
+            }
+
+        }
+    }
+    public static float[] getTargetRotations(Entity q) {
+        if (q == null) {
+            return null;
+        } else {
+            double diffX = q.posX - mc.thePlayer.posX;
+            double diffY;
+            if (q instanceof EntityLivingBase) {
+                EntityLivingBase en = (EntityLivingBase)q;
+                diffY = en.posY + (double)en.getEyeHeight() * 0.9D - (mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight());
+            } else {
+                diffY = (q.getEntityBoundingBox().minY + q.getEntityBoundingBox().maxY) / 2.0D - (mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight());
+            }
+
+            double diffZ = q.posZ - mc.thePlayer.posZ;
+            double dist = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ);
+            float yaw = (float)(Math.atan2(diffZ, diffX) * 180.0D / 3.141592653589793D) - 90.0F;
+            float pitch = (float)(-(Math.atan2(diffY, dist) * 180.0D / 3.141592653589793D));
+            return new float[]{mc.thePlayer.rotationYaw + MathHelper.wrapAngleTo180_float(yaw - mc.thePlayer.rotationYaw), mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float(pitch - mc.thePlayer.rotationPitch)};
+        }
+    }
 //    @NotNull
 //    public static Rotation limitAngleChangeHumanizing(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
 //        float yawDiff = ((float) Rotations.INSTANCE.apply(1-(getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw())/180d)))*180f;

@@ -73,7 +73,7 @@ class MatrixBoostFly : FlyMode("MatrixBoost") {
             boostMotion++
         } else if (boostMotion >= 5) {
             mc.timer.timerSpeed = boostTimer.get()
-            if (mc.thePlayer.posY < fly.launchY - 1.0) {
+            if (mc.thePlayer.posY < flight.launchY - 1.0) {
                 boostMotion = 0
             }
         }

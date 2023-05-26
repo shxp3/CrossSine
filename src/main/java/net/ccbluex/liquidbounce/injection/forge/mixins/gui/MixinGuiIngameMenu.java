@@ -1,7 +1,8 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
-import net.ccbluex.liquidbounce.features.module.modules.client.GuiHUDEdit;
+
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.login.LoginUtils;
@@ -33,45 +34,45 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     private void drawScreen(CallbackInfo callbackInfo) {
-        final GuiHUDEdit guihudedit = CrossSine.moduleManager.getModule(GuiHUDEdit.class);
+        final HUD guihudedit = CrossSine.moduleManager.getModule(HUD.class);
         Fonts.minecraftFont.drawStringWithShadow(
-                "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Username : §a" + mc.getSession().getUsername(),
+                "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Username : §a" + mc.getSession().getUsername(),
                 6f,
                 6f,
                 0xffffff);
         if (!mc.isIntegratedServerRunning()) {
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Server : §a" + mc.getCurrentServerData().serverIP,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Server : §a" + mc.getCurrentServerData().serverIP,
                     6f,
                     16f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Brand : §a" + mc.getCurrentServerData().gameVersion,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Brand : §a" + mc.getCurrentServerData().gameVersion,
                     6f,
                     26f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Protocol : §a" + mc.getCurrentServerData().version,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Protocol : §a" + mc.getCurrentServerData().version,
                     6f,
                     36f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Ping : §a" + mc.getCurrentServerData().pingToServer,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Ping : §a" + mc.getCurrentServerData().pingToServer,
                     6f,
                     46f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() +"Players : §a" + mc.getCurrentServerData().populationInfo,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() +"Players : §a" + mc.getCurrentServerData().populationInfo,
                     6f,
                     56f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Health : §a" + mc.thePlayer.getHealth(),
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Health : §a" + mc.thePlayer.getHealth(),
                     6f,
                     66f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + GuiHUDEdit.INSTANCE.getColorGuiInGameValue().getValue() + "Client Version : §a" + CrossSine.CLIENT_VERSION,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Client Version : §a" + CrossSine.CLIENT_VERSION,
                     6f,
                     76f,
                     0xffffff);

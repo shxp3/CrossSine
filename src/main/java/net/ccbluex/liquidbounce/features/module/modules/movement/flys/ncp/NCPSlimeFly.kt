@@ -89,7 +89,7 @@ class NCPSlimeFly : FlyMode("NCPSlime") {
         }
         when (stage) {
             Stage.WAITING -> {
-                if(mc.thePlayer.posY >= fly.launchY + 0.8) {
+                if(mc.thePlayer.posY >= flight.launchY + 0.8) {
                     if(mc.thePlayer.onGround) {
                         RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw, 90f))
                         val movingObjectPosition: MovingObjectPosition = mc.thePlayer.rayTraceWithCustomRotation(4.5, mc.thePlayer.rotationYaw, 90.0f)
@@ -113,7 +113,7 @@ class NCPSlimeFly : FlyMode("NCPSlime") {
                         }
 
                         if(slot == -1) {
-                            fly.state = false
+                            flight.state = false
                             CrossSine.hud.addNotification(Notification("NCPSlimeFly", "U need a slime blocks to use this fly", NotifyType.ERROR, 1000))
                             return
                         }
@@ -165,18 +165,18 @@ class NCPSlimeFly : FlyMode("NCPSlime") {
     override fun onBlockBB(event: BlockBBEvent) {
         when(stage) {
             Stage.WAITING -> {
-                if (event.block is BlockAir && event.y <= fly.launchY + 100) {
-                    event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, fly.launchY, event.z + 1.0)
+                if (event.block is BlockAir && event.y <= flight.launchY + 100) {
+                    event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, flight.launchY, event.z + 1.0)
                 }
             }
             Stage.FLYING -> {
-                if (event.block is BlockAir && event.y <= fly.launchY + 1) {
-                    event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, fly.launchY, event.z + 1.0)
+                if (event.block is BlockAir && event.y <= flight.launchY + 1) {
+                    event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, flight.launchY, event.z + 1.0)
                 }
             }
             Stage.INFFLYING -> {
                 if (event.block is BlockAir && event.y <= mc.thePlayer.posY) {
-                    event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, fly.launchY, event.z + 1.0)
+                    event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, flight.launchY, event.z + 1.0)
                 }
             }
         }

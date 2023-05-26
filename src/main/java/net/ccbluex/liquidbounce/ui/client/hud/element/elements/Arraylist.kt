@@ -2,8 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.client.ColorMixer
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD
+import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -38,6 +37,13 @@ class Arraylist(
 ) : Element(x, y, scale, side) {
     private val blursValue = false
     private val blurStrength = 0F
+    val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo")
+    val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") }
+    val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") }
+    val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") }
+    val ColorRed = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade") }
+    val ColorGreen = IntegerValue("Green", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade")}
+    val ColorBlue = IntegerValue("Blue", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade")}
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowNoCutValue = BoolValue("Shadow-NoCut", false)
     private val shadowStrength = IntegerValue("Shadow-Strength", 1, 1, 30).displayable { shadowShaderValue.get() }
@@ -75,7 +81,6 @@ class Arraylist(
     private var x2 = 0
     private var y2 = 0F
 
-    val Interface = CrossSine.moduleManager.getModule(HUD::class.java)!!
 
     private var modules = emptyList<Module>()
     private var sortedModules = emptyList<Module>()
@@ -90,8 +95,8 @@ class Arraylist(
         val delta = RenderUtils.deltaTime
 
         // Draw arraylist
-        val colorMode = Interface.ClientColorMode.get()
-        val rectColorMode = Interface.ClientColorMode.get()
+        val colorMode = ClientColorMode.get()
+        val rectColorMode = ClientColorMode.get()
         val customColor = Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), colorAlphaValue.get()).rgb
         val rectCustomColor = Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), colorAlphaValue.get()).rgb
         val space = spaceValue.get()
@@ -225,12 +230,12 @@ class Arraylist(
 
                                         var RainBow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
 
-                                        var custom = Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+                                        var custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
 
-                                        var FadeColor = ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), index * Interface.fadeDistanceValue.get(), 100).rgb
+                                        var FadeColor = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                                         counter[0] = counter[0] - 1
 
-                                        var mixerColor = ColorMixer.getMixedColor(-index * Interface.mixerDistValue.get() * 10, Interface.mixerSecValue.get()).rgb
+                                        var mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
 
                                         when {
                                             colorMode.equals("Random", ignoreCase = true) -> moduleColor
@@ -310,11 +315,11 @@ class Arraylist(
                     var rainbow: Int
                     rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
                     var custom: Int
-                    custom = Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+                    custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
 
-                    var fade: Int = ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), index * Interface.fadeDistanceValue.get(), 100).rgb
+                    var fade: Int = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                     counter[0] = counter[0] - 1
-                    var mixerColor: Int = ColorMixer.getMixedColor(-index * Interface.mixerDistValue.get() * 10, Interface.mixerSecValue.get()).rgb
+                    var mixerColor: Int = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
 
 
                     val moduleColor = Color.getHSBColor(module.hue, saturation, brightness).rgb
@@ -414,15 +419,15 @@ class Arraylist(
                                         var astolfo: Int
                                         astolfo = ColorUtils.astolfo(index + 1, indexOffset = 100 * 2).rgb
 
-                                        val mixerColor = ColorMixer.getMixedColor(-index * Interface.mixerDistValue.get() * 10, Interface.mixerSecValue.get()).rgb
+                                        val mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10,mixerSecValue.get()).rgb
                                         var rainbow: Int
                                         rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
                                         var custom: Int
 
-                                        var fade: Int = ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), index * Interface.fadeDistanceValue.get(), 100).rgb
+                                        var fade: Int = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                                         counter[0] = counter[0] - 1
 
-                                        custom = Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+                                        custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
                                         when {
                                             colorMode.equals("Random", ignoreCase = true) -> moduleColor
                                             colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
@@ -509,9 +514,9 @@ class Arraylist(
                     var rainbow: Int
                     rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
                     var custom: Int
-                    custom = Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
-                    val mixerColor = ColorMixer.getMixedColor(-index * Interface.mixerDistValue.get() * 10, Interface.mixerSecValue.get()).rgb
-                    var fade: Int = ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), index * Interface.fadeDistanceValue.get(), 100).rgb
+                    custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
+                    val mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
+                    var fade: Int = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                     counter[0] = counter[0] - 1
                     RenderUtils.drawRect(
                         0F,

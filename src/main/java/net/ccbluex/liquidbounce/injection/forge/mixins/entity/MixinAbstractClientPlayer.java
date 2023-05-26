@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,13 +34,13 @@ public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
     @Inject(method = "getFovModifier", at = @At("HEAD"), cancellable = true)
     private void getFovModifier(CallbackInfoReturnable<Float> callbackInfoReturnable) {
         final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
-        float f5Fov = 1.15f;
+        if (scaffold.getState() && scaffold.getSprintModeValue().equals("Bypass") && MovementUtils.INSTANCE.isMoving()) {
+        float f5Fov = 1.1f;
         f5Fov *= 1.0f;
-        if (scaffold.getState() && scaffold.getSprintModeValue().equals("Bypass") && MovementUtils.INSTANCE.isMoving() && scaffold.getBypassSpoof().get()) {
             if(!Minecraft.getMinecraft().thePlayer.isPotionActive(Potion.moveSpeed)) {
                 callbackInfoReturnable.setReturnValue(f5Fov);
             } else {
-                callbackInfoReturnable.setReturnValue(f5Fov + 0.3F);
+                callbackInfoReturnable.setReturnValue(f5Fov + 0.35F);
             }
         }
     }

@@ -2,12 +2,12 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
-//import net.ccbluex.liquidbounce.features.module.modules.client.FPSSpoofer;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
-import net.ccbluex.liquidbounce.features.module.modules.client.SoundModule;
+import net.ccbluex.liquidbounce.features.module.modules.ghost.HitDelayFix;
+import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.other.SoundModule;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
-import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimation;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
@@ -25,6 +25,7 @@ import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
@@ -99,16 +100,6 @@ public abstract class MixinMinecraft {
         if (displayHeight < 622)
             displayHeight = 622;
     }
-
-//    @Overwrite
-//    public static int getDebugFPS() {
-//        FPSSpoofer fpsSpoofer = CrossSine.moduleManager.getModule(FPSSpoofer.class);
-//        if (fpsSpoofer.getState()) {
-//            return fpsSpoofer.getFakeFPS();
-//        }
-//        return debugFPS;
-//    }
-
     @Inject(method = "startGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;checkGLError(Ljava/lang/String;)V", ordinal = 2, shift = At.Shift.AFTER))
     private void startGame(CallbackInfo callbackInfo) {
         CrossSine.INSTANCE.initClient();
@@ -167,6 +158,15 @@ public abstract class MixinMinecraft {
         CrossSine.eventManager.callEvent(new TickEvent());
     }
 
+    private static final String TARGET = "Lnet/minecraft/client/settings/KeyBinding;setKeyBindState(IZ)V";
+    @Redirect(method="runTick", at=@At(value="INVOKE", target=TARGET))
+    public void runTick_setKeyBindState(int keybind, boolean state) {
+        if(CrossSine.moduleManager.getModule(HitDelayFix.class).getState() && keybind == -100 && !state) {
+            leftClickCounter = 0;
+        }
+
+        KeyBinding.setKeyBindState(keybind, state);
+    }
 
     @Inject(method = "dispatchKeypresses", at = @At(value = "HEAD"))
     private void onKey(CallbackInfo callbackInfo) {
@@ -226,41 +226,15 @@ public abstract class MixinMinecraft {
             if (clientRender.getRotationMode().equals("Lock")) {
                 thePlayer.renderYawOffset = yaw;
             }
+            if (clientRender.getRotationMode().equals("SuperLock")) {
+                thePlayer.rotationPitch = yaw;
+            }
         }
     }
     /**
      * @author CCBlueX
      * @reason
      */
-    @Overwrite
-    private void sendClickBlockToController(boolean leftClick) {
-        if (!leftClick) leftClickCounter = 0;
-        final OldAnimation oldAnimation = CrossSine.moduleManager.getModule(OldAnimation.class);
-        if (leftClickCounter <= 0 && (!thePlayer.isUsingItem() || oldAnimation.getState())) {
-            if (leftClick && objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                BlockPos blockPos = objectMouseOver.getBlockPos();
-
-                if (leftClickCounter == 0)
-                    CrossSine.eventManager.callEvent(new ClickBlockEvent(blockPos, objectMouseOver.sideHit));
-
-
-                if (thePlayer.isUsingItem() && Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()){
-                    if (theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
-                        thePlayer.swingItem();
-                    }
-                    thePlayer.isUsingItem();
-                    thePlayer.isBlocking();
-                } else {
-                    if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
-                        this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
-                        this.thePlayer.swingItem();
-                    }
-                }
-            }
-            else
-                playerController.resetBlockRemoving();
-        }
-    }
 
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
@@ -279,7 +253,6 @@ public abstract class MixinMinecraft {
             e.printStackTrace();
         }
     }
-
     @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/LoadingScreenRenderer;resetProgressAndMessage(Ljava/lang/String;)V"))
     public void loadWorld(LoadingScreenRenderer loadingScreenRenderer, String string) {
     }

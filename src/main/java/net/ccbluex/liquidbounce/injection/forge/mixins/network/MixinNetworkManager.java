@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.special.ProxyManager;
+import net.ccbluex.liquidbounce.utils.BlinkUtils;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.PacketUtils;
 import net.minecraft.network.EnumPacketDirection;
@@ -23,9 +24,11 @@ import net.minecraft.util.MessageDeserializer;
 import net.minecraft.util.MessageDeserializer2;
 import net.minecraft.util.MessageSerializer;
 import net.minecraft.util.MessageSerializer2;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -53,8 +56,9 @@ public abstract class MixinNetworkManager {
         final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
         CrossSine.eventManager.callEvent(event);
 
-        if(event.isCancelled())
+        if(event.isCancelled()) {
             callback.cancel();
+        }
     }
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
@@ -66,7 +70,9 @@ public abstract class MixinNetworkManager {
             final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.SEND);
             CrossSine.eventManager.callEvent(event);
 
-            if(event.isCancelled())
+            if(event.isCancelled()) {
+                callback.cancel();
+            } else if (BlinkUtils.INSTANCE.pushPacket(packet))
                 callback.cancel();
         }
     }

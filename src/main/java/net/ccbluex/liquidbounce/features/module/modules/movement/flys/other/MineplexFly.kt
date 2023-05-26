@@ -35,7 +35,7 @@ class MineplexFly : FlyMode("Mineplex") {
             mc.timer.timerSpeed = 1 + speedValue.get()
         } else {
             mc.timer.timerSpeed = 1f
-            fly.state = false
+            flight.state = false
             ClientUtils.displayChatMessage("§8[§c§lMineplex-§a§lFly§8] §aSelect an empty slot to fly.")
         }
     }

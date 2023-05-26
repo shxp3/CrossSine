@@ -21,8 +21,6 @@ class NCPNew : FlyMode("NCPNew") {
     private var c = false
     override fun onEnable() {
         c = true
-        mc.thePlayer.motionX = 0.0
-        mc.thePlayer.motionZ = 0.0
     }
 
     @EventTarget

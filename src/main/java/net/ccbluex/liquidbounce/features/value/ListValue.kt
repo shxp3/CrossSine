@@ -27,7 +27,12 @@ open class ListValue(name: String, val values: Array<String>, value: String) : V
             }
         }
     }
-
+     fun getModes(): List<String?>? {
+         return values.toList()
+    }
+    open fun getModeGet(i: Int): String? {
+        return values[i]
+    }
     override fun toJson() = JsonPrimitive(value)
 
     override fun fromJson(element: JsonElement) {

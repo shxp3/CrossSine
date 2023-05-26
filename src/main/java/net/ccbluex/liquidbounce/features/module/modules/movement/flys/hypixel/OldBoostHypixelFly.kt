@@ -58,7 +58,7 @@ class OldBoostHypixelFly : FlyMode("OldBoostHypixel") {
     }
 
     override fun onMotion(event: MotionEvent) {
-        fly.antiDesync = true
+        flight.antiDesync = true
         if (event.eventState === EventState.PRE) {
             timer.update()
             if (timer.hasTimePassed(2)) {

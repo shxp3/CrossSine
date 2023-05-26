@@ -14,21 +14,20 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.Rotation
 import net.minecraft.block.*
 import net.minecraft.init.Blocks
 import kotlin.random.Random
 
 @ModuleInfo(name = "AimAssist", "AimAssist",category = ModuleCategory.GHOST)
 class AimAssist : Module() {
-
+    private val blatantMode = BoolValue("BlatantMode", false)
     private val rangeValue = FloatValue("Range", 50F, 1F, 5F)
-    private val turnSpeedValue = IntegerValue("TurnSpeed", 1, 1, 10)
-    private val turntwo = BoolValue("TurnTwo", false)
+    private val turnSpeedValue = IntegerValue("TurnSpeed", 1, 1, 10).displayable { !blatantMode.get() }
     private val fovValue = FloatValue("FOV", 180F, 1F, 180F)
-    private val centerValue = BoolValue("Center", true)
-    private val lockValue = BoolValue("Lock", true)
+    private val centerValue = BoolValue("Center", true).displayable { !blatantMode.get() }
     private val onClickValue = BoolValue("OnClick", false)
-    private val jitterValue = BoolValue("Jitter", false)
+    private val jitterValue = BoolValue("Jitter", false).displayable { !blatantMode.get() }
     private val breakBlocks = BoolValue("AllowBreakBlock", false)
     private val clickTimer = MSTimer()
 
@@ -59,7 +58,7 @@ class AimAssist : Module() {
             }
             .minByOrNull { RotationUtils.getRotationDifference(it) } ?: return
 
-        if (!lockValue.get() && RotationUtils.isFaced(entity, range.toDouble()))
+        if (!blatantMode.get() && RotationUtils.isFaced(entity, range.toDouble()))
             return
 
         val boundingBox = entity.entityBoundingBox ?: return
@@ -69,22 +68,16 @@ class AimAssist : Module() {
         } else {
             RotationUtils.searchCenter(boundingBox, false, false, true, false, range).rotation
         }
-        if (turntwo.get()){
+        if (!blatantMode.get()){
             val rotation = RotationUtils.limitAngleChangeYaw(
                 player.rotation,
                 destinationRotation,
                 (turnSpeedValue.get() + Math.random()).toFloat()
             )
 
-            rotation.toPlayer(player)
+            rotation.toPlayer(player, false)
         } else {
-            val rotation = RotationUtils.limitAngleChange(
-                player.rotation,
-                destinationRotation,
-                (turnSpeedValue.get() + Math.random()).toFloat()
-            )
-
-            rotation.toPlayer(player)
+           RotationUtils.aim(entity, 0.0F, false)
         }
         if (jitterValue.get()) {
             val yaw = Random.nextBoolean()
@@ -109,5 +102,6 @@ class AimAssist : Module() {
     }
 
     override val tag: String?
-        get() = "${turnSpeedValue.get()}"
+        get() = if (!blatantMode.get()) "${turnSpeedValue.get()}"
+    else null
 }

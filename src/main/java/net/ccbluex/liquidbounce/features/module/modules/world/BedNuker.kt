@@ -6,9 +6,13 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.InventoryUtils
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
@@ -17,9 +21,6 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.utils.InventoryUtils
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
 import net.minecraft.client.gui.ScaledResolution
@@ -65,7 +66,7 @@ object BedNuker : Module() {
     var currentDamage = 0F
     private var facing: EnumFacing? = null
     private var boost = false
-    private var damage = 0f
+    private var damage = 0F
     private val actionValue = true
 
     private var lastWorld: WorldClient? = null
@@ -87,8 +88,6 @@ object BedNuker : Module() {
         }
         lastWorld = event.worldClient
     }
-
-
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (!onClickMouse.get() || mc.gameSettings.keyBindAttack.isKeyDown) {
@@ -172,7 +171,7 @@ object BedNuker : Module() {
 
             oldPos = currentPos
 
-            if (!switchTimer.hasTimePassed(0)) {
+            if (!switchTimer.hasTimePassed(20)) {
                 return
             }
 
@@ -184,7 +183,6 @@ object BedNuker : Module() {
 
             // Face block
             RotationUtils.setTargetRotation(rotations.rotation)
-
             when {
                 // Destory block
                 actionValue || surroundings || !isRealBlock -> {
@@ -464,7 +462,7 @@ object BedNuker : Module() {
                     boost = true
                     pos = packet.position
                     facing = packet.facing
-                    damage = 0f
+                    damage = 0F
                 } else if ((packet.status == C07PacketPlayerDigging.Action.ABORT_DESTROY_BLOCK) or (packet.status == C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK)) {
                     boost = false
                     pos = null

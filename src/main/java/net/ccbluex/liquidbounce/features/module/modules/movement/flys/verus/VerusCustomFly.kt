@@ -44,8 +44,8 @@ class VerusCustomFly : FlyMode("VerusCustom") {
     }
 
     override fun onBlockBB(event: BlockBBEvent) {
-        if (event.block is BlockAir && event.y <= fly.launchY) {
-            event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, fly.launchY, event.z + 1.0)
+        if (event.block is BlockAir && event.y <= flight.launchY) {
+            event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, flight.launchY, event.z + 1.0)
         }
     }
 
