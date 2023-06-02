@@ -1,10 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.ghost
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -19,6 +16,8 @@ import net.ccbluex.liquidbounce.utils.timer.tickTimer
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemEgg
+import net.minecraft.item.ItemSnowball
 import net.minecraft.item.ItemSword
 import org.lwjgl.input.Mouse
 import java.lang.reflect.Method
@@ -59,14 +58,10 @@ class AutoClicker : Module() {
     }
     private val rightValue = BoolValue("RightClick", true)
     private val rightBlockOnlyValue = BoolValue("RightBlockOnly", false).displayable { rightValue.get() }
+    private val rightseOnlyValue = BoolValue("RightSnowBallEggOnly", false).displayable { rightValue.get() }
     private val leftValue = BoolValue("LeftClick", true)
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false).displayable { leftValue.get() }
     private val blockValue = BoolValue("AutoBlock", false).displayable { leftValue.get() }
-    private val blockModeValue = ListValue(
-        "AutoBlockMode",
-        arrayOf("Auto", "Manual"),
-        "Auto"
-    ).displayable { blockValue.get() && leftValue.get() }
     private val jitterValue = BoolValue("Jitter", false)
     private val container = BoolValue("InventoryFill", false)
 
@@ -102,7 +97,7 @@ class AutoClicker : Module() {
             leftDelay = updateClicks().toLong()
         }
 
-        if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem && rightValue.get() && System.currentTimeMillis() - rightLastSwing >= rightDelay && (!rightBlockOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemBlock) && rightValue.get()) {
+        if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem && rightValue.get() && System.currentTimeMillis() - rightLastSwing >= rightDelay && (!rightBlockOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemBlock) && (!rightseOnlyValue.get() || mc.thePlayer.heldItem.item is ItemSnowball || mc.thePlayer.heldItem.item is ItemEgg) && rightValue.get()) {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
             rightLastSwing = System.currentTimeMillis()
@@ -131,17 +126,6 @@ class AutoClicker : Module() {
                     mc.thePlayer.rotationPitch = 90F
                 else if (mc.thePlayer.rotationPitch < -90)
                     mc.thePlayer.rotationPitch = -90F
-            }
-        }
-        if (blockValue.get() && timer.hasTimePassed(1) && mc.gameSettings.keyBindAttack.isKeyDown && leftValue.get() && mc.thePlayer.heldItem.item is ItemSword) {
-            when (blockModeValue.get().lowercase()) {
-                "auto" -> {
-                    if (CrossSine.combatManager.inCombat) KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
-                }
-
-                "manual" -> {
-                    KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
-                }
             }
         }
     }
@@ -334,6 +318,12 @@ class AutoClicker : Module() {
             }
     }
 
+    @EventTarget
+    fun onAttack(event: AttackEvent) {
+        if (blockValue.get()) {
+            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+        }
+    }
     override val tag: String?
         get() = "${normalMinCPSValue.get()} - ${normalMaxCPSValue.get()}"
 }

@@ -143,11 +143,14 @@ public abstract class MixinItemRenderer {
                         break;
                     case BLOCK:
                         if(animations.getState() && animations.getAnimationMode().equals("Full") || animations.getState() && animations.getAnimationMode().equals("Normal")){
-                            GL11.glTranslated(0.0, 0.0, 0.0);
+                            if (animations.getAnimationMode().equals("Normal") && animations.getBlockingModeValue().equals("1.7")) {
+                                GlStateManager.scale(0.38F, 0.38F, 0.38F);
+                            }
                             switch (animations.getBlockingModeValue().get()) {
                                 case "1.7": {
-                                    transformFirstPersonItem(f, f1);
-                                    doBlockTransformations();
+                                    this.transformFirstPersonItem(f / Animations.Equip, f1);
+                                    this.doBlockTransformations();
+                                    GlStateManager.translate(-0.35F, 0.2F, 0.0F);
                                     break;
                                 }
                                 case "Akrien": {
@@ -447,7 +450,7 @@ public abstract class MixinItemRenderer {
 
     private void doItemRenderGLTranslate(){
         if(animations.getState() && animations.getAnimationMode().equals("Full")) {
-            GlStateManager.translate(animations.getItemPosXValue().get(), animations.getItemPosYValue().get(), animations.getItemPosZValue().get());
+            GlStateManager.translate(0.56F + animations.getItemPosXValue().get(), -0.52F+ animations.getItemPosYValue().get(), -0.71999997F+ animations.getItemPosZValue().get());
         }else{
             GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
         }

@@ -35,7 +35,7 @@ object CrossSine {
     // Client information
 
     const val CLIENT_NAME = "CrossSine"
-    val CLIENT_STATUS = true
+    val CLIENT_STATUS = false
     var Darkmode = true
     const val COLORED_NAME = "Cross§CSine§F"
     const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"

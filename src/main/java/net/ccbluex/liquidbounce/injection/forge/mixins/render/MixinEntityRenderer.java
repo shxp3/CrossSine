@@ -236,7 +236,7 @@ public abstract class MixinEntityRenderer {
             if (CrossSine.moduleManager.getModule(Reach.class).getState()) {
                 d1 = getReach();
 
-                final MovingObjectPosition movingObjectPosition = entity.rayTrace(d1, p_getMouseOver_1_);
+                final MovingObjectPosition movingObjectPosition = entity.rayTrace(5.0, p_getMouseOver_1_);
 
                 if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }

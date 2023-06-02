@@ -1,13 +1,11 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.event.MoveEvent
-import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.MathHelper
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin

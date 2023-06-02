@@ -35,6 +35,22 @@ class SpeedBridge : Module() {
             }
         }
     }.displayable { PitchLitmit.get() } as IntegerValue
+    private val ShiftMax: IntegerValue = object : IntegerValue("Shift-Max", 0, 0, 100) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val ShiftMin = ShiftMin.get()
+            if (ShiftMin > newValue) {
+                set(ShiftMin)
+            }
+        }
+    }
+    private val ShiftMin: IntegerValue = object : IntegerValue("Shift-Min", 0, 0, 100) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val ShiftMax = ShiftMax.get()
+            if (ShiftMax < newValue) {
+                set(ShiftMax)
+            }
+        }
+    }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
@@ -46,9 +62,9 @@ class SpeedBridge : Module() {
                         if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
                             mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
                                 BlockPos(
-                                    mc.thePlayer.posX + mc.thePlayer.motionX * 0.2,
+                                    mc.thePlayer.posX + mc.thePlayer.motionX * Math.random() * (Math.max(ShiftMin.get(), ShiftMax.get()) - Math.min(ShiftMin.get(), ShiftMax.get())) + Math.min(ShiftMin.get(), ShiftMax.get()) / 100,
                                     mc.thePlayer.posY - 1.0,
-                                    mc.thePlayer.posZ + mc.thePlayer.motionZ * 0.2
+                                    mc.thePlayer.posZ + mc.thePlayer.motionZ * Math.random() * (Math.max(ShiftMin.get(), ShiftMax.get()) - Math.min(ShiftMin.get(), ShiftMax.get())) + Math.min(ShiftMin.get(), ShiftMax.get()) / 100
                                 )
                             ).block == Blocks.air
                             return
@@ -62,7 +78,6 @@ class SpeedBridge : Module() {
             mc.gameSettings.keyBindSneak.pressed = false
         }
     }
-
 
     override fun onDisable() {
         if (mc.thePlayer == null) {

@@ -1,10 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD.mixerDistValue
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD.mixerSecValue
 import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -50,6 +47,13 @@ class Text(
         val DECIMAL_FORMAT = DecimalFormat("#.##")
         val NO_DECIMAL_FORMAT = DecimalFormat("#")
     }
+    val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo")
+    val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") }
+    val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") }
+    val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") }
+    val ColorRed = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade")}
+    val ColorGreen = IntegerValue("Green", 0, 0, 255).displayable { ClientColorMode.equals("Custom")|| ClientColorMode.equals("Fade")}
+    val ColorBlue = IntegerValue("Blue", 0, 0, 255).displayable { ClientColorMode.equals("Custom")|| ClientColorMode.equals("Fade")}
 
     val displayString = TextValue("DisplayText", "")
     val shadowValue = BoolValue("Shadow", false)
@@ -69,7 +73,6 @@ class Text(
     private var displayText = display
     private var pointer = 0
 
-    val Interface = CrossSine.moduleManager.getModule(HUD::class.java)!!
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode) {
@@ -189,12 +192,12 @@ class Text(
         val fontRenderer = fontValue.get()
 
         val mixerColor = ColorMixer.getMixedColor( mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-        val rectColor = when (Interface.ClientColorMode.get().lowercase()) {
+        val rectColor = when (ClientColorMode.get().lowercase()) {
             "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
             "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
             "mixer" -> mixerColor
-            "fade" -> ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), Interface.fadeDistanceValue.get(), 100).rgb
-            else -> Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+            "fade" -> ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), fadeDistanceValue.get(), 100).rgb
+            else -> Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
         }
         val expand = fontRenderer.FONT_HEIGHT * rectExpandValue.get()
         when (rectValue.get().lowercase()) {
@@ -228,12 +231,12 @@ class Text(
                 GL11.glPushMatrix()
                 GL11.glTranslated(renderX, renderY, 0.0)
                 fontRenderer.drawString(
-                    displayText, 0F*scale, 0F*scale, when (Interface.ClientColorMode.get().lowercase()) {
+                    displayText, 0F*scale, 0F*scale, when (ClientColorMode.get().lowercase()) {
                         "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
                         "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
                         "mixer" -> mixerColor
-                        "fade" -> ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), Interface.fadeDistanceValue.get(), 100).rgb
-                        else -> Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+                        "fade" -> ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), fadeDistanceValue.get(), 100).rgb
+                        else -> Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
                     }, false)
                 GL11.glPopMatrix()
             }, {})
@@ -242,12 +245,12 @@ class Text(
         }
 
         fontRenderer.drawString(
-                displayText, 0F, 0F, when (Interface.ClientColorMode.get().lowercase()) {
+                displayText, 0F, 0F, when (ClientColorMode.get().lowercase()) {
                 "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
                 "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
                 "mixer" -> mixerColor
-                "fade" -> ColorUtils.fade(Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()), Interface.fadeDistanceValue.get(), 100).rgb
-                else -> Color(Interface.ColorRed.get(),Interface.ColorGreen.get(),Interface.ColorBlue.get()).rgb
+                "fade" -> ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), fadeDistanceValue.get(), 100).rgb
+                else -> Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
 
             }, shadow.get())
 

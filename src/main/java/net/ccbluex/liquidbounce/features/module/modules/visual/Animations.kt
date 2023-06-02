@@ -5,10 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.event.StrafeEvent
-import net.ccbluex.liquidbounce.event.TickEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -63,16 +60,16 @@ object Animations : Module() {
         ),
         "1.7"
     )
-    val itemPosXValue = FloatValue("ItemPosX", 0.56F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-    val itemPosYValue = FloatValue("ItemPosY", -0.52F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-    val itemPosZValue = FloatValue("ItemPosZ", -0.71999997F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-    val itemScaleValue = FloatValue("ItemScale", 0.40f, 0.0f, 2.0f).displayable { AnimationMode.get().equals("full", true)}
+    val itemPosXValue = FloatValue("ItemPosX", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
+    val itemPosYValue = FloatValue("ItemPosY", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
+    val itemPosZValue = FloatValue("ItemPosZ", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
+    val itemScaleValue = FloatValue("ItemScale", 0.4f, 0.0f, 2.0f).displayable { AnimationMode.get().equals("full", true)}
     val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f).displayable { AnimationMode.get().equals("full", true)}
     val fluxAnimation = BoolValue("FluxSwing", false).displayable { AnimationMode.get().equals("full", true)}
     val BlockAnimation = BoolValue("Block Animation", false)
     val anythingBlockValue = false
    @JvmField
-    val Equip = 1.8F
+    val Equip = 2F
 
     var flagRenderTabOverlay = false
         get() = field
@@ -80,8 +77,6 @@ object Animations : Module() {
     var tabPercent = 0f
     var tabHopePercent = 0f
     var lastTabSync = 0L
-
-
     override val tag: String?
         get() = blockingModeValue.get()
 }

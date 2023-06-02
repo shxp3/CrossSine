@@ -2,11 +2,10 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
+import net.ccbluex.liquidbounce.features.module.modules.ghost.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitDelayFix;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.other.SoundModule;
-import net.ccbluex.liquidbounce.features.module.modules.ghost.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;

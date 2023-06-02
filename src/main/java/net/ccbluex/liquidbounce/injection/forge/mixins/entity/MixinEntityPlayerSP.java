@@ -296,8 +296,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
         boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
         boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
-        boolean isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || this.isUsingItem());
-        
+
         baseSprintState = baseSprintState && !(inventoryMove.getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
         
         if (!attemptToggle && !lastForwardToggleState && baseSprintState && !this.isSprinting() && canToggleSprint && !isCurrentUsingItem && !this.isPotionActive(Potion.blindness)) {
@@ -308,7 +307,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
         }
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || (sprint.getUseItemValue().get() && (!sprint.getUseItemSwordValue().get() || isCurrentUsingSword))) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState()) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);
@@ -369,7 +368,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
         
         isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
-        isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || this.isUsingItem());
 
         if (isCurrentUsingItem) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
@@ -394,7 +392,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         
         //Don't check current Sprint state cuz it's not updated in real time :bruh:
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || (sprint.getUseItemValue().get() && (!sprint.getUseItemSwordValue().get() || isCurrentUsingSword))) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState()) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);

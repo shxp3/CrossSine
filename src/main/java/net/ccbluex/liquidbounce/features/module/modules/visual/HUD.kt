@@ -26,7 +26,6 @@ import java.awt.Color
 @ModuleInfo(name = "HUD", "HUD",category = ModuleCategory.VISUAL, array = false, defaultOn = true)
 object HUD : Module() {
     val HUDText = BoolValue("HUDText", true)
-    val HUDTextFont = FontValue("Font", Fonts.SFUI35).displayable { HUDText.get() }
     val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo").displayable { HUDText.get() }
     val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") && HUDText.get() }
     val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") && HUDText.get() }
@@ -74,7 +73,7 @@ object HUD : Module() {
     private fun renderHUDText() {
         var mixerColor: Int = ColorMixer.getMixedColor(mixerDistValue.get() * 10, mixerSecValue.get()).rgb
         var width = 3
-        HUDTextFont.get().drawStringWithShadow(
+        mc.fontRendererObj.drawStringWithShadow(
             "C",
             3.0f,
             3.0f,
@@ -86,8 +85,8 @@ object HUD : Module() {
             }
         )
         width += mc.fontRendererObj.getStringWidth("C")
-        HUDTextFont.get().drawStringWithShadow(
-            "rossSine - ${Text.timeValue}",
+        mc.fontRendererObj.drawStringWithShadow(
+            "rossSine ${CrossSine.CLIENT_VERSION}",
             width.toFloat(),
             3.0f,
             -1

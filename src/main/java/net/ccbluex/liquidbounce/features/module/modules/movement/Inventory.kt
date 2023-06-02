@@ -77,18 +77,17 @@ class  Inventory : Module() {
     @EventTarget
     fun onMotion(event: MotionEvent) {
         updateKeyState()
+        if (mc.currentScreen is GuiContainer){
+            if (customSpeed.get() < 1.0F) {
+                mc.thePlayer.motionX *= customSpeed.get().toDouble()
+                mc.thePlayer.motionZ *= customSpeed.get().toDouble()
+            }
+        }
     }
 
     @EventTarget
     fun onScreen(event: ScreenEvent) {
         updateKeyState()
-    }
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (customSpeed.get() < 1.0F) {
-            mc.thePlayer.motionX = customSpeed.get().toDouble()
-            mc.thePlayer.motionZ = customSpeed.get().toDouble()
-        }
     }
     @EventTarget
     fun onClick(event: ClickWindowEvent) {

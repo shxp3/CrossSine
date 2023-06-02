@@ -78,6 +78,9 @@ class Scaffold : Module() {
             "Vanilla"
         ), "Vanilla"
     )
+    // Jump mode
+    private val jumpMotionValue = FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") }
+
     private val stopWhenBlockAboveValue = BoolValue("StopTowerWhenBlockAbove", true)
     private val towerFakeJumpValue = BoolValue("TowerFakeJump", true)
     private val stairsValue = BoolValue("Stairs", false)
@@ -85,7 +88,7 @@ class Scaffold : Module() {
     private val towerPlaceModeValue = ListValue("TowerPlaceTiming", arrayOf("Pre", "Post"), "Pre")
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
     private val highBlock = ListValue("PickerMode", arrayOf("AAC", "NCP"), "NCP").displayable {autoBlockValue.equals("Spoof")}
-    val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Fast", "Matrix", "None"), "Normal")
+    val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Fast", "Matrix", "BlocksMC", "Legit", "None"), "Normal")
     private val swingValue = BoolValue("Swing", false)
     private val searchValue = BoolValue("Search", true)
     private val downValue = BoolValue("Downward", false)
@@ -123,7 +126,7 @@ class Scaffold : Module() {
 
     private val timerValue = FloatValue("Timer", 1f, 0.1f, 5f)
     private val towerTimerValue = FloatValue("TowerTimer", 1f, 0.1f, 5f)
-    private val XZModifierValue = FloatValue("XZModifier", 1f, 0f, 2f)
+    private val XZModifierValue = FloatValue("XZ-Modifier", 1f, 0f, 2f)
     private val towerActiveValue = ListValue("TowerActivation", arrayOf("Always", "PressSpace", "NoMove", "OnMove", "OFF"), "PressSpace")
     private val eagleValue = ListValue("Eagle", arrayOf("Silent", "Normal", "Off"), "Off")
     private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10).displayable { !eagleValue.equals("Off") }
@@ -131,10 +134,6 @@ class Scaffold : Module() {
     // Safety
     private val sameYValue = ListValue("SameY", arrayOf("Simple", "Speed", "OFF"), "Speed")
     private val hitableCheckValue = ListValue("HitableCheck", arrayOf("Simple", "Strict", "OFF"), "Simple")
-
-    // Jump mode
-    private val jumpMotionValue = FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") }
-    private val jumpDelayValue = IntegerValue("TowerJumpDelay", 0, 0, 20).displayable { towerModeValue.equals("Jump") }
 
     // Stable/PlusMotion
     private val stableMotionValue = FloatValue("TowerStableMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("StableMotion") }
@@ -218,6 +217,9 @@ class Scaffold : Module() {
     private var offGroundTicks: Int = 0
 
     var ticks = 0
+
+    //legit
+    private var legit = false
     /**
      * Enable module
      */
@@ -239,6 +241,12 @@ class Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (lockRotation!!.yaw > 90) {
+            legit = true
+        } else if (lockRotation!!.yaw < -90) {
+            legit = true
+        } else legit = false
+
         if (rotationsValue.equals("LGBT+")) {
             yaw += 50.0f
             if (yaw > 180.0f) {
@@ -428,6 +436,11 @@ class Scaffold : Module() {
                 packet.onGround = true
             }
         }
+        if (sprintModeValue.get().equals("BlocksMC", true)) {
+            if (packet is C0BPacketEntityAction) {
+                event.cancelEvent()
+            }
+        }
 
         // AutoBlock
         if (packet is C09PacketHeldItemChange) {
@@ -448,9 +461,14 @@ class Scaffold : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
+        if (mc.thePlayer.onGround) {
+            val modifier = XZModifierValue.get()
+            mc.thePlayer.motionX *= modifier.toInt()
+            mc.thePlayer.motionZ *= modifier.toInt()
+        }
         val eventState = event.eventState
         if (autojumpValue.get()) {
-            if (autoJumpModeValue.equals("Silent") && !mc.gameSettings.keyBindJump.isKeyDown) {
+            if (autoJumpModeValue.equals("Silent") && !mc.gameSettings.keyBindJump.isKeyDown && !towerStatus) {
                 mc.thePlayer.posY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
                 mc.thePlayer.lastTickPosY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
             }
@@ -562,10 +580,10 @@ class Scaffold : Module() {
             }
 
             "jump" -> {
-                if (mc.thePlayer.onGround && towerTimer.hasTimePassed(jumpDelayValue.get())) {
+                if (mc.thePlayer.onGround) {
                     fakeJump()
                     mc.thePlayer.motionY = jumpMotionValue.get().toDouble()
-                    towerTimer.reset()
+                    mc.thePlayer.jumpTicks = 0
                 }
             }
 
@@ -885,13 +903,13 @@ class Scaffold : Module() {
             val rayTraceInfo = mc.thePlayer.rayTraceWithServerSideRotation(5.0)
             when (hitableCheckValue.get().lowercase()) {
                 "simple" -> {
-                    if (!rayTraceInfo.blockPos.equals(targetPlace!!.blockPos)) {
+                    if (rayTraceInfo != null && (!rayTraceInfo.blockPos.equals(targetPlace!!.blockPos))) {
                         return
                     }
                 }
 
                 "strict" -> {
-                    if (!rayTraceInfo.blockPos.equals(targetPlace!!.blockPos) || rayTraceInfo.sideHit != targetPlace!!.enumFacing) {
+                    if (rayTraceInfo != null && (!rayTraceInfo.blockPos.equals(targetPlace!!.blockPos) || rayTraceInfo.sideHit != targetPlace!!.enumFacing)) {
                         return
                     }
                 }
@@ -946,11 +964,6 @@ class Scaffold : Module() {
         ) {
             // delayTimer.reset()
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
-            if (mc.thePlayer.onGround) {
-                val modifier = XZModifierValue.get()
-                mc.thePlayer.motionX *= modifier.toInt()
-                mc.thePlayer.motionZ *= modifier.toInt()
-            }
 
             if (swingValue.get()) {
                 mc.thePlayer.swingItem()
@@ -1298,7 +1311,7 @@ class Scaffold : Module() {
                 "custom" -> {
                     Rotation(
                         mc.thePlayer.rotationYaw + customtowerYawValue.get(),
-                        customtowerPitchValue.get().toFloat()
+                        customtowerPitchValue.get()
                     )
                 }
                 "watchdog" -> {
@@ -1425,6 +1438,8 @@ class Scaffold : Module() {
             "ground" -> mc.thePlayer.onGround
             "air" -> !mc.thePlayer.onGround
             "fast" -> true
+            "blocksmc" -> true
+            "legit" -> lockRotation == null
             else -> false
         }
 }

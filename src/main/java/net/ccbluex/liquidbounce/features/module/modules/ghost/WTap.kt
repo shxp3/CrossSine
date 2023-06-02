@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.ListValue
 
 @ModuleInfo(name = "WTap", spacedName = "WTap", category = ModuleCategory.GHOST)
 class WTap : Module() {
@@ -14,12 +15,12 @@ class WTap : Module() {
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if(!w) return
+            if (!w) return
 
-        if (mc.thePlayer.isSprinting || mc.gameSettings.keyBindSprint.isKeyDown) {
-            mc.gameSettings.keyBindSprint.pressed = true
-            u = true
-        }
+            if (mc.thePlayer.isSprinting || mc.gameSettings.keyBindSprint.isKeyDown) {
+                mc.gameSettings.keyBindSprint.pressed = true
+                u = true
+            }
     }
 
     @EventTarget

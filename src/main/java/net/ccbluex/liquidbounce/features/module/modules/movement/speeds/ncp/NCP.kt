@@ -15,7 +15,6 @@ import kotlin.math.max
 class NCP : SpeedMode("NCP") {
     private val damageboostvalue = BoolValue("${valuePrefix}DamageBoost", false)
     private val timerValue = FloatValue("${valuePrefix}Timer", 1.088f, 1f, 1.1f)
-    private val funny  = BoolValue("funny", false)
 
     override fun onEnable() {
         mc.timer.timerSpeed = timerValue.get()
@@ -51,10 +50,6 @@ class NCP : SpeedMode("NCP") {
         } else {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
-        }
-        if (funny.get()){
-            alert("FuckMyAssPls")
-            alert("FreeAltGenIn pornhub.com")
         }
     }
 }

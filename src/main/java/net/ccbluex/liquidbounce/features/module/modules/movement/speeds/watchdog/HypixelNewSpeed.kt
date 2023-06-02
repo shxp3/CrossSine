@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.watchdog
 
-import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils

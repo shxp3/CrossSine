@@ -153,7 +153,7 @@ class Velocity : Module() {
             if (m.get()) {
                 modeValue.get()
             } else {
-                "${v.get()}% ${h.get()}%"
+                "${v.get().toDouble()}% ${h.get().toDouble()}%"
             }
         }
             else

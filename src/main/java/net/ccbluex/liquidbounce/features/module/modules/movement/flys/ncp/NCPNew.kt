@@ -1,10 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.flys.ncp
 
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flys.FlyMode
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.JumpEvent
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
@@ -37,7 +34,11 @@ class NCPNew : FlyMode("NCPNew") {
             if (c) c = false
         }
     }
-
+    @EventTarget
+    override fun onMotion(event: MotionEvent) {
+            mc.thePlayer.posY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
+            mc.thePlayer.lastTickPosY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
+    }
     override fun onJump(event: JumpEvent) {
         c = true
     }

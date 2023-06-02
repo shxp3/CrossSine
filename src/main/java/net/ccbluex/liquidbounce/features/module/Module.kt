@@ -28,7 +28,6 @@ open class Module : MinecraftInstance(), Listenable {
     val animation: AnimationHelper
     var name: String
     var spacedName: String
-    fun guiUpdate() {}
     private var suffix: String? = null
     private val properties: List<Value<*>> = ArrayList<Value<*>>()
     var toggled = false

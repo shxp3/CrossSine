@@ -6,11 +6,14 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import com.mojang.authlib.GameProfile;
+import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.features.module.modules.ghost.KeepSprint;
 import net.ccbluex.liquidbounce.utils.CooldownHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 import net.minecraft.util.FoodStats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -72,6 +75,18 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
             cooldownStack = getHeldItem();
             cooldownStackSlot = inventory.currentItem;
         }
+    }
+    @Inject(method = "attackTargetEntityWithCurrentItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setSprinting(Z)V", shift = At.Shift.AFTER))
+    public void onAttackTargetEntityWithCurrentItem(CallbackInfo callbackInfo) {
+        final KeepSprint ks = CrossSine.moduleManager.getModule(KeepSprint.class);
+            if (ks.getState()) {
+                final float s = 0.6f + 0.4f * ks.getS().getValue();
+                this.motionX = this.motionX / 0.6 * s;
+                this.motionZ = this.motionZ / 0.6 * s;
+                if (Minecraft.getMinecraft().thePlayer.moveForward > 0) {
+                    this.setSprinting(ks.getAws().getValue());
+                }
+            }
     }
 
 }

@@ -17,8 +17,6 @@ import net.minecraft.potion.Potion
 
 @ModuleInfo(name = "Sprint", spacedName = "Sprint", category = ModuleCategory.MOVEMENT, defaultOn = true, array = false)
 class Sprint : Module() {
-    val useItemValue = BoolValue("UseItem", false)
-    val useItemSwordValue = BoolValue("UseItemOnlySword", false).displayable{ useItemValue.get() }
     val hungryValue = BoolValue("Hungry", true)
     val sneakValue = BoolValue("Sneak", false)
     val collideValue = BoolValue("Collide", false)

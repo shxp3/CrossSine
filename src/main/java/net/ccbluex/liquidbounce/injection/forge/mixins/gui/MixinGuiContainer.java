@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.InventoryManager;
 import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -88,7 +89,9 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             if (!(stealer.getChestTitleValue().get() && (chest.lowerChestInventory == null || !chest.lowerChestInventory.getName().contains(new ItemStack(Item.itemRegistry.getObject(new ResourceLocation("minecraft:chest"))).getDisplayName())))) {
                 // mouse focus
                 mc.setIngameFocus();
-                mc.currentScreen = guiScreen;
+                if (!stealer.getDisplay().get()){
+                    mc.currentScreen = guiScreen;
+                }
                 // hide GUI
                 if (stealer.getSilentTitleValue().get() && stealer.getSilentValue().get()){
                     RendererExtensionKt.drawCenteredString(Fonts.fontSFUI35, "ChestStealer Silent", width / 2, (height / 2) + 30, 0xffffffff, true);

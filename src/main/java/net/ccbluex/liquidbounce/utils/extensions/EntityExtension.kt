@@ -28,11 +28,8 @@ import kotlin.math.*
  */
 fun Entity.getDistanceToEntityBox(entity: Entity): Double {
     val eyes = this.getPositionEyes(0f)
-    val pos = getNearestPointBB(eyes, entity.entityBoundingBox.expand(entity.collisionBorderSize.toDouble(), entity.collisionBorderSize.toDouble(), entity.collisionBorderSize.toDouble()))
-    val xDist = abs(pos.xCoord - eyes.xCoord)
-    val yDist = abs(pos.yCoord - eyes.yCoord)
-    val zDist = abs(pos.zCoord - eyes.zCoord)
-    return sqrt(xDist.pow(2) + yDist.pow(2) + zDist.pow(2))
+    val pos = getNearestPointBB(eyes, entity.hitBox)
+    return eyes.distanceTo(pos)
 }
 
 fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
@@ -45,22 +42,18 @@ fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
     return Vec3(origin[0], origin[1], origin[2])
 }
 
-fun Entity.rayTrace(blockReachDistance: Double): MovingObjectPosition {
-    return this.rayTrace(blockReachDistance, 1f)
-}
-
-fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition {
+fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
     val vec3 = this.getPositionEyes(1f)
     val vec31 = this.getVectorForRotation(pitch, yaw)
     val vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance)
     return this.worldObj.rayTraceBlocks(vec3, vec32, false, false, true)
 }
 
-fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, rotation: Rotation): MovingObjectPosition {
+fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, rotation: Rotation): MovingObjectPosition? {
     return this.rayTraceWithCustomRotation(blockReachDistance, rotation.yaw, rotation.pitch)
 }
 
-fun Entity.rayTraceWithServerSideRotation(blockReachDistance: Double): MovingObjectPosition {
+fun Entity.rayTraceWithServerSideRotation(blockReachDistance: Double): MovingObjectPosition? {
     return this.rayTraceWithCustomRotation(blockReachDistance, RotationUtils.serverRotation)
 }
 
@@ -99,19 +92,11 @@ val Entity.renderBoundingBox: AxisAlignedBB
             .offset(this.renderPos.x, this.renderPos.y, this.renderPos.z)
     }
 
-/**
- * Gets render distance to [entity]
- */
-fun Entity.renderDistanceTo(entity: Entity): Double {
-    val fromPos = this.renderPos
-    val toPos = entity.renderPos
-
-    val x = fromPos.x - toPos.x
-    val y = fromPos.y - toPos.y
-    val z = fromPos.z - toPos.z
-
-    return sqrt(x * x + y * y + z * z)
-}
+val Entity.hitBox: AxisAlignedBB
+    get() {
+        val borderSize = collisionBorderSize.toDouble()
+        return entityBoundingBox.expand(borderSize, borderSize, borderSize)
+    }
 
 fun World.getEntitiesInRadius(entity: Entity, radius: Double = 16.0): List<Entity> {
     val box = entity.entityBoundingBox.expand(radius, radius, radius)
@@ -123,13 +108,10 @@ fun World.getEntitiesInRadius(entity: Entity, radius: Double = 16.0): List<Entit
     val entities = mutableListOf<Entity>()
     (chunkMinX..chunkMaxX).forEach { x ->
         (chunkMinZ..chunkMaxZ)
-                .asSequence()
-                .map { z -> getChunkFromChunkCoords(x, z) }
-                .filter(Chunk::isLoaded)
-                .forEach { it.getEntitiesWithinAABBForEntity(entity, box, entities, null) }
+            .asSequence()
+            .map { z -> getChunkFromChunkCoords(x, z) }
+            .filter(Chunk::isLoaded)
+            .forEach { it.getEntitiesWithinAABBForEntity(entity, box, entities, null) }
     }
     return entities
 }
-
-val Entity.rotation: Rotation
-    get() = Rotation(rotationYaw, rotationPitch)

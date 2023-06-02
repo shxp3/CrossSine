@@ -332,7 +332,8 @@ class KillAura : Module() {
         RotationUtils.setTargetRotationReverse(RotationUtils.serverRotation, 0, 0)
         if (StrafeFixValue.get() && !rotationStrafeValue.equals("Off")) CrossSine.moduleManager[MovementFix::class.java]!!.state =
             false
-
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false)
+            MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.getKeyCode(), false)
     }
 
     fun resetPerspective() {
@@ -505,11 +506,7 @@ class KillAura : Module() {
      */
     @EventTarget
     fun onUpdate(ignoredEvent: UpdateEvent) {
-        if (!rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding) {
-            strictStrafe = true
-        } else {
-            strictStrafe = false
-        }
+        strictStrafe = !rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding
         if (cancelRun) {
             target = null
             currentTarget = null
@@ -542,7 +539,6 @@ class KillAura : Module() {
             runAttackLoop()
         }
     }
-
     /**
      * Render event
      */
@@ -1197,7 +1193,7 @@ class KillAura : Module() {
             else -> return true
         }
 
-            if (silentRotationValue.get()) {
+        if (silentRotationValue.get()) {
             if (rotationRevTickValue.get() > 0 && rotationRevValue.get()) {
                 if (keepDirectionValue.get()) {
                     RotationUtils.setTargetRotationReverse(
@@ -1275,7 +1271,7 @@ class KillAura : Module() {
         if (packetSent && noBadPacketsValue.get()) {
             return
         }
-        if (autoBlockPacketValue.get().equals("ncp", true)) {
+        if (autoBlockPacketValue.equals("NCP")) {
             PacketUtils.sendPacketNoEvent(
                 C08PacketPlayerBlockPlacement(
                     BlockPos(-1, -1, -1),

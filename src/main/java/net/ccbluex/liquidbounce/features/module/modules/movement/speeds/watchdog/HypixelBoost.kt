@@ -9,8 +9,9 @@ import net.minecraft.potion.Potion
 class HypixelBoost : SpeedMode("HypixelBoost") {
 
     @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    override fun onUpdate() {
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+            mc.thePlayer.jump()
             if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                 MovementUtils.strafe(0.48F)
             } else {

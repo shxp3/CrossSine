@@ -8,13 +8,13 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
-import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.utils.Rotation
+import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.minecraft.block.*
 import net.minecraft.init.Blocks
 import kotlin.random.Random
@@ -61,21 +61,18 @@ class AimAssist : Module() {
         if (!blatantMode.get() && RotationUtils.isFaced(entity, range.toDouble()))
             return
 
-        val boundingBox = entity.entityBoundingBox ?: return
 
         val destinationRotation = if (centerValue.get()) {
-            RotationUtils.toRotation(RotationUtils.getCenter(boundingBox) ?: return, true)
+            RotationUtils.toRotation(RotationUtils.getCenter(entity.hitBox) ?: return, true)
         } else {
-            RotationUtils.searchCenter(boundingBox, false, false, true, false, range).rotation
+            RotationUtils.searchCenter(entity.hitBox, false, false, true, false, range).rotation
         }
         if (!blatantMode.get()){
-            val rotation = RotationUtils.limitAngleChangeYaw(
-                player.rotation,
+            RotationUtils.limitAngleChangeYaw(
+                Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch),
                 destinationRotation,
                 (turnSpeedValue.get() + Math.random()).toFloat()
-            )
-
-            rotation.toPlayer(player, false)
+            ).toPlayer(player, true)
         } else {
            RotationUtils.aim(entity, 0.0F, false)
         }

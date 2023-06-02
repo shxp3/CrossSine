@@ -48,6 +48,9 @@ public abstract class MixinEntity {
     public abstract boolean isSprinting();
 
     @Shadow
+    public abstract void setSprinting(boolean sprinting);
+
+    @Shadow
     public float rotationPitch;
 
     @Shadow

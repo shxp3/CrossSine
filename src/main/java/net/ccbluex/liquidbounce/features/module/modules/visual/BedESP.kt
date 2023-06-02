@@ -20,6 +20,7 @@ import java.awt.Color
 class
 BedESP : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "2D"), "Box")
+    private val raduisValue = FloatValue("Radius", 10.0F, 10.0F, 100.0F)
     private val searchTimer = MSTimer()
     private val posList: MutableList<BlockPos> = ArrayList()
     private var color = Color.CYAN
@@ -29,7 +30,7 @@ BedESP : Module() {
     fun onUpdate(event: UpdateEvent?) {
         color = rainbow()
         if (searchTimer.hasTimePassed(1000L) && (thread == null || !thread!!.isAlive)) {
-            val radius = 100
+            val radius = raduisValue.get().toInt()
             val selectedBlock = Block.getBlockById(26)
             if (selectedBlock == null || selectedBlock === Blocks.air) return
             thread = Thread({
