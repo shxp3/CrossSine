@@ -23,6 +23,7 @@ object Animations : Module() {
     val blockingModeValue = ListValue(
         "BlockingMode",
         arrayOf(
+            "1.8",
             "1.7",
             "Tap",
             "Tap2",
@@ -56,9 +57,10 @@ object Animations : Module() {
             "Stella",
             "Astolfo",
             "Zoom",
+            "Liquid",
             "None"
         ),
-        "1.7"
+        "1.8"
     )
     val itemPosXValue = FloatValue("ItemPosX", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
     val itemPosYValue = FloatValue("ItemPosY", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
@@ -68,8 +70,7 @@ object Animations : Module() {
     val fluxAnimation = BoolValue("FluxSwing", false).displayable { AnimationMode.get().equals("full", true)}
     val BlockAnimation = BoolValue("Block Animation", false)
     val anythingBlockValue = false
-   @JvmField
-    val Equip = 2F
+    val Equip = FloatValue("Equip", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
 
     var flagRenderTabOverlay = false
         get() = field

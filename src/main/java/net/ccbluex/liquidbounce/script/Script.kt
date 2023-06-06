@@ -115,9 +115,9 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
 
     fun supportLegacyScripts() {
         if (!scriptText.lines().first().contains("api_version=2")) {
-            ClientUtils.logWarn("[FDPScriptAPI] Running script '${scriptFile.name}' with legacy support.")
+            ClientUtils.logWarn("[ScriptApi] Running script '${scriptFile.name}' with legacy support.")
             val legacyScript =
-                CrossSine::class.java.getResource("/assets/minecraft/fdpclient/scriptapi/legacy.js")?.readText()
+                CrossSine::class.java.getResource("/assets/minecraft/crosssine/scriptapi/legacy.js")?.readText()
             scriptEngine.eval(legacyScript)
         }
     }

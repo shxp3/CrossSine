@@ -27,7 +27,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     private static int revTick;
 
     public static Rotation targetRotation;
-    public static Rotation serverRotation = new Rotation(0F, 0F);
+    public static Rotation serverRotation = new Rotation(0.0F, 0.0F);
 
     public static boolean keepCurrentRotation = false;
 
@@ -272,6 +272,11 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 yMin = 0.10D; yMax = 0.90D; yDist = 0.1D;
                 zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
                 break;
+            case "CenterHead":
+                xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
+                yMin = 0.85D; yMax = 0.95D; yDist = 0.0125D;
+                zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
+                break;
         }
 
         for(double xSearch = xMin; xSearch < xMax; xSearch += xDist) {
@@ -413,7 +418,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         ));
     }
     @NotNull
-    public static Rotation limitAngleChangeYaw(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
+    public static Rotation Yaw(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
         final float yawDifference = getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw());
 
         return new Rotation(currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)), mc.thePlayer.rotationPitch);

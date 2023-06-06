@@ -10,7 +10,6 @@ class MSTimer {
     fun hasTimeLeft(MS: Long): Long {
         return MS + time - System.currentTimeMillis()
     }
-
     fun timePassed(): Long {
         return System.currentTimeMillis() - time
     }

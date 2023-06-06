@@ -99,15 +99,27 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             if (flag1) {
                 assert hitColor != null;
                 if (hitColor.getState()) {
-                    int color = new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
-                    float red = (float) (color >> 16 & 0xFF) / 255.0f;
-                    float green = (float) (color >> 8 & 0xFF) / 255.0f;
-                    float blue = (float) (color & 0xFF) / 255.0f;
-                    float alpha = (float) (color >> 24 & 0xFF) / 255.0f;
-                    this.brightnessBuffer.put(red);
-                    this.brightnessBuffer.put(green);
-                    this.brightnessBuffer.put(blue);
-                    this.brightnessBuffer.put(alpha);
+                    if (!hitColor.getHitColorRainbow().get()) {
+                        int color = new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
+                        float red = (float) (color >> 16 & 0xFF) / 255.0f;
+                        float green = (float) (color >> 8 & 0xFF) / 255.0f;
+                        float blue = (float) (color & 0xFF) / 255.0f;
+                        float alpha = (float) (color >> 24 & 0xFF) / 255.0f;
+                        this.brightnessBuffer.put(red);
+                        this.brightnessBuffer.put(green);
+                        this.brightnessBuffer.put(blue);
+                        this.brightnessBuffer.put(alpha);
+                    } else {
+                        int color = ColorUtils.slowlyRainbow(System.nanoTime(), 30 * 1, 1F, 1F).getRGB();
+                        float red = (float) (color >> 16 & 0xFF) / 255.0f;
+                        float green = (float) (color >> 8 & 0xFF) / 255.0f;
+                        float blue = (float) (color & 0xFF) / 255.0f;
+                        float alpha = (float) (color >> 24 & 0xFF) / 255.0f;
+                        this.brightnessBuffer.put(red);
+                        this.brightnessBuffer.put(green);
+                        this.brightnessBuffer.put(blue);
+                        this.brightnessBuffer.put(alpha);
+                    }
                 } else {
                     this.brightnessBuffer.put(1.0F);
                     this.brightnessBuffer.put(0.0F);

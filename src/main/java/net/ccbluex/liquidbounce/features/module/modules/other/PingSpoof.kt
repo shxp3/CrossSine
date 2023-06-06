@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.*
+import net.minecraft.network.play.server.S12PacketEntityVelocity
 import java.util.*
 import java.util.Timer
 import kotlin.concurrent.schedule
@@ -36,11 +37,6 @@ class PingSpoof : Module() {
             if (maxDelayValue < newValue) set(maxDelayValue)
         }
     }
-    private val c00Value = BoolValue("C00", true)
-    private val c0FValue = BoolValue("C0F", false)
-    private val c0BValue = BoolValue("C0B", false)
-    private val c13Value = BoolValue("C13", false)
-    private val c16Value = BoolValue("C16", true)
     private val packetLossValue = FloatValue("PacketLoss", 0f, 0f, 1f)
 
     private val packetBuffer = LinkedList<Packet<INetHandlerPlayServer>>()
@@ -55,9 +51,9 @@ class PingSpoof : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (((packet is C00PacketKeepAlive && c00Value.get()) || (packet is C0FPacketConfirmTransaction && c0FValue.get()) ||
-                    (packet is C0BPacketEntityAction && c0BValue.get()) || (packet is C13PacketPlayerAbilities && c13Value.get()) ||
-                    (packet is C16PacketClientStatus && c16Value.get()))) {
+        if (((packet is C00PacketKeepAlive) || (packet is C0FPacketConfirmTransaction) ||
+                    (packet is C0BPacketEntityAction) || (packet is C13PacketPlayerAbilities) ||
+                    (packet is C16PacketClientStatus))) {
             event.cancelEvent()
             if (packetLossValue.get() == 0f || Math.random() > packetLossValue.get()) {
                 packetBuffer.add(packet as Packet<INetHandlerPlayServer>)

@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.utils.render;
 
+import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.features.module.modules.visual.KillESP;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
@@ -75,6 +77,45 @@ public final class RenderUtils extends MinecraftInstance {
 
     private static final int[] DISPLAY_LISTS_2D = new int[4];
 
+    public static void drawPlatforms(final Entity entity, final Color color) {
+        final RenderManager renderManager = mc.getRenderManager();
+        final Timer timer = mc.timer;
+
+        KillESP killESP = CrossSine.moduleManager.getModule(KillESP.class);
+        if (killESP == null)
+            return;
+
+        final double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks
+                - renderManager.renderPosX;
+        final double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks
+                - renderManager.renderPosY;
+        final double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
+                - renderManager.renderPosZ;
+
+        final AxisAlignedBB axisAlignedBB = entity.getEntityBoundingBox()
+                .offset(-entity.posX, -entity.posY, -entity.posZ)
+                .offset(x, y - killESP.getMoveMarkValue().get(), z);
+
+        drawAxisAlignedBB(
+                new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.maxY + 0.2, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY + 0.26, axisAlignedBB.maxZ),
+                color
+        );
+    }
+    public static void drawAxisAlignedBB(final AxisAlignedBB axisAlignedBB, final Color color) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        glLineWidth(2F);
+        glDisable(GL_TEXTURE_2D);
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(false);
+        glColor(color);
+        drawFilledBox(axisAlignedBB);
+        GlStateManager.resetColor();
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(true);
+        glDisable(GL_BLEND);
+    }
     static {
         for (int i = 0; i < DISPLAY_LISTS_2D.length; i++) {
             DISPLAY_LISTS_2D[i] = glGenLists(1);

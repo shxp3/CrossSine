@@ -5,29 +5,25 @@ import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.utils.Rotation
-import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.minecraft.block.*
+import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks
-import kotlin.random.Random
+import java.util.concurrent.ThreadLocalRandom
 
 @ModuleInfo(name = "AimAssist", "AimAssist",category = ModuleCategory.GHOST)
 class AimAssist : Module() {
-    private val blatantMode = BoolValue("BlatantMode", false)
-    private val rangeValue = FloatValue("Range", 50F, 1F, 5F)
-    private val turnSpeedValue = IntegerValue("TurnSpeed", 1, 1, 10).displayable { !blatantMode.get() }
-    private val fovValue = FloatValue("FOV", 180F, 1F, 180F)
-    private val centerValue = BoolValue("Center", true).displayable { !blatantMode.get() }
-    private val onClickValue = BoolValue("OnClick", false)
-    private val jitterValue = BoolValue("Jitter", false).displayable { !blatantMode.get() }
+    private val rangeValue = FloatValue("Range", 50F, 1F, 10F)
+    private val norspeed = FloatValue("Speed", 1F, 1F, 20F)
+    private val comSpeed = FloatValue("CompliSpeed", 1F, 1F, 20F)
+    private val fovValue = FloatValue("FOV", 180F, 1F, 180F )
+    private val faceCheck = BoolValue("FaceCheck", false)
+    private val onClickValue = BoolValue("MouseDown", true)
     private val breakBlocks = BoolValue("AllowBreakBlock", false)
     private val clickTimer = MSTimer()
 
@@ -49,7 +45,6 @@ class AimAssist : Module() {
             return
 
         val player = mc.thePlayer ?: return
-
         val range = rangeValue.get()
         val entity = mc.theWorld.loadedEntityList
             .filter {
@@ -57,48 +52,17 @@ class AimAssist : Module() {
                         player.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
             }
             .minByOrNull { RotationUtils.getRotationDifference(it) } ?: return
-
-        if (!blatantMode.get() && RotationUtils.isFaced(entity, range.toDouble()))
-            return
-
-
-        val destinationRotation = if (centerValue.get()) {
-            RotationUtils.toRotation(RotationUtils.getCenter(entity.hitBox) ?: return, true)
-        } else {
-            RotationUtils.searchCenter(entity.hitBox, false, false, true, false, range).rotation
-        }
-        if (!blatantMode.get()){
-            RotationUtils.limitAngleChangeYaw(
-                Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch),
-                destinationRotation,
-                (turnSpeedValue.get() + Math.random()).toFloat()
-            ).toPlayer(player, true)
-        } else {
-           RotationUtils.aim(entity, 0.0F, false)
-        }
-        if (jitterValue.get()) {
-            val yaw = Random.nextBoolean()
-            val pitch = Random.nextBoolean()
-            val yawNegative = Random.nextBoolean()
-            val pitchNegative = Random.nextBoolean()
-
-            if (yaw)
-                player.rotationYaw += if (yawNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
-
-            if (pitch) {
-                player.rotationPitch += if (pitchNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(
-                    0F,
-                    1F
-                )
-                if (player.rotationPitch > 90.0F)
-                    player.rotationPitch = 90F
-                else if (player.rotationPitch < -90.0F)
-                    player.rotationPitch = -90F
-            }
-        }
+        if (faceCheck.get() && RotationUtils.isFaced(entity, range.toDouble())) return
+           mc.thePlayer.rotationYaw += (-(FovFromTarget(entity) * (ThreadLocalRandom.current().nextDouble(comSpeed.get() - 1.47328, comSpeed.get() + 2.48293) / 100) + FovFromTarget(entity) / (101.0 - ThreadLocalRandom.current().nextDouble(norspeed.get() - 4.723847, norspeed.get().toDouble())))).toFloat()
+    }
+    private fun FovFromTarget(tg: Entity): Double {
+        return ((net.ccbluex.liquidbounce.utils.mc.thePlayer.rotationYaw - FovToTarget(tg)).toDouble() % 360.0 + 540.0) % 360.0 - 180.0
     }
 
-    override val tag: String?
-        get() = if (!blatantMode.get()) "${turnSpeedValue.get()}"
-    else null
+    private fun FovToTarget(tg: Entity): Float {
+        val x: Double = tg.posX - net.ccbluex.liquidbounce.utils.mc.thePlayer.posX
+        val z: Double = tg.posZ - net.ccbluex.liquidbounce.utils.mc.thePlayer.posZ
+        val yaw = Math.atan2(x, z) * 57.2957795
+        return (yaw * -1.0).toFloat()
+    }
 }

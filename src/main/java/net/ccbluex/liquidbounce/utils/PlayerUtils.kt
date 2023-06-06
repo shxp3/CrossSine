@@ -3,14 +3,12 @@ package net.ccbluex.liquidbounce.utils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.minecraft.block.BlockSlime
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemBucketMilk
-import net.minecraft.item.ItemFood
-import net.minecraft.item.ItemPotion
+import net.minecraft.item.*
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
 
 object PlayerUtils {
+
     fun randomUnicode(str: String): String {
         val stringBuilder = StringBuilder()
         for (c in str.toCharArray()) {
@@ -71,8 +69,4 @@ object PlayerUtils {
     fun IsPlayerInGame(): Boolean {
         return mc.thePlayer != null && mc.theWorld != null
     }
-    fun getCurrentPlayerSlot(): Int {
-        return mc.thePlayer.inventory.currentItem
-    }
-
 }

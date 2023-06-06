@@ -15,9 +15,9 @@ class IntElement(val savedValue: IntegerValue): ValueElement<Int>(savedValue) {
     private var dragged = false
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
-        val valueDisplay = 30F + Fonts.font40.getStringWidth("${savedValue.maximum}")
-        val maxLength = Fonts.font40.getStringWidth("${savedValue.maximum}")
-        val minLength = Fonts.font40.getStringWidth("${savedValue.minimum}")
+        val valueDisplay = 30F + Fonts.font40.getStringWidth("${savedValue.maximum}${savedValue.suffix}")
+        val maxLength = Fonts.font40.getStringWidth("${savedValue.maximum}${savedValue.suffix}")
+        val minLength = Fonts.font40.getStringWidth("${savedValue.minimum}${savedValue.suffix}")
         val nameLength = Fonts.font40.getStringWidth(value.name)
         val sliderWidth = width - 50F - nameLength - maxLength - minLength - valueDisplay
         val startPoint = x + width - 20F - sliderWidth - maxLength - valueDisplay

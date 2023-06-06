@@ -15,5 +15,4 @@ class FovChanger : Module(){
     fun onUpdate(event: UpdateEvent) {
         mc.gameSettings.fovSetting = FovChangerValue.get()
     }
-
 }

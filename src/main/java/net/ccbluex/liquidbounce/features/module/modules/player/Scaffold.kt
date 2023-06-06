@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
@@ -78,7 +79,6 @@ class Scaffold : Module() {
             "Vanilla"
         ), "Vanilla"
     )
-    // Jump mode
     private val jumpMotionValue = FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") }
 
     private val stopWhenBlockAboveValue = BoolValue("StopTowerWhenBlockAbove", true)
@@ -241,12 +241,11 @@ class Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (lockRotation!!.yaw > 90) {
-            legit = true
-        } else if (lockRotation!!.yaw < -90) {
-            legit = true
-        } else legit = false
-
+        if (mc.thePlayer.onGround) {
+            val modifier = XZModifierValue.get()
+            mc.thePlayer.motionX *= modifier
+            mc.thePlayer.motionZ *= modifier
+        }
         if (rotationsValue.equals("LGBT+")) {
             yaw += 50.0f
             if (yaw > 180.0f) {
@@ -258,14 +257,15 @@ class Scaffold : Module() {
             RotationUtils.setTargetRotation(Rotation(yaw, pitch))
         }
         if (rotationsValue.equals("WatchDog")) {
-            RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + 180F, 83F))
+            RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 180F, 83F), rotationSpeed)
         }
         if (rotationsValue.equals("Simple")) {
-            RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + 145F, 82F))
+            RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 145F, 82F), rotationSpeed)
         }
         if (rotationsValue.equals("Custom") && customrotationtwo.get()) {
-            RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()))
+            RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()), rotationSpeed)
         }
+
         if (nobobValue.get()) {
             mc.thePlayer.distanceWalkedModified = 0f
         }
@@ -339,6 +339,12 @@ class Scaffold : Module() {
         if (sprintModeValue.equals("Bypass")) {
             if (mc.thePlayer.onGround) {
                 MovementUtils.setMotion(0.18)
+            }
+        }
+        if (sprintModeValue.equals("BlocksMC")) {
+            if (mc.thePlayer.onGround) {
+                mc.thePlayer.motionX *= 1.18
+                mc.thePlayer.motionZ *= 1.18
             }
         }
         if (sprintModeValue.equals("Matrix")) {
@@ -436,11 +442,6 @@ class Scaffold : Module() {
                 packet.onGround = true
             }
         }
-        if (sprintModeValue.get().equals("BlocksMC", true)) {
-            if (packet is C0BPacketEntityAction) {
-                event.cancelEvent()
-            }
-        }
 
         // AutoBlock
         if (packet is C09PacketHeldItemChange) {
@@ -461,11 +462,6 @@ class Scaffold : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (mc.thePlayer.onGround) {
-            val modifier = XZModifierValue.get()
-            mc.thePlayer.motionX *= modifier.toInt()
-            mc.thePlayer.motionZ *= modifier.toInt()
-        }
         val eventState = event.eventState
         if (autojumpValue.get()) {
             if (autoJumpModeValue.equals("Silent") && !mc.gameSettings.keyBindJump.isKeyDown && !towerStatus) {
@@ -556,9 +552,10 @@ class Scaffold : Module() {
 
         // Reset placeable delay
         if (targetPlace == null || !towerStatus) {
-                if (lastPlace == 0) {
                     delayTimer.reset()
-                }
+        }
+        if (sprintModeValue.equals("Legit")) {
+         CrossSine.moduleManager.getModule(MovementFix::class.java)!!.applyForceStrafe(true, (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")))
         }
     }
 
@@ -1438,8 +1435,7 @@ class Scaffold : Module() {
             "ground" -> mc.thePlayer.onGround
             "air" -> !mc.thePlayer.onGround
             "fast" -> true
-            "blocksmc" -> true
-            "legit" -> lockRotation == null
+            "legit" -> true
             else -> false
         }
 }

@@ -40,7 +40,6 @@ class Velocity : Module() {
     val og = BoolValue("OnlyGround", false)
     val oc = BoolValue("OnlyCombat", false)
     val om = BoolValue("OnlyMove", false)
-    // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
     private val noFireValue = BoolValue("noFire", false)
 
     val velocityTimer = MSTimer()
@@ -153,7 +152,7 @@ class Velocity : Module() {
             if (m.get()) {
                 modeValue.get()
             } else {
-                "${v.get().toDouble()}% ${h.get().toDouble()}%"
+                "${v.get()}% ${h.get()}%"
             }
         }
             else

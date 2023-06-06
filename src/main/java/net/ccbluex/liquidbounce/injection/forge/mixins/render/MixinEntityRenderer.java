@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItemFrame;
@@ -199,7 +200,6 @@ public abstract class MixinEntityRenderer {
     public float getPrevRotationYaw(Entity entity) {
         return FreeLook.perspectiveToggled ? FreeLook.cameraYaw : entity.prevRotationYaw;
     }
-
     @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationPitch:F", opcode = GETFIELD))
     public float getRotationPitch(Entity entity) {
         return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.rotationPitch;

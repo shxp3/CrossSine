@@ -72,7 +72,6 @@ object Stealer : Module() {
     private val autoCloseValue = BoolValue("AutoClose", true)
     val silentValue = BoolValue("Silent", true)
     val silentTitleValue = BoolValue("Title", true).displayable { silentValue.get()}
-    val display = BoolValue("Display", true).displayable { silentValue.get()}
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = autoCloseMinDelayValue.get()

@@ -89,9 +89,8 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             if (!(stealer.getChestTitleValue().get() && (chest.lowerChestInventory == null || !chest.lowerChestInventory.getName().contains(new ItemStack(Item.itemRegistry.getObject(new ResourceLocation("minecraft:chest"))).getDisplayName())))) {
                 // mouse focus
                 mc.setIngameFocus();
-                if (!stealer.getDisplay().get()){
                     mc.currentScreen = guiScreen;
-                }
+
                 // hide GUI
                 if (stealer.getSilentTitleValue().get() && stealer.getSilentValue().get()){
                     RendererExtensionKt.drawCenteredString(Fonts.fontSFUI35, "ChestStealer Silent", width / 2, (height / 2) + 30, 0xffffffff, true);

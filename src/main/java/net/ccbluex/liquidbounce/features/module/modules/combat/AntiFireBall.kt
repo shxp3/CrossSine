@@ -14,7 +14,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C0APacketAnimation
 
 @ModuleInfo(name = "AntiFireBall", "Anti FireBall", category = ModuleCategory.COMBAT)
-class AntiFireBall : Module() {
+class   AntiFireBall : Module() {
     private val timer = MSTimer()
 
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")

@@ -17,13 +17,8 @@ class FastPlace : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (CrossSine.moduleManager[FastPlace::class.java]!!.state && !blockonlyValue.get()) {
+        if (!blockonlyValue.get() || mc.thePlayer.heldItem.item is ItemBlock) {
             mc.rightClickDelayTimer = speedValue.get()
-        } else
-            if (CrossSine.moduleManager[FastPlace::class.java]!!.state && blockonlyValue.get()) {
-                if (mc.thePlayer.heldItem.item is ItemBlock) {
-                    mc.rightClickDelayTimer = speedValue.get()
-                }
-            }
+        }
     }
 }

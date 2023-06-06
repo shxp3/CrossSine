@@ -148,7 +148,12 @@ public abstract class MixinItemRenderer {
                             }
                             switch (animations.getBlockingModeValue().get()) {
                                 case "1.7": {
-                                    this.transformFirstPersonItem(f / Animations.Equip, f1);
+                                    transformFirstPersonItem(f, f1);
+                                    doBlockTransformations();
+                                    break;
+                                }
+                                case "1.8": {
+                                    this.transformFirstPersonItem(f, f1);
                                     this.doBlockTransformations();
                                     GlStateManager.translate(-0.35F, 0.2F, 0.0F);
                                     break;
@@ -370,7 +375,7 @@ public abstract class MixinItemRenderer {
                                 case "Dortware2": {
                                     float var9 = MathHelper.sin(MathHelper.sqrt_float(this.mc.thePlayer.getSwingProgress(partialTicks)) * 3.1415927F);
                                     GL11.glTranslated(0.0D, 0.0D, 0.0D);
-                                    this.transformFirstPersonItem(f / Animations.Equip, 0.0f);
+                                    this.transformFirstPersonItem(f / animations.getEquip().get(), 0.0f);
                                     GlStateManager.rotate(-var9 * 120.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
                                     GlStateManager.rotate(-var9 * 120.0F, 1.0F, var9 / 3.0F, -0.0F);
                                     GlStateManager.translate(-0.5F, 0.2F, 0.0F);
@@ -382,7 +387,7 @@ public abstract class MixinItemRenderer {
                                 case "Moon": {
                                     float var9 = MathHelper.sin(MathHelper.sqrt_float(this.mc.thePlayer.getSwingProgress(partialTicks)) * 3.1415927F);
                                     GL11.glTranslated(0.0D, 0.0D, 0.0D);
-                                    this.transformFirstPersonItem(f / Animations.Equip, 0.0f);
+                                    this.transformFirstPersonItem(f / animations.getEquip().get(), 0.0f);
                                     GlStateManager.rotate(-var9 * 65.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
                                     GlStateManager.rotate(-var9 * 60.0F, 1.0F, var9 / 3.0F, -0.0F);
                                     GlStateManager.translate(-0.5F, 0.2F, 0.0F);
@@ -392,7 +397,7 @@ public abstract class MixinItemRenderer {
                                     break;
                                 }
                                 case "Stella": {
-                                    this.transformFirstPersonItem(f / Animations.Equip, f1);
+                                    this.transformFirstPersonItem(f / animations.getEquip().get(), f1);
                                     GlStateManager.translate(-0.5F, 0.3F, -0.2F);
                                     GlStateManager.rotate(32, 0, 1, 0);
                                     GlStateManager.rotate(-70, 1, 0, 0);
@@ -400,7 +405,7 @@ public abstract class MixinItemRenderer {
                                     break;
                                 }
                                 case "Zoom": {
-                                    this.Zoom(f / Animations.Equip, f1);
+                                    this.Zoom(f / animations.getEquip().get(), f1);
                                     GlStateManager.translate(-0.5F, 0.2F, 0.0F);
                                     GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
                                     GlStateManager.rotate(-80.0F, 1.0F, 0.0F, 0.0F);
@@ -408,7 +413,7 @@ public abstract class MixinItemRenderer {
                                     break;
                                 }
                                 case "Astolfo": {
-                                    transformFirstPersonItem(f / Animations.Equip, f1);
+                                    transformFirstPersonItem(f / animations.getEquip().get(), f1);
                                     GL11.glTranslated(0.0D, 0.0D, 0.0D);
                                     float Swang = MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927F);
                                     GlStateManager.rotate(Swang * -50.0F / 2.0F, -Swang, -0.0F, 9.0F);

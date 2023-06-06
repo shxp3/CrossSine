@@ -196,7 +196,10 @@ public abstract class MixinMinecraft {
         if (CrossSine.moduleManager.getModule(AutoClicker.class).getState())
             leftClickCounter = 0; // fix hit delay lol
     }
-
+    @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;rightClickDelayTimer:I", shift = At.Shift.AFTER))
+    private void rightClickMouse(final CallbackInfo callbackInfo) {
+        CPSCounter.registerClick(CPSCounter.MouseButton.RIGHT);
+    }
     @Inject(method = "middleClickMouse", at = @At("HEAD"))
     private void middleClickMouse(CallbackInfo ci) {
         CPSCounter.registerClick(CPSCounter.MouseButton.MIDDLE);
@@ -224,9 +227,6 @@ public abstract class MixinMinecraft {
             }
             if (clientRender.getRotationMode().equals("Lock")) {
                 thePlayer.renderYawOffset = yaw;
-            }
-            if (clientRender.getRotationMode().equals("SuperLock")) {
-                thePlayer.rotationPitch = yaw;
             }
         }
     }

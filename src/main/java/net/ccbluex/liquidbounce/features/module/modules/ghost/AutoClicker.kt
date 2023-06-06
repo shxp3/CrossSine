@@ -61,10 +61,6 @@ class AutoClicker : Module() {
     private val rightseOnlyValue = BoolValue("RightSnowBallEggOnly", false).displayable { rightValue.get() }
     private val leftValue = BoolValue("LeftClick", true)
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false).displayable { leftValue.get() }
-    private val blockValue = BoolValue("AutoBlock", false).displayable { leftValue.get() }
-    private val jitterValue = BoolValue("Jitter", false)
-    private val container = BoolValue("InventoryFill", false)
-
 
     // Gaussian
     private val gaussianCpsValue = IntegerValue("Gaussian-CPS", 5, 1, 40).displayable { modeValue.equals("Gaussian") }
@@ -83,8 +79,6 @@ class AutoClicker : Module() {
     private var cDelay = 0
     private val timer = tickTimer()
 
-    private val playerMouseInput: Method? = null
-    var mouseDownTicks = 0
 
     @EventTarget
     fun onRender(event: Render3DEvent) {
@@ -105,31 +99,6 @@ class AutoClicker : Module() {
         }
 
     }
-
-
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (jitterValue.get() && (leftValue.get() && mc.gameSettings.keyBindAttack.isKeyDown || rightValue.get() && mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem)) {
-            if (Random.nextBoolean()) mc.thePlayer.rotationYaw += if (Random.nextBoolean()) -RandomUtils.nextFloat(
-                0F,
-                1F
-            ) else RandomUtils.nextFloat(0F, 1F)
-
-            if (Random.nextBoolean()) {
-                mc.thePlayer.rotationPitch += if (Random.nextBoolean()) -RandomUtils.nextFloat(
-                    0F,
-                    1F
-                ) else RandomUtils.nextFloat(0F, 1F)
-
-                // Make sure pitch does not go in to blatant values
-                if (mc.thePlayer.rotationPitch > 90)
-                    mc.thePlayer.rotationPitch = 90F
-                else if (mc.thePlayer.rotationPitch < -90)
-                    mc.thePlayer.rotationPitch = -90F
-            }
-        }
-    }
-
     override fun onEnable() {
         if (modeValue.equals("Gaussian")) {
             gaussianUpdateDelay()
@@ -285,44 +254,6 @@ class AutoClicker : Module() {
             }
         }
         return cDelay
-    }
-
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-            if (container.get()) {
-                val container = mc.currentScreen as GuiContainer;
-                if (mc.currentScreen is GuiContainer) {
-                    var i = Mouse.getEventX() * container.width / mc.displayHeight
-                    var j = container.height - Mouse.getEventY() * container.height / mc.displayHeight - 1
-
-                    try {
-                        if (Mouse.isButtonDown(0)) {
-                            mouseDownTicks++
-                            if (mouseDownTicks > 2 && Math.random() > 1) this.playerMouseInput!!.invoke(
-                                container,
-                                i,
-                                j,
-                                0
-                            )
-                        } else if (Mouse.isButtonDown(1)) {
-                            mouseDownTicks++
-                            if (mouseDownTicks > 2 && Math.random() > 1) playerMouseInput!!.invoke(container, i, j, 1)
-                        } else {
-                            mouseDownTicks = 0
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-
-            }
-    }
-
-    @EventTarget
-    fun onAttack(event: AttackEvent) {
-        if (blockValue.get()) {
-            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
-        }
     }
     override val tag: String?
         get() = "${normalMinCPSValue.get()} - ${normalMaxCPSValue.get()}"

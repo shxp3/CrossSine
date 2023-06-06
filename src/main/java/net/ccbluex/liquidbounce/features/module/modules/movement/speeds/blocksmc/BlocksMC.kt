@@ -9,7 +9,7 @@ import net.minecraft.potion.Potion
 class BlocksMC : SpeedMode("BlocksMC") {
 
     private val ResetOnDisableValue = BoolValue("MotionStop", false)
-    val DamageBoostValue = BoolValue("DamageBoost", false)
+    private val DamageBoostValue = BoolValue("DamageBoost", false)
     private val TimerValue = BoolValue("Timer?", false).displayable { DamageBoostValue.get() }
 
     override fun onUpdate() {
@@ -17,10 +17,10 @@ class BlocksMC : SpeedMode("BlocksMC") {
         if (MovementUtils.isMoving()) {
             if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                 MovementUtils.strafe(0.3455555555F)
-            } else MovementUtils.strafe(0.27F)
+            } else MovementUtils.strafe()
             if(mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
-                MovementUtils.strafe(0.3455555555F)
+                MovementUtils.strafe(0.42F)
             }
         }
 
