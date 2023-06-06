@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
+import net.minecraft.block.Block
 import net.minecraft.block.BlockSlime
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.*
@@ -41,17 +42,38 @@ object PlayerUtils {
             mc.thePlayer.isUsingItem && (usingItem is ItemFood || usingItem is ItemBucketMilk || usingItem is ItemPotion)
         } else false
     }
-    fun isBlockUnder(): Boolean {
-        val x: Double = mc.thePlayer.posX
-        val y: Double = mc.thePlayer.posY + 2.0
-        val z: Double = mc.thePlayer.posZ
-        val p = BlockPos(MathHelper.floor_double(x), MathHelper.floor_double(y), MathHelper.floor_double(z))
-        return mc.theWorld.isBlockFullCube(p) || mc.theWorld.isBlockNormalCube(
-            p,
-            false
-        )
+    fun isBlockUnder(height: Double): Boolean {
+        return isBlockUnder(height, true)
     }
 
+    fun isBlockUnder(height: Double, boundingBox: Boolean): Boolean {
+        if (boundingBox) {
+            var offset = 0
+            while (offset < height) {
+                val bb = mc.thePlayer.entityBoundingBox.offset(0.0, (-offset).toDouble(), 0.0)
+                if (!mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty()) {
+                    return true
+                }
+                offset += 2
+            }
+        } else {
+            var offset = 0
+            while (offset < height) {
+                if (blockRelativeToPlayer(0.0, -offset.toDouble(), 0.0)!!.isFullBlock
+                ) {
+                    return true
+                }
+                offset++
+            }
+        }
+        return false
+    }
+    fun blockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block? {
+        return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
+    }
+    fun isBlockUnder(): Boolean {
+        return isBlockUnder(mc.thePlayer.posY + mc.thePlayer.getEyeHeight())
+    }
     fun findSlimeBlock(): Int? {
         for (i in 0..8) {
             val itemStack = mc.thePlayer.inventory.getStackInSlot(i)

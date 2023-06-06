@@ -6,10 +6,12 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.MathHelper
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+
 
 object MovementUtils : MinecraftInstance() {
 
@@ -41,7 +43,6 @@ object MovementUtils : MinecraftInstance() {
     fun strafe() {
         strafe(getSpeed())
     }
-
     fun move() {
         move(getSpeed())
     }
@@ -67,6 +68,33 @@ object MovementUtils : MinecraftInstance() {
         if (!isMoving()) return
         mc.thePlayer.motionX = -sin(direction) * speed
         mc.thePlayer.motionZ = cos(direction) * speed
+    }
+    fun Rarstrafe(speed: Double) {
+        if (!isMoving()) {
+            return
+        }
+        val yaw: Double = gaydirection()
+        mc.thePlayer.motionX = -MathHelper.sin(yaw.toFloat()) * speed
+        mc.thePlayer.motionZ = MathHelper.cos(yaw.toFloat()) * speed
+    }
+    fun gaydirection(): Double {
+        var rotationYaw: Float = mc.thePlayer.rotationYaw
+        if (mc.thePlayer.moveForward < 0) {
+            rotationYaw += 180f
+        }
+        var forward = 1f
+        if (mc.thePlayer.moveForward < 0) {
+            forward = -0.5f
+        } else if (mc.thePlayer.moveForward > 0) {
+            forward = 0.5f
+        }
+        if (mc.thePlayer.moveStrafing > 0) {
+            rotationYaw -= 70 * forward
+        }
+        if (mc.thePlayer.moveStrafing < 0) {
+            rotationYaw += 70 * forward
+        }
+        return Math.toRadians(rotationYaw.toDouble())
     }
     fun defaultSpeed(): Double {
         var baseSpeed = 0.2873

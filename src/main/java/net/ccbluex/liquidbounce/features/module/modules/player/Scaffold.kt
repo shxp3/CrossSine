@@ -87,7 +87,8 @@ class Scaffold : Module() {
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Pre")
     private val towerPlaceModeValue = ListValue("TowerPlaceTiming", arrayOf("Pre", "Post"), "Pre")
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
-    private val highBlock = ListValue("PickerMode", arrayOf("AAC", "NCP"), "NCP").displayable {autoBlockValue.equals("Spoof")}
+    private val stack = IntegerValue("Stack", -1, -1, 9)
+    private val highBlock = BoolValue("BiggestStack", false)
     val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Fast", "Matrix", "BlocksMC", "Legit", "None"), "Normal")
     private val swingValue = BoolValue("Swing", false)
     private val searchValue = BoolValue("Search", true)
@@ -818,7 +819,7 @@ class Scaffold : Module() {
     }
 
     private fun update() {
-            if (!highBlock.equals("NCP")) {
+            if (!highBlock.get()) {
                 if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
                             InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
                 ) {
@@ -914,13 +915,13 @@ class Scaffold : Module() {
         }
 
         val isDynamicSprint = sprintModeValue.equals("dynamic")
-        var blockSlot = -1
+        var blockSlot = stack.get()
         var itemStack = mc.thePlayer.heldItem
         if (mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(
                 mc.thePlayer.heldItem.item as ItemBlock
             ))
         ) {
-            if (!highBlock.equals("NCP")) {
+            if (!highBlock.get()) {
                 if (autoBlockValue.equals("off")) return
                 blockSlot = InventoryUtils.findAutoBlockBlock()
                 if (blockSlot == -1) return

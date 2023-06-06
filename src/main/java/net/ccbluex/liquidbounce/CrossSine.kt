@@ -78,7 +78,6 @@ object CrossSine {
     lateinit var macroManager: MacroManager
     lateinit var configManager: ConfigManager
 
-    var destructed = false
 
 
     // Some UI things
@@ -280,14 +279,6 @@ object CrossSine {
             }
         }
         clientRichPresence.stop()
-    }
-
-    fun onSendChatMessage(s: String?): Boolean {
-        if (s!!.startsWith(".") && !CrossSine.destructed) {
-            commandManager.getCommand(s.substring(1))
-            return false
-        }
-        return TODO("Provide the return value")
     }
 
 }

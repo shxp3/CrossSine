@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.Listenable;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.event.TickEvent;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.Packet;
@@ -40,6 +41,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
      *
      * @param blockPos target block
      */
+
     public static VecRotation faceBlock(final BlockPos blockPos) {
         if (blockPos == null)
             return null;
@@ -274,7 +276,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 break;
             case "CenterHead":
                 xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
-                yMin = 0.85D; yMax = 0.95D; yDist = 0.0125D;
+                yMin = 0.85D; yMax = 0.95D; yDist = 0.1D;
                 zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
                 break;
         }
