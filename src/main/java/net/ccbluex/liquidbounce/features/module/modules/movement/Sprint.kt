@@ -22,10 +22,8 @@ class Sprint : Module() {
     val collideValue = BoolValue("Collide", false)
     val jumpDirectionsValue = BoolValue("JumpDirections", false)
     val allDirectionsValue = BoolValue("AllDirections", false)
-    val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "LimitSpeed", "None"), "None").displayable { allDirectionsValue.get() }
-    private val allDirectionsLimitSpeedGround = BoolValue("AllDirectionsLimitSpeedOnlyGround", true)
-    private val allDirectionsLimitSpeedValue = FloatValue("AllDirectionsLimitSpeed", 0.7f, 0.5f, 1f).displayable { allDirectionsBypassValue.displayable && allDirectionsBypassValue.equals("LimitSpeed") }
-    var switchStat = false
+    private val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "LimitSpeed", "None"), "None").displayable { allDirectionsValue.get() }
+    private var switchStat = false
     var forceSprint = false
 
     @EventTarget
@@ -61,11 +59,6 @@ class Sprint : Module() {
                         if (mc.thePlayer.onGround && RotationUtils.getRotationDifference(Rotation(MovementUtils.movingYaw, mc.thePlayer.rotationPitch)) > 60) {
                             mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0000013, mc.thePlayer.posZ)
                             mc.thePlayer.motionY = 0.0
-                        }
-                    }
-                    "LimitSpeed" -> {
-                        if (!allDirectionsLimitSpeedGround.get() || mc.thePlayer.onGround) {
-                            MovementUtils.limitSpeedByPercent(allDirectionsLimitSpeedValue.get())
                         }
                     }
                 }

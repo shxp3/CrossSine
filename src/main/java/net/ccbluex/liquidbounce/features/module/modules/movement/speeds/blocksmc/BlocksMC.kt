@@ -20,7 +20,7 @@ class BlocksMC : SpeedMode("BlocksMC") {
             } else MovementUtils.strafe()
             if(mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
-                MovementUtils.strafe(0.42F)
+                MovementUtils.strafe(0.38F)
             }
         }
 

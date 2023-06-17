@@ -171,7 +171,7 @@ object BedNuker : Module() {
 
             oldPos = currentPos
 
-            if (!switchTimer.hasTimePassed(20)) {
+            if (!switchTimer.hasTimePassed(1)) {
                 return
             }
 

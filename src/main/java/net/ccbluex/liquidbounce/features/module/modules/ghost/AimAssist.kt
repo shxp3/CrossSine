@@ -19,8 +19,8 @@ import java.util.concurrent.ThreadLocalRandom
 @ModuleInfo(name = "AimAssist", "AimAssist",category = ModuleCategory.GHOST)
 class AimAssist : Module() {
     private val rangeValue = FloatValue("Range", 50F, 1F, 10F)
-    private val norspeed = FloatValue("Speed", 1F, 1F, 20F)
-    private val comSpeed = FloatValue("CompliSpeed", 1F, 1F, 20F)
+    private val norspeed = FloatValue("Speed", 1F, 1F, 60F)
+    private val comSpeed = FloatValue("CompliSpeed", 1F, 1F, 50F)
     private val fovValue = FloatValue("FOV", 180F, 1F, 180F )
     private val faceCheck = BoolValue("FaceCheck", false)
     private val onClickValue = BoolValue("MouseDown", true)
@@ -56,12 +56,12 @@ class AimAssist : Module() {
            mc.thePlayer.rotationYaw += (-(FovFromTarget(entity) * (ThreadLocalRandom.current().nextDouble(comSpeed.get() - 1.47328, comSpeed.get() + 2.48293) / 100) + FovFromTarget(entity) / (101.0 - ThreadLocalRandom.current().nextDouble(norspeed.get() - 4.723847, norspeed.get().toDouble())))).toFloat()
     }
     private fun FovFromTarget(tg: Entity): Double {
-        return ((net.ccbluex.liquidbounce.utils.mc.thePlayer.rotationYaw - FovToTarget(tg)).toDouble() % 360.0 + 540.0) % 360.0 - 180.0
+        return ((mc.thePlayer.rotationYaw - FovToTarget(tg)).toDouble() % 360.0 + 540.0) % 360.0 - 180.0
     }
 
     private fun FovToTarget(tg: Entity): Float {
-        val x: Double = tg.posX - net.ccbluex.liquidbounce.utils.mc.thePlayer.posX
-        val z: Double = tg.posZ - net.ccbluex.liquidbounce.utils.mc.thePlayer.posZ
+        val x: Double = tg.posX - mc.thePlayer.posX
+        val z: Double = tg.posZ - mc.thePlayer.posZ
         val yaw = Math.atan2(x, z) * 57.2957795
         return (yaw * -1.0).toFloat()
     }

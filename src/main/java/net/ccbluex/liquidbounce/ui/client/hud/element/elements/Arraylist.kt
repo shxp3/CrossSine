@@ -37,13 +37,17 @@ class Arraylist(
 ) : Element(x, y, scale, side) {
     private val blursValue = false
     private val blurStrength = 0F
-    val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo")
-    val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") }
-    val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") }
-    val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") }
-    val ColorRed = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade") }
-    val ColorGreen = IntegerValue("Green", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade")}
-    val ColorBlue = IntegerValue("Blue", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade")}
+    private val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo")
+    private val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") }
+    private val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") }
+    private val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") }
+    private val FadeColorRed = IntegerValue("Fade-Red", 0, 0, 255).displayable { ClientColorMode.equals("Fade") }
+    private val FadeColorGreen = IntegerValue("Fade-Green", 0, 0, 255).displayable { ClientColorMode.equals("Fade")}
+    private val FadeColorBlue = IntegerValue("Fade-Blue", 0, 0, 255).displayable { ClientColorMode.equals("Fade")}
+    val colorRedValue = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom")}
+    val colorGreenValue = IntegerValue("Green", 111, 0, 255).displayable { ClientColorMode.equals("Custom")}
+    val colorBlueValue = IntegerValue("Blue", 255, 0, 255).displayable { ClientColorMode.equals("Custom")}
+    val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255).displayable { ClientColorMode.equals("Custom")}
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowNoCutValue = BoolValue("Shadow-NoCut", false)
     private val shadowStrength = IntegerValue("Shadow-Strength", 1, 1, 30).displayable { shadowShaderValue.get() }
@@ -51,10 +55,6 @@ class Arraylist(
     private val shadowColorRedValue = IntegerValue("Shadow-Red", 0, 0, 255).displayable{ shadowShaderValue.get() && shadowColorMode.get().equals("custom", true) }
     private val shadowColorGreenValue = IntegerValue("Shadow-Green", 111, 0, 255).displayable{ shadowShaderValue.get() && shadowColorMode.get().equals("custom", true) }
     private val shadowColorBlueValue = IntegerValue("Shadow-Blue", 255, 0, 255).displayable{ shadowShaderValue.get() && shadowColorMode.get().equals("custom", true) }
-    val colorRedValue = IntegerValue("Red", 0, 0, 255)
-    val colorGreenValue = IntegerValue("Green", 111, 0, 255)
-    val colorBlueValue = IntegerValue("Blue", 255, 0, 255)
-    val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255)
     private val saturationValue = FloatValue("Saturation", 0.9f, 0f, 1f)
     private val brightnessValue = FloatValue("Brightness", 1f, 0f, 1f)
     private val hAnimation = ListValue("HorizontalAnimation", arrayOf("Default", "None", "Slide", "Astolfo"), "None")
@@ -230,9 +230,7 @@ class Arraylist(
 
                                         var RainBow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
 
-                                        var custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
-
-                                        var FadeColor = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
+                                        var FadeColor = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                                         counter[0] = counter[0] - 1
 
                                         var mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
@@ -242,7 +240,6 @@ class Arraylist(
                                             colorMode.equals("Astolfo", ignoreCase = true) -> Astolfo
                                             colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
                                             colorMode.equals("Rainbow", ignoreCase = true) -> RainBow
-                                            colorMode.equals("Custom", ignoreCase = true) -> custom
                                             colorMode.equals("Fade", ignoreCase = true) -> FadeColor
                                             else -> customColor
                                         }
@@ -314,10 +311,7 @@ class Arraylist(
                     astolfo = ColorUtils.astolfo(index + 1, indexOffset = 100 * 2).rgb
                     var rainbow: Int
                     rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-                    var custom: Int
-                    custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
-
-                    var fade: Int = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
+                    var fade: Int = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                     counter[0] = counter[0] - 1
                     var mixerColor: Int = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
 
@@ -336,7 +330,6 @@ class Arraylist(
                         colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
                         colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
                         colorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                        colorMode.equals("Custom", ignoreCase = true) -> custom
                         colorMode.equals("Fade", ignoreCase = true) -> fade
                         else -> customColor
                     }, textShadow)
@@ -348,7 +341,6 @@ class Arraylist(
                             rectColorMode.equals("Astolfo", ignoreCase = true) -> astolfo
                             rectColorMode.equals("Mixer", ignoreCase = true) -> mixerColor
                             rectColorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                            rectColorMode.equals("Custom", ignoreCase = true) -> custom
                             rectColorMode.equals("Fade", ignoreCase = true) -> fade
                             else -> rectCustomColor
                         }
@@ -422,18 +414,15 @@ class Arraylist(
                                         val mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10,mixerSecValue.get()).rgb
                                         var rainbow: Int
                                         rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-                                        var custom: Int
 
-                                        var fade: Int = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
+                                        var fade: Int = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                                         counter[0] = counter[0] - 1
 
-                                        custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
                                         when {
                                             colorMode.equals("Random", ignoreCase = true) -> moduleColor
                                             colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
                                             colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
                                             colorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                                            colorMode.equals("Custom", ignoreCase = true) -> custom
                                             colorMode.equals("Fade", ignoreCase = true) -> fade
                                             else -> customColor
                                         }
@@ -513,10 +502,8 @@ class Arraylist(
 
                     var rainbow: Int
                     rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-                    var custom: Int
-                    custom = Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
                     val mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-                    var fade: Int = ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
+                    var fade: Int = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
                     counter[0] = counter[0] - 1
                     RenderUtils.drawRect(
                         0F,
@@ -530,7 +517,7 @@ class Arraylist(
                         colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
                         colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
                         colorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                        colorMode.equals("Custom", ignoreCase = true) -> custom
+
                         colorMode.equals("Fade", ignoreCase = true) -> fade
                         else -> customColor
                     }, textShadow)
@@ -541,7 +528,6 @@ class Arraylist(
                             rectColorMode.equals("Astolfo", ignoreCase = true) -> astolfo
                             rectColorMode.equals("Mixer", ignoreCase = true) -> mixerColor
                             rectColorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                            rectColorMode.equals("Custom", ignoreCase = true) -> custom
                             rectColorMode.equals("Fade", ignoreCase = true) -> fade
                             else -> rectCustomColor
                         }

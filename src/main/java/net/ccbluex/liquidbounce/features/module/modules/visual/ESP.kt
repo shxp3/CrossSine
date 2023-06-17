@@ -11,6 +11,10 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
@@ -20,10 +24,7 @@ import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.ccbluex.liquidbounce.utils.render.shader.FramebufferShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.OutlineShader
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -38,9 +39,11 @@ import java.text.DecimalFormat
 class ESP : Module() {
     val modeValue = ListValue(
         "Mode",
-        arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow"),
-        "CSGO"
+        arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow", "Raven"),
+        "Raven"
     )
+    private val expand = FloatValue("Expand", 0.0F, -0.3F, 2.0F).displayable { modeValue.equals("Raven") }
+    private val shift = FloatValue("x-Shift", 0.0F, -35.0F, 10.0F).displayable { modeValue.equals("Raven") }
     private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
     private val shaderOutlineRadiusValue = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f).displayable { modeValue.equals("ShaderOutline") }
     private val shaderGlowRadiusValue = FloatValue("ShaderGlow-Radius", 2.3f, 2f, 3f).displayable { modeValue.equals("ShaderGlow") }
@@ -82,7 +85,35 @@ class ESP : Module() {
             GlStateManager.depthMask(true)
             GL11.glLineWidth(1.0f)
         }
-
+        if (modeValue.equals("Raven")) {
+            val entity: EntityLivingBase? = null
+                val d: Float = expand.get() / 40.0f
+                val r = (entity!!.health / entity.maxHealth).toDouble()
+                val b = (74.0 * r).toInt()
+                val hc =
+                    if (r < 0.3) Color.red.rgb else if (r < 0.5) Color.orange.rgb else if (r < 0.7) Color.yellow.rgb else Color.green.rgb
+                val x: Double =
+                    entity!!.lastTickPosX + (entity!!.posX - entity!!.lastTickPosX) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
+                val y: Double =
+                    entity!!.lastTickPosY + (entity!!.posY - entity!!.lastTickPosY) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosY
+                val z: Double =
+                    entity!!.lastTickPosZ + (entity!!.posZ - entity!!.lastTickPosZ) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosZ
+                GlStateManager.pushMatrix()
+                GL11.glTranslated(x, y - 0.2, z)
+                GL11.glRotated(
+                    mc.renderManager.playerViewY.toDouble(),
+                    0.0,
+                    1.0,
+                    0.0
+                )
+                GlStateManager.disableDepth()
+                GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
+                var i: Int = (21.0 + shift.get() * 2.0).toInt()
+                Gui.drawRect(i, -1, i + 5, 75, Color.black.rgb)
+                Gui.drawRect(i + 1, b, i + 4, 74, Color.darkGray.rgb)
+                Gui.drawRect(i + 1, 0, i + 4, b, hc)
+                GlStateManager.enableDepth()
+        }
         for (entity in mc.theWorld.loadedEntityList) {
             if (EntityUtils.isSelected(entity, true)) {
                 val entityLiving = entity as EntityLivingBase

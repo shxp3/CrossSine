@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MovingObjectPosition
 import org.lwjgl.input.Mouse
@@ -23,34 +24,12 @@ import org.lwjgl.input.Mouse
 @ModuleInfo(name = "AutoTool", spacedName = "Auto Tool", category = ModuleCategory.PLAYER)
 class AutoTool : Module() {
     private var bestSlot = -1
+    private val silent = BoolValue("Silent", false)
     private val nousing = BoolValue("NoPlayerUsing", false)
-    private val delayValue = BoolValue("Delay", false)
-    private val delayTime = IntegerValue("Time-Sec", 0, 0, 10)
-    private var c = false
-    private var d = 0
 
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
-        if (c) {
-            switchSlot(event.clickedBlock ?: return)
-        }
-    }
-
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (delayValue.get()) {
-            if (mc.gameSettings.keyBindAttack.isKeyDown) {
-                d++
-                if (d > ((delayTime.get() * 1000) - 1)) {
-                    c = true
-                }
-            } else {
-                c = false
-                d = 0
-            }
-        } else {
-            c = true
-        }
+        switchSlot(event.clickedBlock ?: return)
     }
 
     fun switchSlot(blockPos: BlockPos) {
@@ -70,7 +49,12 @@ class AutoTool : Module() {
             }
 
             if (bestSlot != -1) {
-                mc.thePlayer.inventory.currentItem = bestSlot
+                if (!silent.get()) {
+                    mc.thePlayer.inventory.currentItem = bestSlot
+                } else {
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(bestSlot))
+                    mc.playerController.updateController()
+                }
             }
         }
 

@@ -10,15 +10,12 @@ import com.google.common.collect.Lists
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FontValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.ServerUtils
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
 import net.ccbluex.liquidbounce.utils.render.*
@@ -50,6 +47,8 @@ class ScoreboardElement(
     private val backgroundColorGreenValue = IntegerValue("Background-G", 0, 0, 255)
     private val backgroundColorBlueValue = IntegerValue("Background-B", 0, 0, 255)
     private val backgroundColorAlphaValue = IntegerValue("Background-Alpha", 0, 0, 255)
+    private val bgRoundedValue = BoolValue("Rounded", false)
+    private val roundStrength = FloatValue("Rounded-Strength", 5F, 0F, 30F).displayable { bgRoundedValue.get() }
 
     private val rectValue = BoolValue("Rect", false)
     private val rectColorModeValue = ListValue("Rect-Color", arrayOf("Custom", "Rainbow"), "Custom")
@@ -148,6 +147,22 @@ class ScoreboardElement(
         if(rainbowBarValue.get()) {
             Gui.drawRect(l1 - 7, -6, 9, - 5, ColorUtils.rainbow().rgb)
         }
+        if (bgRoundedValue.get()) {
+            Stencil.write(false)
+            GlStateManager.enableBlend()
+            GlStateManager.disableTexture2D()
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+            RenderUtils.fastRoundedRect(
+                l1.toFloat() + if (side.horizontal == Side.Horizontal.LEFT) 2F else -2F,
+                if (rectValue.get()) -2F - 2F else -2F,
+                if (side.horizontal == Side.Horizontal.LEFT) -5F else 5F,
+                (maxHeight + fontRenderer.FONT_HEIGHT).toFloat(), roundStrength.get())
+            GlStateManager.enableTexture2D()
+            GlStateManager.disableBlend()
+            Stencil.erase(true)
+        }
+        if (bgRoundedValue.get())
+            Stencil.dispose()
         // draw main rect?
         Gui.drawRect(l1 - 7, -5, 9, maxHeight + fontRenderer.FONT_HEIGHT + 5, backColor)
 

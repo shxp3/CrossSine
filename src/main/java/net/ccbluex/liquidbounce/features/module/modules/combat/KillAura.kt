@@ -142,7 +142,7 @@ class KillAura : Module() {
     // Rotations
     private val rotationModeValue = ListValue(
         "RotationMode",
-        arrayOf("None", "Center", "Smooth", "Normal", "LockView", "SmoothCenter"),
+        arrayOf("None", "Center", "Smooth", "Normal", "LockView", "SmoothCenter", "Full"),
         "Smooth"
     )
     private val gcdValue = BoolValue("GDC", false).displayable { !rotationModeValue.equals("None") }
@@ -163,8 +163,6 @@ class KillAura : Module() {
     }
     private val rotationSmoothValue =
         FloatValue("Smooth", 2f, 1f, 10f).displayable { rotationModeValue.equals("Smooth") || rotationModeValue.equals("SmoothCenter") }
-    val customYValue = FloatValue("SmoothCenter-Y", 0.0F, 0.0F, 0.90F).displayable { rotationModeValue.equals("SmoothCenter") }
-
     // Random
     private val randomCenterModeValue =
         ListValue("RandomCenter", arrayOf("Off", "Cubic", "Horizonal", "Vertical"), "Off")
@@ -499,16 +497,6 @@ class KillAura : Module() {
      */
     @EventTarget
     fun onUpdate(ignoredEvent: UpdateEvent) {
-        if (autoBlockValue.equals("Damage")) {
-            if (mc.thePlayer.hurtTime > 6 && CrossSine.combatManager.inCombat) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, true)
-                MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, true)
-            } else if (!mc.gameSettings.keyBindUseItem.isKeyDown) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, false)
-                MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, false)
-                stopBlocking()
-            }
-        }
         strictStrafe = !rotationStrafeValue.equals("Off") && !mc.thePlayer.isRiding
         if (cancelRun) {
             target = null
@@ -801,6 +789,16 @@ class KillAura : Module() {
      * @throws IllegalStateException when bad packets protection
      */
     private fun attackEntity(entity: EntityLivingBase) {
+        if (autoBlockValue.equals("Damage")) {
+            if (mc.thePlayer.hurtTime > 6 && CrossSine.combatManager.inCombat) {
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, true)
+                MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, true)
+            } else if (!mc.gameSettings.keyBindUseItem.isKeyDown) {
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, false)
+                MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, false)
+                stopBlocking()
+            }
+        }
         if (packetSent && noBadPacketsValue.get()) {
             throw java.lang.IllegalStateException("Attack canceled because of bad packets protection")
         }
@@ -840,6 +838,8 @@ class KillAura : Module() {
      * Update killaura rotations to enemy
      */
     private fun updateRotations(entity: Entity): Boolean {
+        var bn = CrossSine.moduleManager.getModule(BedNuker::class.java)!!
+        if (bn.state && bn.currentDamage > 0F) return true
         if (rotationModeValue.equals("None")) {
             return true
         }
@@ -855,6 +855,7 @@ class KillAura : Module() {
             "Normal" -> "HalfUp"
             "LockView" -> "CenterSimple"
             "SmoothCenter" -> "CenterHead"
+            "Full" -> "Full"
             else -> "LiquidBounce"
         }
 
@@ -893,6 +894,11 @@ class KillAura : Module() {
                 (calculateSpeed).toFloat()
             )
             "SmoothCenter" -> RotationUtils.limitAngleChange(
+                RotationUtils.serverRotation,
+                directRotation,
+                (calculateSpeed).toFloat()
+            )
+            "Full" -> RotationUtils.limitAngleChange(
                 RotationUtils.serverRotation,
                 directRotation,
                 (calculateSpeed).toFloat()

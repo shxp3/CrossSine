@@ -52,6 +52,7 @@ class Flight : Module() {
     }
 
     private val motionResetValue = BoolValue("MotionReset", false)
+    private val motionResetYValue = BoolValue("ResetY", false).displayable { motionResetValue.get() }
     private val renderTimeValue = BoolValue("RenderTime", false)
 
     // Visuals
@@ -101,8 +102,7 @@ class Flight : Module() {
         mc.timer.timerSpeed = 1F
         mc.thePlayer.speedInAir = 0.02F
 
-        if (motionResetValue.get() && needReset && (!modeValue.equals("NCPNew") || !modeValue.equals("LatestNCP"))) MovementUtils.resetMotion(true)
-        if (motionResetValue.get() && needReset && modeValue.equals("NCPNew")) MovementUtils.resetMotion(false)
+        if (motionResetValue.get() && needReset) MovementUtils.resetMotion(motionResetYValue.get())
         mode.onDisable()
         time = 0
     }

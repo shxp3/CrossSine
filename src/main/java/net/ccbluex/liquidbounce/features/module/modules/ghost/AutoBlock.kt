@@ -30,7 +30,7 @@ class AutoBlock : Module() {
             }
         }
     }
-    private val blockmax: IntegerValue = object : IntegerValue("Delay-Max", 0, 0, 500) {
+    private val blockmax: IntegerValue = object : IntegerValue("Delay-Max", 0, 0, 200) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val min = blockmin.get()
             if (min > newValue) {
@@ -38,7 +38,7 @@ class AutoBlock : Module() {
             }
         }
     }
-    private val blockmin: IntegerValue = object : IntegerValue("Delay-Min", 0, 0, 500) {
+    private val blockmin: IntegerValue = object : IntegerValue("Delay-Min", 0, 0, 200) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val max = blockmax.get()
             if (max < newValue) {
@@ -70,7 +70,6 @@ class AutoBlock : Module() {
             engagedTime.setCooldown(blockmax.get().toLong())
             engagedTime.start()
             KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, true)
-            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
             MouseUtils.setMouseButtonState(1, true)
         }
     }

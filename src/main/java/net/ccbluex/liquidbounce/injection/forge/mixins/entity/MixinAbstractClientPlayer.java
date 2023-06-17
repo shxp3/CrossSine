@@ -6,14 +6,12 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.CrossSine;
-import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Cape;
-import net.ccbluex.liquidbounce.utils.MovementUtils;
+import net.ccbluex.liquidbounce.features.module.modules.visual.Zoom;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,15 +31,9 @@ public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
     }
     @Inject(method = "getFovModifier", at = @At("HEAD"), cancellable = true)
     private void getFovModifier(CallbackInfoReturnable<Float> callbackInfoReturnable) {
-        final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
-        if (scaffold.getState() && scaffold.getSprintModeValue().equals("Bypass") && MovementUtils.INSTANCE.isMoving()) {
-        float f5Fov = 1.1f;
-        f5Fov *= 1.0f;
-            if(!Minecraft.getMinecraft().thePlayer.isPotionActive(Potion.moveSpeed)) {
-                callbackInfoReturnable.setReturnValue(f5Fov);
-            } else {
-                callbackInfoReturnable.setReturnValue(f5Fov + 0.35F);
-            }
+        final Zoom zoom = CrossSine.moduleManager.getModule(Zoom.class);
+        if ((zoom.getStart()) && zoom.getState()) {
+                callbackInfoReturnable.setReturnValue(zoom.getAmount().get().floatValue() / 100);
         }
     }
 }

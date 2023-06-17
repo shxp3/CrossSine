@@ -20,11 +20,9 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.network.Packet
-import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import org.lwjgl.opengl.GL11
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -32,43 +30,52 @@ import java.util.concurrent.LinkedBlockingQueue
 @ModuleInfo(name = "Blink", spacedName = "Blink", category = ModuleCategory.PLAYER)
 class Blink : Module() {
 
-    private val pulseValue = BoolValue("Pulse", false)
-    private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000).displayable { pulseValue.get() }
-    private val C0FPacket = BoolValue("C0FCancel", false)
-    private val VeloPacket = BoolValue("VeloCancel", false)
-    private val renderValue = BoolValue("Render", false)
-
-    private val pulseTimer = MSTimer()
-    private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayServer>>()
+    private val packets = LinkedBlockingQueue<Packet<*>>()
     private var fakePlayer: EntityOtherPlayerMP? = null
     private var disableLogger = false
     private val positions = LinkedList<DoubleArray>()
+    private val pulse = BoolValue("Pulse", false)
+    private val renderValue = BoolValue("Render", false)
+    private val pulseDelay = IntegerValue("PulseDelay", 1000, 500,5000).displayable { pulse.get() }
+    private val pulseTimer = MSTimer()
 
     override fun onEnable() {
-        if (mc.thePlayer == null) return
-        if (!pulseValue.get() && renderValue.get()) {
-            fakePlayer = EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.gameProfile)
-            fakePlayer!!.clonePlayer(mc.thePlayer, true)
-            fakePlayer!!.copyLocationAndAnglesFrom(mc.thePlayer)
-            fakePlayer!!.rotationYawHead = mc.thePlayer.rotationYawHead
-            mc.theWorld.addEntityToWorld(-1337, fakePlayer)
+        val thePlayer = mc.thePlayer ?: return
+
+        if (!pulse.get()) {
+            val faker = EntityOtherPlayerMP(mc.theWorld, thePlayer.gameProfile)
+
+            faker.rotationYawHead = thePlayer.rotationYawHead
+            faker.renderYawOffset = thePlayer.renderYawOffset
+            faker.copyLocationAndAnglesFrom(thePlayer)
+            faker.rotationYawHead = thePlayer.rotationYawHead
+            mc.theWorld.addEntityToWorld(-1337, faker)
+
+            fakePlayer = faker
         }
         synchronized(positions) {
-            positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight() / 2, mc.thePlayer.posZ))
-            positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY, mc.thePlayer.posZ))
+            positions.add(
+                doubleArrayOf(
+                    thePlayer.posX,
+                    thePlayer.entityBoundingBox.minY + thePlayer.eyeHeight / 2,
+                    thePlayer.posZ
+                )
+            )
+            positions.add(doubleArrayOf(thePlayer.posX, thePlayer.entityBoundingBox.minY, thePlayer.posZ))
         }
         pulseTimer.reset()
     }
-    fun onVelocityPacket(event: PacketEvent) {
-        if (VeloPacket.get()) {
-            event.cancelEvent()
-        }
-    }
+
     override fun onDisable() {
-        if (mc.thePlayer == null) return
+        if (mc.thePlayer == null)
+            return
+
         blink()
-        if (fakePlayer != null) {
-            mc.theWorld.removeEntityFromWorld(fakePlayer!!.entityId)
+
+        val faker = fakePlayer
+
+        if (faker != null) {
+            mc.theWorld?.removeEntityFromWorld(faker.entityId)
             fakePlayer = null
         }
     }
@@ -76,37 +83,37 @@ class Blink : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (mc.thePlayer == null || disableLogger) return
-        if (packet is C03PacketPlayer) { // Cancel all movement stuff
+
+        if (mc.thePlayer == null || disableLogger)
+            return
+
+        if (packet is C03PacketPlayer) // Cancel all movement stuff
             event.cancelEvent()
-        }
+
         if (packet is C04PacketPlayerPosition || packet is C06PacketPlayerPosLook ||
             packet is C08PacketPlayerBlockPlacement ||
             packet is C0APacketAnimation ||
-            packet is C0BPacketEntityAction || packet is C02PacketUseEntity) {
+            packet is C0BPacketEntityAction || packet is C02PacketUseEntity
+        ) {
             event.cancelEvent()
-            packets.add(packet as Packet<INetHandlerPlayServer>)
-        }
-        if (packet is S08PacketPlayerPosLook) event.cancelEvent()
-        if (C0FPacket.get()) {
-            if (packet is C0FPacketConfirmTransaction) {
-                event.cancelEvent()
-            }
+            packets.add(packet)
         }
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        val thePlayer = mc.thePlayer ?: return
+
         synchronized(positions) {
             positions.add(
                 doubleArrayOf(
-                    mc.thePlayer.posX,
-                    mc.thePlayer.entityBoundingBox.minY,
-                    mc.thePlayer.posZ
+                    thePlayer.posX,
+                    thePlayer.entityBoundingBox.minY,
+                    thePlayer.posZ
                 )
             )
         }
-        if (pulseValue.get() && pulseTimer.hasTimePassed(pulseDelayValue.get().toLong())) {
+        if (pulse.get() && pulseTimer.hasTimePassed(pulseDelay.get().toLong())) {
             blink()
             pulseTimer.reset()
         }
@@ -114,43 +121,47 @@ class Blink : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        val breadcrumbs = CrossSine.moduleManager[Breadcrumbs::class.java]!!
-        synchronized(positions) {
-            GL11.glPushMatrix()
-            GL11.glDisable(GL11.GL_TEXTURE_2D)
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-            GL11.glEnable(GL11.GL_LINE_SMOOTH)
-            GL11.glEnable(GL11.GL_BLEND)
-            GL11.glDisable(GL11.GL_DEPTH_TEST)
-            mc.entityRenderer.disableLightmap()
-            GL11.glLineWidth(2F)
-            GL11.glBegin(GL11.GL_LINE_STRIP)
-            RenderUtils.glColor(breadcrumbs.color)
-            val renderPosX = mc.renderManager.viewerPosX
-            val renderPosY = mc.renderManager.viewerPosY
-            val renderPosZ = mc.renderManager.viewerPosZ
-            for (pos in positions) GL11.glVertex3d(pos[0] - renderPosX, pos[1] - renderPosY, pos[2] - renderPosZ)
-            GL11.glColor4d(1.0, 1.0, 1.0, 1.0)
-            GL11.glEnd()
-            GL11.glEnable(GL11.GL_DEPTH_TEST)
-            GL11.glDisable(GL11.GL_LINE_SMOOTH)
-            GL11.glDisable(GL11.GL_BLEND)
-            GL11.glEnable(GL11.GL_TEXTURE_2D)
-            GL11.glPopMatrix()
+        if (renderValue.get()){
+            val breadcrumbs = CrossSine.moduleManager[Breadcrumbs::class.java]!!
+            synchronized(positions) {
+                GL11.glPushMatrix()
+                GL11.glDisable(GL11.GL_TEXTURE_2D)
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+                GL11.glEnable(GL11.GL_LINE_SMOOTH)
+                GL11.glEnable(GL11.GL_BLEND)
+                GL11.glDisable(GL11.GL_DEPTH_TEST)
+                mc.entityRenderer.disableLightmap()
+                GL11.glLineWidth(2F)
+                GL11.glBegin(GL11.GL_LINE_STRIP)
+                RenderUtils.glColor(breadcrumbs.color)
+                val renderPosX = mc.renderManager.viewerPosX
+                val renderPosY = mc.renderManager.viewerPosY
+                val renderPosZ = mc.renderManager.viewerPosZ
+                for (pos in positions) GL11.glVertex3d(pos[0] - renderPosX, pos[1] - renderPosY, pos[2] - renderPosZ)
+                GL11.glColor4d(1.0, 1.0, 1.0, 1.0)
+                GL11.glEnd()
+                GL11.glEnable(GL11.GL_DEPTH_TEST)
+                GL11.glDisable(GL11.GL_LINE_SMOOTH)
+                GL11.glDisable(GL11.GL_BLEND)
+                GL11.glEnable(GL11.GL_TEXTURE_2D)
+                GL11.glPopMatrix()
+            }
         }
     }
 
-    override val tag: String
+    override val tag
         get() = packets.size.toString()
 
     private fun blink() {
         try {
             disableLogger = true
-            while (!packets.isEmpty()) {
+
+            while (!packets.isEmpty())
                 mc.netHandler.addToSendQueue(packets.take())
-            }
+
             disableLogger = false
-        } finally {
+        } catch (e: Exception) {
+            e.printStackTrace()
             disableLogger = false
         }
         synchronized(positions) { positions.clear() }

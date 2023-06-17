@@ -68,7 +68,6 @@ class Scaffold : Module() {
             "StableMotion",
             "MotionTP",
             "MotionTP2",
-            "Packet",
             "Teleport",
             "AAC3.3.9",
             "AAC3.6.4",
@@ -218,9 +217,6 @@ class Scaffold : Module() {
     private var offGroundTicks: Int = 0
 
     var ticks = 0
-
-    //legit
-    private var legit = false
     /**
      * Enable module
      */
@@ -258,13 +254,13 @@ class Scaffold : Module() {
             RotationUtils.setTargetRotation(Rotation(yaw, pitch))
         }
         if (rotationsValue.equals("WatchDog")) {
-            RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 180F, 83F), rotationSpeed)
+            RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 180F, 83F), rotationSpeed), 20)
         }
         if (rotationsValue.equals("Simple")) {
-            RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 145F, 82F), rotationSpeed)
+            RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 145F, 82F), rotationSpeed), 20)
         }
         if (rotationsValue.equals("Custom") && customrotationtwo.get()) {
-            RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()), rotationSpeed)
+            RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()), rotationSpeed), 20)
         }
 
         if (nobobValue.get()) {
@@ -432,7 +428,7 @@ class Scaffold : Module() {
         }
     }
 
-    @EventTarget
+     @EventTarget
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null) return
         val packet = event.packet
@@ -443,7 +439,19 @@ class Scaffold : Module() {
                 packet.onGround = true
             }
         }
-
+         if (stairsValue.get() && MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown) {
+             if (mc.thePlayer.onGround){
+                 fakeJump()
+                 mc.thePlayer.motionY = 0.42
+             }
+             if (mc.thePlayer.motionY > -0.0784000015258789 && !mc.thePlayer.isPotionActive(Potion.jump) && MovementUtils.isMoving() && packet is C08PacketPlayerBlockPlacement){
+                     if (packet.position == BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.4, mc.thePlayer.posZ)) {
+                         mc.thePlayer.motionY = -0.0784000015258789
+                     }
+             }
+         } else {
+             if (towerStatus) move()
+         }
         // AutoBlock
         if (packet is C09PacketHeldItemChange) {
             if (packet.slotId == slot) {
@@ -502,24 +510,6 @@ class Scaffold : Module() {
                     towerStatus = MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown
                 }
             }
-        }
-        if (stairsValue.get() && MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown) {
-            if (mc.thePlayer.posY % 1 <= 0.00153598) {
-                mc.thePlayer.setPosition(
-                    mc.thePlayer.posX,
-                    Math.floor(mc.thePlayer.posY),
-                    mc.thePlayer.posZ
-                )
-                mc.thePlayer.motionY = 0.3681289
-            } else if (mc.thePlayer.posY % 1 < 0.1 && offGroundTicks != 0) {
-                mc.thePlayer.setPosition(
-                    mc.thePlayer.posX,
-                    Math.floor(mc.thePlayer.posY),
-                    mc.thePlayer.posZ
-                )
-            }
-        } else {
-            if (towerStatus) move()
         }
 
         // Lock Rotation
@@ -645,30 +635,6 @@ class Scaffold : Module() {
                         Math.floor(mc.thePlayer.posY),
                         mc.thePlayer.posZ
                     )
-                }
-            }
-
-            "packet" -> {
-                if (mc.thePlayer.onGround && towerTimer.hasTimePassed(2)) {
-                    fakeJump()
-                    mc.netHandler.addToSendQueue(
-                        C04PacketPlayerPosition(
-                            mc.thePlayer.posX,
-                            mc.thePlayer.posY + 0.42,
-                            mc.thePlayer.posZ,
-                            false
-                        )
-                    )
-                    mc.netHandler.addToSendQueue(
-                        C04PacketPlayerPosition(
-                            mc.thePlayer.posX,
-                            mc.thePlayer.posY + 0.753,
-                            mc.thePlayer.posZ,
-                            false
-                        )
-                    )
-                    mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0, mc.thePlayer.posZ)
-                    towerTimer.reset()
                 }
             }
 
@@ -814,7 +780,6 @@ class Scaffold : Module() {
                 fakeJump()
                 mc.thePlayer.motionY = 0.41
             }
-
         }
     }
 
@@ -1315,11 +1280,9 @@ class Scaffold : Module() {
                 "watchdog" -> {
                     Rotation(mc.thePlayer.rotationYaw + 180F, 84F)
                 }
-                "lgbt+" -> {
-                    placeRotation.rotation
-                }
 
-                else -> return false // this should not happen
+
+                else -> null
             }
             if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") ||  rotationsValue.equals("LGBT+")) {
                     val limitedRotation =
@@ -1371,10 +1334,7 @@ class Scaffold : Module() {
                 "watchdog" -> {
                     Rotation(mc.thePlayer.rotationYaw + 180F, 84F)
                 }
-                "lgbt+" -> {
-                    placeRotation.rotation
-                }
-                else -> return false // this should not happen
+                else -> null
             }
             if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") ||  rotationsValue.equals("LGBT+")) {
                 val limitedRotation =
