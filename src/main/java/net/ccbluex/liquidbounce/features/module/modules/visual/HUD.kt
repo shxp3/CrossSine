@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Text
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -59,7 +60,8 @@ object HUD : Module() {
     val ColorGuiInGameValue = IntegerValue("ColorGuiInGame", 0, 0, 9).displayable { otherValue.get() }
     val domaincustomvalue = TextValue("Domain", ".GuiEdit Domain text").displayable { otherValue.get() }
     var lastFontEpsilon = 0.5f
-
+    var prevHeadPitch = 0f
+    var headPitch = 0f
     @EventTarget
     fun onTick(event: TickEvent) {
         mc.guiAchievement.clearAchievements()
@@ -150,6 +152,20 @@ object HUD : Module() {
             }
     }
 
+    @EventTarget
+    fun onMotion(event: MotionEvent) {
+        prevHeadPitch = headPitch
+        headPitch = serverRotation.pitch
+        if (!shouldRotate()) {
+            return
+        }
+        mc.thePlayer.rotationYawHead = serverRotation.yaw
+
+    }
+
+    fun lerp(tickDelta: Float, old: Float, new: Float): Float {
+        return old + (new - old) * tickDelta
+    }
     private fun State(module: Class<out Module>) = CrossSine.moduleManager[module]!!.state
 
     fun shouldRotate(): Boolean {

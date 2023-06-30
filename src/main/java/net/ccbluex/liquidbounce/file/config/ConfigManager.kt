@@ -37,6 +37,7 @@ class ConfigManager {
     }
 
     fun load(name: String, save: Boolean = true) {
+        if (CrossSine.destruct) return
         CrossSine.isLoadingConfig = true
         if (save && nowConfig != name) {
             save(true, true) // 保存老配置
@@ -68,6 +69,7 @@ class ConfigManager {
     }
 
     fun save(saveConfigSet: Boolean = nowConfigInFile != nowConfig, forceSave: Boolean = false) {
+        if (CrossSine.destruct) return
         if (CrossSine.isLoadingConfig && !forceSave) {
             return
         }

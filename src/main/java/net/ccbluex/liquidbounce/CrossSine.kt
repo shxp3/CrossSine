@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.common.MinecraftForge
 import org.lwjgl.opengl.Display
 import java.util.*
 import kotlin.concurrent.thread
@@ -35,12 +36,13 @@ object CrossSine {
     // Client information
 
     const val CLIENT_NAME = "CrossSine"
-    val CLIENT_STATUS = false
+    val CLIENT_STATUS = true
     var Darkmode = true
+    var destruct = false
     const val COLORED_NAME = "Cross§CSine§F"
     const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"
     const val CLIENT_WEBSITE = "crosssine.github.io"
-    const val CLIENT_VERSION = "B33"
+    const val CLIENT_VERSION = "B34"
     @JvmField
     val CLIENT_LOADING = if (CLIENT_STATUS) "Beta Loading" else "Installing CrossSine"
     @JvmField
@@ -280,5 +282,15 @@ object CrossSine {
         }
         clientRichPresence.stop()
     }
-
+    fun onDestruct() {
+        if (mc.currentScreen != null && mc.thePlayer != null) {
+            mc.thePlayer.closeScreen()
+        }
+        destruct = true
+        MinecraftForge.EVENT_BUS.unregister(this)
+        for (m in moduleManager.modules) {
+            m.toggled = false
+            MinecraftForge.EVENT_BUS.unregister(m)
+        }
+    }
 }

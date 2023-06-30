@@ -5,11 +5,13 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
 @ModuleInfo(name = "ViewBobing", spacedName = "View Bobing", category = ModuleCategory.VISUAL)
 class ViewBobing : Module() {
+    val miniViewBobing = BoolValue("MiniViewBobing", false)
     private val BobChangerValue =
         ListValue("BobChanger", arrayOf("Low", "VeryLow", "Meme", "Custom", "Off"), "Low")
     private val CustomYaw =

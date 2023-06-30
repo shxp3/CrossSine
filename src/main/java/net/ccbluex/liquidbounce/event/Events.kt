@@ -1,7 +1,7 @@
 /*
- * FDPClient Hacked Client
+ * CrossSine Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
+ * https://github.com/shxp3/CrossSine
  */
 package net.ccbluex.liquidbounce.event
 
@@ -142,7 +142,35 @@ class PacketEvent(val packet: Packet<*>, val type: Type) : CancellableEvent() {
 
     fun isServerSide() = type == Type.RECEIVE
 }
+/**
+ * Block Damage
+ */
 
+class EventPlayerDamageBlock(pos: BlockPos, face: EnumFacing) : CancellableEvent() {
+    private var pos: BlockPos
+    private var face: EnumFacing
+
+    init {
+        this.pos = pos
+        this.face = face
+    }
+
+    fun getPos(): BlockPos {
+        return pos
+    }
+
+    fun setPos(pos: BlockPos) {
+        this.pos = pos
+    }
+
+    fun getFace(): EnumFacing {
+        return face
+    }
+
+    fun setFace(face: EnumFacing) {
+        this.face = face
+    }
+}
 /**
  * Called when a block tries to push you
  */

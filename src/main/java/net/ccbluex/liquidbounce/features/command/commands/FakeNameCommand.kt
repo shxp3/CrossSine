@@ -13,8 +13,9 @@ class FakeNameCommand : Command("SetFakeName", emptyArray()){
         if(args.size > 2) {
             val module = CrossSine.moduleManager.getModule(args[1]) ?: return
             module.name = args[2]
+            module.spacedName = args[3]
         } else
-            chatSyntax("SetFakeName <Module> <Name>")
+            chatSyntax("SetFakeName <Module> <Name> <SpecName>")
     }
     override fun tabComplete(args: Array<String>): List<String> {
         if (args.isEmpty()) return emptyList()

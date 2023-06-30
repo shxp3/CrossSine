@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.MathHelper
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin
@@ -17,7 +18,7 @@ object MovementUtils : MinecraftInstance() {
     fun resetMotion(y: Boolean) {
         mc.thePlayer.motionX = 0.0
         mc.thePlayer.motionZ = 0.0
-        if(y) mc.thePlayer.motionY = 0.0
+        if (y) mc.thePlayer.motionY = 0.0
     }
 
     fun getSpeed(): Float {
@@ -31,6 +32,7 @@ object MovementUtils : MinecraftInstance() {
 
         strafe(speed)
     }
+
     /**
      * Calculate speed based on the speed potion effect level/amplifier
      */
@@ -42,6 +44,7 @@ object MovementUtils : MinecraftInstance() {
     fun strafe() {
         strafe(getSpeed())
     }
+
     fun move() {
         move(getSpeed())
     }
@@ -63,11 +66,21 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionX = -sin(direction) * speed
         mc.thePlayer.motionZ = cos(direction) * speed
     }
+
+    fun daStrafe(speed: Double) {
+        if (!isMoving()) {
+            return
+        }
+        mc.thePlayer.motionX = -MathHelper.sin(daDirection.toFloat()) * speed
+        mc.thePlayer.motionZ = MathHelper.cos(daDirection.toFloat()) * speed
+    }
+
     fun strafe(speed: Double) {
         if (!isMoving()) return
         mc.thePlayer.motionX = -sin(direction) * speed
         mc.thePlayer.motionZ = cos(direction) * speed
     }
+
     fun defaultSpeed(): Double {
         var baseSpeed = 0.2873
         if (Minecraft.getMinecraft().thePlayer.isPotionActive(Potion.moveSpeed)) {
@@ -79,36 +92,43 @@ object MovementUtils : MinecraftInstance() {
     }
 
 
-    fun doTargetStrafe(curTarget: EntityLivingBase, direction_: Float, radius: Float, moveEvent: MoveEvent, mathRadius: Int = 0) {
-        if(!isMoving()) return
+    fun doTargetStrafe(
+        curTarget: EntityLivingBase,
+        direction_: Float,
+        radius: Float,
+        moveEvent: MoveEvent,
+        mathRadius: Int = 0
+    ) {
+        if (!isMoving()) return
 
         var forward_ = 0.0
         var strafe_ = 0.0
         val speed_ = sqrt(moveEvent.x * moveEvent.x + moveEvent.z * moveEvent.z)
 
-        if(speed_ <= 0.0001)
+        if (speed_ <= 0.0001)
             return
 
         var _direction = 0.0
-        if(direction_ > 0.001) {
+        if (direction_ > 0.001) {
             _direction = 1.0
-        }else if(direction_ < -0.001) {
+        } else if (direction_ < -0.001) {
             _direction = -1.0
         }
         var curDistance = (0.01).toFloat()
         if (mathRadius == 1) {
             curDistance = mc.thePlayer.getDistanceToEntity(curTarget)
-        }else if (mathRadius == 0) {
-            curDistance = sqrt((mc.thePlayer.posX - curTarget.posX) * (mc.thePlayer.posX - curTarget.posX) + (mc.thePlayer.posZ - curTarget.posZ) * (mc.thePlayer.posZ - curTarget.posZ)).toFloat()
+        } else if (mathRadius == 0) {
+            curDistance =
+                sqrt((mc.thePlayer.posX - curTarget.posX) * (mc.thePlayer.posX - curTarget.posX) + (mc.thePlayer.posZ - curTarget.posZ) * (mc.thePlayer.posZ - curTarget.posZ)).toFloat()
         }
-        if(curDistance < radius - speed_) {
+        if (curDistance < radius - speed_) {
             forward_ = -1.0
-        }else if(curDistance > radius + speed_) {
+        } else if (curDistance > radius + speed_) {
             forward_ = 1.0
-        }else {
+        } else {
             forward_ = (curDistance - radius) / speed_
         }
-        if(curDistance < radius + speed_*2 && curDistance > radius - speed_*2) {
+        if (curDistance < radius + speed_ * 2 && curDistance > radius - speed_ * 2) {
             strafe_ = 1.0
         }
         strafe_ *= _direction
@@ -118,11 +138,11 @@ object MovementUtils : MinecraftInstance() {
         forward_ /= covert_
         strafe_ /= covert_
         var turnAngle = Math.toDegrees(asin(strafe_))
-        if(turnAngle > 0) {
-            if(forward_ < 0)
+        if (turnAngle > 0) {
+            if (forward_ < 0)
                 turnAngle = 180F - turnAngle
-        }else {
-            if(forward_ < 0)
+        } else {
+            if (forward_ < 0)
                 turnAngle = -180F - turnAngle
         }
         strafeYaw = Math.toRadians((strafeYaw + turnAngle))
@@ -151,14 +171,17 @@ object MovementUtils : MinecraftInstance() {
 
         return
     }
+
     fun JumpBoost(motionY: Double): Double {
         return if (mc.thePlayer.isPotionActive(Potion.jump)) {
             motionY + (mc.thePlayer.getActivePotionEffect(Potion.jump).amplifier + 1) * 0.1f
         } else motionY
     }
+
     fun jumpMotion(): Double {
         return JumpBoost(0.42)
     }
+
     fun limitSpeed(speed: Float) {
         val yaw = direction
         val maxXSpeed = -sin(yaw) * speed
@@ -199,7 +222,32 @@ object MovementUtils : MinecraftInstance() {
             if (mc.thePlayer.moveStrafing < 0f) rotationYaw += 90f * forward
             return Math.toRadians(rotationYaw.toDouble())
         }
+    val daDirection: Double
+        get() {
+            var rotationYaw: Float = mc.thePlayer.rotationYaw
 
+            if (mc.thePlayer.moveForward < 0) {
+                rotationYaw += 180f
+            }
+
+            var forward = 1f
+
+            if (mc.thePlayer.moveForward < 0) {
+                forward = -0.5f
+            } else if (mc.thePlayer.moveForward > 0) {
+                forward = 0.5f
+            }
+
+            if (mc.thePlayer.moveStrafing > 0) {
+                rotationYaw -= 70 * forward
+            }
+
+            if (mc.thePlayer.moveStrafing < 0) {
+                rotationYaw += 70 * forward
+            }
+
+            return Math.toRadians(rotationYaw.toDouble())
+        }
     val jumpMotion: Float
         get() {
             var mot = 0.42f
@@ -317,7 +365,10 @@ object MovementUtils : MinecraftInstance() {
     }
 
     fun isOnGround(height: Double): Boolean {
-        return !mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -height, 0.0)).isEmpty()
+        return !mc.theWorld.getCollidingBoundingBoxes(
+            mc.thePlayer,
+            mc.thePlayer.entityBoundingBox.offset(0.0, -height, 0.0)
+        ).isEmpty()
     }
 
     fun getBaseMoveSpeed(): Double {

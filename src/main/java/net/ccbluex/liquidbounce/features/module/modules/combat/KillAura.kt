@@ -126,8 +126,9 @@ class KillAura : Module() {
         }
     }.displayable { autoBlockValue.equals("Range") }
     private val blockTimingValue =          ListValue("BlockTiming", arrayOf("Pre", "Post", "Both"), "Pre").displayable { autoBlockValue.equals("Range") }
-    val autoBlockPacketValue =      ListValue("AutoBlockPacket", arrayOf("AfterTick", "AfterAttack", "Vanilla", "NCP", "Grim"), "Vanilla").displayable { autoBlockValue.equals("Range") }
+    val autoBlockPacketValue =      ListValue("AutoBlockPacket", arrayOf("AfterTick", "AfterAttack", "Vanilla", "NCP", "Grim", "Legit", "OldIntave"), "Vanilla").displayable { autoBlockValue.equals("Range") }
     private val interactAutoBlockValue =    BoolValue("InteractAutoBlock", false).displayable { autoBlockValue.equals("Range") }
+    private val smartAutoBlockValue = BoolValue("SmartAutoBlock", false).displayable { autoBlockValue.equals("Range") }
     private val blockRateValue =            IntegerValue("BlockRate", 100, 1, 100).displayable { autoBlockValue.equals("Range") }
 
     // Raycast
@@ -789,29 +790,21 @@ class KillAura : Module() {
      * @throws IllegalStateException when bad packets protection
      */
     private fun attackEntity(entity: EntityLivingBase) {
-        if (autoBlockValue.equals("Damage")) {
-            if (mc.thePlayer.hurtTime > 6 && CrossSine.combatManager.inCombat) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, true)
-                MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, true)
-            } else if (!mc.gameSettings.keyBindUseItem.isKeyDown) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, false)
-                MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, false)
-                stopBlocking()
-            }
-        }
-        if (packetSent && noBadPacketsValue.get()) {
-            throw java.lang.IllegalStateException("Attack canceled because of bad packets protection")
-        }
+        if (packetSent && noBadPacketsValue.get()) return
+
         // Call attack event
         val event = AttackEvent(entity)
         CrossSine.eventManager.callEvent(event)
-        if (event.isCancelled) {
-            return
-        }
+        if (event.isCancelled) return
+
+        // Stop blocking
+        preAttack()
+
         // Attack target
         runSwing()
         packetSent = true
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+
 
         if (keepSprintValue.get()) {
             // Enchant Effect
@@ -822,15 +815,38 @@ class KillAura : Module() {
             if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
             }
-
         }
 
-        // Start blocking after attack
-        if (mc.thePlayer.isBlocking || (autoBlockValue.equals("Range") && canBlock) &&
-            !autoBlockPacketValue.equals("AfterTick") &&
-            (blockRateValue.get() > 0 && Random().nextInt(100) <= blockRateValue.get())
-        ) {
-            startBlocking(entity, interactAutoBlockValue.get())
+        postAttack(entity)
+
+        CooldownHelper.resetLastAttackedTicks()
+    }
+
+    private fun preAttack() {
+        if (mc.thePlayer.isBlocking || blockingStatus) {
+            when (autoBlockPacketValue.get().lowercase()) {
+                "aftertick", "afterattack"-> stopBlocking()
+                "oldintave" -> {
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                    blockingStatus = false
+                }
+                else -> null
+            }
+        }
+    }
+
+    private fun postAttack(entity: EntityLivingBase) {
+        if (mc.thePlayer.isBlocking || (autoBlockValue.equals("Range") && canBlock)) {
+            if (blockRateValue.get() > 0 && Random().nextInt(100) <= blockRateValue.get()) {
+                if (smartAutoBlockValue.get() && clicks != 1 && mc.thePlayer.hurtTime < 4 && mc.thePlayer.getDistanceToEntityBox(entity) < 4) {
+                    return
+                }
+                when (autoBlockPacketValue.get().lowercase()) {
+                    "vanilla", "afterattack", "oldintave" -> startBlocking(entity, interactAutoBlockValue.get() && (mc.thePlayer.getDistanceToEntityBox(entity) < maxRange))
+                    else -> null
+                }
+            }
         }
     }
 

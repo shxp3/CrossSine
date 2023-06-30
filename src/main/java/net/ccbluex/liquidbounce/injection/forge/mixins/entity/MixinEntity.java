@@ -1,8 +1,3 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.CrossSine;
@@ -10,10 +5,8 @@ import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.world.FPSBoost;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix;
-import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
+import net.ccbluex.liquidbounce.features.module.modules.world.NoPitchLimit;
 import net.ccbluex.liquidbounce.injection.access.IWorld;
-import net.ccbluex.liquidbounce.utils.EntityUtils;
-import net.ccbluex.liquidbounce.utils.Rotation;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
@@ -24,7 +17,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -76,6 +68,11 @@ public abstract class MixinEntity {
     @Shadow
     public boolean onGround;
 
+    @Shadow
+    public float prevRotationPitch;
+
+    @Shadow
+    public float prevRotationYaw;
     @Shadow
     public boolean isAirBorne;
 
@@ -229,6 +226,19 @@ public abstract class MixinEntity {
             int n, n2, n3 = MathHelper.floor_double(this.posX);
             IWorld world = (IWorld)this.worldObj;
             callbackInfoReturnable.setReturnValue(world.isBlockLoaded(n3, n2 = MathHelper.floor_double(this.posY + (double) this.getEyeHeight()), n = MathHelper.floor_double(this.posZ)) ? world.getLightBrightness(n3, n2, n) : 0.0f);
+        }
+    }
+    @Inject(method = "setAngles", at = @At("HEAD"), cancellable = true)
+    private void setAngles(final float yaw, final float pitch, final CallbackInfo callbackInfo) {
+        if (CrossSine.moduleManager.getModule(NoPitchLimit.class).getState()) {
+            callbackInfo.cancel();
+
+            float f = this.rotationPitch;
+            float f1 = this.rotationYaw;
+            this.rotationYaw = (float) ((double) this.rotationYaw + (double) yaw * 0.15D);
+            this.rotationPitch = (float) ((double) this.rotationPitch - (double) pitch * 0.15D);
+            this.prevRotationPitch += this.rotationPitch - f;
+            this.prevRotationYaw += this.rotationYaw - f1;
         }
     }
 }

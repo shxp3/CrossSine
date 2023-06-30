@@ -300,12 +300,12 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
         else if ((mc.currentScreen is GuiChat) || mc.currentScreen is GuiHudDesigner) mc.thePlayer
         else null
 
-        progress += 0.0025F * RenderUtils.deltaTime * if (target != null) -1F else 1F
+        progress += 0.0025F * RenderUtils.deltaTime * if (target != null) -1F else 0F
 
         val preBgColor = Color(bgRedValue.get(), bgGreenValue.get(), bgBlueValue.get(), bgAlphaValue.get())
 
         if (fadeValue.get())
-            animProgress += (0.0075F * fadeSpeed.get() * RenderUtils.deltaTime * if (actualTarget != null) -1F else 0.5F)
+            animProgress += (0.0075F * fadeSpeed.get() * RenderUtils.deltaTime * if (actualTarget != null) -1F else 0F)
         else animProgress = 0F
 
         animProgress = animProgress.coerceIn(0F, 0.5F)

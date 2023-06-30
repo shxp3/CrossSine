@@ -88,7 +88,7 @@ class Scaffold : Module() {
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
     private val stack = IntegerValue("Stack", -1, -1, 9)
     private val highBlock = BoolValue("BiggestStack", false)
-    val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Fast", "Matrix", "BlocksMC", "Legit", "None"), "Normal")
+    private val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Fast", "Matrix", "BlocksMC", "Skid", "None"), "Normal")
     private val swingValue = BoolValue("Swing", false)
     private val searchValue = BoolValue("Search", true)
     private val downValue = BoolValue("Downward", false)
@@ -340,8 +340,8 @@ class Scaffold : Module() {
         }
         if (sprintModeValue.equals("BlocksMC")) {
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.motionX *= 1.18
-                mc.thePlayer.motionZ *= 1.18
+                mc.thePlayer.motionX *= 1.185
+                mc.thePlayer.motionZ *= 1.185
             }
         }
         if (sprintModeValue.equals("Matrix")) {
@@ -543,7 +543,9 @@ class Scaffold : Module() {
 
         // Reset placeable delay
         if (targetPlace == null || !towerStatus) {
-                    delayTimer.reset()
+            if (lastPlace == 0) {
+                delayTimer.reset()
+            }
         }
         if (sprintModeValue.equals("Legit")) {
          CrossSine.moduleManager.getModule(MovementFix::class.java)!!.applyForceStrafe(true, (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")))
@@ -854,7 +856,7 @@ class Scaffold : Module() {
      */
     private fun place() {
         if (targetPlace == null) {
-                if (lastPlace == 0 ) delayTimer.reset()
+                if (lastPlace == 0) delayTimer.reset()
                 if (lastPlace > 0) lastPlace--
             return
         }
@@ -1396,7 +1398,7 @@ class Scaffold : Module() {
             "ground" -> mc.thePlayer.onGround
             "air" -> !mc.thePlayer.onGround
             "fast" -> true
-            "legit" -> true
+            "skid" -> mc.thePlayer.ticksExisted % 2 == 0
             else -> false
         }
 }

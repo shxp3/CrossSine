@@ -205,6 +205,10 @@ public abstract class MixinEntityRenderer {
         return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.rotationPitch;
     }
 
+    @Redirect(method = "setupCameraTransform", at = @At(value = "FIELD", target = "Lnet/minecraft/client/settings/GameSettings;viewBobbing:Z", ordinal = 0))
+    public boolean setupCameraTransform(GameSettings instance) {
+        return !CrossSine.moduleManager.getModule(ViewBobing.class).getMiniViewBobing().get() && mc.gameSettings.viewBobbing;
+    }
     @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationPitch:F"))
     public float getPrevRotationPitch(Entity entity) {
         return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.prevRotationPitch;
