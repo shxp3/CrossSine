@@ -12,7 +12,7 @@ class NCPLastFly : FlyMode("LatestNCP") {
         val bb = mc.thePlayer.entityBoundingBox.offset(0.0, 1.0, 0.0)
         if (fly) {
             mc.thePlayer.motionY += 0.025
-            MovementUtils.daStrafe(8.0)
+            MovementUtils.daStrafe(8.05)
         }
         if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty() && !fly) {
             fly = true
