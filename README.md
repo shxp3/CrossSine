@@ -6,7 +6,7 @@ Discord: <a href="https://dsc.gg/crosssinecommunity">CrossSIne Community</a><br>
 </div>
 
 ## Setting up a Workspace
-FDPClient uses gradle, so make sure that it is installed properly. Instructions can be found on [Gradle's website](https://gradle.org/install/).
+CrossSine uses gradle, so make sure that it is installed properly. Instructions can be found on [Gradle's website](https://gradle.org/install/).
 1. Clone the repository using `git clone https://github.com/shxp3/CrossSine.git` (Make sure you have git or Github Desktop installed on your system).
 2. CD into the local repository folder.
 3. If you are using Intelij run the following command `gradlew --debug setupDevWorkspace idea genIntellijRuns build`
