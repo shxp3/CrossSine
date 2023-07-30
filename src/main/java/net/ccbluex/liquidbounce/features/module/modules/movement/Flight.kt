@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.movement.flys.FlyMode
+import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlyMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -23,8 +23,6 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.network.play.server.S19PacketEntityStatus
 import org.lwjgl.input.Keyboard
 import java.awt.Color
-import java.text.DecimalFormat
-import java.util.*
 
 @ModuleInfo(
     name = "Flight",
@@ -34,7 +32,7 @@ import java.util.*
     keyBind = Keyboard.KEY_F
 )
 class Flight : Module() {
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.flys", FlyMode::class.java)
+    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.flights", FlyMode::class.java)
         .map { it.newInstance() as FlyMode }
         .sortedBy { it.modeName }
 
@@ -56,7 +54,7 @@ class Flight : Module() {
     private val renderTimeValue = BoolValue("RenderTime", false)
 
     // Visuals
-    private val markValue = ListValue("Mark", arrayOf("Up", "Down", "Off"), "Up")
+    private val markValue = ListValue("Mark", arrayOf("Up", "Down", "Off"), "Off")
     private val fakeDamageValue = BoolValue("FakeDamage", false)
     private val viewBobbingValue = BoolValue("ViewBobbing", false)
     private val viewBobbingYawValue = FloatValue("ViewBobbingYaw", 0.1f, 0f, 0.5f).displayable { viewBobbingValue.get() }

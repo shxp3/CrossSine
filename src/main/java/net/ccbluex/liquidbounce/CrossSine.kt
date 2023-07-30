@@ -36,7 +36,7 @@ object CrossSine {
     // Client information
 
     const val CLIENT_NAME = "CrossSine"
-    val CLIENT_STATUS = true
+    val CLIENT_STATUS = false
     var Darkmode = true
     var destruct = false
     const val COLORED_NAME = "Cross§CSine§F"
@@ -46,7 +46,7 @@ object CrossSine {
     @JvmField
     val CLIENT_LOADING = if (CLIENT_STATUS) "Beta Loading" else "Installing CrossSine"
     @JvmField
-    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION}" + if (CLIENT_STATUS) " Beta" else " Download : ${CLIENT_WEBSITE}"
+    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION} Release" + if (CLIENT_STATUS) " Beta" else " Download : ${CLIENT_WEBSITE}"
 
     @JvmField
     val gitInfo = Properties().also {

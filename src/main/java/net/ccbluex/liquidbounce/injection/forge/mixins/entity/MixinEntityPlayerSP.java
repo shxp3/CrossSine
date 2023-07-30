@@ -401,7 +401,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         //Overwrite: Scaffold
         
         if (scaffold.getState()) {
-            this.setSprinting(scaffold.getCanSprint());
+            this.setSprinting(scaffold.getSprintActive());
         }
 
         debug_AttemptSprint = this.isSprinting();

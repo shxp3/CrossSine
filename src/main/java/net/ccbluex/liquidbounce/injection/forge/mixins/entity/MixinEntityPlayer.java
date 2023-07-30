@@ -80,7 +80,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
     public void onAttackTargetEntityWithCurrentItem(CallbackInfo callbackInfo) {
         final KeepSprint ks = CrossSine.moduleManager.getModule(KeepSprint.class);
             if (ks.getState()) {
-                final float s = 0.6f + 0.4f * ks.getS().getValue();
+                final float s = 0.6f + 0.4f * ((float) ks.getS().getValue() / 100);
                 this.motionX = this.motionX / 0.6 * s;
                 this.motionZ = this.motionZ / 0.6 * s;
                 if (Minecraft.getMinecraft().thePlayer.moveForward > 0) {

@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.Packet
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
@@ -81,6 +82,14 @@ class MotionEvent(val eventState: EventState) : Event() {
     }
 }
 
+class PreMotionEvent : Event() {
+    val posX = 0.0
+    val posY = 0.0
+    val posZ = 0.0
+    val yaw = 0f
+    val pitch = 0f
+    val onGround = false
+}
 /**
  * Called when a model updates
  */
@@ -170,6 +179,17 @@ class EventPlayerDamageBlock(pos: BlockPos, face: EnumFacing) : CancellableEvent
     fun setFace(face: EnumFacing) {
         this.face = face
     }
+}
+/**
+ * Teleport Packet send
+ */
+class TeleportEvent : CancellableEvent() {
+    var response: C03PacketPlayer? = null
+    var posX = 0.0
+    var posY = 0.0
+    var posZ = 0.0
+    var yaw = 0f
+    var pitch = 0f
 }
 /**
  * Called when a block tries to push you

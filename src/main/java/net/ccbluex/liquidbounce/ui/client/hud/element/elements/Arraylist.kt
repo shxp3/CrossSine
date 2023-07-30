@@ -134,11 +134,11 @@ class Arraylist(
                     "Slide" -> {
                         if (module.state) {
                             if (module.slide < width) {
-                                module.slide = net.ccbluex.liquidbounce.utils.AnimationUtils.animate(width.toDouble(), module.slide.toDouble(), animationSpeed.get().toDouble() * 0.025 * delta.toDouble()).toFloat()
+                                module.slide = AnimationUtils.animate(width.toDouble(), module.slide.toDouble(), animationSpeed.get().toDouble() * 0.025 * delta.toDouble()).toFloat()
                                 module.slideStep = delta / 1F
                             }
                         } else if (module.slide > 0) {
-                            module.slide = net.ccbluex.liquidbounce.utils.AnimationUtils.animate(-width.toDouble(), module.slide.toDouble(), animationSpeed.get().toDouble() * 0.025 * delta.toDouble()).toFloat()
+                            module.slide = AnimationUtils.animate(-width.toDouble(), module.slide.toDouble(), animationSpeed.get().toDouble() * 0.025 * delta.toDouble()).toFloat()
                             module.slideStep = 0F
                         }
                     }

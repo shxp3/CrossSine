@@ -64,6 +64,8 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
 
         // Global functions
         scriptEngine.put("registerScript", RegisterScript())
+            isOnline = true
+
         supportLegacyScripts()
 
         scriptEngine.eval(scriptText)
@@ -93,6 +95,13 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
      * @param callback JavaScript function to which the corresponding instance of [ScriptModule] is passed.
      * @see ScriptModule
      */
+    @Suppress("unused")
+    fun registerModule(moduleObject: JSObject, callback: JSObject) {
+        val module = ScriptModule(moduleObject)
+        CrossSine.moduleManager.registerModule(module)
+        registeredModules += module
+        callback.call(moduleObject, module)
+    }
 
     /**
      * Registers a new script command.
@@ -115,7 +124,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
 
     fun supportLegacyScripts() {
         if (!scriptText.lines().first().contains("api_version=2")) {
-            ClientUtils.logWarn("[ScriptApi] Running script '${scriptFile.name}' with legacy support.")
+            ClientUtils.logWarn("[ScriptAPI] Running script '${scriptFile.name}' with legacy support.")
             val legacyScript =
                 CrossSine::class.java.getResource("/assets/minecraft/crosssine/scriptapi/legacy.js")?.readText()
             scriptEngine.eval(legacyScript)
@@ -175,7 +184,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
         try {
             events[eventName]?.call(null)
         } catch (throwable: Throwable) {
-            ClientUtils.logError("[FDPScriptAPI] Exception in script '$scriptName'!", throwable)
+            ClientUtils.logError("[ScriptAPI] Exception in script '$scriptName'!", throwable)
         }
     }
 }

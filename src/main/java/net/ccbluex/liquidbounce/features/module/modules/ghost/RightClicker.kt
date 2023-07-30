@@ -19,17 +19,17 @@ import net.minecraft.item.ItemSword
 
 @ModuleInfo(name = "RightClicker", spacedName = "Right Clicker", category = ModuleCategory.GHOST)
 class RightClicker: Module() {
-    private val normalMaxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
+    private val MaxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val minCPS = normalMinCPSValue.get()
+            val minCPS = MinCPSValue.get()
             if (minCPS > newValue) {
                 set(minCPS)
             }
         }
     }
-    private val normalMinCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 5, 1, 40) {
+    private val MinCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 5, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val maxCPS = normalMaxCPSValue.get()
+            val maxCPS = MaxCPSValue.get()
             if (maxCPS < newValue) {
                 set(maxCPS)
             }
@@ -51,7 +51,7 @@ class RightClicker: Module() {
                 KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
                 rightLastSwing = System.currentTimeMillis()
-                rightDelay = TimeUtils.randomClickDelay(normalMinCPSValue.get(), normalMaxCPSValue.get()).toInt().toLong() - 1L
+                rightDelay = TimeUtils.randomClickDelay(MinCPSValue.get(), MaxCPSValue.get()).toInt().toLong() - 1L
             }
         }
 
@@ -67,4 +67,6 @@ class RightClicker: Module() {
     fun onAttack(event: AttackEvent) {
         hit = 0
     }
+    override val tag: String?
+        get() = "${MaxCPSValue.get()} , ${MinCPSValue.get()}"
 }

@@ -23,17 +23,17 @@ import java.lang.reflect.Method
 
 @ModuleInfo(name = "LeftClicker", spacedName = "Left Clicker", category = ModuleCategory.GHOST)
 class LeftClicker : Module() {
-    private val normalMaxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
+    private val MaxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val minCPS = normalMinCPSValue.get()
+            val minCPS = MinCPSValue.get()
             if (minCPS > newValue) {
                 set(minCPS)
             }
         }
     }
-    private val normalMinCPSValue: IntegerValue = object : IntegerValue("Min-CPS", 5, 1, 40) {
+    private val MinCPSValue: IntegerValue = object : IntegerValue("Min-CPS", 5, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val maxCPS = normalMaxCPSValue.get()
+            val maxCPS = MaxCPSValue.get()
             if (maxCPS < newValue) {
                 set(maxCPS)
             }
@@ -67,7 +67,7 @@ class LeftClicker : Module() {
 
                 leftLastSwing = System.currentTimeMillis()
                 leftDelay =
-                    TimeUtils.randomClickDelay(normalMinCPSValue.get(), normalMaxCPSValue.get()).toInt().toLong()
+                    TimeUtils.randomClickDelay(MinCPSValue.get(), MaxCPSValue.get()).toInt().toLong()
             }
         }
     }
@@ -84,4 +84,7 @@ class LeftClicker : Module() {
     fun onAttack(event: AttackEvent) {
         hit = 0
     }
+
+    override val tag: String?
+        get() = "${MaxCPSValue.get()} , ${MinCPSValue.get()}"
 }

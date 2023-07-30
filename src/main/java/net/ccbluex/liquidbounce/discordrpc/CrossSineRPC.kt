@@ -56,7 +56,7 @@ object CrossSineRPC : MinecraftInstance(){
         // Set playing client time
         builder.setStartTimestamp(timestamp)
 
-        builder.setLargeImage("https://crosssine.github.io/file/CrossSinegif.gif", "CrossSine Client")
+        builder.setLargeImage("https://crosssine.github.io/file/CrossSinelogo.png", "CrossSine Client")
         builder.setSmallImage("https://crosssine.github.io/file/bruh.gif", CrossSine.CLIENT_WEBSITE)
 
         if (mc.currentScreen is GuiMainMenu) {

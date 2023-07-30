@@ -32,7 +32,6 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.*
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.stats.StatList
 import net.minecraft.util.*
@@ -48,15 +47,33 @@ import kotlin.math.truncate
 @ModuleInfo(name = "Scaffold", spacedName = "Scaffold", category = ModuleCategory.PLAYER, keyBind = Keyboard.KEY_G)
 class Scaffold : Module() {
 
-    private val rotationsValue = ListValue("Rotations", arrayOf("None", "Snap", "Normal", "Simple", "AAC", "Custom", "WatchDog", "Grim" ,"Grim2", "LGBT+"), "AAC")
+    private val rotationsValue = ListValue(
+        "Rotations",
+        arrayOf("None", "Snap", "Normal", "Simple", "AAC", "Custom", "WatchDog", "Grim", "Grim2", "LGBT+"),
+        "AAC"
+    )
     private val aacYawValue = IntegerValue("AACYawOffset", 0, 0, 90).displayable { rotationsValue.equals("AAC") }
-    private val customYawValue = IntegerValue("CustomYaw", -145, -180, 180).displayable { rotationsValue.equals("Custom") }
-    private val customPitchValue = FloatValue("CustomPitch", 82.4f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
-    private val customtowerYawValue = IntegerValue("CustomTowerYaw", -145, -180, 180).displayable { rotationsValue.equals("Custom") }
-    private val customtowerPitchValue = FloatValue("CustomTowerPitch", 79f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
+    private val customYawValue =
+        IntegerValue("CustomYaw", -145, -180, 180).displayable { rotationsValue.equals("Custom") }
+    private val customPitchValue =
+        FloatValue("CustomPitch", 82.4f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
+    private val customtowerYawValue =
+        IntegerValue("CustomTowerYaw", -145, -180, 180).displayable { rotationsValue.equals("Custom") }
+    private val customtowerPitchValue =
+        FloatValue("CustomTowerPitch", 79f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
     private val customrotationtwo = BoolValue("CustomRotation2", false).displayable { rotationsValue.equals("Custom") }
-    private val customrotationtwoYaw = IntegerValue("RotationYaw", 0, -180 , 180).displayable { rotationsValue.equals("Custom") && customrotationtwo.get() }
-    private val customrotationtwoPitch = FloatValue("RotationPitch", 0F, -90F, 90F).displayable { rotationsValue.equals("Custom") && customrotationtwo.get() }
+    private val customrotationtwoYaw = IntegerValue(
+        "RotationYaw",
+        0,
+        -180,
+        180
+    ).displayable { rotationsValue.equals("Custom") && customrotationtwo.get() }
+    private val customrotationtwoPitch = FloatValue(
+        "RotationPitch",
+        0F,
+        -90F,
+        90F
+    ).displayable { rotationsValue.equals("Custom") && customrotationtwo.get() }
     private val towerModeValue = ListValue(
         "TowerMode", arrayOf(
             "Jump",
@@ -78,7 +95,8 @@ class Scaffold : Module() {
             "Vanilla"
         ), "Vanilla"
     )
-    private val jumpMotionValue = FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") }
+    private val jumpMotionValue =
+        FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") }
 
     private val stopWhenBlockAboveValue = BoolValue("StopTowerWhenBlockAbove", true)
     private val towerFakeJumpValue = BoolValue("TowerFakeJump", true)
@@ -88,13 +106,19 @@ class Scaffold : Module() {
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
     private val stack = IntegerValue("Stack", -1, -1, 9)
     private val highBlock = BoolValue("BiggestStack", false)
-    private val sprintModeValue = ListValue("Sprint", arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Fast", "Matrix", "BlocksMC", "Skid", "None"), "Normal")
+    private val sprintModeValue = ListValue(
+        "Sprint",
+        arrayOf("Normal", "Bypass", "WatchDog", "Ground", "Air", "Matrix", "BlocksMC", "None"),
+        "Normal"
+    )
     private val swingValue = BoolValue("Swing", false)
     private val searchValue = BoolValue("Search", true)
     private val downValue = BoolValue("Downward", false)
     private val autojumpValue = BoolValue("Autojump", false)
-    private val autoJumpModeValue = ListValue("AutojumpMode", arrayOf("Silent", "Normal", "CustomY"), "Normal").displayable { autojumpValue.get() }
-    private val CustomYValue = FloatValue("CustomY", 0.0F, 0.0F, 5.0F).displayable { autoJumpModeValue.equals("CustomY") }
+    private val autoJumpModeValue =
+        ListValue("AutojumpMode", arrayOf("Silent", "Normal", "CustomY"), "Normal").displayable { autojumpValue.get() }
+    private val CustomYValue =
+        FloatValue("MotionY", 0.0F, 0.0F, 5.0F).displayable { autoJumpModeValue.equals("CustomY") }
     private val jumpYValue = BoolValue("JumpY", false)
     private val safeWalkValue = BoolValue("SafeWalk", false)
     private val zitterModeValue = BoolValue("Zitter", false)
@@ -126,29 +150,44 @@ class Scaffold : Module() {
 
     private val timerValue = FloatValue("Timer", 1f, 0.1f, 5f)
     private val towerTimerValue = FloatValue("TowerTimer", 1f, 0.1f, 5f)
-    private val XZModifierValue = FloatValue("XZ-Modifier", 1f, 0f, 2f)
-    private val towerActiveValue = ListValue("TowerActivation", arrayOf("Always", "PressSpace", "NoMove", "OnMove", "OFF"), "PressSpace")
+    private val towerActiveValue =
+        ListValue("TowerActivation", arrayOf("Always", "PressSpace", "NoMove", "OnMove", "OFF"), "PressSpace")
     private val eagleValue = ListValue("Eagle", arrayOf("Silent", "Normal", "Off"), "Off")
     private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10).displayable { !eagleValue.equals("Off") }
-    private val edgeDistanceValue = FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") }
+    private val edgeDistanceValue =
+        FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") }
+
     // Safety
     private val sameYValue = ListValue("SameY", arrayOf("Simple", "Speed", "OFF"), "Speed")
     private val hitableCheckValue = ListValue("HitableCheck", arrayOf("Simple", "Strict", "OFF"), "Simple")
 
     // Stable/PlusMotion
-    private val stableMotionValue = FloatValue("TowerStableMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("StableMotion") }
-    private val plusMotionValue = FloatValue("TowerPlusMotion", 0.1f, 0.01f, 0.2f).displayable { towerModeValue.equals("PlusMotion") }
-    private val plusMaxMotionValue = FloatValue("TowerPlusMaxMotion", 0.8f, 0.1f, 2f).displayable { towerModeValue.equals("PlusMotion") }
+    private val stableMotionValue =
+        FloatValue("TowerStableMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("StableMotion") }
+    private val plusMotionValue =
+        FloatValue("TowerPlusMotion", 0.1f, 0.01f, 0.2f).displayable { towerModeValue.equals("PlusMotion") }
+    private val plusMaxMotionValue =
+        FloatValue("TowerPlusMaxMotion", 0.8f, 0.1f, 2f).displayable { towerModeValue.equals("PlusMotion") }
 
     // ConstantMotion
-    private val constantMotionValue = FloatValue("TowerConstantMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("ConstantMotion") }
-    private val constantMotionJumpGroundValue = FloatValue("TowerConstantMotionJumpGround", 0.79f, 0.76f, 1f).displayable { towerModeValue.equals("ConstantMotion") }
+    private val constantMotionValue =
+        FloatValue("TowerConstantMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("ConstantMotion") }
+    private val constantMotionJumpGroundValue = FloatValue(
+        "TowerConstantMotionJumpGround",
+        0.79f,
+        0.76f,
+        1f
+    ).displayable { towerModeValue.equals("ConstantMotion") }
 
     // Teleport
-    private val teleportHeightValue = FloatValue("TowerTeleportHeight", 1.15f, 0.1f, 5f).displayable { towerModeValue.equals("Teleport") }
-    private val teleportDelayValue = IntegerValue("TowerTeleportDelay", 0, 0, 20).displayable { towerModeValue.equals("Teleport") }
-    private val teleportGroundValue = BoolValue("TowerTeleportGround", true).displayable { towerModeValue.equals("Teleport") }
-    private val teleportNoMotionValue = BoolValue("TowerTeleportNoMotion", false).displayable { towerModeValue.equals("Teleport") }
+    private val teleportHeightValue =
+        FloatValue("TowerTeleportHeight", 1.15f, 0.1f, 5f).displayable { towerModeValue.equals("Teleport") }
+    private val teleportDelayValue =
+        IntegerValue("TowerTeleportDelay", 0, 0, 20).displayable { towerModeValue.equals("Teleport") }
+    private val teleportGroundValue =
+        BoolValue("TowerTeleportGround", true).displayable { towerModeValue.equals("Teleport") }
+    private val teleportNoMotionValue =
+        BoolValue("TowerTeleportNoMotion", false).displayable { towerModeValue.equals("Teleport") }
 
     // Visuals
     val counterDisplayValue = ListValue(
@@ -191,6 +230,7 @@ class Scaffold : Module() {
 
     private var yaw = 0f
     private var pitch = 0f
+
     // Delay
     private val delayTimer = MSTimer()
     private val zitterTimer = MSTimer()
@@ -216,7 +256,10 @@ class Scaffold : Module() {
     //IDK
     private var offGroundTicks: Int = 0
 
+    //Sprint
+    var sprintActive = false
     var ticks = 0
+
     /**
      * Enable module
      */
@@ -238,11 +281,6 @@ class Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer.onGround) {
-            val modifier = XZModifierValue.get()
-            mc.thePlayer.motionX *= modifier
-            mc.thePlayer.motionZ *= modifier
-        }
         if (rotationsValue.equals("LGBT+")) {
             yaw += 50.0f
             if (yaw > 180.0f) {
@@ -254,13 +292,31 @@ class Scaffold : Module() {
             RotationUtils.setTargetRotation(Rotation(yaw, pitch))
         }
         if (rotationsValue.equals("WatchDog")) {
-            RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 180F, 83F), rotationSpeed), 20)
+            RotationUtils.setTargetRotation(
+                RotationUtils.limitAngleChange(
+                    RotationUtils.serverRotation,
+                    Rotation(mc.thePlayer.rotationYaw + 180F, mc.thePlayer.rotationPitch),
+                    rotationSpeed
+                ), 20
+            )
         }
         if (rotationsValue.equals("Simple")) {
-            RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + 145F, 82F), rotationSpeed), 20)
+            RotationUtils.setTargetRotation(
+                RotationUtils.limitAngleChange(
+                    RotationUtils.serverRotation,
+                    Rotation(mc.thePlayer.rotationYaw + 145F, 82F),
+                    rotationSpeed
+                ), 20
+            )
         }
         if (rotationsValue.equals("Custom") && customrotationtwo.get()) {
-            RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()), rotationSpeed), 20)
+            RotationUtils.setTargetRotation(
+                RotationUtils.limitAngleChange(
+                    RotationUtils.serverRotation,
+                    Rotation(mc.thePlayer.rotationYaw + customrotationtwoYaw.get(), customrotationtwoPitch.get()),
+                    rotationSpeed
+                ), 20
+            )
         }
 
         if (nobobValue.get()) {
@@ -290,16 +346,16 @@ class Scaffold : Module() {
             if (mc.thePlayer.onGround) {
                 lastGroundY = mc.thePlayer.posY.toInt()
             }
-            if (autojumpValue.get()){
-                if (autoJumpModeValue.equals("Normal")){
+            if (autojumpValue.get()) {
+                if (autoJumpModeValue.equals("Normal")) {
                     canSameY = true
                     if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
                     }
                 }
             }
-            if (autojumpValue.get()){
-                if (autoJumpModeValue.equals("CustomY")){
+            if (autojumpValue.get()) {
+                if (autoJumpModeValue.equals("CustomY")) {
                     canSameY = true
                     mc.thePlayer.motionY = CustomYValue.get().toDouble()
                     if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
@@ -307,23 +363,27 @@ class Scaffold : Module() {
                     }
                 }
             }
-            if (autojumpValue.get()){
-                if (autoJumpModeValue.equals("Silent")){
+            if (autojumpValue.get()) {
+                if (autoJumpModeValue.equals("Silent")) {
                     canSameY = true
                     if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
                     }
                 }
             }
-            if (jumpYValue.get()){
+            if (jumpYValue.get()) {
                 canSameY = false
                 if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
                     mc.thePlayer.jump()
                 }
             }
         }
-
-        mc.thePlayer.isSprinting = canSprint
+        if (sprintModeValue.equals("Normal") || (sprintModeValue.equals("Ground") && mc.thePlayer.onGround) || (sprintModeValue.equals(
+                "Air"
+            ) && !mc.thePlayer.onGround)
+        ) {
+            sprintActive = true
+        } else sprintActive = false
         if (sprintModeValue.equals("WatchDog")) {
             if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                 mc.thePlayer.motionX *= 0.90
@@ -333,25 +393,27 @@ class Scaffold : Module() {
                 mc.thePlayer.motionZ *= 0.93
             }
         }
-        if (sprintModeValue.equals("Bypass")) {
+        if (sprintModeValue.equals("Motion")) {
             if (mc.thePlayer.onGround) {
                 MovementUtils.setMotion(0.18)
             }
         }
         if (sprintModeValue.equals("BlocksMC")) {
-            if (mc.thePlayer.onGround) {
-                mc.thePlayer.motionX *= 1.185
-                mc.thePlayer.motionZ *= 1.185
+            if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.motionX *= 1.185
+                    mc.thePlayer.motionZ *= 1.185
+                }
+            } else {
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.motionX *= 1.1
+                    mc.thePlayer.motionZ *= 1.1
+                }
             }
         }
         if (sprintModeValue.equals("Matrix")) {
             if (mc.thePlayer.onGround) {
                 MovementUtils.setMotion(0.12)
-            }
-        }
-        if (sprintModeValue.equals("Fast")) {
-            if (mc.thePlayer.onGround) {
-                MovementUtils.setMotion(0.18)
             }
         }
         shouldGoDown =
@@ -428,7 +490,7 @@ class Scaffold : Module() {
         }
     }
 
-     @EventTarget
+    @EventTarget
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null) return
         val packet = event.packet
@@ -439,19 +501,19 @@ class Scaffold : Module() {
                 packet.onGround = true
             }
         }
-         if (stairsValue.get() && MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown) {
-             if (mc.thePlayer.onGround){
-                 fakeJump()
-                 mc.thePlayer.motionY = 0.42
-             }
-             if (mc.thePlayer.motionY > -0.0784000015258789 && !mc.thePlayer.isPotionActive(Potion.jump) && MovementUtils.isMoving() && packet is C08PacketPlayerBlockPlacement){
-                     if (packet.position == BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.4, mc.thePlayer.posZ)) {
-                         mc.thePlayer.motionY = -0.0784000015258789
-                     }
-             }
-         } else {
-             if (towerStatus) move()
-         }
+        if (stairsValue.get() && MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown) {
+            if (mc.thePlayer.onGround) {
+                fakeJump()
+                mc.thePlayer.motionY = 0.42
+            }
+            if (mc.thePlayer.motionY > -0.0784000015258789 && !mc.thePlayer.isPotionActive(Potion.jump) && MovementUtils.isMoving() && packet is C08PacketPlayerBlockPlacement) {
+                if (packet.position == BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.4, mc.thePlayer.posZ)) {
+                    mc.thePlayer.motionY = -0.0784000015258789
+                }
+            }
+        } else {
+            if (towerStatus) move()
+        }
         // AutoBlock
         if (packet is C09PacketHeldItemChange) {
             if (packet.slotId == slot) {
@@ -467,6 +529,18 @@ class Scaffold : Module() {
             packet.facingY = packet.facingY.coerceIn(-1.0000F, 1.0000F)
             packet.facingZ = packet.facingZ.coerceIn(-1.0000F, 1.0000F)
         }
+    }
+
+    @EventTarget
+    fun onPreMotion(event: PreMotionEvent) {
+        if (sprintModeValue.equals("Bypass")) {
+            sprintActive = true
+            if (MovementUtils.isMoving() && mc.thePlayer.isSprinting && mc.thePlayer.onGround) {
+                val posX: Double = MathHelper.sin(yaw) * 0.221 + mc.thePlayer.posX
+                val posZ: Double = -MathHelper.cos(yaw) * 0.221 + mc.thePlayer.posZ
+                PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(posX, event.posY, posZ, false))
+            }
+        } else sprintActive = false
     }
 
     @EventTarget
@@ -506,6 +580,7 @@ class Scaffold : Module() {
                             mc.gameSettings.keyBindRight.isKeyDown || mc.gameSettings.keyBindForward.isKeyDown ||
                             mc.gameSettings.keyBindBack.isKeyDown) && mc.gameSettings.keyBindJump.isKeyDown
                 }
+
                 "onmove" -> {
                     towerStatus = MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown
                 }
@@ -513,7 +588,10 @@ class Scaffold : Module() {
         }
 
         // Lock Rotation
-        if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") ||  rotationsValue.equals("LGBT+")) {
+        if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") || rotationsValue.equals(
+                "LGBT+"
+            )
+        ) {
             if (rotationsValue.get() != "None" && 0 > 0 && lockRotation != null) {
                 val limitedRotation =
                     RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
@@ -548,7 +626,10 @@ class Scaffold : Module() {
             }
         }
         if (sprintModeValue.equals("Legit")) {
-         CrossSine.moduleManager.getModule(MovementFix::class.java)!!.applyForceStrafe(true, (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2")))
+            CrossSine.moduleManager.getModule(MovementFix::class.java)!!.applyForceStrafe(
+                true,
+                (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2"))
+            )
         }
     }
 
@@ -786,23 +867,23 @@ class Scaffold : Module() {
     }
 
     private fun update() {
-            if (!highBlock.get()) {
-                if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
-                            InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
-                ) {
-                    return
-                }
-
-                findBlock(expandLengthValue.get() > 1)
-            } else {
-                if (if (!autoBlockValue.equals("off")) InventoryUtils.findHighBlock() == -1 else mc.thePlayer.heldItem == null ||
-                            InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
-                ) {
-                    return
-                }
-
-                findBlock(expandLengthValue.get() > 1)
+        if (!highBlock.get()) {
+            if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null ||
+                        InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
+            ) {
+                return
             }
+
+            findBlock(expandLengthValue.get() > 1)
+        } else {
+            if (if (!autoBlockValue.equals("off")) InventoryUtils.findHighBlock() == -1 else mc.thePlayer.heldItem == null ||
+                        InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
+            ) {
+                return
+            }
+
+            findBlock(expandLengthValue.get() > 1)
+        }
     }
 
     /**
@@ -856,8 +937,8 @@ class Scaffold : Module() {
      */
     private fun place() {
         if (targetPlace == null) {
-                if (lastPlace == 0) delayTimer.reset()
-                if (lastPlace > 0) lastPlace--
+            if (lastPlace == 0) delayTimer.reset()
+            if (lastPlace > 0) lastPlace--
             return
         }
         if (!delayTimer.hasTimePassed(delay) || !towerStatus && canSameY && lastGroundY - 1 != targetPlace!!.vec3.yCoord.toInt()) {
@@ -927,7 +1008,7 @@ class Scaffold : Module() {
                 targetPlace!!.vec3
             )
         ) {
-            // delayTimer.reset()
+            delayTimer.reset()
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
 
             if (swingValue.get()) {
@@ -988,7 +1069,7 @@ class Scaffold : Module() {
      */
     @EventTarget
     fun onMove(event: MoveEvent) {
-              if (safeWalkValue.get() && mc.thePlayer.onGround) event.isSafeWalk = true
+        if (safeWalkValue.get() && mc.thePlayer.onGround) event.isSafeWalk = true
         return
     }
 
@@ -1001,71 +1082,71 @@ class Scaffold : Module() {
      */
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
-                progress = (System.currentTimeMillis() - lastMS).toFloat() / 100f
-                if (progress >= 1) progress = 1f
-                val counterMode = counterDisplayValue.get()
-                val scaledResolution = ScaledResolution(mc)
-                val info = blocksAmount.toString() + " Blocks"
-                val infoWidth = Fonts.fontSFUI40.getStringWidth(info)
-                val infoWidth2 = Fonts.minecraftFont.getStringWidth(blocksAmount.toString() + "")
+        progress = (System.currentTimeMillis() - lastMS).toFloat() / 100f
+        if (progress >= 1) progress = 1f
+        val counterMode = counterDisplayValue.get()
+        val scaledResolution = ScaledResolution(mc)
+        val info = blocksAmount.toString() + " Blocks"
+        val infoWidth = Fonts.fontSFUI40.getStringWidth(info)
+        val infoWidth2 = Fonts.minecraftFont.getStringWidth(blocksAmount.toString() + "")
 
-                if (counterMode.equals("advanced", ignoreCase = true)) {
-                    val canRenderStack =
-                        slot >= 0 && slot < 9 && mc.thePlayer.inventory.mainInventory[slot] != null && mc.thePlayer.inventory.mainInventory[slot].item != null && mc.thePlayer.inventory.mainInventory[slot].item is ItemBlock
-                    if (canRenderStack) {
-                        RenderUtils.drawRect(
-                            (scaledResolution.scaledWidth / 2 - infoWidth / 2 - 4).toFloat(),
-                            (scaledResolution.scaledHeight / 2 - 25).toFloat(),
-                            (scaledResolution.scaledWidth / 2 + infoWidth / 2 + 4).toFloat(),
-                            (scaledResolution.scaledHeight / 2 - 5).toFloat(),
-                            -0x60000000
-                        )
-                        GlStateManager.pushMatrix()
-                        GlStateManager.translate(
-                            (scaledResolution.scaledWidth / 2 - 8).toFloat(),
-                            (scaledResolution.scaledHeight / 2 - 4).toFloat(),
-                            (scaledResolution.scaledWidth / 2 - 8).toFloat()
-                        )
-                        renderItemStack(mc.thePlayer.inventory.mainInventory[slot], 0, 0)
-                        GlStateManager.popMatrix()
-                    }
-                    GlStateManager.resetColor()
-                    Fonts.fontSFUI40.drawCenteredString(
-                        info,
-                        (scaledResolution.scaledWidth / 2).toFloat(),
-                        (scaledResolution.scaledHeight / 2 - 20).toFloat(),
-                        -1
-                    )
-                }
-                if (counterMode.equals("novoline", ignoreCase = true)) {
-                    if (slot >= 0 && slot < 9 && mc.thePlayer.inventory.mainInventory[slot] != null && mc.thePlayer.inventory.mainInventory[slot].item != null && mc.thePlayer.inventory.mainInventory[slot].item is ItemBlock) {
-                        GlStateManager.pushMatrix()
-                        GlStateManager.translate(
-                            (scaledResolution.scaledWidth / 2 - 22).toFloat(),
-                            (scaledResolution.scaledHeight / 2 + 16).toFloat(),
-                            (scaledResolution.scaledWidth / 2 - 22).toFloat()
-                        )
-                        renderItemStack(mc.thePlayer.inventory.mainInventory[slot], 0, 0)
-                        GlStateManager.popMatrix()
-                    }
-                    GlStateManager.resetColor()
-                    Fonts.minecraftFont.drawString(
-                        info,
-                        (scaledResolution.scaledWidth / 2).toFloat(),
-                        (scaledResolution.scaledHeight / 2 + 20).toFloat(),
-                        -1,
-                        true
-                    )
-                }
-                if (counterMode.equals("simple", ignoreCase = true)) {
-                    Fonts.minecraftFont.drawString(
-                        blocksAmount.toString() + " Blocks",
-                        scaledResolution.scaledWidth / 1.95f,
-                        (scaledResolution.scaledHeight / 2 + 20).toFloat(),
-                        -1,
-                        true
-                    )
-                }
+        if (counterMode.equals("advanced", ignoreCase = true)) {
+            val canRenderStack =
+                slot >= 0 && slot < 9 && mc.thePlayer.inventory.mainInventory[slot] != null && mc.thePlayer.inventory.mainInventory[slot].item != null && mc.thePlayer.inventory.mainInventory[slot].item is ItemBlock
+            if (canRenderStack) {
+                RenderUtils.drawRect(
+                    (scaledResolution.scaledWidth / 2 - infoWidth / 2 - 4).toFloat(),
+                    (scaledResolution.scaledHeight / 2 - 25).toFloat(),
+                    (scaledResolution.scaledWidth / 2 + infoWidth / 2 + 4).toFloat(),
+                    (scaledResolution.scaledHeight / 2 - 5).toFloat(),
+                    -0x60000000
+                )
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(
+                    (scaledResolution.scaledWidth / 2 - 8).toFloat(),
+                    (scaledResolution.scaledHeight / 2 - 4).toFloat(),
+                    (scaledResolution.scaledWidth / 2 - 8).toFloat()
+                )
+                renderItemStack(mc.thePlayer.inventory.mainInventory[slot], 0, 0)
+                GlStateManager.popMatrix()
+            }
+            GlStateManager.resetColor()
+            Fonts.fontSFUI40.drawCenteredString(
+                info,
+                (scaledResolution.scaledWidth / 2).toFloat(),
+                (scaledResolution.scaledHeight / 2 - 20).toFloat(),
+                -1
+            )
+        }
+        if (counterMode.equals("novoline", ignoreCase = true)) {
+            if (slot >= 0 && slot < 9 && mc.thePlayer.inventory.mainInventory[slot] != null && mc.thePlayer.inventory.mainInventory[slot].item != null && mc.thePlayer.inventory.mainInventory[slot].item is ItemBlock) {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(
+                    (scaledResolution.scaledWidth / 2 - 22).toFloat(),
+                    (scaledResolution.scaledHeight / 2 + 16).toFloat(),
+                    (scaledResolution.scaledWidth / 2 - 22).toFloat()
+                )
+                renderItemStack(mc.thePlayer.inventory.mainInventory[slot], 0, 0)
+                GlStateManager.popMatrix()
+            }
+            GlStateManager.resetColor()
+            Fonts.minecraftFont.drawString(
+                info,
+                (scaledResolution.scaledWidth / 2).toFloat(),
+                (scaledResolution.scaledHeight / 2 + 20).toFloat(),
+                -1,
+                true
+            )
+        }
+        if (counterMode.equals("simple", ignoreCase = true)) {
+            Fonts.minecraftFont.drawString(
+                blocksAmount.toString() + " Blocks",
+                scaledResolution.scaledWidth / 1.95f,
+                (scaledResolution.scaledHeight / 2 + 20).toFloat(),
+                -1,
+                true
+            )
+        }
         if (counterMode.equals("astolfo", ignoreCase = true)) {
             Fonts.minecraftFont.drawString(
                 blocksAmount.toString() + " Blocks",
@@ -1075,61 +1156,61 @@ class Scaffold : Module() {
                 true
             )
         }
-                if (counterMode.equals("prepost", ignoreCase = true)) {
-                    Fonts.minecraftFont.drawString(
-                        "${placeModeValue.get()} , ${towerPlaceModeValue.get()}",
-                        scaledResolution.scaledWidth / 1.95f,
-                        (scaledResolution.scaledHeight / 2 + 20).toFloat(),
-                        -1,
-                        true
-                    )
-                }
-                if (counterMode.equals("sigma", ignoreCase = true)) {
-                    GlStateManager.translate(0f, -14f - progress * 4f, 0f)
-                    //GL11.glPushMatrix();
-                    //GL11.glPushMatrix();
-                    GL11.glEnable(GL11.GL_BLEND)
-                    GL11.glDisable(GL11.GL_TEXTURE_2D)
-                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-                    GL11.glEnable(GL11.GL_LINE_SMOOTH)
-                    GL11.glColor4f(0.15f, 0.15f, 0.15f, progress)
-                    GL11.glBegin(GL11.GL_TRIANGLE_FAN)
-                    GL11.glVertex2d(
-                        (StaticStorage.scaledResolution.scaledWidth / 2 - 3).toDouble(),
-                        (StaticStorage.scaledResolution.scaledHeight - 60).toDouble()
-                    )
-                    GL11.glVertex2d(
-                        (StaticStorage.scaledResolution.scaledWidth / 2).toDouble(),
-                        (StaticStorage.scaledResolution.scaledHeight - 57).toDouble()
-                    )
-                    GL11.glVertex2d(
-                        (StaticStorage.scaledResolution.scaledWidth / 2 + 3).toDouble(),
-                        (StaticStorage.scaledResolution.scaledHeight - 60).toDouble()
-                    )
-                    GL11.glEnd()
-                    GL11.glEnable(GL11.GL_TEXTURE_2D)
-                    GL11.glDisable(GL11.GL_BLEND)
-                    GL11.glDisable(GL11.GL_LINE_SMOOTH)
-                    //GL11.glPopMatrix();
-                    //GL11.glPopMatrix();
-                    RenderUtils.drawRoundedRect(
-                        (StaticStorage.scaledResolution.scaledWidth / 2 - infoWidth / 2 - 4).toFloat(),
-                        (StaticStorage.scaledResolution.scaledHeight - 60).toFloat(),
-                        (StaticStorage.scaledResolution.scaledWidth / 2 + infoWidth / 2 + 4).toFloat(),
-                        (StaticStorage.scaledResolution.scaledHeight - 74).toFloat(),
-                        2f,
-                        Color(0.15f, 0.15f, 0.15f, progress).rgb
-                    )
-                    GlStateManager.resetColor()
-                    Fonts.fontSFUI35.drawCenteredString(
-                        info,
-                        StaticStorage.scaledResolution.scaledWidth / 2 + 0.1f,
-                        (StaticStorage.scaledResolution.scaledHeight - 70).toFloat(),
-                        Color(1f, 1f, 1f, 0.8f * progress).rgb,
-                        false
-                    )
-                    GlStateManager.translate(0f, 14f + progress * 4f, 0f)
-                }
+        if (counterMode.equals("prepost", ignoreCase = true)) {
+            Fonts.minecraftFont.drawString(
+                "${placeModeValue.get()} , ${towerPlaceModeValue.get()}",
+                scaledResolution.scaledWidth / 1.95f,
+                (scaledResolution.scaledHeight / 2 + 20).toFloat(),
+                -1,
+                true
+            )
+        }
+        if (counterMode.equals("sigma", ignoreCase = true)) {
+            GlStateManager.translate(0f, -14f - progress * 4f, 0f)
+            //GL11.glPushMatrix();
+            //GL11.glPushMatrix();
+            GL11.glEnable(GL11.GL_BLEND)
+            GL11.glDisable(GL11.GL_TEXTURE_2D)
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+            GL11.glEnable(GL11.GL_LINE_SMOOTH)
+            GL11.glColor4f(0.15f, 0.15f, 0.15f, progress)
+            GL11.glBegin(GL11.GL_TRIANGLE_FAN)
+            GL11.glVertex2d(
+                (StaticStorage.scaledResolution.scaledWidth / 2 - 3).toDouble(),
+                (StaticStorage.scaledResolution.scaledHeight - 60).toDouble()
+            )
+            GL11.glVertex2d(
+                (StaticStorage.scaledResolution.scaledWidth / 2).toDouble(),
+                (StaticStorage.scaledResolution.scaledHeight - 57).toDouble()
+            )
+            GL11.glVertex2d(
+                (StaticStorage.scaledResolution.scaledWidth / 2 + 3).toDouble(),
+                (StaticStorage.scaledResolution.scaledHeight - 60).toDouble()
+            )
+            GL11.glEnd()
+            GL11.glEnable(GL11.GL_TEXTURE_2D)
+            GL11.glDisable(GL11.GL_BLEND)
+            GL11.glDisable(GL11.GL_LINE_SMOOTH)
+            //GL11.glPopMatrix();
+            //GL11.glPopMatrix();
+            RenderUtils.drawRoundedRect(
+                (StaticStorage.scaledResolution.scaledWidth / 2 - infoWidth / 2 - 4).toFloat(),
+                (StaticStorage.scaledResolution.scaledHeight - 60).toFloat(),
+                (StaticStorage.scaledResolution.scaledWidth / 2 + infoWidth / 2 + 4).toFloat(),
+                (StaticStorage.scaledResolution.scaledHeight - 74).toFloat(),
+                2f,
+                Color(0.15f, 0.15f, 0.15f, progress).rgb
+            )
+            GlStateManager.resetColor()
+            Fonts.fontSFUI35.drawCenteredString(
+                info,
+                StaticStorage.scaledResolution.scaledWidth / 2 + 0.1f,
+                (StaticStorage.scaledResolution.scaledHeight - 70).toFloat(),
+                Color(1f, 1f, 1f, 0.8f * progress).rgb,
+                false
+            )
+            GlStateManager.translate(0f, 14f + progress * 4f, 0f)
+        }
     }
 
 
@@ -1140,32 +1221,32 @@ class Scaffold : Module() {
      */
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-                if (!markValue.get()) return
-                for (i in 0 until (expandLengthValue.get() + 1)) {
-                    val blockPos = BlockPos(
-                        mc.thePlayer.posX + if (mc.thePlayer.horizontalFacing == EnumFacing.WEST) -i else if (mc.thePlayer.horizontalFacing == EnumFacing.EAST) i else 0,
-                        mc.thePlayer.posY - (if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5) {
-                            0.0
-                        } else {
-                            1.0
-                        }) - (if (shouldGoDown) {
-                            1.0
-                        } else {
-                            0.0
-                        }),
-                        mc.thePlayer.posZ + if (mc.thePlayer.horizontalFacing == EnumFacing.NORTH) -i else if (mc.thePlayer.horizontalFacing == EnumFacing.SOUTH) i else 0
-                    )
-                    val placeInfo = get(blockPos)
-                    if (BlockUtils.isReplaceable(blockPos) && placeInfo != null) {
-                        RenderUtils.drawBlockBox(
-                            blockPos,
-                            Color(MarkRedValue.get(), MarkGreenValue.get(), MarkBlueValue.get(), MarkAlphaValue.get()),
-                            false,
-                            true,
-                            1f
-                        )
-                        break
-                    }
+        if (!markValue.get()) return
+        for (i in 0 until (expandLengthValue.get() + 1)) {
+            val blockPos = BlockPos(
+                mc.thePlayer.posX + if (mc.thePlayer.horizontalFacing == EnumFacing.WEST) -i else if (mc.thePlayer.horizontalFacing == EnumFacing.EAST) i else 0,
+                mc.thePlayer.posY - (if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5) {
+                    0.0
+                } else {
+                    1.0
+                }) - (if (shouldGoDown) {
+                    1.0
+                } else {
+                    0.0
+                }),
+                mc.thePlayer.posZ + if (mc.thePlayer.horizontalFacing == EnumFacing.NORTH) -i else if (mc.thePlayer.horizontalFacing == EnumFacing.SOUTH) i else 0
+            )
+            val placeInfo = get(blockPos)
+            if (BlockUtils.isReplaceable(blockPos) && placeInfo != null) {
+                RenderUtils.drawBlockBox(
+                    blockPos,
+                    Color(MarkRedValue.get(), MarkGreenValue.get(), MarkBlueValue.get(), MarkAlphaValue.get()),
+                    false,
+                    true,
+                    1f
+                )
+                break
+            }
         }
     }
 
@@ -1258,38 +1339,45 @@ class Scaffold : Module() {
                 "snap" -> {
                     placeRotation.rotation
                 }
+
                 "simple" -> {
                     placeRotation.rotation
                 }
+
                 "grim2" -> {
                     Rotation(
                         mc.thePlayer.rotationYaw + 180F,
                         83F
                     )
                 }
+
                 "grim" -> {
                     Rotation(
                         mc.thePlayer.rotationYaw + (if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180),
                         placeRotation.rotation.pitch
                     )
                 }
+
                 "custom" -> {
                     Rotation(
                         mc.thePlayer.rotationYaw + customtowerYawValue.get(),
                         customtowerPitchValue.get()
                     )
                 }
+
                 "watchdog" -> {
                     Rotation(mc.thePlayer.rotationYaw + 180F, 84F)
                 }
 
-
                 else -> null
             }
-            if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") ||  rotationsValue.equals("LGBT+")) {
-                    val limitedRotation =
-                        RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
-                    RotationUtils.setTargetRotation(limitedRotation, 0)
+            if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") || rotationsValue.equals(
+                    "LGBT+"
+                )
+            ) {
+                val limitedRotation =
+                    RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
+                RotationUtils.setTargetRotation(limitedRotation, 0)
             } else {
                 val limitedRotation =
                     RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
@@ -1310,35 +1398,45 @@ class Scaffold : Module() {
                 }
 
                 "snap" -> {
-                placeRotation.rotation
+                    placeRotation.rotation
                 }
+
                 "grim" -> {
                     Rotation(
                         mc.thePlayer.rotationYaw + (if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180),
                         placeRotation.rotation.pitch
                     )
                 }
+
                 "grim2" -> {
                     Rotation(
                         mc.thePlayer.rotationYaw + 180F,
                         83F
                     )
                 }
+
                 "custom" -> {
                     Rotation(mc.thePlayer.rotationYaw + customYawValue.get(), customPitchValue.get().toFloat())
                 }
+
                 "simple" -> {
                     placeRotation.rotation
                 }
+
                 "better" -> {
                     Rotation(mc.thePlayer.rotationYaw + customYawValue.get(), placeRotation.rotation.pitch)
                 }
+
                 "watchdog" -> {
                     Rotation(mc.thePlayer.rotationYaw + 180F, 84F)
                 }
+
                 else -> null
             }
-            if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") ||  rotationsValue.equals("LGBT+")) {
+            if (rotationsValue.equals("Snap") || rotationsValue.equals("Grim") || rotationsValue.equals("Grim2") || rotationsValue.equals(
+                    "LGBT+"
+                )
+            ) {
                 val limitedRotation =
                     RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
                 RotationUtils.setTargetRotation(limitedRotation, 0)
@@ -1372,9 +1470,9 @@ class Scaffold : Module() {
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-                if (towerStatus) {
-                    event.cancelEvent()
-                }
+        if (towerStatus) {
+            event.cancelEvent()
+        }
     }
 
     private fun renderItemStack(stack: ItemStack, x: Int, y: Int) {
@@ -1390,15 +1488,4 @@ class Scaffold : Module() {
         GlStateManager.disableBlend()
         GlStateManager.popMatrix()
     }
-    val canSprint: Boolean
-        get() = MovementUtils.isMoving() && when (sprintModeValue.get()
-            .lowercase()) {
-            "normal" -> true
-            "fakewatchdog" -> true
-            "ground" -> mc.thePlayer.onGround
-            "air" -> !mc.thePlayer.onGround
-            "fast" -> true
-            "skid" -> mc.thePlayer.ticksExisted % 2 == 0
-            else -> false
-        }
 }

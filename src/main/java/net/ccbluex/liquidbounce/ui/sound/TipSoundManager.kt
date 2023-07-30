@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.sound
 
+import akka.actor.Kill
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.utils.FileUtils
 import java.io.File
@@ -11,6 +12,8 @@ class TipSoundManager {
     //Herta
     var HertaEnableSound: TipSoundPlayer
     var HertaDisableSound: TipSoundPlayer
+    //
+    var KillSound: TipSoundPlayer
 
     init {
         val enableSoundFile = File(CrossSine.fileManager.soundsDir, "enable.wav")
@@ -31,11 +34,17 @@ class TipSoundManager {
         if (!HertaDisableSoundFile.exists()) {
             FileUtils.unpackFile(HertaDisableSoundFile, "assets/minecraft/crosssine/sound/herta/disable.wav")
         }
+        val KillTagSound = File(CrossSine.fileManager.soundsDir, "tag.wav")
+        if (!KillTagSound.exists()) {
+            FileUtils.unpackFile(KillTagSound, "assets/minecraft/crosssine/sound/tag.wav")
+        }
         //Classic
         enableSound = TipSoundPlayer(enableSoundFile)
         disableSound = TipSoundPlayer(disableSoundFile)
         //Herta
         HertaEnableSound = TipSoundPlayer(HertaEnableSoundFile)
         HertaDisableSound = TipSoundPlayer(HertaDisableSoundFile)
+        //Tag
+        KillSound = TipSoundPlayer(KillTagSound)
     }
 }

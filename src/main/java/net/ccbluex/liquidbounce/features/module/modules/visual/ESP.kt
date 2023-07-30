@@ -62,6 +62,35 @@ class ESP : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
+        if (modeValue.equals("Raven")) {
+            val entity: EntityLivingBase? = null
+            val d: Float = expand.get() / 40.0f
+            val r = (entity!!.health / entity.maxHealth).toDouble()
+            val b = (74.0 * r).toInt()
+            val hc =
+                if (r < 0.3) Color.red.rgb else if (r < 0.5) Color.orange.rgb else if (r < 0.7) Color.yellow.rgb else Color.green.rgb
+            val x: Double =
+                entity!!.lastTickPosX + (entity!!.posX - entity!!.lastTickPosX) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
+            val y: Double =
+                entity!!.lastTickPosY + (entity!!.posY - entity!!.lastTickPosY) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosY
+            val z: Double =
+                entity!!.lastTickPosZ + (entity!!.posZ - entity!!.lastTickPosZ) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosZ
+            GlStateManager.pushMatrix()
+            GL11.glTranslated(x, y - 0.2, z)
+            GL11.glRotated(
+                mc.renderManager.playerViewY.toDouble(),
+                0.0,
+                1.0,
+                0.0
+            )
+            GlStateManager.disableDepth()
+            GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
+            val i = (21.0 + shift.get() * 2.0).toInt()
+            Gui.drawRect(i, -1, i + 5, 75, Color.black.rgb)
+            Gui.drawRect(i + 1, b, i + 4, 74, Color.darkGray.rgb)
+            Gui.drawRect(i + 1, 0, i + 4, b, hc)
+            GlStateManager.enableDepth()
+        }
         val mode = modeValue.get().lowercase()
         val mvMatrix = WorldToScreen.getMatrix(GL11.GL_MODELVIEW_MATRIX)
         val projectionMatrix = WorldToScreen.getMatrix(GL11.GL_PROJECTION_MATRIX)
@@ -84,35 +113,6 @@ class ESP : Module() {
             GlStateManager.enableTexture2D()
             GlStateManager.depthMask(true)
             GL11.glLineWidth(1.0f)
-        }
-        if (modeValue.equals("Raven")) {
-            val entity: EntityLivingBase? = null
-                val d: Float = expand.get() / 40.0f
-                val r = (entity!!.health / entity.maxHealth).toDouble()
-                val b = (74.0 * r).toInt()
-                val hc =
-                    if (r < 0.3) Color.red.rgb else if (r < 0.5) Color.orange.rgb else if (r < 0.7) Color.yellow.rgb else Color.green.rgb
-                val x: Double =
-                    entity!!.lastTickPosX + (entity!!.posX - entity!!.lastTickPosX) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
-                val y: Double =
-                    entity!!.lastTickPosY + (entity!!.posY - entity!!.lastTickPosY) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosY
-                val z: Double =
-                    entity!!.lastTickPosZ + (entity!!.posZ - entity!!.lastTickPosZ) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosZ
-                GlStateManager.pushMatrix()
-                GL11.glTranslated(x, y - 0.2, z)
-                GL11.glRotated(
-                    mc.renderManager.playerViewY.toDouble(),
-                    0.0,
-                    1.0,
-                    0.0
-                )
-                GlStateManager.disableDepth()
-                GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
-                var i: Int = (21.0 + shift.get() * 2.0).toInt()
-                Gui.drawRect(i, -1, i + 5, 75, Color.black.rgb)
-                Gui.drawRect(i + 1, b, i + 4, 74, Color.darkGray.rgb)
-                Gui.drawRect(i + 1, 0, i + 4, b, hc)
-                GlStateManager.enableDepth()
         }
         for (entity in mc.theWorld.loadedEntityList) {
             if (EntityUtils.isSelected(entity, true)) {
