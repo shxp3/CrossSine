@@ -34,7 +34,7 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
             RenderUtils.originalRoundedRect(x + 3F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.dropDown.rgb)
         else if (MouseUtils.mouseWithinBounds(mouseX, mouseY, x, y, x + width, y + height))
             RenderUtils.originalRoundedRect(x + 3F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.border.rgb)
-        Fonts.font40.drawString(name, x + 10F, y + height / 2F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
+        Fonts.Nunito40.drawString(name, x + 10F, y + height / 2F - Fonts.Nunito40.FONT_HEIGHT / 2F + 2F, -1)
     }
 
     fun drawPanel(mX: Int, mY: Int, x: Float, y: Float, width: Float, height: Float, wheel: Int, accentColor: Color) {
@@ -46,8 +46,8 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
         if (lastHeight >= 10F) lastHeight -= 10F
         handleScrolling(wheel, height)
         drawScroll(x, y + 50F, width, height)
-        Fonts.fontLarge.drawString("${ChatFormatting.GRAY}Modules > ${ChatFormatting.RESET}$name", x + 10F, y + 10F, -1)
-        Fonts.fontSmall.drawString("$name", x - 190F, y - 12F, -1)
+        Fonts.Nunito60.drawString("${ChatFormatting.GRAY}Modules > ${ChatFormatting.RESET}$name", x + 10F, y + 10F, -1)
+        Fonts.Nunito30.drawString("$name", x - 190F, y - 12F, -1)
         if (mouseY < y + 50F || mouseY >= y + height)
             mouseY = -1
         RenderUtils.makeScissorBox(x, y + 50F, x + width, y + height)

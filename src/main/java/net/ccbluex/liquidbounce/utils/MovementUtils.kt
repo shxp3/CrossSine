@@ -24,7 +24,14 @@ object MovementUtils : MinecraftInstance() {
     fun getSpeed(): Float {
         return sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ).toFloat()
     }
-
+    fun setSpeed(speed: Float) {
+        val currentSpeed = getSpeed()
+        if (currentSpeed > 0.0f) {
+            val factor = speed / currentSpeed
+            mc.thePlayer.motionX *= factor
+            mc.thePlayer.motionZ *= factor
+        }
+    }
     fun FlyBasic(speed: Float) {
         if (mc.gameSettings.keyBindJump.isKeyDown) mc.thePlayer.motionY += speed
 
@@ -32,7 +39,14 @@ object MovementUtils : MinecraftInstance() {
 
         strafe(speed)
     }
-
+    fun jump(event: MoveEvent) {
+        var jumpY = mc.thePlayer.jumpMovementFactor.toDouble()
+        if (mc.thePlayer.isPotionActive(Potion.jump)) {
+            jumpY += ((mc.thePlayer.getActivePotionEffect(Potion.jump).amplifier + 1).toFloat() * 0.1f).toDouble()
+        }
+        mc.thePlayer.motionY = jumpY
+        event.y = mc.thePlayer.motionY
+    }
     /**
      * Calculate speed based on the speed potion effect level/amplifier
      */
@@ -66,13 +80,10 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionX = -sin(direction) * speed
         mc.thePlayer.motionZ = cos(direction) * speed
     }
-
-    fun daStrafe(speed: Double) {
-        if (!isMoving()) {
-            return
-        }
-        mc.thePlayer.motionX = -MathHelper.sin(daDirection.toFloat()) * speed
-        mc.thePlayer.motionZ = MathHelper.cos(daDirection.toFloat()) * speed
+    fun strafe(event: MoveEvent, speed: Float) {
+        if (!isMoving()) return
+       event.x = -sin(direction) * speed
+       event.z = cos(direction) * speed
     }
 
     fun strafe(speed: Double) {
@@ -159,18 +170,6 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionZ += cos(yaw) * speed
     }
 
-    fun getDirectionWrappedTo90() {
-        var rotationYaw: Float = mc.thePlayer.rotationYaw
-
-        if (mc.thePlayer.moveForward < 0f && mc.thePlayer.moveStrafing == 0f) rotationYaw += 180f
-
-        val forward = 1f
-
-        if (mc.thePlayer.moveStrafing > 0f) rotationYaw -= 90f * forward
-        if (mc.thePlayer.moveStrafing < 0f) rotationYaw += 90f * forward
-
-        return
-    }
 
     fun JumpBoost(motionY: Double): Double {
         return if (mc.thePlayer.isPotionActive(Potion.jump)) {
@@ -220,32 +219,6 @@ object MovementUtils : MinecraftInstance() {
             if (mc.thePlayer.moveForward < 0f) forward = -0.5f else if (mc.thePlayer.moveForward > 0f) forward = 0.5f
             if (mc.thePlayer.moveStrafing > 0f) rotationYaw -= 90f * forward
             if (mc.thePlayer.moveStrafing < 0f) rotationYaw += 90f * forward
-            return Math.toRadians(rotationYaw.toDouble())
-        }
-    val daDirection: Double
-        get() {
-            var rotationYaw: Float = mc.thePlayer.rotationYaw
-
-            if (mc.thePlayer.moveForward < 0) {
-                rotationYaw += 180f
-            }
-
-            var forward = 1f
-
-            if (mc.thePlayer.moveForward < 0) {
-                forward = -0.5f
-            } else if (mc.thePlayer.moveForward > 0) {
-                forward = 0.5f
-            }
-
-            if (mc.thePlayer.moveStrafing > 0) {
-                rotationYaw -= 70 * forward
-            }
-
-            if (mc.thePlayer.moveStrafing < 0) {
-                rotationYaw += 70 * forward
-            }
-
             return Math.toRadians(rotationYaw.toDouble())
         }
     val jumpMotion: Float
@@ -365,10 +338,10 @@ object MovementUtils : MinecraftInstance() {
     }
 
     fun isOnGround(height: Double): Boolean {
-        return !mc.theWorld.getCollidingBoundingBoxes(
+        return mc.theWorld.getCollidingBoundingBoxes(
             mc.thePlayer,
             mc.thePlayer.entityBoundingBox.offset(0.0, -height, 0.0)
-        ).isEmpty()
+        ).isNotEmpty()
     }
 
     fun getBaseMoveSpeed(): Double {
@@ -426,7 +399,7 @@ object MovementUtils : MinecraftInstance() {
         var off = 0
         while (off < mc.thePlayer.posY.toInt() + 2) {
             val bb = mc.thePlayer.entityBoundingBox.offset(0.0, (-off).toDouble(), 0.0)
-            if (!mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty()) {
+            if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty()) {
                 return true
             }
             off += 2

@@ -4,8 +4,8 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitDelayFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
-import net.ccbluex.liquidbounce.features.module.modules.other.SoundModule;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
+import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
@@ -135,7 +135,6 @@ public abstract class MixinMinecraft {
 
         RenderUtils.deltaTime = deltaTime;
     }
-
     @Inject(method = "runTick", at = @At("HEAD"))
     private void runTick(final CallbackInfo callbackInfo) {
         StaticStorage.scaledResolution = new ScaledResolution((Minecraft) (Object) this);
@@ -162,23 +161,21 @@ public abstract class MixinMinecraft {
     private static final String TARGET = "Lnet/minecraft/client/settings/KeyBinding;setKeyBindState(IZ)V";
     @Redirect(method="runTick", at=@At(value="INVOKE", target=TARGET))
     public void runTick_setKeyBindState(int keybind, boolean state) {
-        if(CrossSine.moduleManager.getModule(HitDelayFix.class).getState() && keybind == -100 && !state) {
+        if(CrossSine.moduleManager.getModule(HitDelayFix.class).getState()) {
             leftClickCounter = 0;
         }
 
         KeyBinding.setKeyBindState(keybind, state);
     }
-
     @Inject(method = "dispatchKeypresses", at = @At(value = "HEAD"))
     private void onKey(CallbackInfo callbackInfo) {
         try {
-            if (Keyboard.getEventKeyState() && (currentScreen == null || (SoundModule.INSTANCE.getToggleIgnoreScreenValue().get() && this.currentScreen instanceof GuiContainer)))
+            if (Keyboard.getEventKeyState() && (currentScreen == null))
                 CrossSine.eventManager.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
         } catch (Exception e) {
             //e.printStackTrace();
         }
     }
-
     @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MovingObjectPosition;getBlockPos()Lnet/minecraft/util/BlockPos;"))
     private void onClickBlock(CallbackInfo callbackInfo) {
         if (this.leftClickCounter == 0 && theWorld.getBlockState(objectMouseOver.getBlockPos()).getBlock().getMaterial() != Material.air) {
@@ -194,8 +191,9 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
     private void clickMouse(CallbackInfo callbackInfo) {
+        CrossSine.eventManager.callEvent(new ClickEvent());
         CPSCounter.registerClick(CPSCounter.MouseButton.LEFT);
-            leftClickCounter = 0; // fix hit delay lol
+            leftClickCounter = 0;
     }
     @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;rightClickDelayTimer:I", shift = At.Shift.AFTER))
     private void rightClickMouse(final CallbackInfo callbackInfo) {
@@ -221,14 +219,14 @@ public abstract class MixinMinecraft {
     @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
     public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir) {
         if (RotationUtils.targetRotation != null && thePlayer != null) {
-            final HUD clientRender = CrossSine.moduleManager.getModule(HUD.class);
-            final float yaw = RotationUtils.targetRotation.getYaw();
-            if (clientRender.getRotationMode().equals("Lock")) {
-                thePlayer.rotationYawHead = yaw;
-            }
-            if (clientRender.getRotationMode().equals("Lock")) {
-                thePlayer.renderYawOffset = yaw;
-            }
+            final RenderRotation renderRotation = CrossSine.moduleManager.getModule(RenderRotation.class);
+                final float yaw = RotationUtils.targetRotation.getYaw();
+                if (renderRotation.getRotationMode().equals("Lock")) {
+                    thePlayer.rotationYawHead = yaw;
+                }
+                if (renderRotation.getRotationMode().equals("Lock")) {
+                    thePlayer.renderYawOffset = yaw;
+                }
         }
     }
     /**

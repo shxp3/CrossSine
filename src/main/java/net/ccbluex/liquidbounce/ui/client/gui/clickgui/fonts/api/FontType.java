@@ -5,7 +5,6 @@ public enum FontType {
 	FIXEDSYS("tahoma.ttf"),
 	ICONFONT("stylesicons.ttf"),
 	FluxICONFONT("flux.ttf"),
-	Check("check.ttf"),
 	TenacityBold("Tenacity.ttf"),
 	SF("SF.ttf"),
 	SFBOLD("SFBOLD.ttf"),

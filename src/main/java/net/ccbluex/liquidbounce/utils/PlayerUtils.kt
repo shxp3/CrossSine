@@ -3,10 +3,14 @@ package net.ccbluex.liquidbounce.utils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.minecraft.block.Block
 import net.minecraft.block.BlockSlime
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.*
+import net.minecraft.potion.Potion
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
+import net.minecraft.util.MovingObjectPosition
+
 
 object PlayerUtils {
 
@@ -84,11 +88,36 @@ object PlayerUtils {
         }
         return Integer.valueOf(-1)
     }
-    fun hotkeyToSlot(slot: Int) {
-        if (!IsPlayerInGame()) return
-        mc.thePlayer.inventory.currentItem = slot
+    fun swing() {
+        val player: EntityPlayerSP = mc.thePlayer
+        val swingEnd =
+            if (player.isPotionActive(Potion.digSpeed)) 6 - (1 + player.getActivePotionEffect(Potion.digSpeed).amplifier) else if (player.isPotionActive(
+                    Potion.digSlowdown
+                )
+            ) 6 + (1 + player.getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6
+
+        if (mc.thePlayer.getItemInUseCount() > 0) {
+            val mouseDown = mc.gameSettings.keyBindAttack.isKeyDown &&
+                    mc.gameSettings.keyBindUseItem.isKeyDown
+            if (mouseDown && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit === MovingObjectPosition.MovingObjectType.BLOCK) {
+                if (!player.isSwingInProgress || player.swingProgressInt >= swingEnd / 2 || player.swingProgressInt < 0) {
+                    player.swingProgressInt = -1
+                    player.isSwingInProgress = true
+                }
+            }
+        }
     }
-    fun IsPlayerInGame(): Boolean {
-        return mc.thePlayer != null && mc.theWorld != null
+    fun isOnEdge() : Boolean {
+        return mc.thePlayer.onGround && !mc.thePlayer.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty()
+    }
+    fun voidCheck(): Boolean {
+            var i = (-(mc.thePlayer.posY-1.4857625)).toInt()
+            var dangerous = true
+            while (i <= 0) {
+                dangerous = mc.theWorld.getCollisionBoxes(mc.thePlayer.entityBoundingBox.offset(mc.thePlayer.motionX * 0.5, i.toDouble(), mc.thePlayer.motionZ * 0.5)).isEmpty()
+                i++
+                if (!dangerous) break
+            }
+            return dangerous
     }
 }

@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.render;
 
+import javax.vecmath.Vector2d;
 import java.awt.*;
 
 public enum BlendUtils {
@@ -28,7 +29,6 @@ public enum BlendUtils {
         float progress = health / maxHealth;
         return blendColors(fractions, colors, progress).brighter();
     }
-
     public static Color blendColors(float[] fractions, Color[] colors, float progress) {
         if (fractions.length == colors.length) {
             int[] indices = getFractionIndices(fractions, progress);

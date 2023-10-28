@@ -13,7 +13,6 @@ class EventManager : MinecraftInstance() {
 
 //    private val counter = HashMap<Class<out Event>, Int>()
 //    private var lastSyncTime = System.currentTimeMillis()
-
     /**
      * Register [listener]
      */

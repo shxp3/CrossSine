@@ -14,6 +14,9 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.network.play.server.S12PacketEntityVelocity
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 
 @ModuleInfo(name = "Velocity", "Velocity",category = ModuleCategory.COMBAT)
 class Velocity : Module() {
@@ -147,12 +150,12 @@ class Velocity : Module() {
     fun onStep(event: StepEvent) {
         mode.onStep(event)
     }
-    override val tag: String?
+    override val tag: String
         get() = if (modeValue.get() == "Standard") {
             if (m.get()) {
                 modeValue.get()
             } else {
-                "${v.get()}% ${h.get()}%"
+                "${DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(v.get())}% ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(h.get())}%"
             }
         }
             else

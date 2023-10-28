@@ -18,9 +18,8 @@ class FileManager : MinecraftInstance() {
     val dir = File(mc.mcDataDir, "CrossSine")
     val fontsDir = File(dir, "fonts")
     val configsDir = File(dir, "configs")
-    val soundsDir = File(dir, "sounds")
     val hertaSoundDir = File(dir, "sounds/herta")
-    val legacySettingsDir = File(dir, "legacy-settings")
+    val legacySettingsDir = File(dir, "legacy-settings.json")
     val capesDir = File(dir, "capes")
     val themesDir = File(dir, "themes")
     val accountsConfig = AccountsConfig(File(dir, "accounts.json"))
@@ -29,14 +28,13 @@ class FileManager : MinecraftInstance() {
     val hudConfig = HudConfig(File(dir, "hud.json"))
     val subscriptsConfig = ScriptConfig(File(dir, "subscripts.json"))
     val specialConfig = SpecialConfig(File(dir, "special.json"))
-    val backgroundFile = File(dir, "userbackground.png")
+    val themeConfig = ThemeConfig(File(dir, "themeColor.json"))
 
     /**
      * Setup everything important
      */
     init {
         setupFolder()
-        loadBackground()
     }
 
     /**
@@ -53,10 +51,6 @@ class FileManager : MinecraftInstance() {
 
         if (!configsDir.exists()) {
             configsDir.mkdir()
-        }
-
-        if (!soundsDir.exists()) {
-            soundsDir.mkdir()
         }
         if (!hertaSoundDir.exists()) {
             hertaSoundDir.mkdir()
@@ -173,18 +167,6 @@ class FileManager : MinecraftInstance() {
     /**
      * Load background for background
      */
-    fun loadBackground() {
-        if (backgroundFile.exists()) {
-            try {
-                val bufferedImage = ImageIO.read(FileInputStream(backgroundFile)) ?: return
-                CrossSine.background = ResourceLocation(CrossSine.CLIENT_NAME.lowercase() + "/background.png")
-                mc.textureManager.loadTexture(CrossSine.background, DynamicTexture(bufferedImage))
-                ClientUtils.logInfo("[FileManager] Loaded background.")
-            } catch (e: Exception) {
-                ClientUtils.logError("[FileManager] Failed to load background.", e)
-            }
-        }
-    }
 
     @Throws(IOException::class)
     fun loadLegacy(): Boolean {

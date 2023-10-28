@@ -8,12 +8,11 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 import io.netty.buffer.Unpooled;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EntityDamageEvent;
+import net.ccbluex.liquidbounce.event.EntityMovementEvent;
 import net.ccbluex.liquidbounce.event.PacketEvent;
-import net.ccbluex.liquidbounce.features.module.modules.other.PackSpoofer;
 import net.ccbluex.liquidbounce.features.module.modules.other.NoRotate;
+import net.ccbluex.liquidbounce.features.module.modules.other.Teleport;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
-import net.ccbluex.liquidbounce.utils.BlinkUtils;
-import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.TransferUtils;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
@@ -21,7 +20,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -32,9 +30,9 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.network.play.client.C19PacketResourcePackStatus;
 import net.minecraft.network.play.server.*;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.WorldSettings;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -80,7 +78,6 @@ public abstract class MixinNetHandlerPlayClient {
         final String url = p_handleResourcePack_1_.getURL();
         final String hash = p_handleResourcePack_1_.getHash();
 
-        final PackSpoofer ps = CrossSine.moduleManager.getModule(PackSpoofer.class);
 
             if (ClientFixes.blockResourcePackExploit) {
                 try {
@@ -102,14 +99,8 @@ public abstract class MixinNetHandlerPlayClient {
                     netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
                 }
 
-                if (ps.getState() && ps.getNotifyValue().get()) {
-                    alert("§7[§b!§7] §b§lCrossSine §c» §6Resourcepack exploit detected.");
-                    alert("§7[§b!§7] §b§lCrossSine §c» §7Exploit target directory: §r" + url);
-
-                    throw new IllegalStateException("Invalid levelstorage resourcepack path");
-                } else {
                     callbackInfo.cancel(); // despite not having it enabled we still prevents anything from illegally checking files in your computer.
-                }
+
 
             }
         } catch (final URISyntaxException e) {
@@ -197,11 +188,13 @@ public abstract class MixinNetHandlerPlayClient {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method={"handleEntityMovement"}, at={@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER)}, cancellable=true)
-    private void handleEntityMovement(S14PacketEntity s14PacketEntity, CallbackInfo callbackInfo) {
-        this.cancelIfNull(this.clientWorldController, callbackInfo);
-    }
+    @Inject(method = "handleEntityMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z"))
+    private void handleEntityMovementEvent(S14PacketEntity packetIn, final CallbackInfo callbackInfo) {
+        final Entity entity = packetIn.getEntity(this.clientWorldController);
 
+        if(entity != null)
+            CrossSine.eventManager.callEvent(new EntityMovementEvent(entity));
+    }
     @Inject(method={"handleEntityHeadLook"}, at={@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER)}, cancellable=true)
     private void handleEntityHeadLook(S19PacketEntityHeadLook s19PacketEntityHeadLook, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
@@ -261,7 +254,6 @@ public abstract class MixinNetHandlerPlayClient {
         double d2 = packetIn.getZ();
         float f = packetIn.getYaw();
         float f1 = packetIn.getPitch();
-
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X)) {
             d0 += entityplayer.posX;
         } else {

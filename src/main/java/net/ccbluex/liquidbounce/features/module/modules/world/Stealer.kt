@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.player.InventoryManager
+import net.ccbluex.liquidbounce.features.module.modules.player.InvManager
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -70,6 +70,7 @@ object Stealer : Module() {
     private val onlyItemsValue = BoolValue("OnlyItems", false)
     private val noCompassValue = BoolValue("NoCompass", false)
     private val autoCloseValue = BoolValue("AutoClose", true)
+    val freelookValue = BoolValue("FreeLook", false).displayable { !silentValue.get() }
     val silentValue = BoolValue("Silent", true)
     val silentTitleValue = BoolValue("Title", true).displayable { silentValue.get()}
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400) {
@@ -149,7 +150,7 @@ object Stealer : Module() {
         }
 
         // inventory cleaner
-        val inventoryManager = CrossSine.moduleManager[InventoryManager::class.java]!!
+        val invManager = CrossSine.moduleManager[InvManager::class.java]!!
 
         // check if it's empty?
         if (!isEmpty(screen) && !(closeOnFullValue.get() && fullInventory)) {
@@ -163,7 +164,7 @@ object Stealer : Module() {
                     for (slotIndex in 0 until screen.inventoryRows * 9) {
                         val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
-                        if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!inventoryManager.state || inventoryManager.isUseful(slot.stack, -1))) {
+                        if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(slot.stack, -1))) {
                             items.add(slot)
                         }
                     }
@@ -181,7 +182,7 @@ object Stealer : Module() {
                 val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
                 if (delayTimer.hasTimePassed(nextDelay) && slot.stack != null &&
-                        (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!inventoryManager.state || inventoryManager.isUseful(slot.stack, -1))) {
+                        (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(slot.stack, -1))) {
                     move(screen, slot)
                 }
             }
@@ -220,12 +221,12 @@ object Stealer : Module() {
     }
 
     private fun isEmpty(chest: GuiChest): Boolean {
-        val inventoryManager = CrossSine.moduleManager[InventoryManager::class.java]!!
+        val invManager = CrossSine.moduleManager[InvManager::class.java]!!
 
         for (i in 0 until chest.inventoryRows * 9) {
             val slot = chest.inventorySlots.inventorySlots[i]
 
-            if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!inventoryManager.state || inventoryManager.isUseful(slot.stack, -1))) {
+            if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(slot.stack, -1))) {
                 return false
             }
         }

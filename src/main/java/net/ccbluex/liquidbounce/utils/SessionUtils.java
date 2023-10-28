@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.utils;
 
 import net.ccbluex.liquidbounce.event.*;
-import net.ccbluex.liquidbounce.utils.AutoArmor.TimerMS;
+import net.ccbluex.liquidbounce.utils.timer.TimerMS;
 import net.minecraft.client.gui.GuiDownloadTerrain;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.GuiConnecting;

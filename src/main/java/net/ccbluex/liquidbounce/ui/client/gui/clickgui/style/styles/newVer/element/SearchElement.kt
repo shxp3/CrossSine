@@ -58,8 +58,8 @@ class SearchElement(val xPos: Float, val yPos: Float, val width: Float, val heig
         if (lastHeight >= 10F) lastHeight -= 10F
         handleScrolling(wheel, h)
         drawScroll(x, y + 50F, w, h)
-        Fonts.fontLarge.drawString("Search", x + 10F, y + 10F, -1)
-        Fonts.fontSmall.drawString("Search", x - 170F, y - 10F, -1)
+        Fonts.Nunito60.drawString("Search", x + 10F, y + 10F, -1)
+        Fonts.Nunito30.drawString("Search", x - 170F, y - 10F, -1)
         RenderUtils.drawImage2(IconManager.back, x - 190F, y - 15F, 10, 10)
         var startY = y + 50F
         if (mouseY < y + 50F || mouseY >= y + h)

@@ -6,12 +6,11 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.EntityUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.Vec3
@@ -21,13 +20,8 @@ import java.awt.Color
 @ModuleInfo(name = "Tracers", spacedName = "Tracers", category = ModuleCategory.VISUAL)
 class Tracers : Module() {
 
-    private val colorModeValue = ListValue("Color", arrayOf("Custom", "DistanceColor", "Rainbow"), "Custom")
     private val thicknessValue = FloatValue("Thickness", 2F, 1F, 5F)
-    private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { colorModeValue.equals("Custom") }
-    private val colorGreenValue = IntegerValue("G", 160, 0, 255).displayable { colorModeValue.equals("Custom") }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { colorModeValue.equals("Custom") }
-    private val colorAlphaValue = IntegerValue("A", 150, 0, 255)
-    private val distanceMultplierValue = FloatValue("DistanceMultiplier", 5F, 0.1F, 10F).displayable { colorModeValue.equals("DistanceColor") }
+    private val colorAlphaValue = IntegerValue("Alpha", 150, 0, 255)
     private val playerHeightValue = BoolValue("PlayerHeight", true)
     private val entityHeightValue = BoolValue("EntityHeight", true)
 
@@ -43,20 +37,7 @@ class Tracers : Module() {
 
         for (entity in mc.theWorld.loadedEntityList) {
             if (entity != null && entity != mc.thePlayer && EntityUtils.isSelected(entity, false)) {
-                var dist = (mc.thePlayer.getDistanceToEntity(entity) * distanceMultplierValue.get()).toInt()
-
-                if (dist > 255) dist = 255
-
-                val colorMode = colorModeValue.get().lowercase()
-                val color = when {
-                    EntityUtils.isFriend(entity) -> Color(0, 0, 255)
-                    colorMode == "custom" -> Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
-                    colorMode == "distancecolor" -> Color(255 - dist, dist, 0)
-                    colorMode == "rainbow" -> ColorUtils.rainbow()
-                    else -> Color.WHITE
-                }
-
-                drawTraces(entity, color)
+                drawTraces(entity, ClientTheme.getColorWithAlpha(1, colorAlphaValue.get()))
             }
         }
 

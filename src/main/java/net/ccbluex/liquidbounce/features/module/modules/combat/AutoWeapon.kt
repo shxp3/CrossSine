@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.item.ItemUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.ItemSpoofUtils
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemSword
 import net.minecraft.item.ItemTool
@@ -57,6 +58,7 @@ class AutoWeapon : Module() {
             // Switch to best weapon
             if (silentValue.get()) {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(slot))
+                ItemSpoofUtils.startSpoof(slot)
                 spoofedSlot = ticksValue.get()
             } else {
                 mc.thePlayer.inventory.currentItem = slot
@@ -75,6 +77,7 @@ class AutoWeapon : Module() {
         if (spoofedSlot > 0) {
             if (spoofedSlot == 1) {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                ItemSpoofUtils.stopSpoof()
             }
             spoofedSlot--
         }

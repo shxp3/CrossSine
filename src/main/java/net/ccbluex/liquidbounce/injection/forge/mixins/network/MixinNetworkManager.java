@@ -12,6 +12,7 @@ import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.PacketEvent;
+import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.special.ProxyManager;
 import net.ccbluex.liquidbounce.utils.BlinkUtils;
@@ -50,10 +51,14 @@ public abstract class MixinNetworkManager {
 
     @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
     private void read(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callback) {
+        final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
         if(PacketUtils.INSTANCE.getPacketType(packet) != PacketUtils.PacketType.SERVERSIDE)
             return;
-
-        final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
+        if (FakeLag.INSTANCE.getState()) {
+            try {
+                FakeLag.INSTANCE.onPacket(event);
+            }catch (Exception e) {}
+        }
         CrossSine.eventManager.callEvent(event);
 
         if(event.isCancelled()) {

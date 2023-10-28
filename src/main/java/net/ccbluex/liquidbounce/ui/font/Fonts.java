@@ -18,9 +18,6 @@ public class Fonts {
 
     @FontDetails(fontName = "Light", fontSize = 32, fileName = "regular.ttf")
     public static GameFontRenderer font32;
-        @FontDetails(fontName = "superLight", fontSize = 28, fileName = "regular.ttf")
-    public static GameFontRenderer font28;
-
     public static TTFFontRenderer fontVerdana;
 
     @FontDetails(fontName = "Roboto Medium", fontSize = 35)
@@ -29,8 +26,9 @@ public class Fonts {
     @FontDetails(fontName = "Roboto Medium", fontSize = 40)
     public static GameFontRenderer font40;
 
-    @FontDetails(fontName = "Roboto Medium", fontSize = 72)
-    public static GameFontRenderer font72;
+    @FontDetails(fontName = "Roboto Medium", fontSize = 50)
+    public static GameFontRenderer font50;
+
 
     @FontDetails(fontName = "Roboto Medium", fontSize = 30)
     public static GameFontRenderer fontSmall;
@@ -47,52 +45,16 @@ public class Fonts {
     @FontDetails(fontName = "SF", fontSize = 40)
     public static GameFontRenderer fontSFUI40;
 
-    @FontDetails(fontName = "Roboto Bold", fontSize = 180)
-    public static GameFontRenderer fontBold180;
-
-    @FontDetails(fontName = "Tahoma", fontSize = 35)
-    public static GameFontRenderer fontTahoma;
-
-    @FontDetails(fontName = "Tahoma", fontSize = 30)
-    public static GameFontRenderer fontTahoma30;
-
     public static TTFFontRenderer fontTahomaSmall;
 
     @FontDetails(fontName = "Bangers", fontSize = 45)
     public static GameFontRenderer fontBangers;
 
-    @FontDetails(fontName = "ICONFONT_50", fontSize = 50)
-    public static GameFontRenderer ICONFONT_50;
-
-    @FontDetails(fontName = "SF", fontSize = 40)
-    public static GameFontRenderer SF;
-
-    @FontDetails(fontName = "SFUI40", fontSize = 20)
-    public static GameFontRenderer SFUI40;
-
     @FontDetails(fontName = "SFUI35", fontSize = 18)
     public static GameFontRenderer SFUI35;
 
-    @FontDetails(fontName = "SFUI24", fontSize = 10)
-    public static GameFontRenderer SFUI24;
-
-    @FontDetails(fontName = "Icon",fontSize = 18)
-    public static GameFontRenderer icon18;
-
-    @FontDetails(fontName = "Icon",fontSize = 15)
-    public static GameFontRenderer icon15;
-
-    @FontDetails(fontName = "Icon",fontSize = 10)
-    public static GameFontRenderer icon10;
-
     @FontDetails(fontName = "Minecraft Font")
     public static final FontRenderer minecraftFont = Minecraft.getMinecraft().fontRendererObj;
-    
-    @FontDetails(fontName = "jello40", fontSize = 40)
-    public static GameFontRenderer fontJello40;
-
-    @FontDetails(fontName = "Jello30", fontSize = 30)
-    public static GameFontRenderer fontJello30;
 
     @FontDetails(fontName = "Tenacity35", fontSize = 35)
     public static GameFontRenderer fontTenacity35;
@@ -109,10 +71,43 @@ public class Fonts {
     @FontDetails(fontName = "TenacityIcon30", fontSize = 30)
     public static GameFontRenderer fontTenacityIcon30;
 
-    @FontDetails(fontName = "Comfortaa", fontSize = 35)
+    @FontDetails(fontName = "Comfortaa35", fontSize = 35)
     public static GameFontRenderer fontComfortaa35;
 
-    //fontTenacity35  fontTenacityBold35
+    @FontDetails(fontName = "Comfortaa40", fontSize = 40)
+    public static GameFontRenderer fontComfortaa40;
+
+    @FontDetails(fontName = "RockoFLFBold35", fontSize = 35)
+    public static GameFontRenderer fontRockoFLF35;
+
+    @FontDetails(fontName = "RockoFLFBold40", fontSize = 40)
+    public static GameFontRenderer fontRockoFLF40;
+
+    @FontDetails(fontName = "Nunito24", fontSize = 24)
+    public static GameFontRenderer Nunito24;
+
+    @FontDetails(fontName = "Nunito30", fontSize = 30)
+    public static GameFontRenderer Nunito30;
+
+    @FontDetails(fontName = "Nunito35", fontSize = 35)
+    public static GameFontRenderer Nunito35;
+
+    @FontDetails(fontName = "Nunito40", fontSize = 40)
+    public static GameFontRenderer Nunito40;
+
+    @FontDetails(fontName = "Nunito50", fontSize = 50)
+    public static GameFontRenderer Nunito50;
+
+    @FontDetails(fontName = "Nunito60", fontSize = 60)
+    public static GameFontRenderer Nunito60;
+
+    @FontDetails(fontName = "ThaiRounded35", fontSize = 35)
+    public static GameFontRenderer ThaiRounded35;
+
+    @FontDetails(fontName = "ThaiRounded40", fontSize = 40)
+    public static GameFontRenderer ThaiRounded40;
+
+
 
     private static final List<GameFontRenderer> CUSTOM_FONT_RENDERERS = new ArrayList<>();
 
@@ -123,38 +118,36 @@ public class Fonts {
 
         font35 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 35));
         font40 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 40));
-        font72 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 72));
+        font50 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 50));
         fontSmall = new GameFontRenderer(getFont("Roboto-Medium.ttf", 30));
         fontTiny = new GameFontRenderer(getFont("Roboto-Medium.ttf", 24));
         fontLarge = new GameFontRenderer(getFont("Roboto-Medium.ttf", 60));
         fontSFUI35 = new GameFontRenderer(getFont("SF.ttf", 35));
         fontSFUI40 = new GameFontRenderer(getFont("SF.ttf", 40));
-        ICONFONT_50 = new GameFontRenderer(getFont("stylesicons.ttf", 50));
-        SF = new GameFontRenderer(getFont("SF.ttf", 20));
-        SFUI40 = new GameFontRenderer(getFont("SF.ttf", 20));
         SFUI35 = new GameFontRenderer(getFont("SF.ttf", 18));
-        SFUI24 = new GameFontRenderer(getFont("SF.ttf", 10));
         fontSFUI35 = new GameFontRenderer(getFont("SF.ttf", 35));
         fontSFUI40 = new GameFontRenderer(getFont("SF.ttf", 40));
-        fontBold180 = new GameFontRenderer(getFont("Roboto-Bold.ttf", 180));
         fontTahomaSmall = new TTFFontRenderer(getFont("Tahoma.ttf", 11));
         fontVerdana = new TTFFontRenderer(getFont("Verdana.ttf", 7));
-        fontComfortaa35 = new GameFontRenderer(getFont("Comfortaa.ttf", 35));
         // fonts above here may not work as this is a test
         fontBangers = new GameFontRenderer(getFontcustom(45, "Bangers"));
-        icon18 = new GameFontRenderer(getFontcustom(18,"Icon"));
-        icon15 = new GameFontRenderer(getFontcustom(15,"Icon"));
-        icon10 = new GameFontRenderer(getFontcustom(10,"Icon"));
-        fontTahoma = new GameFontRenderer(getFontcustom(35,"Tahoma"));
-        fontTahoma30 = new GameFontRenderer(getFontcustom(30,"Tahoma"));
-        fontJello30 = new GameFontRenderer(getFontcustom(30,"jello"));
-        fontJello40 = new GameFontRenderer(getFontcustom(40,"jello"));
         fontTenacity35 = new GameFontRenderer(getFontcustom(35, "tenacity"));
         fontTenacityBold35 = new GameFontRenderer(getFontcustom(35, "tenacity-bold"));
         fontTenacityIcon30 = new GameFontRenderer(getFontcustom(30, "Tenacityicon"));
         fontTenacity40 = new GameFontRenderer(getFontcustom(40,"tenacity"));
         fontTenacityBold40 = new GameFontRenderer(getFontcustom(40,"tenacity-bold"));
-
+        fontComfortaa35 = new GameFontRenderer(getFontcustom(35, "Comfortaa"));
+        fontComfortaa40 = new GameFontRenderer(getFontcustom(40, "Comfortaa"));
+        fontRockoFLF35 = new GameFontRenderer(getFontcustom(35, "RockoFLF-Bold"));
+        fontRockoFLF40 = new GameFontRenderer(getFontcustom(40, "RockoFLF-Bold"));
+        Nunito24 = new GameFontRenderer(getFontcustom(24, "Nunito"));
+        Nunito30 = new GameFontRenderer(getFontcustom(30, "Nunito"));
+        Nunito35 = new GameFontRenderer(getFontcustom(35, "Nunito"));
+        Nunito40 = new GameFontRenderer(getFontcustom(40, "Nunito"));
+        Nunito50 = new GameFontRenderer(getFontcustom(50, "Nunito"));
+        Nunito60 = new GameFontRenderer(getFontcustom(60, "Nunito"));
+        ThaiRounded35 = new GameFontRenderer(getFontcustom(35, "thairounded"));
+        ThaiRounded40 = new GameFontRenderer(getFontcustom(40, "thairounded"));
 
 
 
@@ -266,7 +259,7 @@ public class Fonts {
         Font font;
         try {
             InputStream is = Minecraft.getMinecraft().getResourceManager()
-                        .getResource(new ResourceLocation("crosssine/font/SFBOLD.ttf")).getInputStream();
+                    .getResource(new ResourceLocation("crosssine/font/SFBOLD.ttf")).getInputStream();
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
         } catch (Exception ex) {

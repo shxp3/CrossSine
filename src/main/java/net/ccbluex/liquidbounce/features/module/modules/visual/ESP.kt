@@ -1,8 +1,3 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -15,9 +10,11 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
+import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
@@ -39,11 +36,8 @@ import java.text.DecimalFormat
 class ESP : Module() {
     val modeValue = ListValue(
         "Mode",
-        arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow", "Raven"),
-        "Raven"
-    )
-    private val expand = FloatValue("Expand", 0.0F, -0.3F, 2.0F).displayable { modeValue.equals("Raven") }
-    private val shift = FloatValue("x-Shift", 0.0F, -35.0F, 10.0F).displayable { modeValue.equals("Raven") }
+        arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow", "HealthLine"),
+    "Outline")
     private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
     private val shaderOutlineRadiusValue = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f).displayable { modeValue.equals("ShaderOutline") }
     private val shaderGlowRadiusValue = FloatValue("ShaderGlow-Radius", 2.3f, 2f, 3f).displayable { modeValue.equals("ShaderGlow") }
@@ -52,45 +46,15 @@ class ESP : Module() {
     private val csgoShowHeldItemValue = BoolValue("CSGO-ShowHeldItem", true).displayable { modeValue.equals("CSGO") }
     private val csgoShowNameValue = BoolValue("CSGO-ShowName", true).displayable { modeValue.equals("CSGO") }
     private val csgoWidthValue = FloatValue("CSGOOld-Width", 2f, 0.5f, 5f).displayable { modeValue.equals("CSGO-Old") }
-    private val colorModeValue = ListValue("ColorMode", arrayOf("Name", "Armor", "OFF"), "Name")
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
-    private val colorRainbowValue = BoolValue("Rainbow", false).displayable { colorModeValue.get() == "OFF" }
+    private val colorModeValue = ListValue("ColorMode", arrayOf("Name", "Armor", "Theme", "OFF"), "Name")
+    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { colorModeValue.get() == "OFF"}
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { colorModeValue.get() == "OFF"}
+    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { colorModeValue.get() == "OFF"}
 
     private val decimalFormat = DecimalFormat("0.0")
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (modeValue.equals("Raven")) {
-            val entity: EntityLivingBase? = null
-            val d: Float = expand.get() / 40.0f
-            val r = (entity!!.health / entity.maxHealth).toDouble()
-            val b = (74.0 * r).toInt()
-            val hc =
-                if (r < 0.3) Color.red.rgb else if (r < 0.5) Color.orange.rgb else if (r < 0.7) Color.yellow.rgb else Color.green.rgb
-            val x: Double =
-                entity!!.lastTickPosX + (entity!!.posX - entity!!.lastTickPosX) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
-            val y: Double =
-                entity!!.lastTickPosY + (entity!!.posY - entity!!.lastTickPosY) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosY
-            val z: Double =
-                entity!!.lastTickPosZ + (entity!!.posZ - entity!!.lastTickPosZ) * mc.timer.renderPartialTicks.toDouble() - mc.renderManager.viewerPosZ
-            GlStateManager.pushMatrix()
-            GL11.glTranslated(x, y - 0.2, z)
-            GL11.glRotated(
-                mc.renderManager.playerViewY.toDouble(),
-                0.0,
-                1.0,
-                0.0
-            )
-            GlStateManager.disableDepth()
-            GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
-            val i = (21.0 + shift.get() * 2.0).toInt()
-            Gui.drawRect(i, -1, i + 5, 75, Color.black.rgb)
-            Gui.drawRect(i + 1, b, i + 4, 74, Color.darkGray.rgb)
-            Gui.drawRect(i + 1, 0, i + 4, b, hc)
-            GlStateManager.enableDepth()
-        }
         val mode = modeValue.get().lowercase()
         val mvMatrix = WorldToScreen.getMatrix(GL11.GL_MODELVIEW_MATRIX)
         val projectionMatrix = WorldToScreen.getMatrix(GL11.GL_PROJECTION_MATRIX)
@@ -256,6 +220,33 @@ class ESP : Module() {
                             }
                         }
                     }
+                    "healthline" -> {
+                        var r = entity.health / entity.maxHealth
+                        GL11.glPushMatrix()
+                        val renderManager = mc.renderManager
+                        val timer = mc.timer
+                        GL11.glTranslated(
+                            entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX,
+                            entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY - 0.2,
+                            entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
+                        )
+                        GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
+                        RenderUtils.disableGlCap(GL11.GL_LIGHTING, GL11.GL_DEPTH_TEST)
+                        GL11.glScalef(0.03F, 0.03F, 0.03F)
+                        Gui.drawRect(21, -1, 26, 75, Color.black.rgb);
+                        Gui.drawRect(22, (74 * r).toInt(), 25, 74, Color.darkGray.rgb);
+                        Gui.drawRect(22, 0, 25, (74 * r).toInt(), BlendUtils.getHealthColor(entity.health, entity.maxHealth).rgb);
+                        RenderUtils.enableGlCap(GL11.GL_BLEND)
+                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+                        RenderUtils.resetCaps()
+
+                        // Reset color
+                        GlStateManager.resetColor()
+                        GL11.glColor4f(1F, 1F, 1F, 1F)
+
+                        // Pop
+                        GL11.glPopMatrix()
+                    }
                 }
             }
         }
@@ -369,8 +360,10 @@ class ESP : Module() {
                         return Color(entityItemArmor.getColor(entityHead))
                     }
                 }
+            } else if (colorModeValue.get() == "Theme") {
+                return ClientTheme.getColor(1)
             }
         }
-        return if (colorRainbowValue.get()) ColorUtils.rainbow() else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
+        return Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
     }
 }

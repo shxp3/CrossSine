@@ -1,15 +1,27 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.flights.other
 
-import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlyMode
-import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S27PacketExplosion
 
-class GrimFly : FlyMode("Grim") {
-    fun onUpdate(event: PacketEvent) {
-        if (event.packet is S12PacketEntityVelocity) {
-            event.packet.motionX += 8
-            event.packet.motionZ += 8
-            event.packet.motionY += 8
+
+class GrimFly : FlyMode("GrimDamage") {
+    private var velocitypacket = false
+
+    override fun onUpdate(event: UpdateEvent) {
+        if(mc.isSingleplayer) return
+
+        if (velocitypacket){
+            mc.thePlayer.setPositionAndRotation(mc.thePlayer.posX+50, mc.thePlayer.posY, mc.thePlayer.posZ+50, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+            velocitypacket = false
+        }
+    }
+
+    override fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+
+        if (packet is S27PacketExplosion ) {
+            velocitypacket = true
         }
     }
 }

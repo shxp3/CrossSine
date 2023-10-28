@@ -5,11 +5,13 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.utils.ClientUtils.mc
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.render.GLUtils
 import net.minecraft.client.Minecraft
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -22,6 +24,8 @@ import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import javax.vecmath.Vector3d
 import kotlin.math.*
+
+
 
 /**
  * Allows to get the distance between the current entity and [entity] from the nearest corner of the bounding box
@@ -56,6 +60,10 @@ fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, rotation: Rota
 fun Entity.rayTraceWithServerSideRotation(blockReachDistance: Double): MovingObjectPosition? {
     return this.rayTraceWithCustomRotation(blockReachDistance, RotationUtils.serverRotation)
 }
+fun Entity.inCombat() : Boolean {
+    return CrossSine.combatManager.inCombat
+}
+
 
 fun EntityPlayer.getEyeVec3(): Vec3 {
     return Vec3(this.posX, this.entityBoundingBox.minY + this.getEyeHeight(), this.posZ)
@@ -72,7 +80,6 @@ val EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
 
 val EntityLivingBase.ping: Int
     get() = if (this is EntityPlayer) { Minecraft.getMinecraft().netHandler.getPlayerInfo(this.uniqueID)?.responseTime?.coerceAtLeast(0) } else { null } ?: -1
-
 /**
  * Render entity position
  */
@@ -97,7 +104,16 @@ val Entity.hitBox: AxisAlignedBB
         val borderSize = collisionBorderSize.toDouble()
         return entityBoundingBox.expand(borderSize, borderSize, borderSize)
     }
-
+fun Entity.rayTraceCustom(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
+    val vec3 = mc.thePlayer.getPositionEyes(1.0f)
+    val vec31 = mc.thePlayer.getVectorForRotation(yaw, pitch)
+    val vec32 = vec3.addVector(
+        vec31.xCoord * blockReachDistance,
+        vec31.yCoord * blockReachDistance,
+        vec31.zCoord * blockReachDistance
+    )
+    return mc.theWorld.rayTraceBlocks(vec3, vec32, false, false, true)
+}
 fun World.getEntitiesInRadius(entity: Entity, radius: Double = 16.0): List<Entity> {
     val box = entity.entityBoundingBox.expand(radius, radius, radius)
     val chunkMinX = floor(box.minX * 0.0625).toInt()
@@ -114,4 +130,9 @@ fun World.getEntitiesInRadius(entity: Entity, radius: Double = 16.0): List<Entit
             .forEach { it.getEntitiesWithinAABBForEntity(entity, box, entities, null) }
     }
     return entities
+}
+fun Entity.getLookDistanceToEntityBox(entity: Entity=this, rotation: Rotation? = null, range: Double=10.0): Double {
+    val eyes = this.getPositionEyes(1F)
+    val end = (rotation?: RotationUtils.targetRotation).toDirection().multiply(range).add(eyes)
+    return entity.entityBoundingBox.calculateIntercept(eyes, end)?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
 }

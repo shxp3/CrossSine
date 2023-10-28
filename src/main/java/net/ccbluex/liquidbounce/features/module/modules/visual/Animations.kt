@@ -9,69 +9,39 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.ccbluex.liquidbounce.utils.PlayerUtils
+import net.minecraft.item.EnumAction
+import net.minecraft.util.MovingObjectPosition
+import org.lwjgl.input.Mouse
 
 
 @ModuleInfo(name = "Animations", spacedName = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true, array = false)
 object Animations : Module() {
-    val AnimationMode = ListValue("AnimationMode", arrayOf("Full", "Normal"), "Normal")
     val blockingModeValue = ListValue(
         "BlockingMode",
         arrayOf(
             "1.8",
             "1.7",
-            "Tap",
-            "Tap2",
-            "Remix",
-            "Chill",
-            "Leaked",
-            "Leaked2",
-            "Akrien",
-            "Avatar",
-            "ETB",
-            "Exhibition",
-            "Dortware1",
-            "Dortware2",
-            "Push",
-            "Reverse",
-            "Shield",
-            "SigmaNew",
-            "SigmaOld",
-            "Slide",
-            "SlideDown",
-            "HSlide",
-            "Swong",
-            "VisionFX",
-            "Swank",
-            "Jello",
-            "Rotate",
-            "Fall",
-            "Yeet",
-            "Yeet2",
-            "Moon",
-            "Stella",
-            "Astolfo",
-            "Zoom",
-            "Liquid",
-            "None"
+            "Slash",
+            "Sigma4",
+            "Spin"
         ),
         "1.8"
     )
-    val itemPosXValue = FloatValue("ItemPosX", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-    val itemPosYValue = FloatValue("ItemPosY", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-    val itemPosZValue = FloatValue("ItemPosZ", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-    val itemScaleValue = FloatValue("ItemScale", 0.4f, 0.0f, 2.0f).displayable { AnimationMode.get().equals("full", true)}
-    val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f).displayable { AnimationMode.get().equals("full", true)}
-    val fluxAnimation = BoolValue("FluxSwing", false).displayable { AnimationMode.get().equals("full", true)}
+    private val showTag = BoolValue("ShowTag", false)
+    val resetValue = BoolValue("Reset", false)
+    val itemPosXValue = FloatValue("ItemPosX", 0F, -1.0F, 1.0F)
+    val itemPosYValue = FloatValue("ItemPosY", 0F, -1.0F, 1.0F)
+    val itemPosZValue = FloatValue("ItemPosZ", 0F, -1.0F, 1.0F)
+    val itemScaleValue = IntegerValue("ItemScale", 100,0,100)
+    val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f)
+    val fluxAnimation = BoolValue("Flux Swing", false)
     val BlockAnimation = BoolValue("Block Animation", false)
-    val anythingBlockValue = false
-    val Equip = FloatValue("Equip", 0F, -1.0F, 1.0F).displayable { AnimationMode.get().equals("full", true)}
-
+    val useItem = BoolValue("Use item while digging", false)
     var flagRenderTabOverlay = false
         get() = field
 
@@ -79,5 +49,28 @@ object Animations : Module() {
     var tabHopePercent = 0f
     var lastTabSync = 0L
     override val tag: String?
-        get() = blockingModeValue.get()
+        get() = if (showTag.get()) blockingModeValue.get() else null
+
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        if (resetValue.get()) {
+            itemPosXValue.set(0F)
+            itemPosZValue.set(0F)
+            itemPosYValue.set(0F)
+            itemScaleValue.set(100)
+            swingSpeedValue.set(1F)
+            resetValue.set(false)
+        }
+    }
+    @EventTarget
+    fun onTick(event: TickEvent) {
+        if (useItem.get()) {
+            if (Mouse.isButtonDown(1) && mc.objectMouseOver.blockPos != null) {
+                mc.playerController.resetBlockRemoving()
+            }
+        }
+        if (BlockAnimation.get()) {
+            PlayerUtils.swing()
+        }
+    }
 }

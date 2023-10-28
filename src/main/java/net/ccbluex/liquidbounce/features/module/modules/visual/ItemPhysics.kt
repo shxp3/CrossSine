@@ -9,7 +9,4 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
 @ModuleInfo(name = "ItemPhysics", spacedName = "Item Physics", category = ModuleCategory.VISUAL)
-class ItemPhysics : Module() {
-    val physicsModeValue = ListValue("Mode", arrayOf("Physics", "Clean"), "Physics")
-    val itemPhysicsSpeed = FloatValue("PhysicsSpeed", 0.0F,0.0F,10.0F).displayable { physicsModeValue.equals("Physics") }
-}
+object ItemPhysics : Module()

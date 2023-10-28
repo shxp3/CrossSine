@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
+import net.ccbluex.liquidbounce.utils.CooldownHelper;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.minecraft.block.Block;
@@ -130,10 +131,10 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
     public void onUpdateWalkingPlayer(CallbackInfo ci) {
         try {
-            final MovementFix strafeFix = CrossSine.moduleManager.getModule(MovementFix.class);
-            strafeFix.updateOverwrite();
+            final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
+            movementFix.updateOverwrite();
             
-            CrossSine.eventManager.callEvent(new MotionEvent(EventState.PRE));
+            CrossSine.eventManager.callEvent(new MotionEvent(EventState.PRE, onGround));
 
             boolean flag = this.isSprinting();
             //alert("Attempt: " + debug_AttemptSprint + " Actual: " + this.isSprinting() + " Server: " + this.serverSprintState);
@@ -211,7 +212,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 }
             }
 
-            CrossSine.eventManager.callEvent(new MotionEvent(EventState.POST));
+            CrossSine.eventManager.callEvent(new MotionEvent(EventState.POST, onGround));
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -261,8 +262,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
         final Inventory inventoryMove = CrossSine.moduleManager.getModule(Inventory.class);
         final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
-        final MovementFix strafeFix = CrossSine.moduleManager.getModule(MovementFix.class);
-        
+        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
 
@@ -278,8 +278,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean isSprintDirection = false;
         boolean movingStat = Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f;
         
-        boolean runStrictStrafe = strafeFix.getDoFix() && !strafeFix.getSilentFix();
-        boolean noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
+        boolean runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
+        boolean noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
         
         if (!movingStat || runStrictStrafe || noStrafe) {
             isSprintDirection = this.movementInput.moveForward > 0.05f;
@@ -364,8 +364,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
          */
 
         movingStat = Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f;
-        runStrictStrafe = strafeFix.getDoFix() && !strafeFix.getSilentFix();
-        noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
+        runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
+        noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
         
         isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
 
@@ -397,16 +397,12 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         } else {
             this.setSprinting(false);
         }
-        
-        //Overwrite: Scaffold
-        
+
         if (scaffold.getState()) {
             this.setSprinting(scaffold.getSprintActive());
         }
-
         debug_AttemptSprint = this.isSprinting();
-        
-        attemptToggle = false;
+
 
         //aac may check it :(
         if (this.capabilities.allowFlying) {
@@ -471,7 +467,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.sendPlayerAbilities();
         }
     }
-
     @Override
     public void moveEntity(double x, double y, double z) {
         MoveEvent moveEvent = new MoveEvent(x, y, z);
@@ -479,7 +474,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (moveEvent.isCancelled())
             return;
-
         x = moveEvent.getX();
         y = moveEvent.getY();
         z = moveEvent.getZ();

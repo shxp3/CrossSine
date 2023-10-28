@@ -22,10 +22,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
         this.javaClass.classLoader,
         ScriptSafetyManager.classFilter
     )
-    var scriptText: String =
-        if (!scriptFile.path.contains("CloudLoad")) scriptFile.readText(Charsets.UTF_8) else "//api_version=2"
-    var isOnline = false
-
+    var scriptText: String = if (!scriptFile.path.contains("CloudLoad")) scriptFile.readText(Charsets.UTF_8) else "//api_version=2"
     // Script information
     lateinit var scriptName: String
     lateinit var scriptVersion: String
@@ -64,8 +61,6 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
 
         // Global functions
         scriptEngine.put("registerScript", RegisterScript())
-            isOnline = true
-
         supportLegacyScripts()
 
         scriptEngine.eval(scriptText)
@@ -124,7 +119,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
 
     fun supportLegacyScripts() {
         if (!scriptText.lines().first().contains("api_version=2")) {
-            ClientUtils.logWarn("[ScriptAPI] Running script '${scriptFile.name}' with legacy support.")
+            ClientUtils.logWarn("[CrossSineAPI] Running script '${scriptFile.name}' with legacy support.")
             val legacyScript =
                 CrossSine::class.java.getResource("/assets/minecraft/crosssine/scriptapi/legacy.js")?.readText()
             scriptEngine.eval(legacyScript)
@@ -184,7 +179,7 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
         try {
             events[eventName]?.call(null)
         } catch (throwable: Throwable) {
-            ClientUtils.logError("[ScriptAPI] Exception in script '$scriptName'!", throwable)
+            ClientUtils.logError("[CrossSineAPI] Exception in script '$scriptName'!", throwable)
         }
     }
 }

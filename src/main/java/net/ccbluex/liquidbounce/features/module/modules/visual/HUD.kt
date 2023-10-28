@@ -5,111 +5,147 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.AutoBot
-import net.ccbluex.liquidbounce.features.module.modules.combat.BowAimbot
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint
-import net.ccbluex.liquidbounce.features.module.modules.player.Annoy
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
-import net.ccbluex.liquidbounce.features.module.modules.world.BedNuker
-import net.ccbluex.liquidbounce.features.module.modules.world.Stealer
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Text
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.GameButtonUtils
+import net.ccbluex.liquidbounce.utils.InventoryUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.extensions.drawCenteredStringFade
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiChat
+import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.math.sqrt
 
-@ModuleInfo(name = "HUD", "HUD",category = ModuleCategory.VISUAL, array = false, defaultOn = true)
+@ModuleInfo(name = "HUD", "HUD", category = ModuleCategory.VISUAL, array = false, defaultOn = true)
 object HUD : Module() {
-    val HUDText = BoolValue("HUDText", true)
-    val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo").displayable { HUDText.get() }
-    val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") && HUDText.get() }
-    val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") && HUDText.get() }
-    val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") && HUDText.get() }
-    val ColorRed = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom") && HUDText.get() || ClientColorMode.equals("Fade") && HUDText.get() }
-    val ColorGreen = IntegerValue("Green", 0, 0, 255).displayable { ClientColorMode.equals("Custom") && HUDText.get() || ClientColorMode.equals("Fade") && HUDText.get()}
-    val ColorBlue = IntegerValue("Blue", 0, 0, 255).displayable { ClientColorMode.equals("Custom") && HUDText.get() || ClientColorMode.equals("Fade") && HUDText.get()}
+    val hudtext = BoolValue("HUDText", true)
+    val title = TitleValue(".clientusername (name)")
+    val buttonValue = BoolValue("ContainerButton", false)
+    val inventoryParticle = BoolValue("InventoryParticle", false)
+    val UiShadowValue =
+        ListValue("UiEffect", arrayOf("Shadow", "Glow", "None"), "None")
+    val ColorGuiInGameValue = IntegerValue("ColorGuiInGame", 0, 0, 9)
+    var scafState = false
+    var fadeProgress = 0F
 
-    private val hudeditor = BoolValue("HUDEditor", false)
-
-    private val ChatValue = BoolValue("Chat", false)
-    val fontChatValue = BoolValue("FontChat", false).displayable { ChatValue.get() }
-    val fontType = FontValue("Font", Fonts.SFUI35).displayable { fontChatValue.get() && ChatValue.get() }
-    val chatRectValue = BoolValue("ChatRect", true).displayable { ChatValue.get() }
-    val chatLimitValue = BoolValue("NoChatLimit", true).displayable { ChatValue.get() }
-    val chatCombine = BoolValue("ChatCombine", true).displayable { ChatValue.get() }
-    val chatAnimValue = BoolValue("ChatAnimation", true).displayable { ChatValue.get() }
-    private val RainBowValue = BoolValue("RainBow", false)
-    val rainbowStartValue = FloatValue("RainbowStart", 0.55f, 0f, 1f).displayable { RainBowValue.get() }
-    val rainbowStopValue = FloatValue("RainbowStop", 0.85f, 0f, 1f).displayable { RainBowValue.get() }
-    val rainbowSaturationValue = FloatValue("RainbowSaturation", 0.45f, 0f, 1f).displayable { RainBowValue.get() }
-    val rainbowBrightnessValue = FloatValue("RainbowBrightness", 0.85f, 0f, 1f).displayable { RainBowValue.get() }
-    val rainbowSpeedValue = IntegerValue("RainbowSpeed", 1500, 500, 7000).displayable { RainBowValue.get() }
-    val fontEpsilonValue = FloatValue("FontVectorEpsilon", 0.5f, 0f, 1.5f).displayable { RainBowValue.get() }
-    private val otherValue = BoolValue("Other", false)
-    val inventoryParticle = BoolValue("InventoryParticle", false).displayable { otherValue.get() }
-    private val blurValue = BoolValue("Blur", false).displayable { otherValue.get() }
-    val shadowValue = ListValue("TextShadowMode", arrayOf("LiquidBounce", "Outline", "Default", "Autumn"), "Default").displayable { otherValue.get() }
-    val rotationMode = ListValue("RotationMode", arrayOf("Lock", "Smooth", "SuperLock"), "Smooth").displayable { otherValue.get() }
-    val UiShadowValue = ListValue("UiEffect", arrayOf("Shadow", "Glow", "None"), "None").displayable { otherValue.get() }
-    val ColorGuiInGameValue = IntegerValue("ColorGuiInGame", 0, 0, 9).displayable { otherValue.get() }
-    val domaincustomvalue = TextValue("Domain", ".GuiEdit Domain text").displayable { otherValue.get() }
-    var lastFontEpsilon = 0.5f
-    var prevHeadPitch = 0f
-    var headPitch = 0f
     @EventTarget
     fun onTick(event: TickEvent) {
         mc.guiAchievement.clearAchievements()
     }
+
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         if (mc.currentScreen is GuiHudDesigner) return
         CrossSine.hud.render(false, event.partialTicks)
-        if (HUDText.get()) renderHUDText()
+        if (hudtext.get()) {
+            clientText()
+        }
+        scafCounter()
     }
-    private fun renderHUDText() {
-        var mixerColor: Int = ColorMixer.getMixedColor(mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-        var width = 3
-        mc.fontRendererObj.drawStringWithShadow(
-            "C",
-            3.0f,
-            3.0f,
-            when (ClientColorMode.get().lowercase()) {
-                "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
-                "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
-                "mixer" -> mixerColor
-                else -> Color(ColorRed.get(), ColorGreen.get(), ColorBlue.get()).rgb
+
+    fun clientText() {
+        val name = "CrossSine"
+        val other = " | ${CrossSine.USER_NAME} | ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"))}"
+        val leagth = Fonts.fontTenacityBold40.getStringWidth(name) + Fonts.fontTenacityBold35.getStringWidth(other)
+        RenderUtils.drawRect(2F, 3F, leagth + 6F, Fonts.fontTenacityBold40.FONT_HEIGHT + 5F, Color(0,0,0,180))
+        RenderUtils.drawAnimatedGradient(2.0, 3.0, leagth + 6.0, 4.0, getColor("START"), getColor("END"))
+        Fonts.fontTenacityBold40.drawString(name, 5F, 5.5F, getColor("END"))
+        Fonts.fontTenacityBold35.drawString(other, Fonts.fontTenacityBold40.getStringWidth("CrossSine").toFloat() + 5F, 6.5F, Color(255,255,255).rgb)
+        GlStateManager.resetColor()
+    }
+    fun getColor(type: String) : Int {
+        if (CustomClientColor.state){
+            return CustomClientColor.getColor().rgb
+        }
+        if (type == "START") {
+            return ClientTheme.setColor("START", 255).rgb
+        } else if (type == "END") {
+            return ClientTheme.setColor("END", 255).rgb
+        }
+        return Color(-1).rgb
+    }
+
+    fun scafCounter() {
+        val scaleW = ScaledResolution(mc).scaledWidth
+        val scaleH = ScaledResolution(mc).scaledHeight
+        val font = Fonts.Nunito40
+        val text = "$blocksAmount Blocks"
+        val centerLe = font.getStringWidth(text) / 2
+        if (Scaffold.counterMode.equals("OFF")) return
+        if (Scaffold.state) scafState = true
+        fadeProgress += (0.0075F * 0.85F * RenderUtils.deltaTime * if (Scaffold.state) -1F else 1F)
+        fadeProgress = fadeProgress.coerceIn(0F, 1F)
+        if (fadeProgress >= 1F) scafState = false
+        if (scafState) {
+            when (Scaffold.counterMode.get().lowercase()) {
+                "simple" -> {
+                    GlStateManager.enableBlend()
+                    mc.fontRendererObj.drawCenteredStringFade(
+                        "Blocks : $blocksAmount",
+                        scaleW / 2F,
+                        scaleH / 2 + 20F,
+                        Color(255, 255, 255, fadeAlpha(255))
+                    )
+                    GlStateManager.disableAlpha()
+                    GlStateManager.disableBlend()
+                    GlStateManager.resetColor()
+                }
+
+                "normal" -> {
+                    RenderUtils.drawRoundedRect(
+                        scaleW / 2 - 3F - centerLe,
+                        scaleH - 80F,
+                        scaleW / 2 + 3F + centerLe,
+                        scaleH - 93.05F,
+                        2F,
+                        Color(0, 0, 0, fadeAlpha(100)).rgb
+                    )
+                    GlStateManager.enableBlend()
+                    font.drawCenteredString(
+                        text,
+                        scaleW / 2F,
+                        scaleH - 90F,
+                        Color(255, 255, 255, fadeAlpha(255)).rgb
+                    )
+                    GlStateManager.disableAlpha()
+                    GlStateManager.disableBlend()
+                    GlStateManager.resetColor()
+                }
             }
-        )
-        width += mc.fontRendererObj.getStringWidth("C")
-        mc.fontRendererObj.drawStringWithShadow(
-            "rossSine ${CrossSine.CLIENT_VERSION}",
-            width.toFloat(),
-            3.0f,
-            -1
-        )
+        }
     }
+
+    fun fadeAlpha(alpha: Int): Int {
+        return alpha - (fadeProgress * alpha).toInt()
+    }
+
+    private val blocksAmount: Int
+        get() {
+            var amount = 0
+            for (i in 36..44) {
+                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                if (itemStack != null && itemStack.item is ItemBlock && InventoryUtils.canPlaceBlock((itemStack.item as ItemBlock).block)) {
+                    amount += itemStack.stackSize
+                }
+            }
+            return amount
+        }
+
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         CrossSine.hud.update()
-        if (mc.currentScreen == null && lastFontEpsilon != fontEpsilonValue.get()) {
-            lastFontEpsilon = fontEpsilonValue.get()
-            alert("You need to reload Client to apply changes!")
-        }
-         if (hudeditor.get()) {
-             mc.displayGuiScreen(GuiHudDesigner())
-             hudeditor.set(false)
-         }
-    }
-
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
-        lastFontEpsilon = fontEpsilonValue.get()
     }
 
     @EventTarget
@@ -118,59 +154,11 @@ object HUD : Module() {
             return
         }
 
-        if (state && blurValue.get() && !mc.entityRenderer.isShaderActive && event.guiScreen != null && !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)) {
-            mc.entityRenderer.loadShader(ResourceLocation("crosssine/blur.json"))
-        } else if (mc.entityRenderer.shaderGroup != null && mc.entityRenderer.shaderGroup!!.shaderGroupName.contains("crosssine/blur.json")) {
-            mc.entityRenderer.stopUseShader()
-        }
     }
 
     @EventTarget
     fun onKey(event: KeyEvent) {
         CrossSine.hud.handleKey('a', event.key)
     }
-    var playerYaw: Float? = null
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-            val thePlayer = mc.thePlayer
 
-            if (!shouldRotate() || thePlayer == null) {
-                playerYaw = null
-                return
-            }
-
-            val packet = event.packet
-
-            if (packet is C03PacketPlayer.C06PacketPlayerPosLook || packet is C03PacketPlayer.C05PacketPlayerLook) {
-                val packetPlayer = packet as C03PacketPlayer
-
-                playerYaw = packetPlayer.yaw
-
-                thePlayer.rotationYawHead = packetPlayer.yaw
-            } else {
-                thePlayer.rotationYawHead = playerYaw!!
-            }
-    }
-
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        prevHeadPitch = headPitch
-        headPitch = serverRotation.pitch
-        if (!shouldRotate()) {
-            return
-        }
-        mc.thePlayer.rotationYawHead = serverRotation.yaw
-
-    }
-
-    fun lerp(tickDelta: Float, old: Float, new: Float): Float {
-        return old + (new - old) * tickDelta
-    }
-    private fun State(module: Class<out Module>) = CrossSine.moduleManager[module]!!.state
-
-    fun shouldRotate(): Boolean {
-        return (State(Scaffold::class.java)) || (State(BedNuker::class.java)) || (State(KillAura::class.java)) || (State(Stealer::class.java)) ||
-                (State(FreeLook::class.java)) || (State(Annoy::class.java)) || (State(BowAimbot::class.java)) ||
-                (State(AutoBot::class.java)) ||  (State(Sprint::class.java))
-    }
 }

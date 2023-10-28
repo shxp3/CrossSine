@@ -6,7 +6,9 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.features.module.modules.visual.GuiChatModule;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
+import net.ccbluex.liquidbounce.ui.client.hud.element.Element;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
@@ -24,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 @Mixin(GuiChat.class)
@@ -35,6 +38,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     @Shadow
     private List<String> foundPlayerNames;
 
+    private Element selectedElement;
     @Shadow
     private boolean waitingOnAutocomplete;
 
@@ -49,7 +53,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     private float yPosOfInputField;
     private float fade = 0;
 
-    final HUD hud = CrossSine.moduleManager.getModule(HUD.class);
+    final GuiChatModule guiChatModule = CrossSine.moduleManager.getModule(GuiChatModule.class);
 
     /**
      * @author Liuli
@@ -80,7 +84,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
         if(text.startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))) {
             this.inputField.setMaxStringLength(114514);
         } else {
-            if(hud.getState() && hud.getChatLimitValue().get()) {
+            if(guiChatModule.getState() && guiChatModule.getChatLimitValue().get()) {
                 this.inputField.setMaxStringLength(114514);
             } else {
                 this.inputField.setMaxStringLength(100);
@@ -182,7 +186,6 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
         //RenderUtils.drawRect(10,10,20,20,new Color(255,255,255,255).getRGB());
         RenderUtils.drawRoundedCornerRect(1, this.height - (int) fade - 2, this.width - 4, this.height - 1 , 2f, new Color(255,255,255,50).getRGB());
         RenderUtils.drawRoundedCornerRect(2, this.height - (int) fade - 1, this.width - 3, this.height - 2 ,3f, new Color(0,0,0,200).getRGB());
-
         this.inputField.drawTextBox();
 
         if (CrossSine.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))) {

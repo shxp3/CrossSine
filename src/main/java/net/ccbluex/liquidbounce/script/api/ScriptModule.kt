@@ -29,11 +29,7 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
     init {
         name = moduleObject.getMember("name") as String
 
-        val categoryString = moduleObject.getMember("category") as String
-        for (category in ModuleCategory.values())
-            if (categoryString.equals(category.configName, true)) {
-                this.category = category
-            }
+       category = ModuleCategory.SCRIPT
 
         if (moduleObject.hasMember("settings")) {
             val settings = moduleObject.getMember("settings") as JSObject
@@ -153,7 +149,7 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
         try {
             events[eventName]?.call(moduleObject, payload)
         } catch (throwable: Throwable) {
-            ClientUtils.logError("[FDPScriptAPI] Exception in module '$name'!", throwable)
+            ClientUtils.logError("[CrossSineAPI] Exception in module '$name'!", throwable)
         }
     }
 }

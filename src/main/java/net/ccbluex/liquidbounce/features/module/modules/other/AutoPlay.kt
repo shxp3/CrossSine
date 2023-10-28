@@ -52,7 +52,6 @@ class AutoPlay : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-
         when (modeValue.get().lowercase()) {
             "redesky" -> {
                 if (clicking && (packet is C0EPacketClickWindow || packet is C07PacketPlayerDigging)) {

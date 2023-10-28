@@ -17,7 +17,7 @@ import java.util.*
 
 object ScriptSafetyManager {
 
-    private val level = ProtectionLevel.valueOf((System.getProperty("fdp.script.safety") ?: "safe").uppercase()).level
+    private val level = ProtectionLevel.valueOf((System.getProperty("crosssine.script.safety") ?: "safe").uppercase()).level
     private val restrictedClasses: Map<Class<*>, Int>
     private val restrictedChilds: Map<Class<*>, Pair<String, Int>>
 
@@ -139,7 +139,7 @@ object ScriptSafetyManager {
             ClientUtils.logWarn("[ScriptAPI] \n" +
                     "========= WARNING =========\n" +
                     "The script tried to make a restricted call: $message,\n" +
-                    "please add a jvm argument to disable this check: -Dfdp.script.safety=HARMFUL\n" +
+                    "please add a jvm argument to disable this check: -Dcrosssine.script.safety=HARMFUL\n" +
                     "===========================")
         }
     }

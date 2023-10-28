@@ -47,6 +47,11 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
 
     fun drawString(s: String, x: Float, y: Float, color: Int) = drawString(s, x, y, color, false)
 
+    fun drawStringFade(s: String, x: Float, y: Float, color: Color) {
+        drawString(s, x+0.7F, y+0.7F, Color(0,0,0,color.alpha).rgb, false)
+        drawString(s, x, y, color.rgb, false)
+    }
+
     fun stringWidth(text: CharSequence?) {}
 
     override fun drawStringWithShadow(text: String, x: Float, y: Float, color: Int) = drawString(text, x, y, color, true)
@@ -68,17 +73,7 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         val rainbow = RainbowFontShader.INSTANCE.isInUse
 
         if (shadow) {
-            when {
-                HUD.shadowValue.get().equals("LiquidBounce", ignoreCase = true) -> drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
-                HUD.shadowValue.get().equals("Default", ignoreCase = true) -> drawText(currentText, x + 0.5f, currY + 0.5f, Color(0, 0, 0, 130).rgb, true)
-                HUD.shadowValue.get().equals("Autumn", ignoreCase = true) -> drawText(currentText, x + 1f, currY + 1f, Color(20, 20, 20, 200).rgb, true)
-                HUD.shadowValue.get().equals("Outline", ignoreCase = true) -> {
-                    drawText(currentText, x + 0.5f, currY + 0.5f, Color(0, 0, 0, 130).rgb, true)
-                    drawText(currentText, x - 0.5f, currY - 0.5f, Color(0, 0, 0, 130).rgb, true)
-                    drawText(currentText, x + 0.5f, currY - 0.5f, Color(0, 0, 0, 130).rgb, true)
-                    drawText(currentText, x - 0.5f, currY + 0.5f, Color(0, 0, 0, 130).rgb, true)
-                }
-            }
+            drawText(currentText, x + 1f, currY + 1f, Color(20, 20, 20, 200).rgb, true)
         }
 
         return drawText(currentText, x, currY, color, false, rainbow)

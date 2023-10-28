@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.utils;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,5 +44,26 @@ public final class ReflectionHelper {
         }
 
         return invokeOrNull(handle);
+    }
+    public static <E> Method findMethod(Class<? super E> clazz, E instance, String[] methodNames, Class<?>... methodTypes) {
+        Exception failed = null;
+        String[] var5 = methodNames;
+        int var6 = methodNames.length;
+        int var7 = 0;
+
+        while(var7 < var6) {
+            String methodName = var5[var7];
+
+            try {
+                Method m = clazz.getDeclaredMethod(methodName, methodTypes);
+                m.setAccessible(true);
+                return m;
+            } catch (Exception var10) {
+                failed = var10;
+                ++var7;
+            }
+        }
+
+        throw new net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException(methodNames, failed);
     }
 }

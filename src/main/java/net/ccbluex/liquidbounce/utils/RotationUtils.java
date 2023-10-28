@@ -215,8 +215,34 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         return vecRotation;
     }
-    
-    public static VecRotation calculateCenter(final String calMode, final String randMode, final double randomRange, final AxisAlignedBB bb, final boolean predict, final boolean throughWalls) {
+    public static Vec3 getVec3(BlockPos pos, EnumFacing facing, boolean randomised) {
+        Vec3 vec3 = new Vec3(pos);
+
+        double amount1 = 0.5;
+        double amount2 = 0.5;
+
+        if(randomised) {
+            amount1 = 0.45 + Math.random() * 0.1;
+            amount2 = 0.45 + Math.random() * 0.1;
+        }
+
+        if(facing == EnumFacing.UP) {
+            vec3 = vec3.addVector(amount1, 1, amount2);
+        } else if(facing == EnumFacing.DOWN) {
+            vec3 = vec3.addVector(amount1, 0, amount2);
+        } else if(facing == EnumFacing.EAST) {
+            vec3 = vec3.addVector(1, amount1, amount2);
+        } else if(facing == EnumFacing.WEST) {
+            vec3 = vec3.addVector(0, amount1, amount2);
+        } else if(facing == EnumFacing.NORTH) {
+            vec3 = vec3.addVector(amount1, amount2, 0);
+        } else if(facing == EnumFacing.SOUTH) {
+            vec3 = vec3.addVector(amount1, amount2, 1);
+        }
+
+        return vec3;
+    }
+    public static VecRotation calculateCenter(final String calMode, final Boolean randMode, final double randomRange, final AxisAlignedBB bb, final boolean predict, final boolean throughWalls) {
         
         /*if(outborder) {
             final Vec3 vec3 = new Vec3(bb.minX + (bb.maxX - bb.minX) * (x * 0.3 + 1.0), bb.minY + (bb.maxY - bb.minY) * (y * 0.3 + 1.0), bb.minZ + (bb.maxZ - bb.minZ) * (z * 0.3 + 1.0));
@@ -242,26 +268,11 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         zMin = 0.15D; zMax = 0.85D; zDist = 0.1D;
         
         Vec3 curVec3 = null;
-        
+
         switch(calMode) {
-            case "LiquidBounce":
-                xMin = 0.15D; xMax = 0.85D; xDist = 0.1D;
-                yMin = 0.15D; yMax = 1.00D; yDist = 0.1D;
-                zMin = 0.15D; zMax = 0.85D; zDist = 0.1D;
-                break;
-            case "Full":
-                xMin = 0.00D; xMax = 1.00D; xDist = 0.1D;
-                yMin = 0.00D; yMax = 1.00D; yDist = 0.1D;
-                zMin = 0.00D; zMax = 1.00D; zDist = 0.1D;
-                break;
             case "HalfUp":
                 xMin = 0.10D; xMax = 0.90D; xDist = 0.1D;
                 yMin = 0.50D; yMax = 0.90D; yDist = 0.1D;
-                zMin = 0.10D; zMax = 0.90D; zDist = 0.1D;
-                break;
-            case "HalfDown":
-                xMin = 0.10D; xMax = 0.90D; xDist = 0.1D;
-                yMin = 0.10D; yMax = 0.50D; yDist = 0.1D;
                 zMin = 0.10D; zMax = 0.90D; zDist = 0.1D;
                 break;
             case "CenterSimple":
@@ -277,6 +288,11 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
             case "CenterHead":
                 xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
                 yMin = 0.85D; yMax = 0.95D; yDist = 0.1D;
+                zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
+                break;
+            case "CenterBody":
+                xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
+                yMin = 0.70D; yMax = 0.95D; yDist = 0.1D;
                 zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
                 break;
         }
@@ -299,7 +315,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
             }
         }
         
-        if(vecRotation == null || randMode == "Off")
+        if(vecRotation == null || !randMode)
             return vecRotation;
         
         double rand1 = random.nextDouble();
@@ -328,42 +344,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                                  curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
                                  curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
                                 );
-        switch(randMode) {
-            case "Horizonal":
-                randomVec3 = new Vec3(
-                                 curVec3.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
-                                 curVec3.yCoord,
-                                 curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
-                                );
-                break;
-            case "Vertical":
-                randomVec3 = new Vec3(
-                                 curVec3.xCoord,
-                                 curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
-                                 curVec3.zCoord
-                                );                
-                break;
-        }
         
         final Rotation randomRotation = toRotation(randomVec3, predict);
-        
-        /*
-        for(double xSearch = 0.00D; xSearch < 1.00D; xSearch += 0.05D) {
-            for (double ySearch = 0.00D; ySearch < 1.00D; ySearch += 0.05D) {
-                for (double zSearch = 0.00D; zSearch < 1.00D; zSearch += 0.05D) {
-                    final Vec3 vec3 = new Vec3(curVec3.xCoord - ((randMode == "Horizonal") ? 0.0D : (xPrecent * (curVec3.xCoord - bb.minX) + minRange * randomRange * xSearch)),
-                                               curVec3.yCoord - ((randMode == "Vertical") ? 0.0D : (yPrecent * (curVec3.yCoord - bb.minY) + minRange * randomRange * ySearch)),
-                                               curVec3.zCoord - ((randMode == "Horizonal") ? 0.0D : (zPrecent * (curVec3.zCoord - bb.minZ) + minRange * randomRange * zSearch)));
-                    final Rotation rotation = toRotation(vec3, predict);
-                    if(throughWalls || isVisible(vec3)) {
-                        final VecRotation currentVec = new VecRotation(vec3, rotation);
-                        if (vecRotation == null || (getRotationDifference(currentVec.getRotation(), randomRotation) < getRotationDifference(vecRotation.getRotation(), randomRotation)))
-                            vecRotation = currentVec;
-                    }
-                }
-            }
-        }
-        I Give Up :sadface: */
         vecRotation =  new VecRotation(randomVec3, randomRotation);
         
         return vecRotation;

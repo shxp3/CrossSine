@@ -1,20 +1,14 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.minecraft.util.ChatAllowedCharacters
+import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.*
+
 
 object ColorUtils {
 
@@ -66,11 +60,6 @@ object ColorUtils {
         }
 
         return stringBuilder.toString()
-    }
-    @JvmStatic
-    fun LiquidSlowly(time: Long, count: Int, qd: Float, sq: Float): Color? {
-        val color = Color(Color.HSBtoRGB((time.toFloat() + count * 3000000f) / 2 / 1.0E9f, qd, sq))
-        return Color(color.red / 255.0f * 1, color.green / 255.0f * 1, color.blue / 255.0f * 1, color.alpha / 255.0f)
     }
 
     @JvmStatic
@@ -165,21 +154,6 @@ object ColorUtils {
         return color3
     }
 
-    fun blendColors(fractions: FloatArray?, colors: Array<Color>?, progress: Float): Color? {
-        requireNotNull(fractions) { "Fractions can't be null" }
-        requireNotNull(colors) { "Colours can't be null" }
-        if (fractions.size == colors.size) {
-            val getFractionBlack = getFraction(fractions, progress)
-            val range = floatArrayOf(fractions[getFractionBlack[0]], fractions[getFractionBlack[1]])
-            val colorRange = arrayOf(colors[getFractionBlack[0]], colors[getFractionBlack[1]])
-            val max = range[1] - range[0]
-            val value = progress - range[0]
-            val weight = value / max
-            return blend(colorRange[0], colorRange[1], (1.0f - weight).toDouble())
-        }
-        throw IllegalArgumentException("Fractions and colours must have equal number of elements")
-    }
-
     fun getFraction(fractions: FloatArray, progress: Float): IntArray {
         var startPoint: Int
         val range = IntArray(2)
@@ -201,6 +175,14 @@ object ColorUtils {
         return Color.HSBtoRGB(hue - hueoffset / 54, saturation, brightness)
     }
     @JvmStatic
+    fun setColour(colour: Int) {
+        val a = (colour shr 24 and 0xFF) / 255.0f
+        val r = (colour shr 16 and 0xFF) / 255.0f
+        val g = (colour shr 8 and 0xFF) / 255.0f
+        val b = (colour and 0xFF) / 255.0f
+        glColor4f(r, g, b, a)
+    }
+    @JvmStatic
     fun getColor(n: Int): String? {
         if (n != 1) {
             if (n == 2) {
@@ -220,29 +202,8 @@ object ColorUtils {
     }
 
     @JvmStatic
-    fun hslRainbow(
-        index: Int,
-        lowest: Float = HUD.rainbowStartValue.get(),
-        bigest: Float = HUD.rainbowStopValue.get(),
-        indexOffset: Int = 300,
-        timeSplit: Int = HUD.rainbowSpeedValue.get(),
-        saturation: Float = HUD.rainbowSaturationValue.get(),
-        brightness: Float = HUD.rainbowBrightnessValue.get()
-    ): Color {
-        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
-    }
-
-    @JvmStatic
-    fun astolfo(
-        index: Int,
-        lowest: Float = 0.55F,
-        bigest: Float = 0.85F,
-        indexOffset: Int = 300,
-        timeSplit: Int = 1500,
-        saturation: Float = 0.55F,
-        brightness: Float = 1F
-    ): Color {
-        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
+    fun astolfo(index: Int, ): Color {
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / 1500F) % 2) - 1) * (0.3F)) + 0.55F, 0.55F, 1F)
     }
 
     fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double? {
@@ -263,32 +224,11 @@ object ColorUtils {
 
     }
 
-
     @JvmStatic
     fun rainbow(offset: Long): Color {
         val currentColor = Color(Color.HSBtoRGB((System.nanoTime() + offset) / 10000000000F % 1, 1F, 1F))
         return Color(currentColor.red / 255F * 1F, currentColor.green / 255F * 1F, currentColor.blue / 255F * 1F,
             currentColor.alpha / 255F)
-    }
-
-
-
-    @JvmStatic
-    fun hsbTransition(from: Float, to: Float, angle: Int, s: Float = 1f, b: Float = 1f): Color {
-        return Color.getHSBColor(
-            if (angle < 180) from + (to - from) * (angle / 180f)
-            else from + (to - from) * (-(angle - 360) / 180f), s, b)
-    }
-
-    fun getAnalogousColor(color: Color): Array<Color?>? {
-        val colors = arrayOfNulls<Color>(2)
-        val hsb = Color.RGBtoHSB(color.red, color.green, color.blue, null)
-        val degree = 30 / 360f
-        val newHueAdded = hsb[0] + degree
-        colors[0] = Color(Color.HSBtoRGB(newHueAdded, hsb[1], hsb[2]))
-        val newHueSubtracted = hsb[0] - degree
-        colors[1] = Color(Color.HSBtoRGB(newHueSubtracted, hsb[1], hsb[2]))
-        return colors
     }
 
     @JvmStatic
@@ -308,46 +248,7 @@ object ColorUtils {
             )
         )
     }
-    @JvmStatic
-    fun interpolateColorsBackAndForth(speed: Int, index: Int, start: Color?, end: Color?, trueColor: Boolean): Color? {
-        var angle = ((System.currentTimeMillis() / speed + index) % 360).toInt()
-        angle = (if (angle >= 180) 360 - angle else angle) * 2
-        return if (trueColor) start?.let {
-            end?.let { it1 ->
-                interpolateColorHue(it, it1, angle / 360f)
-            }
-        } else start?.let { end?.let { it1 -> interpolateColorC(it, it1, angle / 360f) } }
-    }
 
-
-    @JvmStatic
-    fun rainbowc(speed: Int, index: Int, saturation: Float, brightness: Float, opacity: Float): Color? {
-        val angle = ((System.currentTimeMillis() / speed + index) % 360).toInt()
-        val hue = angle / 360f
-        val color = Color(Color.HSBtoRGB(hue, saturation, brightness))
-        return Color(color.red, color.green, color.blue, Math.max(0, Math.min(255, (opacity * 255).toInt())))
-    }
-    @JvmStatic
-    fun rainbow(): Color {
-        return hslRainbow(1)
-    }
-
-    @JvmStatic
-    fun rainbow(index: Int): Color {
-        return hslRainbow(index)
-    }
-
-    @JvmStatic
-    fun rainbow(alpha: Float) = reAlpha(hslRainbow(1), alpha)
-
-    @JvmStatic
-    fun rainbowWithAlpha(alpha: Int) = reAlpha(hslRainbow(1), alpha)
-
-    @JvmStatic
-    fun rainbow(index: Int, alpha: Int) = reAlpha(hslRainbow(index), alpha)
-
-    @JvmStatic
-    fun rainbow(index: Int, alpha: Float) = reAlpha(hslRainbow(index), alpha)
 
     @JvmStatic
     fun reAlpha(color: Color, alpha: Int): Color {
@@ -359,11 +260,6 @@ object ColorUtils {
         return Color(color.red / 255f, color.green / 255f, color.blue / 255f, alpha)
     }
 
-    @JvmStatic
-    fun getRainbowOpaque(seconds: Int, saturation: Float, brightness: Float, index: Int):
-            Int { val hue = (System.currentTimeMillis() + index) % (seconds * 1000) / (seconds * 1000).toFloat()
-        return Color.HSBtoRGB(hue, saturation, brightness)
-    }
 
     @JvmStatic
     fun slowlyRainbow(time: Long, count: Int, qd: Float, sq: Float): Color {
@@ -377,20 +273,6 @@ object ColorUtils {
         return Color.getHSBColor(if ((360.0.also { v1 %= it } / 360.0) <0.5) { -(v1 / 360.0).toFloat() } else { (v1 / 360.0).toFloat() }, st, bright)
     }
 
-    @JvmStatic
-     fun StaticRainbow(speed: Int, index: Int): Color {
-        var angle = ((System.currentTimeMillis() / speed + index) % 360).toInt()
-        val hue = angle / 360f
-        return Color.getHSBColor(if ((360.0.also { (angle).toInt() } / 360.0).toFloat().toDouble() < 0.5) -(angle / 360.0).toFloat() else (angle / 360.0).toFloat(), 0.5f, 1.0f)
-    }
-
-    @JvmStatic
-    fun TwoRainbow(offset: Long, alpha: Float): Color {
-        val color = Color(Color.HSBtoRGB((System.nanoTime() + offset) / 8.9999999E10F % 1, 0.75F, 0.8F))
-        return Color(color.red / 255.0F * 1.0F, color.green / 255.0F * 1.0F, color.blue / 255.0f * 1, color.alpha / 255.0f)
-    
-    }
-
 
 
 
@@ -401,31 +283,22 @@ object ColorUtils {
         var brightness =
             abs(((System.currentTimeMillis() % 2000L).toFloat() / 1000.0f + index.toFloat() / count.toFloat() * 2.0f) % 2.0f - 1.0f)
         brightness = 0.5f + 0.5f * brightness
-        hsb[2] = brightness % 2.0f
+        hsb[2] = brightness % 2F
         return Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]))
     }
-
-    fun reverseColor(color: Color) = Color(255 - color.red, 255 - color.green, 255 - color.blue, color.alpha)
 
     fun healthColor(hp: Float, maxHP: Float, alpha: Int = 255): Color {
         val pct = ((hp / maxHP) * 255F).toInt()
         return Color(max(min(255 - pct, 255), 0), max(min(pct, 255), 0), 0, alpha)
     }
 
-    fun darker(color: Color, percentage: Float): Color {
-        return Color((color.red * percentage).toInt(), (color.green * percentage).toInt(), (color.blue * percentage).toInt(), (color.alpha * percentage).toInt())
+    fun mixColors(color1: Color, color2: Color, ms: Double, offset: Int): Color {
+        val timer = (System.currentTimeMillis() / 1E+8 * ms) * 4E+5
+        val percent =  (Math.sin(timer + offset * 0.55f) + 1) * 0.5f
+        val inverse_percent = 1.0 - percent
+        val redPart = (color1.red * percent + color2.red * inverse_percent).toInt()
+        val greenPart = (color1.green * percent + color2.green * inverse_percent).toInt()
+        val bluePart = (color1.blue * percent + color2.blue * inverse_percent).toInt()
+        return Color(redPart, greenPart, bluePart)
     }
-
-    fun mixColors(color1: Color, color2: Color, percent: Float): Color {
-        return Color(color1.red + ((color2.red - color1.red) * percent).toInt(), color1.green + ((color2.green - color1.green) * percent).toInt(), color1.blue + ((color2.blue - color1.blue) * percent).toInt(), color1.alpha + ((color2.alpha - color1.alpha) * percent).toInt())
-    }
-
-    fun toRGB(n: Int, n2: Int, n3: Int, n4: Int): Int {
-        return (n4 and 0xFF shl 24) or (n3 and 0xFF shl 16) or (n2 and 0xFF shl 8) or (n and 0xFF)
-    }
-
-    fun toRGB(f: Float, f2: Float, f3: Float, f4: Float): Int {
-        return toRGB((f * 255.0f).toInt(), (f2 * 255.0f).toInt(), (f3 * 255.0f).toInt(), (f4 * 255.0f).toInt())
-    }
-
 }

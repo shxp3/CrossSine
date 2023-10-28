@@ -57,7 +57,6 @@ object CrossSineRPC : MinecraftInstance(){
         builder.setStartTimestamp(timestamp)
 
         builder.setLargeImage("https://crosssine.github.io/file/CrossSinelogo.png", "CrossSine Client")
-        builder.setSmallImage("https://crosssine.github.io/file/bruh.gif", CrossSine.CLIENT_WEBSITE)
 
         if (mc.currentScreen is GuiMainMenu) {
             builder.setDetails("MainMenu")
@@ -73,7 +72,7 @@ object CrossSineRPC : MinecraftInstance(){
         else
             builder.setDetails(mc.session.username + "is best player")
 
-        builder.setState(CrossSine.CLIENT_NAME + " " + CrossSine.CLIENT_VERSION + if (CrossSine.CLIENT_STATUS) " Beta" else " Releases")
+        builder.setState("Version : ${CrossSine.CLIENT_VERSION}")
         // Check ipc client is connected and send rpc
         if (ipcClient.status == PipeStatus.CONNECTED) ipcClient.sendRichPresence(builder.build())
     }

@@ -109,7 +109,10 @@ class NoFall : Module() {
     fun onPacket(event: PacketEvent) {
         mode.onPacket(event)
     }
-
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        mode.onRender2D(event)
+    }
     @EventTarget
     fun onMove(event: MoveEvent) {
         mode.onMove(event)

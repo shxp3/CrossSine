@@ -65,6 +65,7 @@ abstract class Element(
 
     var border: Border? = null
 
+
     var drag = false
     var prevMouseX = 0F
     var prevMouseY = 0F

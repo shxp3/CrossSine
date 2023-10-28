@@ -1,7 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
+import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -10,7 +11,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.extensions.ping
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.features.value.*
@@ -23,6 +23,8 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.vecmath.Vector2d
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -47,14 +49,6 @@ class Text(
         val DECIMAL_FORMAT = DecimalFormat("#.##")
         val NO_DECIMAL_FORMAT = DecimalFormat("#")
     }
-    val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo")
-    val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") }
-    val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") }
-    val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") }
-    val ColorRed = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom") || ClientColorMode.equals("Fade")}
-    val ColorGreen = IntegerValue("Green", 0, 0, 255).displayable { ClientColorMode.equals("Custom")|| ClientColorMode.equals("Fade")}
-    val ColorBlue = IntegerValue("Blue", 0, 0, 255).displayable { ClientColorMode.equals("Custom")|| ClientColorMode.equals("Fade")}
-
     val displayString = TextValue("DisplayText", "")
     val shadowValue = BoolValue("Shadow", false)
     val shadowStrength = FloatValue("Shadow-Strength", 1F, 0.01F, 8F).displayable { shadowValue.get() }
@@ -98,12 +92,13 @@ class Text(
                 "zdp" -> return mc.thePlayer.posZ.toString()
                 "velocity" -> return DECIMAL_FORMAT.format(sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ))
                 "ping" -> return "${mc.thePlayer.ping}"
-                "speed" -> return DECIMAL_FORMAT.format(MovementUtils.bps)
+                "speed" -> return DECIMAL_FORMAT.format(MovementUtils.getSpeed())
                 "bps" -> return DECIMAL_FORMAT.format(MovementUtils.bps)
                 "health" -> return DECIMAL_FORMAT.format(mc.thePlayer.health)
                 "yaw" -> return DECIMAL_FORMAT.format(mc.thePlayer.rotationYaw)
                 "pitch" -> return DECIMAL_FORMAT.format(mc.thePlayer.rotationPitch)
                 "attackDist" -> return if (CrossSine.combatManager.target != null) mc.thePlayer.getDistanceToEntity(CrossSine.combatManager.target).toString() + " Blocks" else "Hasn't attacked"
+
             }
         }
 
@@ -191,14 +186,7 @@ class Text(
 
         val fontRenderer = fontValue.get()
 
-        val mixerColor = ColorMixer.getMixedColor( mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-        val rectColor = when (ClientColorMode.get().lowercase()) {
-            "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
-            "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
-            "mixer" -> mixerColor
-            "fade" -> ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), fadeDistanceValue.get(), 100).rgb
-            else -> Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
-        }
+        val rectColor = if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb
         val expand = fontRenderer.FONT_HEIGHT * rectExpandValue.get()
         when (rectValue.get().lowercase()) {
             "normal" -> {
@@ -210,7 +198,7 @@ class Text(
             }
 
             "rnormal" -> {
-                RenderUtils.drawRect(-expand, -expand - 1, fontRenderer.getStringWidth(displayText) + expand, -expand, ColorUtils.rainbow())
+                RenderUtils.drawRect(-expand, -expand - 1, fontRenderer.getStringWidth(displayText) + expand, -expand,  if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb)
                 RenderUtils.drawRect(-expand, -expand, fontRenderer.getStringWidth(displayText) + expand, fontRenderer.FONT_HEIGHT + expand, rectColor)
             }
             "onetap" -> {
@@ -231,13 +219,7 @@ class Text(
                 GL11.glPushMatrix()
                 GL11.glTranslated(renderX, renderY, 0.0)
                 fontRenderer.drawString(
-                    displayText, 0F*scale, 0F*scale, when (ClientColorMode.get().lowercase()) {
-                        "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
-                        "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
-                        "mixer" -> mixerColor
-                        "fade" -> ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), fadeDistanceValue.get(), 100).rgb
-                        else -> Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
-                    }, false)
+                    displayText, 0F*scale, 0F*scale, if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb, false)
                 GL11.glPopMatrix()
             }, {})
             GL11.glPopMatrix()
@@ -245,14 +227,7 @@ class Text(
         }
 
         fontRenderer.drawString(
-                displayText, 0F, 0F, when (ClientColorMode.get().lowercase()) {
-                "rainbow" ->  ColorUtils.slowlyRainbow(System.nanoTime(),  30 * 1, 1F, 1F).rgb
-                "astolfo" -> ColorUtils.astolfo( 1, indexOffset = 100 * 2).rgb
-                "mixer" -> mixerColor
-                "fade" -> ColorUtils.fade(Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()), fadeDistanceValue.get(), 100).rgb
-                else -> Color(ColorRed.get(),ColorGreen.get(),ColorBlue.get()).rgb
-
-            }, shadow.get())
+                displayText, 0F, 0F, if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb, shadow.get())
 
 
         if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
@@ -382,7 +357,11 @@ class Text(
             editMode = false
         }
     }
-
+    fun getBlendFactor(screenCoordinates: Vector2d): Double {
+        return sin(
+            System.currentTimeMillis() / 600.0 + screenCoordinates.getX() * 0.005 + screenCoordinates.getY() * 0.06
+        ) * 0.5 + 0.5
+    }
     override fun handleKey(c: Char, keyCode: Int) {
         if (editMode && mc.currentScreen is GuiHudDesigner) {
             if (keyCode == Keyboard.KEY_BACK) {
@@ -400,5 +379,8 @@ class Text(
 
             updateElement()
         }
+    }
+    fun getColor(index : Int) : Color {
+        return  ClientTheme.getColor(index)
     }
 }

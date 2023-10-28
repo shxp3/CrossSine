@@ -8,39 +8,23 @@ import net.minecraft.potion.Potion
 
 class BlocksMC : SpeedMode("BlocksMC") {
 
-    private val ResetOnDisableValue = BoolValue("MotionStop", false)
     private val DamageBoostValue = BoolValue("DamageBoost", false)
-    private val TimerValue = BoolValue("Timer?", false).displayable { DamageBoostValue.get() }
 
     override fun onUpdate() {
 
         if (MovementUtils.isMoving()) {
-            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                MovementUtils.strafe(0.3455555555F)
-            } else MovementUtils.strafe()
-            if(mc.thePlayer.onGround) {
+            if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
-                MovementUtils.strafe(0.38F)
             }
+            if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)){ MovementUtils.strafe(MovementUtils.getSpeed()) } else MovementUtils.strafe(0.38)
+            if (DamageBoostValue.get() && mc.thePlayer.hurtTime > 0 && CrossSine.combatManager.inCombat) {
+                MovementUtils.strafe(0.45995554f)
+            }
+        } else {
+            MovementUtils.resetMotion(false)
         }
 
-        if (DamageBoostValue.get() && mc.thePlayer.hurtTime > 0 && CrossSine.combatManager.inCombat) {
-            MovementUtils.strafe(0.4599555555555555f)
-        }
-
-
-        if (DamageBoostValue.get() && TimerValue.get() && mc.thePlayer.hurtTime > 0) {
-            mc.timer.timerSpeed = 1.05f
-        }
-        else
-            mc.timer.timerSpeed = 1.0f
 
     }
 
-    override fun onDisable() {
-        if (ResetOnDisableValue.get()){
-            mc.thePlayer.motionX = 0.0
-            mc.thePlayer.motionZ = 0.0
-        }
-    }
 }

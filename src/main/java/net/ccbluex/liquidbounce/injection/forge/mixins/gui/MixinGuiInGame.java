@@ -7,12 +7,11 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
-import net.ccbluex.liquidbounce.features.module.modules.visual.HotbarSettings;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Crosshair;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
+import net.ccbluex.liquidbounce.utils.ItemSpoofUtils;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
@@ -63,43 +62,27 @@ public abstract class MixinGuiInGame extends MixinGui {
      */
     @Overwrite
     protected void renderTooltip(ScaledResolution sr, float partialTicks) {
-        final HUD hud = CrossSine.moduleManager.getModule(HUD.class);
-        final HotbarSettings HotbarSettings = CrossSine.moduleManager.getModule(HotbarSettings.class);
-        final EntityPlayer entityplayer = (EntityPlayer) mc.getRenderViewEntity();
-
-        float tabHope = this.mc.gameSettings.keyBindPlayerList.isKeyDown() ? 1f : 0f;
-        final Animations animations = Animations.INSTANCE;
-        if(animations.getTabHopePercent() != tabHope) {
-            animations.setLastTabSync(System.currentTimeMillis());
-            animations.setTabHopePercent(tabHope);
-        }
-        if(animations.getTabPercent() > 0 && tabHope == 0) {
-            overlayPlayerList.renderPlayerlist(sr.getScaledWidth(), mc.theWorld.getScoreboard(), mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(0));
-        }
-
-        if(Minecraft.getMinecraft().getRenderViewEntity() instanceof EntityPlayer) {
-            String hotbarType = HotbarSettings.getHotbarValue().get();
-            Minecraft mc = Minecraft.getMinecraft();
-            GlStateManager.resetColor();
+        if (this.mc.getRenderViewEntity() instanceof EntityPlayer) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            mc.getTextureManager().bindTexture(widgetsTexPath);
+            this.mc.getTextureManager().bindTexture(widgetsTexPath);
+            EntityPlayer entityPlayer = (EntityPlayer)this.mc.getRenderViewEntity();
+            int i = sr.getScaledWidth() / 2;
             float f = this.zLevel;
             this.zLevel = -90.0F;
-            GlStateManager.resetColor();
+            this.drawTexturedModalRect(i - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
+            this.drawTexturedModalRect(i - 91 - 1 + ItemSpoofUtils.INSTANCE.getSlot() * 20, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
+            this.zLevel = f;
             GlStateManager.enableRescaleNormal();
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-            if (hotbarType == "Minecraft") {
-                this.drawTexturedModalRect( sr.getScaledWidth() / 2 - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
-                this.drawTexturedModalRect(((sr.getScaledWidth() / 2) - 91 + HotbarSettings.INSTANCE.getHotbarEasePos(entityplayer.inventory.currentItem * 20)) - 1, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
-            }
-            this.zLevel = f;
             RenderHelper.enableGUIStandardItemLighting();
-            if(hotbarType.equals("Minecraft")){
-                for (int j = 0; j < 9; ++j) {
-                    this.renderHotbarItem(j, sr.getScaledWidth() / 2 - 90 + j * 20 + 2, sr.getScaledHeight() - 19, partialTicks, entityplayer);
-                }
+
+            for(int j = 0; j < 9; ++j) {
+                int k = sr.getScaledWidth() / 2 - 90 + j * 20 + 2;
+                int l = sr.getScaledHeight() - 16 - 3;
+                this.renderHotbarItem(j, k, l, partialTicks, entityPlayer);
             }
+
             RenderHelper.disableStandardItemLighting();
             GlStateManager.disableRescaleNormal();
             GlStateManager.disableBlend();
@@ -128,4 +111,4 @@ public abstract class MixinGuiInGame extends MixinGui {
         if (crossHair.getState())
             cir.setReturnValue(false);
     }
- }
+}

@@ -1,13 +1,7 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.modules.other.SoundModule
 import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
@@ -23,13 +17,12 @@ import org.lwjgl.input.Keyboard
 open class Module : MinecraftInstance(), Listenable {
     // Module information
     val translate = Translate(0F,0F)
-    val tab = Translate(0f , 0f)
-    var expanded: Boolean = false
     val animation: AnimationHelper
     var name: String
     var spacedName: String
+    var update: Boolean = false
     private var suffix: String? = null
-    private val properties: List<Value<*>> = ArrayList<Value<*>>()
+    private val properties: List<Value<*>> = ArrayList()
     var toggled = false
     var localizedName = ""
         get() = field.ifEmpty { name }
@@ -58,28 +51,6 @@ open class Module : MinecraftInstance(), Listenable {
 
     var slideStep = 0F
 
-    var splicedName = ""
-
-
-        get() {
-//            val translatedName=LanguageManager.replace(localizedName)
-//            if(field.replace(" ","") != translatedName){
-//                field=StringUtils.toCompleteString(RegexUtils.match(translatedName, "[A-Z][a-z]*"))
-//            }
-            if (field.isEmpty()) {
-                val sb = StringBuilder()
-                val arr = name.toCharArray()
-                for (i in arr.indices) {
-                    val char = arr[i]
-                    if (i != 0 && !Character.isLowerCase(char) && Character.isLowerCase(arr[i - 1])) {
-                        sb.append(' ')
-                    }
-                    sb.append(char)
-                }
-                field = sb.toString()
-            }
-            return field
-        }
 
     init {
         name = moduleInfo.name
@@ -113,10 +84,8 @@ open class Module : MinecraftInstance(), Listenable {
             // Play sound and add notification
             if (!CrossSine.isStarting) {
                 if (value) {
-                    SoundModule.playSound(true)
                     CrossSine.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.enable", localizedName), NotifyType.SUCCESS))
                 } else {
-                    SoundModule.playSound(false)
                     CrossSine.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.disable", localizedName), NotifyType.ERROR))
                 }
             }

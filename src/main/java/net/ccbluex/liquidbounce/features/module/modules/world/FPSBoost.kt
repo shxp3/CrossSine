@@ -6,6 +6,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 
 @ModuleInfo(name = "FPSBoost", "FPS Boost", category = ModuleCategory.WORLD, array = false, defaultOn = true)
-object FPSBoost : Module() {
-}
+object FPSBoost : Module()
+
 

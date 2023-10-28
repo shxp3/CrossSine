@@ -25,8 +25,8 @@ class FastBreak : Module() {
             mc.playerController.curBlockDamageMP = 1F
         }
 
-        if (BedNuker.currentDamage > breakDamageValue.get()) {
-            BedNuker.currentDamage = 1F
+        if (BedAura.currentDamage > breakDamageValue.get()) {
+            BedAura.currentDamage = 1F
         }
     }
 }

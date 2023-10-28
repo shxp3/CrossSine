@@ -1,14 +1,21 @@
 package net.ccbluex.liquidbounce.utils.misc;
 
-public enum Direction
-{
+public enum Direction {
+
     FORWARDS, 
     BACKWARDS;
     
     public Direction opposite() {
         if (this == Direction.FORWARDS) {
             return Direction.BACKWARDS;
-        }
-        return Direction.FORWARDS;
+        } else return Direction.FORWARDS;
+    }
+
+    public boolean forwards() {
+        return this == Direction.FORWARDS;
+    }
+
+    public boolean backwards() {
+        return this == Direction.BACKWARDS;
     }
 }

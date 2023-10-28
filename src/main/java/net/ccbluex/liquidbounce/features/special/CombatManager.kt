@@ -32,13 +32,10 @@ class CombatManager : Listenable, MinecraftInstance() {
             }
         }
 
-        inCombat = false
-
-        if (!lastAttackTimer.hasTimePassed(250)) {
+        if (!lastAttackTimer.hasTimePassed(1000)) {
             inCombat = true
             return
         }
-
         if (target != null) {
             if (mc.thePlayer.getDistanceToEntity(target) > 7 || !inCombat || target!!.isDead) {
                 target = null

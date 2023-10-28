@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.StatisticsUtils
 import net.minecraft.block.Block
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.entity.EntityLivingBase
@@ -53,4 +54,5 @@ class KillEffect : Module() {
             }
         }
     }
+
 }

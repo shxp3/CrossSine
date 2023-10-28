@@ -2,8 +2,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
-import net.ccbluex.liquidbounce.features.special.GradientBackground;
-import net.ccbluex.liquidbounce.ui.client.GuiBackground;
 import net.ccbluex.liquidbounce.utils.particles.ParticleUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -99,30 +97,7 @@ public abstract class MixinGuiScreen {
     /**
      * @author CCBlueX
      */
-    @Inject(method = "drawBackground", at = @At("RETURN"), cancellable = true)
-    private void drawClientBackground(final CallbackInfo callbackInfo) {
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
-        if(GuiBackground.Companion.getEnabled()) {
-            if (CrossSine.INSTANCE.getBackground() == null) {
-                GradientBackground.INSTANCE.draw(width, height);
-            }else{
-                mc.getTextureManager().bindTexture(CrossSine.INSTANCE.getBackground());
-                Gui.drawModalRectWithCustomSizedTexture(0, 0, 0f, 0f, width, height, width, height);
-            }
-        
-            
-            GlStateManager.resetColor();
-            if (GuiBackground.Companion.getParticles())
-                ParticleUtils.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
-        }
-    }
 
-    @Inject(method = "drawBackground", at = @At("RETURN"))
-    private void drawParticles(final CallbackInfo callbackInfo) {
-        if(GuiBackground.Companion.getParticles())
-            ParticleUtils.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
-    }
 
     @Inject(method = "handleComponentHover", at = @At("HEAD"))
     private void handleHoverOverComponent(IChatComponent component, int x, int y, final CallbackInfo callbackInfo) {

@@ -31,8 +31,8 @@ import java.awt.Color
     autoDisable = EnumAutoDisableType.FLAG,
     keyBind = Keyboard.KEY_F
 )
-class Flight : Module() {
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.flights", FlyMode::class.java)
+object Flight : Module() {
+    val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.flights", FlyMode::class.java)
         .map { it.newInstance() as FlyMode }
         .sortedBy { it.modeName }
 

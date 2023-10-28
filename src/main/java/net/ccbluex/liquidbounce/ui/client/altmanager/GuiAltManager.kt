@@ -6,8 +6,7 @@ import net.ccbluex.liquidbounce.event.SessionEvent
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.GuiAdd
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.GuiDirectLogin
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.MicrosoftLogin
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
-import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.login.LoginUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
@@ -20,7 +19,7 @@ import java.awt.Color
 import java.util.*
 
 class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
-    var status = "§7${LanguageManager.getAndFormat("ui.alt.idle")}"
+    var status = "§7Idle"
     private lateinit var altsList: GuiList
 
     override fun initGui() {
@@ -46,14 +45,14 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
         altsList.drawScreen(mouseX, mouseY, partialTicks)
-        mc.fontRendererObj.drawCenteredString(LanguageManager.getAndFormat("ui.altmanager"), (width / 2).toFloat(), 6f, 0xffffff)
-        mc.fontRendererObj.drawCenteredString(LanguageManager.getAndFormat("ui.alt.alts", CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts.size), (width / 2).toFloat(), 18f, 0xffffff)
-        mc.fontRendererObj.drawCenteredString(status, (width / 2).toFloat(), 32f, 0xffffff)
-        mc.fontRendererObj.drawStringWithShadow(LanguageManager.getAndFormat("ui.alt.username", mc.getSession().username), 6f, 6f, 0xffffff)
-        mc.fontRendererObj.drawStringWithShadow(LanguageManager.getAndFormat("ui.alt.type", if (mc.getSession().token.length >= 32) "%ui.alt.type.premium%" else "%ui.alt.type.cracked%"), 6f, 15f, 0xffffff)
+        Fonts.fontTenacityBold35.drawCenteredString("AltManager", (width / 2).toFloat(), 6f, 0xffffff)
+        Fonts.fontTenacityBold35.drawCenteredString("Alts", (width / 2).toFloat(), 18f, 0xffffff)
+        Fonts.fontTenacityBold35.drawCenteredString(status, (width / 2).toFloat(), 32f, 0xffffff)
+        Fonts.fontTenacityBold35.drawStringWithShadow("UserName : " + mc.getSession().username, 6f, 6f, 0xffffff)
+        Fonts.fontTenacityBold35.drawStringWithShadow(if (mc.getSession().token.length >= 32) "Premuim" else "Cracked", 6f, 15f, 0xffffff)
         randomAltField.drawTextBox()
         if (randomAltField.text.isEmpty() && !randomAltField.isFocused) {
-            drawCenteredString(mc.fontRendererObj, "§7" + LanguageManager.getAndFormat("ui.alt.randomAltField"), width / 2 - 55, 66, 0xffffff)
+            drawCenteredString(Fonts.fontTenacityBold35, "§7Random", width / 2 - 55, 66, 0xffffff)
         }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
@@ -66,22 +65,22 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
             2 -> status = if (altsList.selectedSlot != -1 && altsList.selectedSlot < altsList.size) {
                 CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts.removeAt(altsList.selectedSlot)
                 CrossSine.fileManager.saveConfig(CrossSine.fileManager.accountsConfig)
-                "§a${LanguageManager.getAndFormat("ui.alt.removed")}"
+                "§aRemove"
             } else {
-                "§c${LanguageManager.getAndFormat("ui.alt.needSelect")}"
+                "§cNeed Select"
             }
             3 -> if (altsList.selectedSlot != -1 && altsList.selectedSlot < altsList.size) {
                 Thread {
                     val minecraftAccount = CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts[altsList.selectedSlot]
-                    status = "§a${LanguageManager.getAndFormat("ui.alt.loggingIn")}"
+                    status = "§aLogging in"
                     status = login(minecraftAccount)
                 }.start()
             } else {
-                status = "§c${LanguageManager.getAndFormat("ui.alt.needSelect")}"
+                status = "§cNeed Select"
             }
             4 -> {
                 if (CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts.size <= 0) {
-                    status = "§c${LanguageManager.getAndFormat("ui.alt.emptyList")}"
+                    status = "§cEmpty List"
                     return
                 }
                 val randomInteger = Random().nextInt(CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts.size)
@@ -89,7 +88,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 Thread {
                     val minecraftAccount =
                         CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts[randomInteger]
-                    status = "§a${LanguageManager.getAndFormat("ui.alt.loggingIn")}"
+                    status = "§aLoggin in"
                     status = login(minecraftAccount)
                 }.start()
             }
@@ -170,19 +169,19 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 if (altsList.selectedSlot != -1 && altsList.selectedSlot < altsList.size) {
                     Thread {
                         val minecraftAccount = CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts[altsList.selectedSlot]
-                        status = "§a${LanguageManager.getAndFormat("ui.alt.loggingIn")}"
+                        status = "§aLoggin in"
                         status = "§c" + login(minecraftAccount)
                     }.start()
                 } else {
-                    status = "§c${LanguageManager.getAndFormat("ui.alt.needSelect")}"
+                    status = "§cNeed Select"
                 }
             }
         }
 
         override fun drawSlot(id: Int, x: Int, y: Int, var4: Int, var5: Int, var6: Int) {
             val minecraftAccount = CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts[id]
-            mc.fontRendererObj.drawCenteredString(minecraftAccount.name, width / 2f, y + 2f, Color.WHITE.rgb, true)
-            mc.fontRendererObj.drawCenteredString(minecraftAccount.type, width / 2f, y + 15f, Color.LIGHT_GRAY.rgb, true)
+            Fonts.fontTenacityBold35.drawCenteredString(minecraftAccount.name, width / 2f, y + 2f, Color.WHITE.rgb, true)
+            Fonts.fontTenacityBold35.drawCenteredString(minecraftAccount.type, width / 2f, y + 15f, Color.LIGHT_GRAY.rgb, true)
         }
 
         override fun drawBackground() {}
@@ -201,10 +200,10 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 val mc = Minecraft.getMinecraft()
                 mc.session = account.session.let { Session(it.username, it.uuid, it.token, it.type) }
                 CrossSine.eventManager.callEvent(SessionEvent())
-                LanguageManager.getAndFormat("ui.alt.nameChanged", mc.session.username)
+                "Name Chagned" + mc.session.username
             } catch (e: Exception) {
                 e.printStackTrace()
-                LanguageManager.getAndFormat("ui.alt.error", e.message ?: "UNKNOWN")
+                "ERROR"
             }
         }
     }

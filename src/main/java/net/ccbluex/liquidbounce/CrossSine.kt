@@ -3,6 +3,7 @@
 package net.ccbluex.liquidbounce
 
 import com.google.gson.JsonParser
+import doryan.windowsnotificationapi.fr.Notification
 import net.ccbluex.liquidbounce.discordrpc.CrossSineRPC
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventManager
@@ -10,6 +11,7 @@ import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.macro.MacroManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.special.*
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.config.ConfigManager
 import net.ccbluex.liquidbounce.script.ScriptManager
@@ -21,14 +23,14 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.keybind.KeyBindManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
-import net.ccbluex.liquidbounce.ui.sound.TipSoundManager
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.common.MinecraftForge
 import org.lwjgl.opengl.Display
+import java.awt.Toolkit
+import java.awt.TrayIcon
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -36,17 +38,16 @@ object CrossSine {
     // Client information
 
     const val CLIENT_NAME = "CrossSine"
-    val CLIENT_STATUS = false
-    var Darkmode = true
-    var destruct = false
-    const val COLORED_NAME = "Cross§CSine§F"
-    const val CLIENT_CREATOR = "CCBlueX, Zywl & SkidderMC TEAM & Shape"
-    const val CLIENT_WEBSITE = "crosssine.github.io"
-    const val CLIENT_VERSION = "B34"
+    var USER_NAME = ""
+    var CUSTOM_DOMAIN = ".customdomain [domain]"
+    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Release")
+    const val COLORED_NAME = "§CC§FrossSine"
+    const val CLIENT_CREATOR = "Shape"
+    val CLIENT_VERSION = "B35" + if (CLIENT_STATUS.equals("Beta")) " Beta" else ""
     @JvmField
-    val CLIENT_LOADING = if (CLIENT_STATUS) "Beta Loading" else "Installing CrossSine"
+    val CLIENT_LOADING = "Installing CrossSine"
     @JvmField
-    val CLIENT_TITLE = "${CLIENT_NAME} ${CLIENT_VERSION} Release" + if (CLIENT_STATUS) " Beta" else " Download : ${CLIENT_WEBSITE}"
+    val CLIENT_TITLE = "$CLIENT_NAME $CLIENT_VERSION"
 
     @JvmField
     val gitInfo = Properties().also {
@@ -75,7 +76,6 @@ object CrossSine {
     lateinit var eventManager: EventManager
     lateinit var fileManager: FileManager
     lateinit var scriptManager: ScriptManager
-    lateinit var tipSoundManager: TipSoundManager
     lateinit var combatManager: CombatManager
     lateinit var macroManager: MacroManager
     lateinit var configManager: ConfigManager
@@ -155,6 +155,7 @@ object CrossSine {
             fileManager.accountsConfig,
             fileManager.friendsConfig,
             fileManager.specialConfig,
+            fileManager.themeConfig,
             fileManager.subscriptsConfig
         )
         // Load client fonts
@@ -179,8 +180,6 @@ object CrossSine {
         // Register commands
         commandManager.registerCommands()
 
-        tipSoundManager = TipSoundManager()
-
         // KeyBindManager
         keyBindManager = KeyBindManager()
 
@@ -191,44 +190,27 @@ object CrossSine {
 
         Display.setTitle(CLIENT_TITLE)
 
+        Notification.sendNotification("CrossSine Client", "Thanks for use CrossSine Client jub jub", TrayIcon.MessageType.INFO,Toolkit.getDefaultToolkit().createImage("crosssine/ui/misc/iconNoti.png"))
         // Set HUD
         hud = HUD.createDefault()
 
         fileManager.loadConfigs(fileManager.hudConfig, fileManager.xrayConfig)
 
-        // run update checker
-        if (CLIENT_VERSION != "unknown") {
-            thread(block = this::checkUpdate)
-        }
+
         ClientUtils.logInfo("Loading Script Subscripts...")
-        for (subscript in fileManager.subscriptsConfig.subscripts) {
-            scriptManager.disableScripts()
-            scriptManager.unloadScripts()
+        try {
+
+            // ScriptManager
+            scriptManager = ScriptManager()
             scriptManager.loadScripts()
             scriptManager.enableScripts()
+        } catch (throwable: Throwable) {
+            ClientUtils.logError("Failed to load scripts.", throwable)
         }
         CLIENT_TITLE
         ClientUtils.logInfo("$CLIENT_NAME $CLIENT_VERSION loaded in ${(System.currentTimeMillis() - startTime)}ms!")
     }
 
-    private fun checkUpdate() {
-        try {
-            val get = HttpUtils.get("https://api.github.com/repos/SkidderMC/FDPClient/commits/${gitInfo["git.branch"]}")
-
-            val jsonObj = JsonParser()
-                .parse(get).asJsonObject
-
-            latest = jsonObj.get("sha").asString.substring(0, 7)
-
-            if (latest != gitInfo["git.commit.id.abbrev"]) {
-                ClientUtils.logInfo("New version available: $latest")
-            } else {
-                ClientUtils.logInfo("No new version available")
-            }
-        } catch (t: Throwable) {
-            ClientUtils.logError("Failed to check for updates.", t)
-        }
-    }
 
     /**
      * Execute if client ui type is selected
@@ -237,7 +219,6 @@ object CrossSine {
         dynamicLaunchOptions.forEach {
             it.start()
         }
-
 
         // Load configs
         configManager.loadLegacySupport()
@@ -275,22 +256,12 @@ object CrossSine {
             // Save all available configs
             configManager.save(true, true)
             fileManager.saveAllConfigs()
-
+            Notification.sendNotification("CrossSine Client", "Bye guys see you next time", TrayIcon.MessageType.WARNING,
+                Toolkit.getDefaultToolkit().createImage("crosssine/ui/misc/iconNoti.png"))
             dynamicLaunchOptions.forEach {
                 it.stop()
             }
         }
         clientRichPresence.stop()
-    }
-    fun onDestruct() {
-        if (mc.currentScreen != null && mc.thePlayer != null) {
-            mc.thePlayer.closeScreen()
-        }
-        destruct = true
-        MinecraftForge.EVENT_BUS.unregister(this)
-        for (m in moduleManager.modules) {
-            m.toggled = false
-            MinecraftForge.EVENT_BUS.unregister(m)
-        }
     }
 }

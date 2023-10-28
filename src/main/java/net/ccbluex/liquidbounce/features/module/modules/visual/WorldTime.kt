@@ -1,8 +1,3 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -18,20 +13,20 @@ import org.lwjgl.input.Keyboard
 
 @ModuleInfo(name = "WorldTime", spacedName = "World Time", category = ModuleCategory.VISUAL)
 class WorldTime : Module() {
-    private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 20)
+    private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 20000)
     private val arrowValue = BoolValue("ArrowButton", false)
     private var c = false
     private var a = false
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        mc.theWorld.worldTime = customWorldTimeValue.get().toLong() * 1000
+        mc.theWorld.worldTime = customWorldTimeValue.get().toLong()
 
         if (arrowValue.get()) {
             if (!c && Keyboard.isKeyDown(203) && customWorldTimeValue.value != 0) {
-                customWorldTimeValue.set(customWorldTimeValue.value - 1)
+                customWorldTimeValue.set(customWorldTimeValue.value - 1000)
             }
             if (!a && Keyboard.isKeyDown(205) && customWorldTimeValue.value != 20) {
-                customWorldTimeValue.set(customWorldTimeValue.value + 1)
+                customWorldTimeValue.set(customWorldTimeValue.value + 1000)
             }
             c = Keyboard.isKeyDown(203)
             a = Keyboard.isKeyDown(205)

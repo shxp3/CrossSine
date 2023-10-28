@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.Render3DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.Reach;
 import net.ccbluex.liquidbounce.features.module.modules.visual.*;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -24,23 +25,19 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
-import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static org.objectweb.asm.Opcodes.GETFIELD;
 
-import java.awt.*;
 import java.util.List;
 
-import static net.ccbluex.liquidbounce.features.module.modules.ghost.Reach.ReachMax;
-import static net.ccbluex.liquidbounce.features.module.modules.ghost.Reach.getReach;
 
 @Mixin(EntityRenderer.class)
 public abstract class MixinEntityRenderer {
@@ -88,7 +85,6 @@ public abstract class MixinEntityRenderer {
 
     @Shadow
     private boolean cloudFog;
-
     @Inject(method = "renderWorldPass", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderHand:Z", shift = At.Shift.BEFORE))
     private void renderWorldPass(int pass, float partialTicks, long finishTimeNano, CallbackInfo callbackInfo) {
         CrossSine.eventManager.callEvent(new Render3DEvent(partialTicks));
@@ -100,7 +96,6 @@ public abstract class MixinEntityRenderer {
             callbackInfo.cancel();
         }
     }
-
     @Inject(method = "orientCamera", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Vec3;distanceTo(Lnet/minecraft/util/Vec3;)D"), cancellable = true)
     private void cameraClip(float partialTicks, CallbackInfo callbackInfo) {
         if (CrossSine.moduleManager.getModule(CameraClip.class).getState()) {
@@ -213,15 +208,14 @@ public abstract class MixinEntityRenderer {
     public float getPrevRotationPitch(Entity entity) {
         return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.prevRotationPitch;
     }
-
     @Overwrite
     public void getMouseOver(float p_getMouseOver_1_) {
         Entity entity = this.mc.getRenderViewEntity();
         if (entity != null && this.mc.theWorld != null) {
             this.mc.mcProfiler.startSection("pick");
-
+            final Reach reach = CrossSine.moduleManager.getModule(Reach.class);
             this.mc.pointedEntity = null;
-            double d0 = CrossSine.moduleManager.getModule(Reach.class).getState() ? ReachMax.get() : (double) this.mc.playerController.getBlockReachDistance();
+            double d0 = reach.getState() ?reach.getReachMax().get() : (double) this.mc.playerController.getBlockReachDistance();
             this.mc.objectMouseOver = entity.rayTrace(CrossSine.moduleManager.getModule(Reach.class).getState() ? 4.5 : d0, p_getMouseOver_1_);
             double d1 = d0;
             Vec3 vec3 = entity.getPositionEyes(p_getMouseOver_1_);
@@ -238,7 +232,7 @@ public abstract class MixinEntityRenderer {
             }
 
             if (CrossSine.moduleManager.getModule(Reach.class).getState()) {
-                d1 = getReach();
+                d1 = reach.getReach();
 
                 final MovingObjectPosition movingObjectPosition = entity.rayTrace(5.0, p_getMouseOver_1_);
 
@@ -279,7 +273,7 @@ public abstract class MixinEntityRenderer {
                     }
                 }
 
-                if (this.pointedEntity != null && flag && vec3.distanceTo(vec33) > (CrossSine.moduleManager.getModule(Reach.class).getState() ? getReach() : 3.0D)) {
+                if (this.pointedEntity != null && flag && vec3.distanceTo(vec33) > (CrossSine.moduleManager.getModule(Reach.class).getState() ? reach.getReach() : 3.0D)) {
                     this.pointedEntity = null;
                     this.mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS, vec33, null, new BlockPos(vec33));
                 }

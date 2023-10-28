@@ -12,7 +12,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot
-import net.ccbluex.liquidbounce.features.module.modules.player.AntiCheat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.extensions.ping
@@ -43,7 +42,6 @@ class NameTags : Module() {
     private val fontValue = FontValue("Font", Fonts.font40)
     private val borderValue = BoolValue("Border", true)
     private val fontShadowValue = BoolValue("Shadow", true)
-    private val hackerValue = BoolValue("Hacker", true)
     private val friendValue = BoolValue("Friend", true)
     private val jelloColorValue = BoolValue("JelloHPColor", true).displayable { modeValue.equals("Jello") }
     private val jelloAlphaValue = IntegerValue("JelloAlpha", 170, 0, 255).displayable { modeValue.equals("Jello") }
@@ -69,7 +67,7 @@ class NameTags : Module() {
         for (entity in mc.theWorld.loadedEntityList) {
             if (EntityUtils.isSelected(entity, false)) {
                 renderNameTag(entity as EntityLivingBase,
-                    if (hackerValue.get() && CrossSine.moduleManager[AntiCheat::class.java]!!.isHacker(entity)) { "§c" } else { "" } + if (!modeValue.equals("Liquid") && AntiBot.isBot(entity)) { "§e" } else { "" } +
+                    if (!modeValue.equals("Liquid") && AntiBot.isBot(entity)) { "§e" } else { "" } +
                             if (clearNamesValue.get()) { entity.name } else { entity.getDisplayName().unformattedText })
             }
         }

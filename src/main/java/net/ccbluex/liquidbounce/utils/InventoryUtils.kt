@@ -40,21 +40,22 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         }
         return -1
     }
-    fun findHighBlock(): Int {
-        var a = -1
-        var aa = 0
-        for (i in 36..44) {
-            if (mc.thePlayer.inventoryContainer.getSlot(i).hasStack) {
-                val aaa = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
-                var aaaa = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                if (aaa is ItemBlock && aaaa.stackSize > aa) {
-                    aa = aaaa.stackSize
-                    a = i
+    fun findItem(item: Item?): Int {
+        for (i in 0..8) {
+            val itemStack = mc.thePlayer.inventory.getStackInSlot(i)
+            if (itemStack == null) {
+                if (item == null) {
+                    return i
                 }
+                continue
+            }
+            if (itemStack.item === item) {
+                return i
             }
         }
-        return a
+        return -1
     }
+
     fun findSword(): Int {
         var bestDurability = -1
         var bestDamage = -1f
@@ -87,18 +88,34 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return false
     }
 
-    fun findAutoBlockBlock(): Int {
-        for (i in 36..44) {
-            val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-            if (itemStack != null && itemStack.item is ItemBlock) {
-                val itemBlock = itemStack.item as ItemBlock
-                val block = itemBlock.getBlock()
-                if (canPlaceBlock(block) && itemStack.stackSize > 0) {
-                    return i
+    fun findAutoBlockBlock(biggest: Boolean): Int {
+        if (biggest) {
+            var a = -1
+            var aa = 0
+            for (i in 36..44) {
+                if (mc.thePlayer.inventoryContainer.getSlot(i).hasStack) {
+                    val aaa = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
+                    var aaaa = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                    if (aaa is ItemBlock && aaaa.stackSize > aa) {
+                        aa = aaaa.stackSize
+                        a = i
+                    }
                 }
             }
+            return a
+        } else {
+            for (i in 36..44) {
+                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                if (itemStack != null && itemStack.item is ItemBlock) {
+                    val itemBlock = itemStack.item as ItemBlock
+                    val block = itemBlock.getBlock()
+                    if (canPlaceBlock(block) && itemStack.stackSize > 0) {
+                        return i
+                    }
+                }
+            }
+            return -1
         }
-        return -1
     }
 
     fun canPlaceBlock(block: Block): Boolean {

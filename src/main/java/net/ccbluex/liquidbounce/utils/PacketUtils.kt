@@ -4,10 +4,13 @@ import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.server.*
+import java.util.ArrayList
+
+
+
 
 object PacketUtils : MinecraftInstance() {
-    private val packets = ArrayList<Packet<INetHandlerPlayServer>>()
-
+    var packets = ArrayList<Packet<*>>()
     fun handleSendPacket(packet: Packet<*>): Boolean {
         if (packets.contains(packet)) {
             packets.remove(packet)

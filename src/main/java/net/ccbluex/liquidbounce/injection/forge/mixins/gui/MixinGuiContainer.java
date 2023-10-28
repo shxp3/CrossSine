@@ -8,7 +8,8 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.KeyEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.player.InventoryManager;
+import net.ccbluex.liquidbounce.features.module.modules.player.InvManager;
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
@@ -18,7 +19,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 
 @Mixin(GuiContainer.class)
 public abstract class MixinGuiContainer extends MixinGuiScreen {
@@ -56,18 +57,16 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
     public void injectInitGui(CallbackInfo callbackInfo){
         GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
         if (guiScreen instanceof GuiChest) {
-            buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 150, 20, "Disable KillAura"));
-            buttonList.add(InventorymanagerButton = new GuiButton(321123, 5, 27, 150, 20, "Disable InventoryManager"));
-            buttonList.add(chestStealerButton = new GuiButton(727, 5, 49, 150, 20, "Disable Stealer"));
-        }
-        if (guiScreen instanceof GuiInventory) {
-            buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 150, 20, "Disable KillAura"));
-            buttonList.add(InventorymanagerButton = new GuiButton(321123, 5, 27, 150, 20, "Disable InventoryManager"));
-            buttonList.add(chestStealerButton = new GuiButton(727, 5, 49, 150, 20, "Disable Stealer"));
+            if (HUD.INSTANCE.getButtonValue().get()){
+                buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 150, 20, "Disable KillAura"));
+                buttonList.add(InventorymanagerButton = new GuiButton(321123, 5, 27, 150, 20, "Disable InventoryManager"));
+                buttonList.add(chestStealerButton = new GuiButton(727, 5, 49, 150, 20, "Disable Stealer"));
+            }
         }
         lastMS = System.currentTimeMillis();
         progress = 0F;
-    }
+
+     }
 
     @Override
     protected void actionPerformed(GuiButton button) {
@@ -76,14 +75,21 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         if (button.id == 727)
             CrossSine.moduleManager.getModule(Stealer.class).setState(false);
         if (button.id == 321123)
-            CrossSine.moduleManager.getModule(InventoryManager.class).setState(false);
+            CrossSine.moduleManager.getModule(InvManager.class).setState(false);
     }
 
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private void drawScreenHead(CallbackInfo callbackInfo) {
+
         Stealer stealer = CrossSine.moduleManager.getModule(Stealer.class);
         Minecraft mc = Minecraft.getMinecraft();
         GuiScreen guiScreen = mc.currentScreen;
+        if (stealer.getState() && stealer.getFreelookValue().get() && guiScreen instanceof GuiChest) {
+            if (!stealer.getSilentValue().get()) {
+                mc.inGameHasFocus = true;
+                mc.mouseHelper.grabMouseCursor();
+            }
+        }
         if (stealer.getState() && stealer.getSilentValue().get() && guiScreen instanceof GuiChest) {
             GuiChest chest = (GuiChest) guiScreen;
             if (!(stealer.getChestTitleValue().get() && (chest.lowerChestInventory == null || !chest.lowerChestInventory.getName().contains(new ItemStack(Item.itemRegistry.getObject(new ResourceLocation("minecraft:chest"))).getDisplayName())))) {

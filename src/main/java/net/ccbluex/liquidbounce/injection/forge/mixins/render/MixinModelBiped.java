@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -35,9 +35,9 @@ public class MixinModelBiped {
         if(heldItemRight == 3)
             this.bipedRightArm.rotateAngleY = 0F;
 
-        if (HUD.INSTANCE.getState() && RotationUtils.serverRotation != null && p_setRotationAngles_7_ instanceof EntityPlayer
+        if (RenderRotation.INSTANCE.getState() && RotationUtils.serverRotation != null && p_setRotationAngles_7_ instanceof EntityPlayer
                 && p_setRotationAngles_7_.equals(Minecraft.getMinecraft().thePlayer)) {
-            this.bipedHead.rotateAngleX = (float) Math.toRadians(HUD.INSTANCE.lerp(Minecraft.getMinecraft().timer.renderPartialTicks, HUD.INSTANCE.getPrevHeadPitch(), HUD.INSTANCE.getHeadPitch()));
+            this.bipedHead.rotateAngleX = (float) Math.toRadians(RenderRotation.INSTANCE.lerp(Minecraft.getMinecraft().timer.renderPartialTicks, RenderRotation.INSTANCE.getPrevHeadPitch(), RenderRotation.INSTANCE.getHeadPitch()));
         }
     }
 }

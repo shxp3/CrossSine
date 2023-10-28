@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
+import net.minecraft.init.Blocks
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
@@ -115,7 +116,19 @@ object BlockUtils : MinecraftInstance() {
 
         return true
     }
+    private val blockNames = mutableListOf<Pair<String, Int>>()
+    fun getBlockNamesAndIDs(): Array<Pair<String, Int>> {
+        if (blockNames.isEmpty()) {
+            for (id in 0..32768) { // arbitrary
+                val block = Block.getBlockById(id)
+                if (block === Blocks.air) continue
 
+                blockNames.add(block.registryName.replace(Regex("^minecraft:"), "") to id)
+            }
+            blockNames.sortBy { it.first }
+        }
+        return blockNames.toTypedArray()
+    }
     /**
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
@@ -139,6 +152,9 @@ object BlockUtils : MinecraftInstance() {
             }
         }
         return false
+    }
+    fun getBlockName2(id: Int): String {
+        return Block.getBlockById(id).registryName.replace(Regex("^minecraft:"), "")
     }
 
     @JvmStatic

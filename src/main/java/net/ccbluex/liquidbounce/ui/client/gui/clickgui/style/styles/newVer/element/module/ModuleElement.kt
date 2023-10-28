@@ -1,13 +1,11 @@
 package net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module
 
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.components.ToggleSwitch
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.ValueElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl.BooleanElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl.ListElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl.IntElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl.FloatElement
+import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl.*
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
@@ -15,10 +13,6 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.Stencil
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
@@ -51,6 +45,8 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 valueElements.add(IntElement(value))
             if (value is FloatValue)
                 valueElements.add(FloatElement(value))
+            if (value is TitleValue)
+                valueElements.add(TitleElement(value))
         }
     }
 
@@ -66,25 +62,25 @@ class ModuleElement(val module: Module): MinecraftInstance() {
         RenderUtils.originalRoundedRect(x + 10F, y + 5F, x + width - 10F, y + height + animHeight - 5F, 4F, ColorManager.moduleBackground.rgb)
         Stencil.erase(true)
         RenderUtils.newDrawRect(x + 10F, y + height - 5F, x + width - 10F, y + height - 4.5F, 4281348144L.toInt())
-        Fonts.font40.drawString(module.name, x + 20F, y + height / 2F - Fonts.font40.FONT_HEIGHT + 7F, -1)
+        Fonts.Nunito40.drawString(module.name, x + 20F, y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F, Color(255,255,255).rgb)
 
-        val keyName = if (listeningToKey) "Key Binding" else Keyboard.getKeyName(module.keyBind)
+        val keyName = if (listeningToKey) "Listening" else Keyboard.getKeyName(module.keyBind)
 
         if (MouseUtils.mouseWithinBounds(mouseX, mouseY,
-                x + 25F + Fonts.font40.getStringWidth(module.name),
-                y + height / 2F - Fonts.font40.FONT_HEIGHT + 2F,
-                x + 35F + Fonts.font40.getStringWidth(module.name) + Fonts.fontTiny.getStringWidth(keyName),
-                y + height / 2F))
+                x + 25F + Fonts.Nunito40.getStringWidth(module.name),
+                y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F,
+                x + 35F + Fonts.Nunito40.getStringWidth(module.name) + Fonts.Nunito24.getStringWidth(keyName),
+                y + height / 2F + 3F))
             fadeKeybind = (fadeKeybind + 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
         else
             fadeKeybind = (fadeKeybind - 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
 
         RenderUtils.originalRoundedRect(
-                x + 25F + Fonts.font40.getStringWidth(module.name),
-                y + height / 2F - Fonts.font40.FONT_HEIGHT + 2F,
-                x + 35F + Fonts.font40.getStringWidth(module.name) + Fonts.fontTiny.getStringWidth(keyName),
-                y + height / 2F, 2F, BlendUtils.blend(Color(4282729797L.toInt()), Color(4281677109L.toInt()), fadeKeybind.toDouble()).rgb)
-        Fonts.fontTiny.drawString(keyName, x + 30.5F + Fonts.font40.getStringWidth(module.name), y + height / 2F - Fonts.font40.FONT_HEIGHT + 5.5F, -1)
+                x + 25F + Fonts.Nunito40.getStringWidth(module.name),
+                y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F,
+                x + 35F + Fonts.Nunito40.getStringWidth(module.name) + Fonts.Nunito24.getStringWidth(keyName),
+                y + height / 2F + 5F, 2F, BlendUtils.blend(Color(4282729797L.toInt()), Color(4281677109L.toInt()), fadeKeybind.toDouble()).rgb)
+        Fonts.Nunito24.drawString(keyName, x + 30.5F + Fonts.Nunito40.getStringWidth(module.name), y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 10F, Color(255,255,255).rgb)
 
         toggleSwitch.state = module.state
 
@@ -121,10 +117,10 @@ class ModuleElement(val module: Module): MinecraftInstance() {
         }
         val keyName = if (listeningToKey) "Listening" else Keyboard.getKeyName(module.keyBind)
         if (MouseUtils.mouseWithinBounds(mouseX, mouseY,
-                x + 25F + Fonts.font40.getStringWidth(module.name),
-                y + height / 2F - Fonts.font40.FONT_HEIGHT + 2F,
-                x + 35F + Fonts.font40.getStringWidth(module.name) + Fonts.fontTiny.getStringWidth(keyName),
-                y + height / 2F)) {
+                x + 25F + Fonts.Nunito40.getStringWidth(module.name),
+                y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F,
+                x + 35F + Fonts.Nunito40.getStringWidth(module.name) + Fonts.Nunito24.getStringWidth(keyName),
+                y + height / 2F + 3F)) {
             listeningToKey = true
             return
         }

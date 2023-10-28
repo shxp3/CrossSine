@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import org.lwjgl.input.Keyboard
 
 @ModuleInfo(name = "Speed", spacedName = "Speed", category = ModuleCategory.MOVEMENT, keyBind = Keyboard.KEY_V)
-class Speed : Module() {
+object Speed : Module() {
     val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.speeds", SpeedMode::class.java)
         .map { it.newInstance() as SpeedMode }
         .sortedBy { it.modeName }
@@ -35,7 +35,6 @@ class Speed : Module() {
             if (state) onEnable()
         }
     }
-    private val hideJmup = BoolValue("HideJump", false)
     private val noWater = BoolValue("NoWater", true)
     private val debug = BoolValue("Debug", false)
 
@@ -59,10 +58,6 @@ class Speed : Module() {
 
         if (mc.thePlayer.isSneaking || event.eventState !== EventState.PRE || (mc.thePlayer.isInWater && noWater.get())) {
             return
-        }
-        if (hideJmup.get()){
-            mc.thePlayer.posY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
-            mc.thePlayer.lastTickPosY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
         }
         mode.onPreMotion()
     }

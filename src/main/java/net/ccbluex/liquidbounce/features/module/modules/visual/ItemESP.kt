@@ -12,7 +12,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.Colors
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.OutlineShader
@@ -20,6 +19,8 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.projectile.EntityArrow
@@ -31,17 +32,16 @@ import kotlin.math.roundToInt
 @ModuleInfo(name = "ItemESP", spacedName = "Item ESP", category = ModuleCategory.VISUAL)
 class ItemESP : Module() {
     private val entityConvertedPointsMap: MutableMap<EntityItem, DoubleArray> = HashMap()
-    private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Exhibition", "LightBox", "ShaderOutline", "ShaderGlow"), "Box")
+    private val itemCount = BoolValue("ItemCount", false)
+    private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "LightBox"), "Box")
     private val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
-    private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 0, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorRainbowValue = BoolValue("Rainbow", true)
-
+    private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { !colorThemeClient.get() }
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorThemeClient.get() }
+    private val colorBlueValue = IntegerValue("B", 0, 0, 255).displayable { !colorThemeClient.get() }
+    private val colorThemeClient = BoolValue("ClientTheme", true)
     private fun getColor(): Color {
-        return if (colorRainbowValue.get()) rainbow() else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
+        return if (colorThemeClient.get()) ClientTheme.getColor(1) else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
     }
-
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
         val color = getColor()
@@ -89,7 +89,7 @@ class ItemESP : Module() {
                     var z = ent.lastTickPosZ + (ent.posZ - ent.lastTickPosZ) * pTicks
                     -mc.renderManager.viewerPosZ + 0.36
                     val topY: Double
-                    y = y + (ent.height + 0.15).also { topY = it }
+                    y += (ent.height + 0.15).also { topY = it }
                     val convertedPoints = RenderUtils.convertTo2D(x, y, z)
                     val convertedPoints2 = RenderUtils.convertTo2D(x - 0.36, y, z - 0.36)
                     val xd = 0.0
@@ -150,202 +150,32 @@ class ItemESP : Module() {
                 }
             }
         }
-    }
+        if (itemCount.get()) {
+            for (item in mc.theWorld.getLoadedEntityList()) {
+                if (item is EntityItem) {
+                    GL11.glPushMatrix()
+                    GL11.glTranslated(
+                        item.lastTickPosX + (item.posX - item.lastTickPosX) * mc.timer.renderPartialTicks - mc.renderManager.renderPosX,
+                        item.lastTickPosY + (item.posY - item.lastTickPosY) * mc.timer.renderPartialTicks - mc.renderManager.renderPosY - 0.2,
+                        item.lastTickPosZ + (item.posZ - item.lastTickPosZ) * mc.timer.renderPartialTicks - mc.renderManager.renderPosZ
+                    )
+                    GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
+                    RenderUtils.disableGlCap(GL11.GL_LIGHTING, GL11.GL_DEPTH_TEST)
+                    GL11.glScalef(-0.03F, -0.03F, -0.03F)
+                    mc.fontRendererObj.drawString(item.entityItem.stackSize.toString(), -5F, -15F,
+                        Color(255,255,255).rgb,true)
+                    RenderUtils.enableGlCap(GL11.GL_BLEND)
+                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+                    RenderUtils.resetCaps()
 
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        if (modeValue.get().equals("Exhibition", ignoreCase = true)) {
-            GlStateManager.pushMatrix()
-            for (ent in entityConvertedPointsMap.keys) {
-                val renderPositions = entityConvertedPointsMap[ent]
-                val renderPositionsBottom = doubleArrayOf(
-                    renderPositions!![4], renderPositions[5],
-                    renderPositions[6]
-                )
-                val renderPositionsX = doubleArrayOf(
-                    renderPositions[7], renderPositions[8],
-                    renderPositions[9]
-                )
-                val renderPositionsX2 = doubleArrayOf(
-                    renderPositions[10], renderPositions[11],
-                    renderPositions[12]
-                )
-                val renderPositionsZ = doubleArrayOf(
-                    renderPositions[13], renderPositions[14],
-                    renderPositions[15]
-                )
-                val renderPositionsZ2 = doubleArrayOf(
-                    renderPositions[16], renderPositions[17],
-                    renderPositions[18]
-                )
-                val renderPositionsTop1 = doubleArrayOf(
-                    renderPositions[19], renderPositions[20],
-                    renderPositions[21]
-                )
-                val renderPositionsTop2 = doubleArrayOf(
-                    renderPositions[22], renderPositions[23],
-                    renderPositions[24]
-                )
-                GlStateManager.pushMatrix()
-                GlStateManager.scale(0.5, 0.5, 0.5)
-                if (mc.theWorld.loadedEntityList.contains(ent)) {
-                    try {
-                        val xValues = doubleArrayOf(
-                            renderPositions[0], renderPositionsBottom[0], renderPositionsX[0],
-                            renderPositionsX2[0], renderPositionsZ[0], renderPositionsZ2[0], renderPositionsTop1[0],
-                            renderPositionsTop2[0]
-                        )
-                        val yValues = doubleArrayOf(
-                            renderPositions[1], renderPositionsBottom[1], renderPositionsX[1],
-                            renderPositionsX2[1], renderPositionsZ[1], renderPositionsZ2[1], renderPositionsTop1[1],
-                            renderPositionsTop2[1]
-                        )
-                        var x = renderPositions[0]
-                        var y = renderPositions[1]
-                        var endx = renderPositionsBottom[0]
-                        var endy = renderPositionsBottom[1]
-                        var array: DoubleArray
-                        val length = xValues.also { array = it }.size
-                        var j = 0
-                        while (j < length) {
-                            val bdubs = array[j]
-                            if (bdubs < x) {
-                                x = bdubs
-                            }
-                            ++j
-                        }
-                        var array2: DoubleArray
-                        val length2 = xValues.also { array2 = it }.size
-                        var k = 0
-                        while (k < length2) {
-                            val bdubs = array2[k]
-                            if (bdubs > endx) {
-                                endx = bdubs
-                            }
-                            ++k
-                        }
-                        var array3: DoubleArray
-                        val length3 = yValues.also { array3 = it }.size
-                        var l = 0
-                        while (l < length3) {
-                            val bdubs = array3[l]
-                            if (bdubs < y) {
-                                y = bdubs
-                            }
-                            ++l
-                        }
-                        var array4: DoubleArray
-                        val length4 = yValues.also { array4 = it }.size
-                        var n = 0
-                        while (n < length4) {
-                            val bdubs = array4[n]
-                            if (bdubs > endy) {
-                                endy = bdubs
-                            }
-                            ++n
-                        }
-                        RenderUtils.rectangleBordered(
-                            x + 0.5,
-                            y + 0.5,
-                            endx - 0.5,
-                            endy - 0.5,
-                            1.0,
-                            Colors.getColor(0, 0, 0, 0),
-                            Color(255, 255, 255).rgb
-                        )
-                        RenderUtils.rectangleBordered(
-                            x - 0.5,
-                            y - 0.5,
-                            endx + 0.5,
-                            endy + 0.5,
-                            1.0,
-                            Colors.getColor(0, 0),
-                            Colors.getColor(0, 150)
-                        )
-                        RenderUtils.rectangleBordered(
-                            x + 1.5,
-                            y + 1.5,
-                            endx - 1.5,
-                            endy - 1.5,
-                            1.0,
-                            Colors.getColor(0, 0),
-                            Colors.getColor(0, 150)
-                        )
-                        val health = 20f
-                        val progress = health / 20f
-                        val difference = y - endy + 0.5
-                        RenderUtils.rectangleBordered(
-                            x - 6.5, y - 0.5, x - 2.5,
-                            endy, 1.0, Color(30, 255, 30).rgb,
-                            Colors.getColor(0, 150)
-                        )
-                        //RenderUtils.rectangle((x - 5.5), (endy - 1.0), (x - 3.5),
-                        //         healthLocation,  customColor.getRGB());
-                        RenderUtils.rectangle(x - 5.5, endy - 1.0, x - 3.5, endy + difference, Color(30, 255, 30).rgb)
-                        if (-difference > 50.0) {
-                            for (i in 1..9) {
-                                val dThing = difference / 10.0 * i
-                                RenderUtils.rectangle(
-                                    x - 6.5, endy - 0.5 + dThing,
-                                    x - 2.5, endy - 0.5 + dThing - 1.0,
-                                    Colors.getColor(0)
-                                )
-                            }
-                        }
-                        if (getIncremental((progress * 100.0f).toDouble(), 1.0).toInt() <= 40) {
-                            GlStateManager.pushMatrix()
-                            GlStateManager.scale(2.0f, 2.0f, 2.0f)
-                            GlStateManager.popMatrix()
-                        }
-                    } catch (ignored: Exception) {
-                    }
+                    // Reset color
+                    GlStateManager.resetColor()
+                    GL11.glColor4f(1F, 1F, 1F, 1F)
+
+                    // Pop
+                    GL11.glPopMatrix()
                 }
-                GlStateManager.popMatrix()
-                GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
             }
-            GL11.glScalef(1.0f, 1.0f, 1.0f)
-            GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-            GlStateManager.popMatrix()
-            RenderUtils.rectangle(0.0, 0.0, 0.0, 0.0, -1)
         }
-        if (modeValue.get().equals("ShaderOutline", ignoreCase = true)) {
-            OutlineShader.OUTLINE_SHADER.startDraw(event.partialTicks)
-            try {
-                for (entity in mc.theWorld.loadedEntityList) {
-                    if (!(entity is EntityItem || entity is EntityArrow)) continue
-                    mc.renderManager.renderEntityStatic(entity, event.partialTicks, true)
-                }
-            } catch (ex: Exception) {
-                alert("An error occurred while rendering all item entities for shader esp")
-            }
-            OutlineShader.OUTLINE_SHADER.stopDraw(
-                if (colorRainbowValue.get()) rainbow() else Color(
-                    colorRedValue.get(),
-                    colorGreenValue.get(),
-                    colorBlueValue.get()
-                ), 1f, 1f
-            )
-        }
-
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        val shader = (if (modeValue.equals("shaderoutline")) OutlineShader.OUTLINE_SHADER else if (modeValue.equals("shaderglow")) GlowShader.GLOW_SHADER else null)
-            ?: return
-        val partialTicks = event.partialTicks
-
-        shader.startDraw(partialTicks)
-
-        for (entity in mc.theWorld.loadedEntityList) {
-            if (!(entity is EntityItem || entity is EntityArrow)) continue
-            mc.renderManager.renderEntityStatic(entity, event.partialTicks, true)
-        }
-
-        shader.stopDraw(getColor(), outlineWidth.get(), 1f)
-    }
-    }
-
-    fun getIncremental(`val`: Double, inc: Double): Double {
-        val one = 1.0 / inc
-        return (`val` * one).roundToInt() / one
     }
 }

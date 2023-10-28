@@ -46,10 +46,10 @@ public class StatisticsUtils implements Listenable {
         deaths++;
     }
     public static void getWin() {
-        deaths++;
+        win++;
     }
     public static void getTotal() {
-        deaths++;
+        totalPlayed++;
     }
 
     public static int getDeaths() {

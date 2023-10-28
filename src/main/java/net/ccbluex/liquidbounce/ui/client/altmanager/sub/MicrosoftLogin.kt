@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.ui.client.altmanager.sub
 import me.liuli.elixir.account.MicrosoftAccount
 import me.liuli.elixir.compat.OAuthServer
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
@@ -28,7 +27,7 @@ class MicrosoftLogin(private val prevGui: GuiScreen) : GuiScreen() {
 
             override fun authResult(account: MicrosoftAccount) {
                 if (CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts.any { it.name == account.name }) {
-                    stage = "§c${LanguageManager.getAndFormat("ui.alt.alreadyAdded")}"
+                    stage = "§cAlready Add"
                     return
                 }
                 CrossSine.fileManager.accountsConfig.altManagerMinecraftAccounts.add(account)

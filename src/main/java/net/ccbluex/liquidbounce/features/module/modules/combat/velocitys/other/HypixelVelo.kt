@@ -8,8 +8,13 @@ class HypixelVelo : VelocityMode("Hypixel") {
     override fun onVelocityPacket(event: PacketEvent) {
         val p = event.packet
         if (p is S12PacketEntityVelocity) {
-            mc.thePlayer.motionY = p.getMotionY().toDouble() / 8000.0
-            event.cancelEvent()
+            if (!mc.thePlayer.onGround) {
+                event.cancelEvent()
+            } else {
+                p.motionX = 0
+                p.motionZ = 0
+                p.motionY = p.getMotionY()
+            }
         }
     }
 }

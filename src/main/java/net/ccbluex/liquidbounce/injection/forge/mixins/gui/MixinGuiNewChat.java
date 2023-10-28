@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.features.module.modules.visual.GuiChatModule;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,7 @@ public abstract class MixinGuiNewChat {
     @Final
     private List<ChatLine> chatLines;
     private int line;
-    private HUD hud;
+    private GuiChatModule guiChatModule;
 
     @Shadow
     public abstract int getLineCount();
@@ -76,8 +77,8 @@ public abstract class MixinGuiNewChat {
     public abstract void printChatMessageWithOptionalDeletion(IChatComponent chatComponent, int chatLineId);
 
     private void checkHud() {
-        if (hud == null)
-            hud = CrossSine.moduleManager.getModule(HUD.class);
+        if (guiChatModule == null)
+            guiChatModule = CrossSine.moduleManager.getModule(GuiChatModule.class);
     }
 
     @Redirect(method = "deleteChatLine", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/ChatLine;getChatLineID()I"))
@@ -92,10 +93,10 @@ public abstract class MixinGuiNewChat {
      */
     @Overwrite
     public void printChatMessage(IChatComponent chatComponent) {
-        final HUD hud = CrossSine.moduleManager.getModule(HUD.class);
-        if(!hud.getState() || !hud.getChatCombine().get()) {
+        final GuiChatModule guiChatModule = CrossSine.moduleManager.getModule(GuiChatModule.class);
+        if(!guiChatModule.getState() || !guiChatModule.getChatCombine().get()) {
             printChatMessageWithOptionalDeletion(chatComponent, 0);
-        } else if(hud.getChatCombine().get()) {
+        } else if(guiChatModule.getChatCombine().get()) {
 
             String text = fixString(chatComponent.getFormattedText());
 
@@ -128,7 +129,7 @@ public abstract class MixinGuiNewChat {
     @Overwrite
     public void drawChat(int updateCounter) {
         checkHud();
-        boolean canFont = hud.getState() && hud.getFontChatValue().get();
+        boolean canFont = guiChatModule.getState() && guiChatModule.getFontChatValue().get();
         GlStateManager.pushMatrix();
         GlStateManager.translate(0, -12, 0);
 
@@ -143,13 +144,13 @@ public abstract class MixinGuiNewChat {
                     flag = true;
                 }
 
-                if (this.isScrolled || !hud.getState()) {
+                if (this.isScrolled || !guiChatModule.getState()) {
                     displayPercent = 1F;
-                } else if (displayPercent < 1F && hud.getChatAnimValue().get()) {
+                } else if (displayPercent < 1F && guiChatModule.getChatAnimValue().get()) {
                     displayPercent += 0.05F / 10F * RenderUtils.deltaTime;
                     displayPercent = MathHelper.clamp_float(displayPercent, 0F, 1F);
                 }
-                if (displayPercent < 1F && !hud.getChatAnimValue().get()) {
+                if (displayPercent < 1F && !guiChatModule.getChatAnimValue().get()) {
                     displayPercent += 10F * RenderUtils.deltaTime;
                     displayPercent = MathHelper.clamp_float(displayPercent, 0F, 1F);
                 }
@@ -160,7 +161,7 @@ public abstract class MixinGuiNewChat {
                 float f1 = this.getChatScale();
                 int l = MathHelper.ceiling_float_int((float) this.getChatWidth() / f1);
                 GlStateManager.pushMatrix();
-                if (hud.getState())
+                if (guiChatModule.getState())
                     GlStateManager.translate(0F, (1F - animationPercent) * 9F * this.getChatScale(), 0F);
                 GlStateManager.translate(2.0F, 20.0F, 0.0F);
                 GlStateManager.scale(f1, f1, 1.0F);
@@ -192,7 +193,7 @@ public abstract class MixinGuiNewChat {
                                 int i2 = 0;
                                 int j2 = -i1 * 9;
 
-                                if (hud.getState() && hud.getChatRectValue().get()) {
+                                if (guiChatModule.getState() && guiChatModule.getChatRectValue().get()) {
                                     if (lineBeingDrawn <= newLines && !flag)
                                         RenderUtils.drawRect(i2, j2 - 9, i2 + l + 4, j2, new Color(0F, 0F, 0F, animationPercent * ((float) d0 / 2F)).getRGB());
                                     else
@@ -204,10 +205,10 @@ public abstract class MixinGuiNewChat {
 
                                 String s = fixString(chatline.getChatComponent().getFormattedText());
                                 GlStateManager.enableBlend();
-                                if (hud.getState() && lineBeingDrawn <= newLines)
-                                    (canFont ? hud.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), new Color(1F, 1F, 1F, animationPercent * (float) d0).getRGB(), true);
+                                if (guiChatModule.getState() && lineBeingDrawn <= newLines)
+                                    (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), new Color(1F, 1F, 1F, animationPercent * (float) d0).getRGB(), true);
                                 else
-                                    (canFont ? hud.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), 16777215 + (l1 << 24), true);
+                                    (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), 16777215 + (l1 << 24), true);
                                 GlStateManager.disableAlpha();
                                 GlStateManager.disableBlend();
                             }
@@ -269,7 +270,7 @@ public abstract class MixinGuiNewChat {
     @Overwrite
     public IChatComponent getChatComponent(int p_146236_1_, int p_146236_2_) {
         checkHud();
-        boolean flagFont = hud.getState() && hud.getFontChatValue().get();
+        boolean flagFont = guiChatModule.getState() && guiChatModule.getFontChatValue().get();
 
         if (!this.getChatOpen()) {
             return null;
@@ -283,8 +284,8 @@ public abstract class MixinGuiNewChat {
             mY = MathHelper.floor_float((float) mY / chatScale);
             if (mX >= 0 && mY >= 0) {
                 int lineCount = Math.min(this.getLineCount(), this.drawnChatLines.size());
-                if (mX <= MathHelper.floor_float((float) this.getChatWidth() / this.getChatScale()) && mY < (flagFont ? hud.getFontType().get() : this.mc.fontRendererObj).FONT_HEIGHT * lineCount + lineCount) {
-                    int line = mY / (flagFont ? hud.getFontType().get() : this.mc.fontRendererObj).FONT_HEIGHT + this.scrollPos;
+                if (mX <= MathHelper.floor_float((float) this.getChatWidth() / this.getChatScale()) && mY < (flagFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).FONT_HEIGHT * lineCount + lineCount) {
+                    int line = mY / (flagFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).FONT_HEIGHT + this.scrollPos;
                     if (line >= 0 && line < this.drawnChatLines.size()) {
                         ChatLine chatLine = this.drawnChatLines.get(line);
                         int maxWidth = 0;
@@ -293,7 +294,7 @@ public abstract class MixinGuiNewChat {
                         while (iter.hasNext()) {
                             IChatComponent iterator = (IChatComponent) iter.next();
                             if (iterator instanceof ChatComponentText) {
-                                maxWidth += (flagFont ? hud.getFontType().get() : this.mc.fontRendererObj).getStringWidth(GuiUtilRenderComponents.func_178909_a(((ChatComponentText) iterator).getChatComponentText_TextValue(), false));
+                                maxWidth += (flagFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).getStringWidth(GuiUtilRenderComponents.func_178909_a(((ChatComponentText) iterator).getChatComponentText_TextValue(), false));
                                 if (maxWidth > mX) {
                                     return iterator;
                                 }

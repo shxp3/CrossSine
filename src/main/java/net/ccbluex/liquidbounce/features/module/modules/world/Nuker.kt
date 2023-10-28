@@ -129,10 +129,6 @@ class Nuker : Module() {
                 currentBlock = blockPos
                 attackedBlocks.add(blockPos)
 
-                // Call auto tool
-                val autoTool = CrossSine.moduleManager.getModule(AutoTool::class.java) as AutoTool
-                if (autoTool.state)
-                    autoTool.switchSlot(blockPos)
 
                 // Start block breaking
                 if (currentDamage == 0F) {

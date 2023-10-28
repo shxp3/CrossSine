@@ -1,13 +1,7 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.utils.render;
 
-import net.ccbluex.liquidbounce.CrossSine;
-import net.ccbluex.liquidbounce.features.module.modules.visual.KillESP;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.geom.Rectangle;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MathUtils;
@@ -35,9 +29,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.item.*;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.Timer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
@@ -74,32 +66,55 @@ public final class RenderUtils extends MinecraftInstance {
     private static final ResourceLocation blurDirectory = new ResourceLocation("crosssine/shadow.json");
 
     public static int deltaTime;
-
     private static final int[] DISPLAY_LISTS_2D = new int[4];
+    private static long startTime;
+    private static int animationDuration = 500;
 
-    public static void drawPlatforms(final Entity entity, final Color color) {
-        final RenderManager renderManager = mc.getRenderManager();
-        final Timer timer = mc.timer;
 
-        KillESP killESP = CrossSine.moduleManager.getModule(KillESP.class);
-        if (killESP == null)
-            return;
+    public static void scaleStart(float x, float y, float scale) {
+        glTranslatef(x, y, 0);
+        glScalef(scale, scale, 1);
+        glTranslatef(-x, -y, 0);
+    }
+    public static Vec3 to2D(double x, double y, double z) {
+        FloatBuffer screenCoords = BufferUtils.createFloatBuffer(3);
+        IntBuffer viewport = BufferUtils.createIntBuffer(16);
+        FloatBuffer modelView = BufferUtils.createFloatBuffer(16);
+        FloatBuffer projection = BufferUtils.createFloatBuffer(16);
 
-        final double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks
-                - renderManager.renderPosX;
-        final double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks
-                - renderManager.renderPosY;
-        final double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
-                - renderManager.renderPosZ;
+        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelView);
+        GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, projection);
+        GL11.glGetInteger(GL11.GL_VIEWPORT, viewport);
 
-        final AxisAlignedBB axisAlignedBB = entity.getEntityBoundingBox()
-                .offset(-entity.posX, -entity.posY, -entity.posZ)
-                .offset(x, y - killESP.getMoveMarkValue().get(), z);
+        boolean result = GLU.gluProject((float) x, (float) y, (float) z, modelView, projection, viewport, screenCoords);
+        if (result) {
+            return new Vec3(screenCoords.get(0), Display.getHeight() - screenCoords.get(1), screenCoords.get(2));
+        }
+        return null;
+    }
+    public static void drawTracerPointer(float x, float y, float size, float widthDiv, float heightDiv, int color) {
+        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
-        drawAxisAlignedBB(
-                new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.maxY + 0.2, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY + 0.26, axisAlignedBB.maxZ),
-                color
-        );
+        GL11.glPushMatrix();
+        glColor(color);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2d(x, y);
+        GL11.glVertex2d(x - size / widthDiv, y + size);
+        GL11.glVertex2d(x, y + size / heightDiv);
+        GL11.glVertex2d(x + size / widthDiv, y + size);
+        GL11.glVertex2d(x, y);
+        GL11.glEnd();
+        GL11.glColor4f(0, 0, 0, 0.8f);
+        GL11.glPopMatrix();
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        if (!blend)
+            GL11.glDisable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
     }
     public static void drawAxisAlignedBB(final AxisAlignedBB axisAlignedBB, final Color color) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -834,6 +849,44 @@ public final class RenderUtils extends MinecraftInstance {
         GL11.glDisable(2848);
         GL11.glShadeModel(7424);
     }
+    public static void drawAnimatedGradient(double left, double top, double right, double bottom, int col1, int col2) {
+        long currentTime = System.currentTimeMillis();
+        if (startTime == 0) {
+            startTime = currentTime;
+        }
+
+        long elapsedTime = currentTime - startTime;
+        float progress = (float) (elapsedTime % animationDuration) / animationDuration;
+
+        int color1, color2;
+
+        if (elapsedTime / animationDuration % 2 == 0) {
+            // Custom Color 1 to Custom Color 2
+            color1 = interpolateColors(col1, col2, progress);
+            color2 = interpolateColors(col2, col1, progress);
+        } else {
+            // Custom Color 2 to Custom Color 1
+            color1 = interpolateColors(col2, col1, progress);
+            color2 = interpolateColors(col1, col2, progress);
+        }
+
+        drawGradientSideways(left, top, right, bottom, color1, color2);
+
+        if (elapsedTime >= 2 * animationDuration) {
+            // Reset the start time to continue the loop
+            startTime = currentTime;
+        }
+    }
+
+    public static int interpolateColors(int color1, int color2, float progress) {
+        int alpha = (int) ((1.0 - progress) * (color1 >>> 24) + progress * (color2 >>> 24));
+        int red = (int) ((1.0 - progress) * ((color1 >> 16) & 0xFF) + progress * ((color2 >> 16) & 0xFF));
+        int green = (int) ((1.0 - progress) * ((color1 >> 8) & 0xFF) + progress * ((color2 >> 8) & 0xFF));
+        int blue = (int) ((1.0 - progress) * (color1 & 0xFF) + progress * (color2 & 0xFF));
+
+        return (alpha << 24) | (red << 16) | (green << 8) | blue;
+    }
+
     public static void drawShadow(float x, float y, float width, float height) {
         drawTexturedRect(x - 9, y - 9, 9, 9, "paneltopleft");
         drawTexturedRect(x - 9, y + height, 9, 9, "panelbottomleft");
@@ -1720,7 +1773,6 @@ public final class RenderUtils extends MinecraftInstance {
 
         tessellator.draw();
     }
-
     public static void drawEntityBox(final Entity entity, final Color color, final boolean outline, final boolean box, final float outlineWidth) {
         final RenderManager renderManager = mc.getRenderManager();
         final Timer timer = mc.timer;
@@ -1750,15 +1802,14 @@ public final class RenderUtils extends MinecraftInstance {
         if (outline) {
             glLineWidth(outlineWidth);
             enableGlCap(GL_LINE_SMOOTH);
-            glColor(color.getRed(), color.getGreen(), color.getBlue(), box?170:255);
+            glColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             drawSelectionBoundingBox(axisAlignedBB);
         }
 
         if(box) {
-            glColor(color.getRed(), color.getGreen(), color.getBlue(), outline ? 26 : 35);
+            glColor(color.getRed(), color.getGreen(), color.getBlue(), outline ? 26 : 50);
             drawFilledBox(axisAlignedBB);
         }
-
         GlStateManager.resetColor();
         glDepthMask(true);
         resetCaps();
@@ -1877,6 +1928,103 @@ public final class RenderUtils extends MinecraftInstance {
         worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
         worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
         tessellator.draw();
+    }
+    public static void renderOutlines(double x, double y, double z, float width, float height, Color c, float outlinewidth) {
+        float halfwidth = width / 2.0F;
+        float halfheight = height / 2.0F;
+        GlStateManager.pushMatrix();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.disableBlend();
+        GlStateManager.disableDepth();
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        worldRenderer.begin(1, DefaultVertexFormats.POSITION_COLOR);
+        y++;
+        GL11.glLineWidth(outlinewidth);
+        worldRenderer.pos(x - halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        tessellator.draw();
+        GlStateManager.enableDepth();
+        GlStateManager.depthMask(true);
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableLighting();
+        GlStateManager.enableCull();
+        GlStateManager.enableBlend();
+        GlStateManager.popMatrix();
+    }
+    public static void renderBox(double x, double y, double z, float width, float height, Color c) {
+        float halfwidth = width / 2.0F;
+        float halfheight = height / 2.0F;
+        GlStateManager.pushMatrix();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.disableBlend();
+        GlStateManager.disableDepth();
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        y++;
+        worldRenderer.pos(x - halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y + halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x + halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z + halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        worldRenderer.pos(x - halfwidth, y - halfheight, z - halfwidth).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).endVertex();
+        tessellator.draw();
+        GlStateManager.enableDepth();
+        GlStateManager.depthMask(true);
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableLighting();
+        GlStateManager.enableCull();
+        GlStateManager.enableBlend();
+        GlStateManager.popMatrix();
     }
 
     public static void drawBlockBox(final BlockPos blockPos, final Color color, final boolean outline) {
@@ -2000,6 +2148,9 @@ public final class RenderUtils extends MinecraftInstance {
         glDisable(GL_BLEND);
         glDisable(GL_LINE_SMOOTH);
     }
+    public static void drawRect(Rectangle rect , int color) {
+        drawRect(rect.getX(), rect.getY(), rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), color);
+    }
     public static void drawRect(final float x, final float y, final float x2, final float y2, final Color color) {
         drawRect(x, y, x2, y2, color.getRGB());
     }
@@ -2102,6 +2253,7 @@ public final class RenderUtils extends MinecraftInstance {
         enableTexture2D();
         disableBlend();
     }
+
     public static void drawRoundedRect(float paramXStart, float paramYStart, float paramXEnd, float paramYEnd, float radius, int color, boolean popPush) {
         float alpha = (color >> 24 & 0xFF) / 255.0F;
         float red = (color >> 16 & 0xFF) / 255.0F;
@@ -2145,6 +2297,76 @@ public final class RenderUtils extends MinecraftInstance {
             glVertex2d(x1 + Math.sin(i * degree) * radius, y1 + Math.cos(i * degree) * radius);
         for (double i = 270; i <= 360; i += 1)
             glVertex2d(x1 + Math.sin(i * degree) * radius, y2 + Math.cos(i * degree) * radius);
+        glEnd();
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        if (popPush) glPopMatrix();
+    }
+    public static void drawRoundedRect(float paramXStart, float paramYStart, float paramXEnd, float paramYEnd, float radius, int color, boolean popPush, boolean roundTopLeft, boolean roundTopRight, boolean roundBottomLeft, boolean roundBottomRight) {
+        float alpha = (color >> 24 & 0xFF) / 255.0F;
+        float red = (color >> 16 & 0xFF) / 255.0F;
+        float green = (color >> 8 & 0xFF) / 255.0F;
+        float blue = (color & 0xFF) / 255.0F;
+
+        float z = 0;
+        if (paramXStart > paramXEnd) {
+            z = paramXStart;
+            paramXStart = paramXEnd;
+            paramXEnd = z;
+        }
+
+        if (paramYStart > paramYEnd) {
+            z = paramYStart;
+            paramYStart = paramYEnd;
+            paramYEnd = z;
+        }
+
+        double x1 = paramXStart;
+        double y1 = paramYStart;
+        double x2 = paramXEnd;
+        double y2 = paramYEnd;
+
+        if (popPush) glPushMatrix();
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(1);
+
+        glColor4f(red, green, blue, alpha);
+        glBegin(GL_POLYGON);
+
+        double degree = Math.PI / 180;
+        if (roundTopLeft) {
+            for (double i = 0; i <= 90; i += 1)
+                glVertex2d(x1 + Math.sin(i * degree) * radius, y1 + Math.cos(i * degree) * radius);
+        } else {
+            glVertex2d(x1, y1);
+        }
+
+        if (roundTopRight) {
+            for (double i = 90; i <= 180; i += 1)
+                glVertex2d(x2 + Math.sin(i * degree) * radius, y1 + Math.cos(i * degree) * radius);
+        } else {
+            glVertex2d(x2, y1);
+        }
+
+        if (roundBottomRight) {
+            for (double i = 180; i <= 270; i += 1)
+                glVertex2d(x2 + Math.sin(i * degree) * radius, y2 + Math.cos(i * degree) * radius);
+        } else {
+            glVertex2d(x2, y2);
+        }
+
+        if (roundBottomLeft) {
+            for (double i = 270; i <= 360; i += 1)
+                glVertex2d(x1 + Math.sin(i * degree) * radius, y2 + Math.cos(i * degree) * radius);
+        } else {
+            glVertex2d(x1, y2);
+        }
+
         glEnd();
 
         glEnable(GL_TEXTURE_2D);
@@ -3052,8 +3274,12 @@ public final class RenderUtils extends MinecraftInstance {
         tessellator.draw();
     }
 
-    public static void drawHead(ResourceLocation skin, int x, int y, int width, int height) {
-        GL11.glColor4f(1F, 1F, 1F, 1F);
+    public static void drawHead(ResourceLocation skin, int x, int y, int width, int height, int color) {
+        float f3 = (float) (color >> 24 & 255) / 255.0F;
+        float f = (float) (color >> 16 & 255) / 255.0F;
+        float f1 = (float) (color >> 8 & 255) / 255.0F;
+        float f2 = (float) (color & 255) / 255.0F;
+        GlStateManager.color(f, f1, f2, f3);
         mc.getTextureManager().bindTexture(skin);
         RenderUtils.drawScaledCustomSizeModalRect(x, y, 8F, 8F, 8, 8, width, height,
                 64F, 64F);
@@ -3438,6 +3664,484 @@ public final class RenderUtils extends MinecraftInstance {
         fr.drawString(ColorUtils.stripColor(s), (int) (x + 1.0f), (int) y, outlineColor);
         fr.drawString(ColorUtils.stripColor(s), (int) x, (int) (y + 1.0f), outlineColor);
         fr.drawString(s, (int) x, (int) y, color);
+    }
+    /**
+     * Smooth rounded rect
+     * @author Shoroa
+     * @param x : X pos
+     * @param y : Y pos
+     * @param x1 : X2 pos
+     * @param y1 : Y2 pos
+     * @param radius : round of edges;
+     * @param colour : color;
+     */
+    public static void drawSmoothRoundedRect(float x, float y, float x1, float y1, float radius, Color colour) {
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0D;
+        y *= 2.0D;
+        x1 *= 2.0D;
+        y1 *= 2.0D;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_LINE_SMOOTH);
+        ColorUtils.setColour(colour.getRGB());
+        glEnable(GL_LINE_SMOOTH);
+        glBegin(GL_POLYGON);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_LINE_SMOOTH);
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glPopAttrib();
+        glLineWidth(1);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+
+    /** rounded rect outline
+     * @author Shoroa
+     * @param x : X pos
+     * @param y : Y pos
+     * @param x1 : X2 pos
+     * @param y1 : Y2 pos
+     * @param radius : round of edges;
+     * @param lineWidth : width of outline line;
+     * @param colour : color;
+     */
+    public static void drawRoundedOutline(float x, float y, float x1, float y1, float radius,float lineWidth, int colour) {
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0D;
+        y *= 2.0D;
+        x1 *= 2.0D;
+        y1 *= 2.0D;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        ColorUtils.setColour(colour);
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(lineWidth);
+        glBegin(GL_LINE_LOOP);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glPopAttrib();
+        glLineWidth(1);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+
+    /**
+     * @author Shoroa
+     * @param x : X pos
+     * @param y : Y pos
+     * @param x1 : X2 pos
+     * @param y1 : Y2 pos
+     * @param radius : round of edges;
+     * @param color : color;
+     * @param color2 : color2;
+     * @param color3 : color3;
+     * @param color4 : color4;
+     */
+    public static void drawRoundedGradientRectCorner(float x, float y, float x1, float y1, float radius, int color, int color2, int color3, int color4) {
+        ColorUtils.setColour(-1);
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0D;
+        y *= 2.0D;
+        x1 *= 2.0D;
+        y1 *= 2.0D;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        ColorUtils.setColour(color);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+        glBegin(6);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color2);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color3);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        ColorUtils.setColour(color4);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glPopAttrib();
+
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glShadeModel(GL_FLAT);
+        ColorUtils.setColour(-1);
+    }
+    public static void drawRoundedGradientRectCorner(float x, float y, float x1, float y1, float radius, int color, int color2) {
+        ColorUtils.setColour(-1);
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0D;
+        y *= 2.0D;
+        x1 *= 2.0D;
+        y1 *= 2.0D;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        ColorUtils.setColour(color);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+        glBegin(6);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color2);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        ColorUtils.setColour(color2);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glPopAttrib();
+
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glShadeModel(GL_FLAT);
+        ColorUtils.setColour(-1);
+    }
+    /**
+     * @param x : X pos
+     * @param y : Y pos
+     * @param x1 : X2 pos
+     * @param y1 : Y2 pos
+     * @param width : width of line;
+     * @param radius : round of edges;
+     * @param color : color;
+     * @param color2 : color2;
+     * @param color3 : color3;
+     * @param color4 : color4;
+     */
+    public static void drawRoundedGradientOutlineCorner(float x, float y, float x1, float y1, float width, float radius, int color, int color2, int color3, int color4) {
+        ColorUtils.setColour(-1);
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0D;
+        y *= 2.0D;
+        x1 *= 2.0D;
+        y1 *= 2.0D;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        ColorUtils.setColour(color);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+        glLineWidth(width);
+        glBegin(GL_LINE_LOOP);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color2);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color3);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        ColorUtils.setColour(color4);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glLineWidth(1);
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glPopAttrib();
+
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glShadeModel(GL_FLAT);
+        ColorUtils.setColour(-1);
+    }
+    public static void drawRoundedGradientOutlineCorner(float x, float y, float x1, float y1, float width, float radius, int color, int color2) {
+        ColorUtils.setColour(-1);
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+
+        glPushAttrib(0);
+        glScaled(0.5D, 0.5D, 0.5D);
+        x *= 2.0F;
+        y *= 2.0F;
+        x1 *= 2.0F;
+        y1 *= 2.0F;
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        ColorUtils.setColour(color);
+        glEnable(GL_LINE_SMOOTH);
+        glShadeModel(GL_SMOOTH);
+        glLineWidth(width);
+        glBegin(GL_LINE_LOOP);
+        int i;
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+        ColorUtils.setColour(color2);
+        for (i = 0; i <= 90; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        ColorUtils.setColour(color2);
+        for (i = 90; i <= 180; i += 3)
+            glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0D) * radius, y + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glLineWidth(1);
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glPopAttrib();
+
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glShadeModel(GL_FLAT);
+        ColorUtils.setColour(-1);
+    }
+    public static void otherDrawOutlinedBoundingBox(float yaw, double x, double y, double z, double width, double height) {
+        width *= 1.5D;
+        yaw = MathHelper.wrapAngleTo180_float(yaw) + 45.0F;
+        float yaw1, yaw2, yaw3, yaw4;
+        if(yaw < 0.0F) {
+            yaw1 = 0.0F;
+            yaw1 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw1 = yaw;
+        }
+        yaw1 *= -1.0F;
+        yaw1 = (float)(yaw1 * 0.017453292519943295D);
+
+        yaw += 90;
+        if(yaw < 0.0F) {
+            yaw2 = 0.0F;
+            yaw2 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw2 = yaw;
+        }
+        yaw2 *= -1.0F;
+        yaw2 = (float)(yaw2 * 0.017453292519943295D);
+
+        yaw += 90F;
+        if(yaw < 0.0F) {
+            yaw3 = 0.0F;
+            yaw3 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw3 = yaw;
+        }
+        yaw3 *= -1.0F;
+        yaw3 = (float)(yaw3 * 0.017453292519943295D);
+
+        yaw += 90F;
+        if(yaw < 0.0F) {
+            yaw4 = 0.0F;
+            yaw4 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw4 = yaw;
+        }
+        yaw4 *= -1.0F;
+        yaw4 = (float)(yaw4 * 0.017453292519943295D);
+
+        float x1 = (float)(Math.sin(yaw1) * width + x);
+        float z1 = (float)(Math.cos(yaw1) * width + z);
+        float x2 = (float)(Math.sin(yaw2) * width + x);
+        float z2 = (float)(Math.cos(yaw2) * width + z);
+        float x3 = (float)(Math.sin(yaw3) * width + x);
+        float z3 = (float)(Math.cos(yaw3) * width + z);
+        float x4 = (float)(Math.sin(yaw4) * width + x);
+        float z4 = (float)(Math.cos(yaw4) * width + z);
+        float y2 = (float)(y + height);
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(x1, y, z1).endVertex();
+        worldrenderer.pos(x1, y2, z1).endVertex();
+        worldrenderer.pos(x2, y2, z2).endVertex();
+        worldrenderer.pos(x2, y, z2).endVertex();
+        worldrenderer.pos(x1, y, z1).endVertex();
+        worldrenderer.pos(x4, y, z4).endVertex();
+        worldrenderer.pos(x3, y, z3).endVertex();
+        worldrenderer.pos(x3, y2, z3).endVertex();
+        worldrenderer.pos(x4, y2, z4).endVertex();
+        worldrenderer.pos(x4, y, z4).endVertex();
+        worldrenderer.pos(x4, y2, z4).endVertex();
+        worldrenderer.pos(x3, y2, z3).endVertex();
+        worldrenderer.pos(x2, y2, z2).endVertex();
+        worldrenderer.pos(x2, y, z2).endVertex();
+        worldrenderer.pos(x3, y, z3).endVertex();
+        worldrenderer.pos(x4, y, z4).endVertex();
+        worldrenderer.pos(x4, y2, z4).endVertex();
+        worldrenderer.pos(x1, y2, z1).endVertex();
+        worldrenderer.pos(x1, y, z1).endVertex();
+        tessellator.draw();
+    }
+    public static void otherDrawBoundingBox(float yaw, double x, double y, double z, double width, double height) {
+        width *= 1.5D;
+        yaw = MathHelper.wrapAngleTo180_float(yaw) + 45.0F;
+        float yaw1, yaw2, yaw3, yaw4;
+        if(yaw < 0.0F) {
+            yaw1 = 0.0F;
+            yaw1 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw1 = yaw;
+        }
+        yaw1 *= -1.0F;
+        yaw1 = (float)((double)yaw1 * 0.017453292519943295D);
+
+        yaw += 90F;
+        if(yaw < 0.0F) {
+            yaw2 = 0.0F;
+            yaw2 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw2 = yaw;
+        }
+
+        yaw2 *= -1.0F;
+        yaw2 = (float)((double)yaw2 * 0.017453292519943295D);
+        yaw += 90F;
+        if(yaw < 0.0F) {
+            yaw3 = 0.0F;
+            yaw3 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw3 = yaw;
+        }
+
+        yaw3 *= -1.0F;
+        yaw3 = (float)((double)yaw3 * 0.017453292519943295D);
+        yaw += 90F;
+        if(yaw < 0.0F) {
+            yaw4 = 0.0F;
+            yaw4 += 360.0F - Math.abs(yaw);
+        } else {
+            yaw4 = yaw;
+        }
+
+        yaw4 *= -1.0F;
+        yaw4 = (float)((double)yaw4 * 0.017453292519943295D);
+        float x1 = (float)(Math.sin(yaw1) * width + x);
+        float z1 = (float)(Math.cos(yaw1) * width + z);
+        float x2 = (float)(Math.sin(yaw2) * width + x);
+        float z2 = (float)(Math.cos(yaw2) * width + z);
+        float x3 = (float)(Math.sin(yaw3) * width + x);
+        float z3 = (float)(Math.cos(yaw3) * width + z);
+        float x4 = (float)(Math.sin(yaw4) * width + x);
+        float z4 = (float)(Math.cos(yaw4) * width + z);
+        float y1 = (float)y;
+        float y2 = (float)(y + height);
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(x1, y1, z1).endVertex();
+        worldrenderer.pos(x1, y2, z1).endVertex();
+        worldrenderer.pos(x2, y2, z2).endVertex();
+        worldrenderer.pos(x2, y1, z2).endVertex();
+        worldrenderer.pos(x2, y1, z2).endVertex();
+        worldrenderer.pos(x2, y2, z2).endVertex();
+        worldrenderer.pos(x3, y2, z3).endVertex();
+        worldrenderer.pos(x3, y1, z3).endVertex();
+        worldrenderer.pos(x3, y1, z3).endVertex();
+        worldrenderer.pos(x3, y2, z3).endVertex();
+        worldrenderer.pos(x4, y2, z4).endVertex();
+        worldrenderer.pos(x4, y1, z4).endVertex();
+        worldrenderer.pos(x4, y1, z4).endVertex();
+        worldrenderer.pos(x4, y2, z4).endVertex();
+        worldrenderer.pos(x1, y2, z1).endVertex();
+        worldrenderer.pos(x1, y1, z1).endVertex();
+        worldrenderer.pos(x1, y1, z1).endVertex();
+        worldrenderer.pos(x2, y1, z2).endVertex();
+        worldrenderer.pos(x3, y1, z3).endVertex();
+        worldrenderer.pos(x4, y1, z4).endVertex();
+        worldrenderer.pos(x1, y2, z1).endVertex();
+        worldrenderer.pos(x2, y2, z2).endVertex();
+        worldrenderer.pos(x3, y2, z3).endVertex();
+        worldrenderer.pos(x4, y2, z4).endVertex();
+        tessellator.draw();
     }
     private static void drawEnchantTag(String text, int x, float y) {
         GlStateManager.pushMatrix();

@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.altmanager.sub
 import me.liuli.elixir.manage.AccountSerializer
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.elements.GuiPasswordField
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
@@ -12,34 +12,34 @@ import org.lwjgl.input.Keyboard
 class GuiDirectLogin(private val prevGui: GuiAltManager) : GuiScreen() {
     private lateinit var username: GuiTextField
     private lateinit var password: GuiPasswordField
-    private var status = "§7${LanguageManager.getAndFormat("ui.alt.idle")}"
+    private var status = "§7Idle"
 
     override fun initGui() {
         Keyboard.enableRepeatEvents(true)
-        buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 72, "%ui.alt.login%"))
-        buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 96, "%ui.alt.clipBoardLogin%"))
-        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 120, "%ui.back%"))
-        username = GuiTextField(2, mc.fontRendererObj, width / 2 - 100, 60, 200, 20)
+        buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 72, "Login"))
+        buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 96, "ClipBoard"))
+        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 120, "back"))
+        username = GuiTextField(2, Fonts.fontTenacityBold35, width / 2 - 100, 60, 200, 20)
         username.isFocused = true
         username.maxStringLength = Int.MAX_VALUE
-        password = GuiPasswordField(3, mc.fontRendererObj, width / 2 - 100, 85, 200, 20)
+        password = GuiPasswordField(3, Fonts.fontTenacityBold35, width / 2 - 100, 85, 200, 20)
         password.maxStringLength = Int.MAX_VALUE
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
-        drawCenteredString(mc.fontRendererObj, LanguageManager.getAndFormat("ui.alt.directLogin"), width / 2, 34, 0xffffff)
-        drawCenteredString(mc.fontRendererObj, status, width / 2, height / 4 + 60, 0xffffff)
+        drawCenteredString(Fonts.fontTenacityBold35, "Direct Login", width / 2, 34, 0xffffff)
+        drawCenteredString(Fonts.fontTenacityBold35, status, width / 2, height / 4 + 60, 0xffffff)
         username.drawTextBox()
         password.drawTextBox()
         if (username.text.isEmpty() && !username.isFocused) {
-            drawCenteredString(mc.fontRendererObj, "§7${LanguageManager.getAndFormat("ui.alt.loginUsername")}", width / 2 - 55, 66, 0xffffff)
+            drawCenteredString(Fonts.fontTenacityBold35, "§7Username", width / 2 - 55, 66, 0xffffff)
         }
         if (password.text.isEmpty() && !password.isFocused) {
-            drawCenteredString(mc.fontRendererObj, "§7${LanguageManager.getAndFormat("ui.alt.loginPassword")}", width / 2 - 74, 91, 0xffffff)
+            drawCenteredString(Fonts.fontTenacityBold35, "§7PassWord", width / 2 - 74, 91, 0xffffff)
         }
         "Add ms@ before your real username can login microsoft account without browser!".also {
-            mc.fontRendererObj.drawString(it, width - mc.fontRendererObj.getStringWidth(it), height - mc.fontRendererObj.FONT_HEIGHT, 0xffffff)
+            Fonts.fontTenacityBold35.drawString(it, width - Fonts.fontTenacityBold35.getStringWidth(it), height - Fonts.fontTenacityBold35.FONT_HEIGHT, 0xffffff)
         }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
@@ -50,12 +50,12 @@ class GuiDirectLogin(private val prevGui: GuiAltManager) : GuiScreen() {
             0 -> mc.displayGuiScreen(prevGui)
             1 -> {
                 if (username.text.isEmpty()) {
-                    status = "§c${LanguageManager.getAndFormat("ui.alt.fillBoth")}"
+                    status = "§cFillBoat"
                     return
                 }
                 Thread {
                     val res = GuiAltManager.login(AccountSerializer.accountInstance(username.text, password.text))
-                    status = "§a${LanguageManager.getAndFormat("ui.alt.loggingIn")}"
+                    status = "§aLogging in"
                     status = res
                 }.start()
             }

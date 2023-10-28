@@ -1,11 +1,14 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer;
 
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager;
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.CategoryElement;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement;
 import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.ModuleElement;
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.MouseUtils;
 import net.ccbluex.liquidbounce.utils.AnimationUtils;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage;
 import static org.lwjgl.opengl.GL11.*;
 
 public class NewUi extends GuiScreen {
@@ -76,6 +80,9 @@ public class NewUi extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         // will draw reduced ver once it gets under 1140x780.
         drawFullSized(mouseX, mouseY, partialTicks, ClickGUIModule.generateColor());
+        if (Mouse.isButtonDown(0) && mouseX >= (5 + 30) && mouseX <= (50 + 30) && mouseY <= height - (5 + 30) && mouseY >= height - (50 + 30))
+            mc.displayGuiScreen(new GuiHudDesigner());
+        drawImage(new ResourceLocation("crosssine/custom_hud_icon.png"), (int) (9 + 30), height - (int) (41 + 30), 32, 32);
     }
 
     private void drawFullSized(int mouseX, int mouseY, float partialTicks, Color accentColor) {
@@ -112,10 +119,10 @@ public class NewUi extends GuiScreen {
         }
         Stencil.dispose();
 
-        if (Fonts.fontLarge.getStringWidth(mc.thePlayer.getGameProfile().getName()) > 70)
-            Fonts.fontLarge.drawString(Fonts.fontLarge.trimStringToWidth(mc.thePlayer.getGameProfile().getName(), 50) + "...", 100, 78 - Fonts.fontLarge.FONT_HEIGHT + 15, -1);
+        if (Fonts.Nunito60.getStringWidth(CrossSine.INSTANCE.getUSER_NAME()) > 70)
+            Fonts.Nunito60.drawString(Fonts.Nunito60.trimStringToWidth(CrossSine.INSTANCE.getUSER_NAME(), 50) + "...", 100, 78 - Fonts.Nunito60.FONT_HEIGHT + 15, -1);
         else
-            Fonts.fontLarge.drawString(mc.thePlayer.getGameProfile().getName(), 100, 78 - Fonts.fontLarge.FONT_HEIGHT + 15, -1);
+            Fonts.Nunito60.drawString(CrossSine.INSTANCE.getUSER_NAME(), 100, 78 - Fonts.Nunito60.FONT_HEIGHT + 15, -1);
 
         if (searchElement.drawBox(mouseX, mouseY, accentColor)) {
             searchElement.drawPanel(mouseX, mouseY, 230, 50, width - 260, height - 80, Mouse.getDWheel(), categoryElements, accentColor);

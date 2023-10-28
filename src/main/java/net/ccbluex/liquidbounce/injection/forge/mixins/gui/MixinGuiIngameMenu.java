@@ -72,7 +72,7 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
                     66f,
                     0xffffff);
             Fonts.minecraftFont.drawStringWithShadow(
-                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Client Version : §a" + CrossSine.CLIENT_VERSION,
+                    "§" + guihudedit.INSTANCE.getColorGuiInGameValue().getValue() + "Client Version : §a" + CrossSine.INSTANCE.getCLIENT_VERSION(),
                     6f,
                     76f,
                     0xffffff);

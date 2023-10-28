@@ -7,7 +7,8 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.utils.MouseUtils
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.MouseUtils.setMouseButtonState
 import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemBlock
@@ -17,42 +18,59 @@ import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.MovingObjectPosition.MovingObjectType
 import org.lwjgl.input.Mouse
 
-
 @ModuleInfo(name = "AutoPlace", spacedName = "Auto Place", category = ModuleCategory.GHOST)
 class AutoPlace : Module() {
-    private val dl = FloatValue("Delay", 0F, 0F, 10F)
+    private val dl = FloatValue("Delay", 0f, 0f, 10f)
     private val md = BoolValue("MouseDown", false)
+    private val up = BoolValue("Up", false)
+    private val down = BoolValue("Down", false)
+    private val nofly = BoolValue("NoFly", false)
+    private val PitchLitmit = BoolValue("Pitch", false)
+    private val PitchMax = IntegerValue("Pitch-MAX", 0, 0, 90).displayable { PitchLitmit.get() }
+    private val PitchMin = IntegerValue("Pitch-MIN", 0, 0, 90).displayable { PitchLitmit.get() }
     private var l = 0L
     private var f = 0
     private var lm: MovingObjectPosition? = null
     private var lp: BlockPos? = null
-
     @EventTarget
-    fun onRender(event: Render3DEvent) {
-        if (mc.currentScreen == null && !mc.thePlayer.capabilities.isFlying) {
-            val i = mc.thePlayer.heldItem
-            if (i != null && i.item is ItemBlock) {
-                val m = mc.objectMouseOver
-                if (m != null && m.typeOfHit == MovingObjectType.BLOCK && (m.sideHit != EnumFacing.UP && m.sideHit != EnumFacing.DOWN) || (m.sideHit == EnumFacing.NORTH || m.sideHit == EnumFacing.EAST || m.sideHit == EnumFacing.SOUTH || m.sideHit == EnumFacing.WEST)) {
-                    if (this.lm != null && this.f.toDouble() < dl.get()) {
-                        ++this.f
-                    } else {
-                        this.lm = m
-                        val pos = m.blockPos
-                        if (this.lp == null || pos.x != lp!!.x || pos.y != lp!!.y || pos.z != lp!!.z) {
-                            val b = mc.theWorld.getBlockState(pos).block
-                            if (b != null && b !== Blocks.air && b !is BlockLiquid) {
-                                if (!md.get() || Mouse.isButtonDown(1)) {
-                                    val n = System.currentTimeMillis()
-                                    if (n - this.l >= 25L) {
-                                        this.l = n
-                                        if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, i, pos, m.sideHit, m.hitVec)) {
-                                            MouseUtils.setMouseButtonState(1, true)
-                                            mc.thePlayer.swingItem()
-                                            mc.itemRenderer.resetEquippedProgress()
-                                            MouseUtils.setMouseButtonState(1, false)
-                                            this.lp = pos
-                                            this.f = 0
+    fun onRender3D(event: Render3DEvent?) {
+        if (PitchMin.get() >= PitchMax.get()) {
+            PitchMin.set(PitchMax.get())
+        }
+        if (mc.currentScreen == null && (!nofly.get() || !mc.thePlayer.capabilities.isFlying)) {
+            if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
+                val i = mc.thePlayer.heldItem
+                if (i != null && i.item is ItemBlock) {
+                    val m = mc.objectMouseOver
+                    if (m != null && m.typeOfHit == MovingObjectType.BLOCK && (up.get() || m.sideHit != EnumFacing.UP) && (down.get() || m.sideHit != EnumFacing.DOWN) || m!!.sideHit == EnumFacing.NORTH || m.sideHit == EnumFacing.EAST || m.sideHit == EnumFacing.SOUTH || m.sideHit == EnumFacing.WEST) {
+                        if (lm != null && f.toDouble() < dl.get()) {
+                            ++f
+                        } else {
+                            lm = m
+                            val pos = m.blockPos
+                            if (lp == null || pos.x != lp!!.x || pos.y != lp!!.y || pos.z != lp!!.z) {
+                                val b = mc.theWorld.getBlockState(pos).block
+                                if (b != null && b !== Blocks.air && b !is BlockLiquid) {
+                                    if (!md.get() || Mouse.isButtonDown(1)) {
+                                        val n = System.currentTimeMillis()
+                                        if (n - l >= 25L) {
+                                            l = n
+                                            if (mc.playerController.onPlayerRightClick(
+                                                    mc.thePlayer,
+                                                    mc.theWorld,
+                                                    i,
+                                                    pos,
+                                                    m.sideHit,
+                                                    m.hitVec
+                                                )
+                                            ) {
+                                                setMouseButtonState(1, true)
+                                                mc.thePlayer.swingItem()
+                                                mc.itemRenderer.resetEquippedProgress()
+                                                setMouseButtonState(1, false)
+                                                lp = pos
+                                                f = 0
+                                            }
                                         }
                                     }
                                 }

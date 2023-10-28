@@ -55,13 +55,13 @@ public abstract class Animation {
         return direction;
     }
 
-    public void setDirection(Direction direction) {
+    public Animation setDirection(Direction direction) {
         if (this.direction != direction) {
             this.direction = direction;
             timerUtil.setTime(System.currentTimeMillis() - (duration - Math.min(duration, timerUtil.getTime())));
         }
+        return this;
     }
-
     public void setDuration(int duration) {
         this.duration = duration;
     }

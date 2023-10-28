@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
+import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
@@ -82,15 +83,13 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     protected float updateDistance(float p_110146_1_, float p_110146_2_) {
         float rotationYaw = this.rotationYaw;
         if ((EntityLivingBase) (Object)this instanceof EntityPlayerSP) {
-            HUD clientRender = CrossSine.moduleManager.getModule(HUD.class);
-            if (clientRender.getState() && clientRender.shouldRotate()) {
-                if (clientRender.getPlayerYaw() != null) {
+            RenderRotation renderRotation = CrossSine.moduleManager.getModule(RenderRotation.class);
+                if (renderRotation.getPlayerYaw() != null) {
                     if (this.swingProgress > 0F){
-                        p_110146_1_ = clientRender.getPlayerYaw();
+                        p_110146_1_ = renderRotation.getPlayerYaw();
                     }
-                    rotationYaw = clientRender.getPlayerYaw();
+                    rotationYaw = renderRotation.getPlayerYaw();
                 }
-            }
         }
         float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
         this.renderYawOffset += f * 0.3F;
@@ -131,7 +130,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
          * Jump Process Fix
          * use updateFixState to reset Jump Fix state
          * @param fixedYaw  The yaw player should have (NOT RotationYaw)
-         * @param strafeFix StrafeFix Module
+         * @param movementFix MovementFix Module
          */
 
         final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion());
@@ -203,7 +202,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     private int getArmSwingAnimationEnd() {
         int speed = this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);
 
-        if (Animations.INSTANCE.getState() && Animations.INSTANCE.getAnimationMode().equals("Full")) {
+        if (Animations.INSTANCE.getState()) {
             if (this.equals(Minecraft.getMinecraft().thePlayer)) {
                 speed = (int) (speed * Animations.INSTANCE.getSwingSpeedValue().get());
             }

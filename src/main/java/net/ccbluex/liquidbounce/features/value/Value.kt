@@ -42,7 +42,6 @@ abstract class Value<T>(val name: String, var value: T) {
     }
 
 
-
     fun get() = value
 
     fun setDefault() {

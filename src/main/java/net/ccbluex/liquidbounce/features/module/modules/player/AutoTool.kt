@@ -7,54 +7,58 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.ClickBlockEvent
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
-import net.minecraft.util.MovingObjectPosition
 import org.lwjgl.input.Mouse
 
 
 @ModuleInfo(name = "AutoTool", spacedName = "Auto Tool", category = ModuleCategory.PLAYER)
-class AutoTool : Module() {
-    private var bestSlot = -1
-    private val silent = BoolValue("Silent", false)
-    private val nousing = BoolValue("NoPlayerUsing", false)
-
+object AutoTool : Module() {
+    private val swapValue = BoolValue("SwapBack", false)
+    private var previtem = 0
+    private var mining = false
+    private var bestSlot = 0
+    private var tickDelay = 0
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
         switchSlot(event.clickedBlock ?: return)
     }
 
-    fun switchSlot(blockPos: BlockPos) {
-        if (!nousing.get() || !mc.thePlayer.isUsingItem) {
-            var bestSpeed = 1F
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        if (Mouse.isButtonDown(0)) {
+            tickDelay++
+        } else tickDelay = 0
+        if (!mining && Mouse.isButtonDown(0)) {
+            previtem = mc.thePlayer.inventory.currentItem
+            mining = true
+        }
+        if (mining && !Mouse.isButtonDown(0) && swapValue.get()) {
+            mc.thePlayer.inventory.currentItem = previtem
+            mining = false
+        }
+    }
 
-            val block = mc.theWorld.getBlockState(blockPos).block
+    private fun switchSlot(blockPos: BlockPos) {
+        var bestSpeed = 1
 
-            for (i in 0..8) {
-                val item = mc.thePlayer.inventory.getStackInSlot(i) ?: continue
-                val speed = item.getStrVsBlock(block)
+        val block = mc.theWorld.getBlockState(blockPos).block
 
-                if (speed > bestSpeed) {
-                    bestSpeed = speed
-                    bestSlot = i
-                }
+        for (i in 0..8) {
+            val item = mc.thePlayer.inventory.getStackInSlot(i) ?: continue
+            val speed = item.getStrVsBlock(block)
+
+            if (speed > bestSpeed) {
+                bestSpeed = speed.toInt()
+                bestSlot = i
             }
 
             if (bestSlot != -1) {
-                if (!silent.get()) {
-                    mc.thePlayer.inventory.currentItem = bestSlot
-                } else {
-                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(bestSlot))
-                    mc.playerController.updateController()
-                }
+                mc.thePlayer.inventory.currentItem = bestSlot
             }
         }
 

@@ -15,7 +15,6 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import java.util.*
 import kotlin.math.abs
 
 @ModuleInfo(name = "SuperheroFX", spacedName = "Superhero FX", category = ModuleCategory.VISUAL)

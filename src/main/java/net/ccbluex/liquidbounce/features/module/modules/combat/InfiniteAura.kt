@@ -12,11 +12,12 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.PathUtils
 import net.ccbluex.liquidbounce.utils.RaycastUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -32,11 +33,10 @@ import net.minecraft.network.play.client.C13PacketPlayerAbilities
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
-import java.awt.Color
 import kotlin.concurrent.thread
 
 @ModuleInfo(name = "InfiniteAura", "InfinitrAura",category = ModuleCategory.COMBAT)
-class InfiniteAura : Module() {
+object InfiniteAura : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Aura", "Click"), "Aura")
     private val targetsValue = IntegerValue("Targets", 3, 1, 10).displayable { modeValue.equals("Aura") }
@@ -47,11 +47,6 @@ class InfiniteAura : Module() {
     private val noLagBackValue = BoolValue("NoLagback", true)
     private val swingValue = BoolValue("Swing", true).displayable { modeValue.equals("Aura") }
     private val pathRenderValue = BoolValue("PathRender", true)
-    private val colorRedValue = IntegerValue("ColorRed", 0, 0, 255).displayable { pathRenderValue.get() && !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("ColorGreen", 160, 0, 255).displayable { pathRenderValue.get() && !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("ColorBlue", 255, 0, 255).displayable { pathRenderValue.get() && !colorRainbowValue.get() }
-    private val colorAlphaValue = IntegerValue("ColorAlpha", 150, 0, 255).displayable { pathRenderValue.get() }
-    private val colorRainbowValue = BoolValue("Rainbow", false).displayable { pathRenderValue.get() }
 
     var lastTarget: EntityLivingBase? = null
 
@@ -194,11 +189,7 @@ class InfiniteAura : Module() {
             GL11.glDisable(GL11.GL_LIGHTING)
             GL11.glDepthMask(false)
 
-            RenderUtils.glColor(if (colorRainbowValue.get()) {
-                ColorUtils.rainbow()
-            } else {
-                Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
-            }, colorAlphaValue.get())
+            RenderUtils.glColor(ClientTheme.getColor(1))
 
             for (vec in points) {
                 val x = vec.xCoord - renderPosX

@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.options
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.ui.client.gui.*
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
 import java.io.File
 
 @LaunchFilterInfo([EnumLaunchFilter.MODERN_UI])

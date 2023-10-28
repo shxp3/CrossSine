@@ -27,6 +27,11 @@ open class ListValue(name: String, val values: Array<String>, value: String) : V
             }
         }
     }
+    fun nextValue() {
+        var index = values.indexOf(value) + 1
+        if (index > values.size - 1) index = 0
+        value = values[index]
+    }
      fun getModes(): List<String?>? {
          return values.toList()
     }

@@ -123,53 +123,6 @@ public interface Fonts {
 		}
 	}
 
-	interface CheckFont {
-
-		FontFamily CheckFont = FONT_MANAGER.fontFamily(FontType.Check);
-
-		final class CheckFont_16 {
-			public static final FontRenderer CheckFont_16 = CheckFont.ofSize(16);
-
-			private CheckFont_16() {
-			}
-		}
-
-		final class CheckFont_20 {
-			public static final FontRenderer CheckFont_20 = CheckFont.ofSize(20);
-
-			private CheckFont_20() {
-			}
-		}
-
-		final class CheckFont_24 {
-			public static final FontRenderer CheckFont_24 = CheckFont.ofSize(24);
-
-			private CheckFont_24() {
-			}
-		}
-
-		final class CheckFont_32 {
-			public static final FontRenderer CheckFont_32 = CheckFont.ofSize(32);
-
-			private CheckFont_32() {
-			}
-		}
-
-		final class CheckFont_35 {
-			public static final FontRenderer CheckFont_35 = CheckFont.ofSize(35);
-
-			private CheckFont_35() {
-			}
-		}
-
-		final class CheckFont_50 {
-			public static final FontRenderer CheckFont_50 = CheckFont.ofSize(50);
-
-			private CheckFont_50() {
-			}
-		}
-	}
-
 	interface SF {
 
 		FontFamily SF = FONT_MANAGER.fontFamily(FontType.SF);

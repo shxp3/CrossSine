@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.features.module.EnumTriggerType;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
+import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.features.value.ListValue;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
@@ -17,7 +18,7 @@ import java.util.Locale;
 
 @ModuleInfo(name = "FreeLook", spacedName = "Free Look",category = ModuleCategory.VISUAL, triggerType = EnumTriggerType.PRESS, array = false)
 public final class FreeLook extends Module {
-
+    private final IntegerValue camera = new IntegerValue("CameraMode", 0, 0, 2);
     private static final Minecraft mc = Minecraft.getMinecraft();
     public static boolean perspectiveToggled = false;
     public static float cameraYaw = 0F;
@@ -30,7 +31,7 @@ public final class FreeLook extends Module {
        cameraPitch = mc.thePlayer.rotationPitch;
        if (perspectiveToggled) {
            previousPerspective = mc.gameSettings.thirdPersonView;
-           mc.gameSettings.thirdPersonView = 1;
+           mc.gameSettings.thirdPersonView = camera.get();
        } else {
            mc.gameSettings.thirdPersonView = previousPerspective;
        }

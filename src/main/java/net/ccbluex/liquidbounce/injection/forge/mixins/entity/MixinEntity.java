@@ -17,6 +17,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -187,11 +188,11 @@ public abstract class MixinEntity {
             return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
-        final MovementFix strafeFix = CrossSine.moduleManager.getModule(MovementFix.class);
+        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
         //alert("Strafe: " + strafe + " Forward: " + forward + " Factor: " + friction + " DoFix: " + strafeFix.getDoFix());
         CrossSine.eventManager.callEvent(strafeEvent);
-        if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
-            strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
+        if (movementFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
+            movementFix.runStrafeFixLoop(movementFix.getSilentFix(), strafeEvent);
         }
 
         if (strafeEvent.isCancelled())

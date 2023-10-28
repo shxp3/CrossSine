@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
+import net.ccbluex.liquidbounce.file.config.ConfigManager;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ButtonElement;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.Element;
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage;
 
 public class ClickGui extends GuiScreen {
 
@@ -61,17 +64,10 @@ public class ClickGui extends GuiScreen {
             yPos += 20;
         }
     }
-
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         float trueCguiScale;
-        if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
-            trueCguiScale = 1;
-        } else if(CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
-            trueCguiScale = 1;
-        } else {
             trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
-        }
         final double scale = trueCguiScale;
         if (progress < 1) progress += 0.1 * (1 - partialTicks);
         else progress = 1;
@@ -103,18 +99,10 @@ public class ClickGui extends GuiScreen {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
 
-        switch (Objects.requireNonNull(CrossSine.moduleManager.getModule(ClickGUIModule.class)).backgroundValue.get()) {
-            case "Default":
-                drawDefaultBackground();
-                break;
-            case "Gradient":
-                drawGradientRect(0, 0, width, height, ColorUtils.reAlpha(ClickGUIModule.generateColor(), 40).getRGB(), ClickGUIModule.generateColor().getRGB());
-                break;
-            default:
-                break;
-        }
-
         drawDefaultBackground();
+        drawImage(new ResourceLocation("crosssine/custom_hud_icon.png"), 9, height - 41, 32, 32);
+        drawImage(new ResourceLocation("crosssine/thisishud.png"), 9, height - 150, 95,(int) 106.6666666666667);
+        GlStateManager.resetColor();
         int defaultHeight1 = (this.height);
         int defaultWidth1 = (this.width);
 

@@ -59,7 +59,7 @@ public class MixinLayerHeldItem {
             final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
             Item item = itemstack.getItem();
 
-            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && killAura.getTarget() != null && CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
+            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && killAura.getCurrentTarget() != null && CrossSine.moduleManager.getModule(Animations.class).getState() && KillAura.INSTANCE.getDisplayBlocking() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
                 if(entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped) this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     GlStateManager.translate(-0.58F, 0.3F, -0.2F);

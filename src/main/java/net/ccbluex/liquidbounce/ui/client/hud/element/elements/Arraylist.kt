@@ -2,7 +2,9 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.visual.ColorMixer
+import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -12,16 +14,13 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.render.BlurUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.utils.AnimationUtils
+import net.ccbluex.liquidbounce.utils.render.*
 import net.minecraft.client.renderer.GlStateManager
-import java.awt.Color
-
 import org.lwjgl.opengl.GL11
+import java.awt.Color
+import javax.vecmath.Vector2d
+import kotlin.math.sin
 
 /**
  * CustomHUD Arraylist element
@@ -31,23 +30,12 @@ import org.lwjgl.opengl.GL11
 @ElementInfo(name = "Arraylist", single = true, blur = true)
 class Arraylist(
     x: Double = -0.0,
-    y: Double = 2.0,
+    y: Double = 0.0,
     scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
     private val blursValue = false
     private val blurStrength = 0F
-    private val ClientColorMode = ListValue("ColorMode", arrayOf("Astolfo", "Rainbow", "Random", "Mixer", "Fade", "Custom"), "Astolfo")
-    private val mixerSecValue = IntegerValue("Mixer-Seconds", 2, 1, 10).displayable { ClientColorMode.equals("Mixer") }
-    private val mixerDistValue = IntegerValue("Mixer-Distance", 2, 0, 10).displayable { ClientColorMode.equals("Mixer") }
-    private val fadeDistanceValue = IntegerValue("Fade-Distance", 95, 1, 100).displayable { ClientColorMode.equals("Fade") }
-    private val FadeColorRed = IntegerValue("Fade-Red", 0, 0, 255).displayable { ClientColorMode.equals("Fade") }
-    private val FadeColorGreen = IntegerValue("Fade-Green", 0, 0, 255).displayable { ClientColorMode.equals("Fade")}
-    private val FadeColorBlue = IntegerValue("Fade-Blue", 0, 0, 255).displayable { ClientColorMode.equals("Fade")}
-    val colorRedValue = IntegerValue("Red", 0, 0, 255).displayable { ClientColorMode.equals("Custom")}
-    val colorGreenValue = IntegerValue("Green", 111, 0, 255).displayable { ClientColorMode.equals("Custom")}
-    val colorBlueValue = IntegerValue("Blue", 255, 0, 255).displayable { ClientColorMode.equals("Custom")}
-    val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255).displayable { ClientColorMode.equals("Custom")}
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowNoCutValue = BoolValue("Shadow-NoCut", false)
     private val shadowStrength = IntegerValue("Shadow-Strength", 1, 1, 30).displayable { shadowShaderValue.get() }
@@ -55,21 +43,17 @@ class Arraylist(
     private val shadowColorRedValue = IntegerValue("Shadow-Red", 0, 0, 255).displayable{ shadowShaderValue.get() && shadowColorMode.get().equals("custom", true) }
     private val shadowColorGreenValue = IntegerValue("Shadow-Green", 111, 0, 255).displayable{ shadowShaderValue.get() && shadowColorMode.get().equals("custom", true) }
     private val shadowColorBlueValue = IntegerValue("Shadow-Blue", 255, 0, 255).displayable{ shadowShaderValue.get() && shadowColorMode.get().equals("custom", true) }
-    private val saturationValue = FloatValue("Saturation", 0.9f, 0f, 1f)
-    private val brightnessValue = FloatValue("Brightness", 1f, 0f, 1f)
     private val hAnimation = ListValue("HorizontalAnimation", arrayOf("Default", "None", "Slide", "Astolfo"), "None")
     private val vAnimation = ListValue("VerticalAnimation", arrayOf("None", "LiquidSense", "Slide", "Rise", "Astolfo"), "None")
     private val animationSpeed = FloatValue("Animation-Speed", 0.25F, 0.01F, 1F)
     private val nameBreak = BoolValue("SpaceName", true)
     private val OrderValue =ListValue("Order", arrayOf("ABC", "Distance"), "Distance")
     private val Tags = BoolValue("Tags", false)
-    private val tagsStyleValue = ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "Space"), "Space")
+    private val tagsStyleValue = ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "->", "Space"), "Space")
     private val shadow = BoolValue("ShadowText", true)
-    private val backgroundColorRedValue = IntegerValue("Background-R", 0, 0, 255)
-    private val backgroundColorGreenValue = IntegerValue("Background-G", 0, 0, 255)
-    private val backgroundColorBlueValue = IntegerValue("Background-B", 0, 0, 255)
-    private val backgroundColorAlphaValue = IntegerValue("Background-Alpha", 155, 0, 255)
-    private val rectRightValue = ListValue("Rect-Right", arrayOf("None", "Left", "Right", "Outline", "Special", "Top"), "None")
+    private val backgroundValue = IntegerValue("Background", 155, 0, 255)
+    private val roundStrength = FloatValue("Rounded-Strength", 0F, 0F, 2F)
+    private val rectRightValue = ListValue("Rect-Right", arrayOf("None", "Left", "Right", "Outline", "Special", "Top"), "Outline")
     private val rectLeftValue = ListValue("Rect-Left", arrayOf("None", "Left", "Right"), "None")
     private val caseValue = ListValue("Case", arrayOf("None", "Lower", "Upper"), "None")
     private val spaceValue = FloatValue("Space", 0F, 0F, 5F)
@@ -95,19 +79,11 @@ class Arraylist(
         val delta = RenderUtils.deltaTime
 
         // Draw arraylist
-        val colorMode = ClientColorMode.get()
-        val rectColorMode = ClientColorMode.get()
-        val customColor = Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), colorAlphaValue.get()).rgb
-        val rectCustomColor = Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), colorAlphaValue.get()).rgb
         val space = spaceValue.get()
         val textHeight = textHeightValue.get()
         val textY = textYValue.get()
-        val backgroundCustomColor = Color(backgroundColorRedValue.get(), backgroundColorGreenValue.get(),
-            backgroundColorBlueValue.get(), backgroundColorAlphaValue.get()).rgb
         val textShadow = shadow.get()
         val textSpacer = textHeight + space
-        val saturation = saturationValue.get()
-        val brightness = brightnessValue.get()
 
         var inx = 0
         for (module in sortedModules) {
@@ -189,7 +165,7 @@ class Arraylist(
                             }
                         }
                     }
-                    "Slide", "Rise" -> module.arrayY = net.ccbluex.liquidbounce.utils.AnimationUtils.animate(yPos.toDouble(), module.arrayY.toDouble(), animationSpeed.get().toDouble() * 0.025 * delta.toDouble()).toFloat()
+                    "Slide", "Rise" -> module.arrayY = AnimationUtils.animate(yPos.toDouble(), module.arrayY.toDouble(), animationSpeed.get().toDouble() * 0.025 * delta.toDouble()).toFloat()
                     "Astolfo" -> {
                         if (module.arrayY < yPos) {
                             module.arrayY += animationSpeed.get() / 2F * delta
@@ -222,28 +198,8 @@ class Arraylist(
                                 if (rectRightValue.get().equals("right", true)) -1F else 0F,
                                 module.arrayY + textHeight,
                                 when (shadowColorMode.get().lowercase()) {
-                                    "background" -> Color(backgroundColorRedValue.get(), backgroundColorGreenValue.get(), backgroundColorBlueValue.get()).rgb
-                                    "text" -> {
-                                        val moduleColor = Color.getHSBColor(module.hue, saturation, brightness).rgb
-
-                                        var Astolfo = ColorUtils.astolfo(index + 1, indexOffset = 100 * 2).rgb
-
-                                        var RainBow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-
-                                        var FadeColor = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
-                                        counter[0] = counter[0] - 1
-
-                                        var mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-
-                                        when {
-                                            colorMode.equals("Random", ignoreCase = true) -> moduleColor
-                                            colorMode.equals("Astolfo", ignoreCase = true) -> Astolfo
-                                            colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
-                                            colorMode.equals("Rainbow", ignoreCase = true) -> RainBow
-                                            colorMode.equals("Fade", ignoreCase = true) -> FadeColor
-                                            else -> customColor
-                                        }
-                                    }
+                                    "background" -> Color(0,0,0).rgb
+                                    "text" -> getColor(index).rgb
                                     else -> Color(shadowColorRedValue.get(), shadowColorGreenValue.get(), shadowColorBlueValue.get()).rgb
                                 }
                             )
@@ -307,43 +263,18 @@ class Arraylist(
                     val width = fontRenderer.getStringWidth(displayString)
                     val xPos = -module.slide - 2
 
-                    var astolfo: Int
-                    astolfo = ColorUtils.astolfo(index + 1, indexOffset = 100 * 2).rgb
-                    var rainbow: Int
-                    rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-                    var fade: Int = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
-                    counter[0] = counter[0] - 1
-                    var mixerColor: Int = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-
-
-                    val moduleColor = Color.getHSBColor(module.hue, saturation, brightness).rgb
-
-                    RenderUtils.drawRect(
+                  RenderUtils.customRounded(
                         xPos - if (rectRightValue.get().equals("right", true)) 3 else 2,
                         module.arrayY,
                         if (rectRightValue.get().equals("right", true)) -1F else 0F,
-                        module.arrayY + textHeight, backgroundCustomColor
+                        module.arrayY + textHeight, 0F, 0F, 0F, roundStrength.get(), Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, when {
-                        colorMode.equals("Random", ignoreCase = true) -> moduleColor
-                        colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
-                        colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
-                        colorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                        colorMode.equals("Fade", ignoreCase = true) -> fade
-                        else -> customColor
-                    }, textShadow)
+                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, textShadow)
 
 
                     if (!rectRightValue.get().equals("none", true)) {
-                        val rectColor = when {
-                            rectColorMode.equals("Random", ignoreCase = true) -> moduleColor
-                            rectColorMode.equals("Astolfo", ignoreCase = true) -> astolfo
-                            rectColorMode.equals("Mixer", ignoreCase = true) -> mixerColor
-                            rectColorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                            rectColorMode.equals("Fade", ignoreCase = true) -> fade
-                            else -> rectCustomColor
-                        }
+                        val rectColor = getColor(index).rgb
 
                         when {
                             rectRightValue.get().equals("left", true) -> RenderUtils.drawRect(xPos - 3, module.arrayY, xPos - 2, module.arrayY + textHeight,
@@ -404,29 +335,8 @@ class Arraylist(
                                 xPos + width + if (rectLeftValue.get().equals("right", true)) 3F else 2F,
                                 module.arrayY + textHeight,
                                 when (shadowColorMode.get().lowercase()) {
-                                    "background" -> Color(backgroundColorRedValue.get(), backgroundColorGreenValue.get(), backgroundColorBlueValue.get()).rgb
-                                    "text" -> {
-                                        val moduleColor = Color.getHSBColor(module.hue, saturation, brightness).rgb
-
-                                        var astolfo: Int
-                                        astolfo = ColorUtils.astolfo(index + 1, indexOffset = 100 * 2).rgb
-
-                                        val mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10,mixerSecValue.get()).rgb
-                                        var rainbow: Int
-                                        rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-
-                                        var fade: Int = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
-                                        counter[0] = counter[0] - 1
-
-                                        when {
-                                            colorMode.equals("Random", ignoreCase = true) -> moduleColor
-                                            colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
-                                            colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
-                                            colorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                                            colorMode.equals("Fade", ignoreCase = true) -> fade
-                                            else -> customColor
-                                        }
-                                    }
+                                    "background" -> Color(0,0,0).rgb
+                                    "text" -> getColor(index).rgb
                                     else -> Color(shadowColorRedValue.get(), shadowColorGreenValue.get(), shadowColorBlueValue.get()).rgb
                                 }
                             )
@@ -495,42 +405,18 @@ class Arraylist(
                     val width = fontRenderer.getStringWidth(displayString)
                     val xPos = -(width - module.slide) + if (rectLeftValue.get().equals("left", true)) 3 else 2
 
-                    val moduleColor = Color.getHSBColor(module.hue, saturation, brightness).rgb
 
-                    var astolfo: Int
-                    astolfo = ColorUtils.astolfo(index + 1, indexOffset = 100 * 2).rgb
-
-                    var rainbow: Int
-                    rainbow = ColorUtils.slowlyRainbow(System.nanoTime(), index * 30 * 1, 1F, 1F).rgb
-                    val mixerColor = ColorMixer.getMixedColor(-index * mixerDistValue.get() * 10, mixerSecValue.get()).rgb
-                    var fade: Int = ColorUtils.fade(Color(FadeColorRed.get(),FadeColorGreen.get(),FadeColorBlue.get()), index * fadeDistanceValue.get(), 100).rgb
-                    counter[0] = counter[0] - 1
-                    RenderUtils.drawRect(
-                        0F,
+                    RenderUtils.customRounded(
+                        xPos - if (rectRightValue.get().equals("right", true)) 3 else 2,
                         module.arrayY,
-                        xPos + width + if (rectLeftValue.get().equals("right", true)) 3 else 2,
-                        module.arrayY + textHeight, backgroundCustomColor
+                        if (rectRightValue.get().equals("right", true)) -1F else 0F,
+                        module.arrayY + textHeight, 0F, 0F, roundStrength.get(), 0F, Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, when {
-                        colorMode.equals("Random", ignoreCase = true) -> moduleColor
-                        colorMode.equals("Astolfo", ignoreCase = true) -> astolfo
-                        colorMode.equals("Mixer", ignoreCase = true) -> mixerColor
-                        colorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-
-                        colorMode.equals("Fade", ignoreCase = true) -> fade
-                        else -> customColor
-                    }, textShadow)
+                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, textShadow)
 
                     if (!rectLeftValue.get().equals("none", true)) {
-                        val rectColor = when {
-                            rectColorMode.equals("Random", ignoreCase = true) -> moduleColor
-                            rectColorMode.equals("Astolfo", ignoreCase = true) -> astolfo
-                            rectColorMode.equals("Mixer", ignoreCase = true) -> mixerColor
-                            rectColorMode.equals("Rainbow", ignoreCase = true) -> rainbow
-                            rectColorMode.equals("Fade", ignoreCase = true) -> fade
-                            else -> rectCustomColor
-                        }
+                        val rectColor = getColor(index).rgb
 
                         when {
                             rectLeftValue.get().equals("left", true) -> RenderUtils.drawRect(0F,
@@ -596,7 +482,7 @@ class Arraylist(
         // tag prefix, ignore default value
         if (!tagsStyleValue.get().equals("space", true))
             returnTag += tagsStyleValue.get().get(0).toString() + if (tagsStyleValue.get()
-                    .equals("-", true) || tagsStyleValue.get().equals("|", true)
+                    .equals("-", true) || tagsStyleValue.get().equals("|", true) || tagsStyleValue.get().equals("->", true)
             ) " " else ""
 
         // main tag value
@@ -606,6 +492,7 @@ class Arraylist(
         if (!tagsStyleValue.get().equals("space", true)
             && !tagsStyleValue.get().equals("-", true)
             && !tagsStyleValue.get().equals("|", true)
+            && !tagsStyleValue.get().equals("->", true)
         )
             returnTag += tagsStyleValue.get().get(1).toString()
 
@@ -613,7 +500,7 @@ class Arraylist(
     }
 
     fun getModName(mod: Module): String {
-        var displayName : String = (if (nameBreak.get()) mod.spacedName else mod.name) + getModTag(mod)
+        var displayName : String = (if (nameBreak.get()) mod.spacedName else mod.localizedName) + getModTag(mod)
 
         when (caseValue.get().lowercase()) {
             "lower" -> displayName = displayName.lowercase()
@@ -622,5 +509,14 @@ class Arraylist(
 
         return displayName
     }
+    fun getBlendFactor(screenCoordinates: Vector2d): Double {
+        return sin(
+            System.currentTimeMillis() / 600.0 + screenCoordinates.getX() * 0.005 + screenCoordinates.getY() * 0.06
+        ) * 0.5 + 0.5
+    }
     override fun drawBoarderBlur(blurRadius: Float) {}
+
+    fun getColor(index : Int) : Color {
+        return ClientTheme.getColor(index)
+    }
 }
