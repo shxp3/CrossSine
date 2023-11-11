@@ -42,10 +42,12 @@ object Scaffold : Module() {
 
     private val rotationsValue = ListValue(
         "Rotations",
-        arrayOf("Normal", "Back", "45", "Telly"),
+        arrayOf("Normal", "Back", "45", "Telly", "Spin", "Snap", "None"),
         "Normal"
     )
-    private val staticRotTelly = BoolValue("StaticRotation", false)
+    private val spinSpeedValue = IntegerValue("SpinSpeed",20, 1, 90).displayable { rotationsValue.equals("Spin") }
+    private val rotationNorYaw = IntegerValue("Rotation-Normal-Yaw", 180, 0, 180).displayable { rotationsValue.equals("Normal") }
+    private val staticRotTelly = BoolValue("StaticRotation", false).displayable { rotationsValue.equals("Telly") }
     private val towerModeValue = ListValue(
         "TowerMode", arrayOf(
             "None",
@@ -55,7 +57,7 @@ object Scaffold : Module() {
     )
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post", "Legit"), "Pre")
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
-    private val highBlock = BoolValue("BiggestStack", false)
+    val highBlock = BoolValue("BiggestStack", false)
     private val sprintModeValue = ListValue(
         "Sprint",
         arrayOf("Normal", "Air", "Ground", "BlocksMC", "Telly", "None"),
@@ -99,7 +101,7 @@ object Scaffold : Module() {
     // Visuals
     val counterMode = ListValue(
         "Counter",
-        arrayOf("OFF", "Simple", "Normal"),
+        arrayOf("OFF", "Simple", "Normal", "Rise"),
         "OFF"
     )
 
@@ -149,7 +151,7 @@ object Scaffold : Module() {
     //IDK
     private var offGroundTicks: Int = 0
     private var GroundTicks: Int = 0
-
+    private var spinYaw = 0F
     //Sprint
     var sprintActive = false
     var ticks = 0
@@ -174,7 +176,6 @@ object Scaffold : Module() {
         placeTicks = 0
         tellyPlaceTicks = 0
     }
-
     /**
      * Update event
      *
@@ -182,6 +183,7 @@ object Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        spinYaw += spinSpeedValue.get().toFloat()
         if (placeModeValue.equals("Legit")) {
             place()
         }
@@ -197,33 +199,6 @@ object Scaffold : Module() {
         if (mc.thePlayer.onGround) {
                 mc.thePlayer.motionX *= motionValue.get()
                 mc.thePlayer.motionZ *= motionValue.get()
-        }
-        if (rotationsValue.equals("Normal")) {
-            RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(mc.thePlayer.rotationYaw - 135, 85F),
-                    rotationSpeed
-                ), 20
-            )
-        }
-        if (rotationsValue.equals("Back")) {
-            RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(MovementUtils.movingYaw - 180, 85F),
-                    rotationSpeed
-                ), 20
-            )
-        }
-        if (rotationsValue.equals("45")) {
-            RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(MovementUtils.movingYaw - 135, 85F),
-                    rotationSpeed
-                ), 20
-            )
         }
         if (towerStatus) mc.timer.timerSpeed = towerTimerValue.get()
         if (!towerStatus) mc.timer.timerSpeed = timerValue.get()
@@ -372,7 +347,16 @@ object Scaffold : Module() {
             packet.facingZ = packet.facingZ.coerceIn(-1.0000F, 1.0000F)
         }
     }
-
+    private fun rotationStatic() {
+        when (rotationsValue.get().lowercase()) {
+            "back" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(MovementUtils.movingYaw + 180, 85F), rotationSpeed))
+            "spin" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(spinYaw, 85F), rotationSpeed))
+            "snap" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), rotationSpeed))
+        }
+    }
+    private fun canRotation() : Boolean {
+        return ((!rotationsValue.equals("None") || !rotationsValue.equals("Spin")) && lockRotation != null)
+    }
     @EventTarget
     fun onMotion(event: MotionEvent) {
         val eventState = event.eventState
@@ -386,7 +370,11 @@ object Scaffold : Module() {
             )
         ) is BlockAir
         towerStatus = mc.gameSettings.keyBindJump.isKeyDown
-
+        if (canRotation()) {
+                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
+                RotationUtils.setTargetRotation(limitedRotation)
+        }
+        rotationStatic()
         // Update and search for new block
         if (event.eventState == EventState.PRE) {
             if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock(highBlock.get()) == -1 else mc.thePlayer.heldItem == null ||
@@ -400,9 +388,6 @@ object Scaffold : Module() {
 
         // Place block
         if (placeModeValue.equals(eventState.stateName)) place()
-        val limitedRotation =
-            RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
-        RotationUtils.setTargetRotation(limitedRotation)
         //IDK
         if (mc.thePlayer.onGround) {
             GroundTicks++
@@ -698,10 +683,16 @@ object Scaffold : Module() {
                 } else Rotation(if (staticRotTelly.get()) mc.thePlayer.rotationYaw + 180 else placeRotation.rotation.yaw, placeRotation.rotation.pitch)
             }
             "back" -> {
-                Rotation(mc.thePlayer.rotationYaw + 180, placeRotation.rotation.pitch)
+                Rotation(MovementUtils.movingYaw + 180, placeRotation.rotation.pitch)
             }
             "45" -> {
                 Rotation(mc.thePlayer.rotationYaw - 135, placeRotation.rotation.pitch)
+            }
+            "spin" -> {
+                Rotation(spinYaw, placeRotation.rotation.pitch)
+            }
+            "snap" -> {
+                Rotation(MovementUtils.movingYaw + 180, placeRotation.rotation.pitch)
             }
             else -> null
         }
