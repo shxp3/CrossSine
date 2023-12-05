@@ -31,8 +31,8 @@ public class NoSlowCheck extends Check {
                     return;
                 }
             }
-            motionBuffer -= motionBuffer > 0 ? 1 : 0;
-            sprintBuffer -= sprintBuffer > 0 ? 1 : 0;
+            motionBuffer -= (short) (motionBuffer > 0 ? 1 : 0);
+            sprintBuffer -= (short) (sprintBuffer > 0 ? 1 : 0);
             if (sprintBuffer < 2) {
                 reward();
             }

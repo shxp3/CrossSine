@@ -34,7 +34,7 @@ class Notifications(x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,side: Si
         CrossSine.hud.notifications.map { it }.forEachIndexed { index, notify ->
             GL11.glPushMatrix()
 
-            if (notify.drawNotification(index, FontLoaders.C16)) {
+            if (notify.drawNotification(index, FontLoaders.SF17)) {
                 CrossSine.hud.notifications.remove(notify)
             }
             GlStateManager.resetColor()
@@ -152,15 +152,22 @@ class Notification(
             RenderUtils.drawRoundedRect(0F, 10F, 130F, 30F, 2F, Color(0, 0, 0, 200).rgb)
             RenderUtils.drawRect(0F, classicHeight - 1.5F, max(width - width * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F), classicHeight.toFloat(), Color(255,255,255))
             font.drawString(content, 15F, 17F, Color(255, 255, 255).rgb, false)
-            if(type.renderColor == Color(0xFF2F2F)){
+        GlStateManager.resetColor()
+        when (type.renderColor) {
+            Color(0xFF2F2F) -> {
                 RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/cross.png"),1,(12.3).toInt(),12,12)
-            } else if(type.renderColor == Color(0x60E092)){
+            }
+            Color(0x60E092) -> {
                 RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/tick.png"),1,(12.3).toInt(),12,12)
-            } else if(type.renderColor == Color(0xF5FD00)){
+            }
+            Color(0xF5FD00) -> {
                 RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/warning.png"),1,(12.3).toInt(),12,12)
-            } else if(type.renderColor == Color(0x6490A7)){
+            }
+            Color(0x6490A7) -> {
                 RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/info.png"),1,(12.3).toInt(),12,12)
             }
+        }
+        GlStateManager.resetColor()
             return false
     }
 

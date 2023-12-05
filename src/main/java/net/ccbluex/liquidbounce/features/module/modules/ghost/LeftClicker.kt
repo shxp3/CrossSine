@@ -8,9 +8,11 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.utils.timer.tickTimer
 import net.minecraft.client.settings.KeyBinding
+import net.minecraft.item.EnumAction
 import net.minecraft.item.ItemSword
 import kotlin.random.Random
 
@@ -36,23 +38,58 @@ class LeftClicker : Module() {
         }
     }.displayable { modeValue.equals("Normal") } as IntegerValue
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false)
+    private val autoBlock = BoolValue("AutoBlock", false)
+    private val limitCps = BoolValue("LimitCPS", false).displayable { autoBlock.get() }
+    private val blockMaxCps: IntegerValue = object : IntegerValue("Block-Max-CPS", 8, 1, 20) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val minCPS = blockMinCps.get()
+            if (minCPS > newValue) {
+                set(minCPS)
+            }
+        }
+    }.displayable { autoBlock.get() && limitCps.get() } as IntegerValue
+    private val blockMinCps: IntegerValue = object : IntegerValue("Block-Min-CPS", 5, 1, 20) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val maxCPS = blockMaxCps.get()
+            if (maxCPS < newValue) {
+                set(maxCPS)
+            }
+        }
+    }.displayable { autoBlock.get() && limitCps.get() } as IntegerValue
     private var leftDelay = 50L
     private var leftLastSwing = 0L
-    private val timer = tickTimer()
+    private var blockDelay = 50L
+    private var LastBlock = 0L
     private var cDelay = 0
 
     @EventTarget
-    fun onRender(event: Render3DEvent) {
-            if (mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword) && mc.playerController.curBlockDamageMP == 0F) {
-                KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
+    fun onRender3D(event: Render3DEvent) {
+        if (mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword) && mc.playerController.curBlockDamageMP == 0F) {
+            KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
-                leftLastSwing = System.currentTimeMillis()
-                leftDelay = getDelay().toLong()
+            leftLastSwing = System.currentTimeMillis()
+            leftDelay = getDelay().toLong()
+        }
+        if (mc.objectMouseOver.blockPos == null) {
+            mc.playerController.curBlockDamageMP = 0F
+        }
+        if (autoBlock.get() && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && mc.thePlayer.heldItem?.itemUseAction in arrayOf(
+                EnumAction.BLOCK
+            ) && mc.objectMouseOver.entityHit != null
+        ) {
+            if (limitCps.get()) {
+                if (System.currentTimeMillis() - LastBlock >= blockDelay) {
+                    KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+
+                    LastBlock = System.currentTimeMillis()
+                    blockDelay = TimeUtils.randomClickDelay(blockMinCps.get(), blockMaxCps.get())
+                }
+            } else {
+                KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
             }
-            if (mc.objectMouseOver.blockPos == null) {
-                mc.playerController.curBlockDamageMP = 0F
-            }
+        }
     }
+
     fun getDelay(): Int {
         when (modeValue.get().lowercase()) {
             "normal" -> cDelay = TimeUtils.randomClickDelay(MinCPSValue.get(), MaxCPSValue.get()).toInt()
@@ -73,6 +110,7 @@ class LeftClicker : Module() {
 
                 }
             }
+
             "butterfly" -> {
                 if (Random.nextInt(1, 10) == 1) {
                     cDelay = Random.nextInt(225, 250)
@@ -95,14 +133,6 @@ class LeftClicker : Module() {
         }
         return cDelay
     }
-    override fun onEnable() {
-        timer.update()
-    }
-
-    override fun onDisable() {
-        timer.reset()
-    }
-
     override val tag: String
-        get() = if (modeValue.equals("Normal"))("${MaxCPSValue.get()} - ${MinCPSValue.get()}") else modeValue.get().toString()
+        get() = if (modeValue.equals("Normal")) ("${MaxCPSValue.get()} - ${MinCPSValue.get()}") else modeValue.get()
 }

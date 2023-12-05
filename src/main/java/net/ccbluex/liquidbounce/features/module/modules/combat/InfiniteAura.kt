@@ -29,6 +29,7 @@ import net.minecraft.entity.player.PlayerCapabilities
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.client.C13PacketPlayerAbilities
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.Vec3
@@ -37,7 +38,8 @@ import kotlin.concurrent.thread
 
 @ModuleInfo(name = "InfiniteAura", "InfinitrAura",category = ModuleCategory.COMBAT)
 object InfiniteAura : Module() {
-
+    private val packetValue = ListValue("PacketMode", arrayOf("PacketPosition", "PacketPosLook"), "PacketPosition")
+    private val packetBack = BoolValue("DoTeleportBackPacket", false)
     private val modeValue = ListValue("Mode", arrayOf("Aura", "Click"), "Aura")
     private val targetsValue = IntegerValue("Targets", 3, 1, 10).displayable { modeValue.equals("Aura") }
     private val cpsValue = IntegerValue("CPS", 1, 1, 10)
@@ -125,25 +127,36 @@ object InfiniteAura : Module() {
         if(!force && lastDistance > 10) return false // pathfinding has failed
 
         path.forEach {
-            mc.netHandler.addToSendQueue(C04PacketPlayerPosition(it.xCoord, it.yCoord, it.zCoord, true))
+            if (packetValue.equals("PacketPosition")) {
+                mc.netHandler.addToSendQueue(C04PacketPlayerPosition(it.xCoord, it.yCoord, it.zCoord, true))
+            } else {
+                mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(it.xCoord,it.yCoord,it.zCoord,mc.thePlayer!!.rotationYaw,mc.thePlayer!!.rotationPitch,true))
+            }
             points.add(it)
         }
 
-        if(lastDistance > 3) {
+        if(lastDistance > 3 && packetBack.get()) {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(entity.posX, entity.posY, entity.posZ, true))
         }
 
         if (swingValue.get()) {
             mc.thePlayer.swingItem()
+        } else {
+            mc.netHandler.addToSendQueue(C0APacketAnimation())
         }
         mc.playerController.attackEntity(mc.thePlayer, entity)
 
         for (i in path.size - 1 downTo 0) {
             val vec = path[i]
-            mc.netHandler.addToSendQueue(C04PacketPlayerPosition(vec.xCoord, vec.yCoord, vec.zCoord, true))
+            if (packetValue.equals("PacketPosition")) {
+                mc.netHandler.addToSendQueue(C04PacketPlayerPosition(vec.xCoord, vec.yCoord, vec.zCoord, true))
+            } else {
+                mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(vec.xCoord,vec.yCoord,vec.zCoord,mc.thePlayer!!.rotationYaw,mc.thePlayer!!.rotationPitch,true))
+            }
         }
-        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
-
+        if (packetBack.get()) {
+            mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
+        }
         return true
     }
 

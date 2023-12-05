@@ -32,7 +32,9 @@ import kotlin.math.roundToInt
 @ModuleInfo(name = "ItemESP", spacedName = "Item ESP", category = ModuleCategory.VISUAL)
 class ItemESP : Module() {
     private val entityConvertedPointsMap: MutableMap<EntityItem, DoubleArray> = HashMap()
-    private val itemCount = BoolValue("ItemCount", false)
+    private val nameTags = BoolValue("NameTag", false)
+    private val itemCount = BoolValue("ItemCount", false).displayable { nameTags.get() }
+    private val scaleValue = FloatValue("Scale", 1F, 1F, 4F).displayable { itemCount.get() }
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "LightBox"), "Box")
     private val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
     private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { !colorThemeClient.get() }
@@ -150,9 +152,15 @@ class ItemESP : Module() {
                 }
             }
         }
-        if (itemCount.get()) {
+        if (nameTags.get()) {
             for (item in mc.theWorld.getLoadedEntityList()) {
                 if (item is EntityItem) {
+                    var distance = mc.thePlayer.getDistanceToEntity(item) / 4F
+                    val string = (item.entityItem.displayName + if (itemCount.get() && item.entityItem.stackSize > 1) " x${item.entityItem.stackSize}" else "")
+                    val scale = (distance / 150F) * scaleValue.get()
+                    if (distance < 4F) {
+                        distance = 4F
+                    }
                     GL11.glPushMatrix()
                     GL11.glTranslated(
                         item.lastTickPosX + (item.posX - item.lastTickPosX) * mc.timer.renderPartialTicks - mc.renderManager.renderPosX,
@@ -161,8 +169,8 @@ class ItemESP : Module() {
                     )
                     GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
                     RenderUtils.disableGlCap(GL11.GL_LIGHTING, GL11.GL_DEPTH_TEST)
-                    GL11.glScalef(-0.03F, -0.03F, -0.03F)
-                    mc.fontRendererObj.drawString(item.entityItem.stackSize.toString(), -5F, -15F,
+                    GL11.glScalef(-scale, -scale, -scale)
+                    mc.fontRendererObj.drawString(string, -6F, -30F,
                         Color(255,255,255).rgb,true)
                     RenderUtils.enableGlCap(GL11.GL_BLEND)
                     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)

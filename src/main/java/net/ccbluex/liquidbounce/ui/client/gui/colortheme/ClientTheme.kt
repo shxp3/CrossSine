@@ -102,7 +102,17 @@ object ClientTheme {
 
         return Color(-1)
     }
-
+    fun getColor(type: String) : Int {
+        if (CustomClientColor.state){
+            return CustomClientColor.getColor().rgb
+        }
+        if (type == "START") {
+            return setColor("START", 255).rgb
+        } else if (type == "END") {
+            return setColor("END", 255).rgb
+        }
+        return Color(-1).rgb
+    }
     fun getColor(index: Int): Color {
         if (CustomClientColor.state) return CustomClientColor.getColor()
         when (ClientColorMode.get().lowercase()) {

@@ -7,7 +7,8 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 
 class DamageLongJump: LongJumpMode("DamageVerus") {
-    private val verusBoost = FloatValue("${valuePrefix}Boost", 4.25f, 1f, 10f)
+    private val verusGroundBoost = FloatValue("${valuePrefix}Boost", 0.5f, 1f, 1f)
+    private val verusSpeed = FloatValue("${valuePrefix}Boost", 4.25f, 1f, 10f)
     private val verusY = FloatValue("${valuePrefix}MotionY", 0.42F, 0.30F, 2F)
     private var verjump = 0
     private var damaged = false
@@ -27,9 +28,10 @@ class DamageLongJump: LongJumpMode("DamageVerus") {
         }
         if (mc.thePlayer.hurtTime == 9 && mc.thePlayer.onGround) {
             damaged = true
-            MovementUtils.strafe(verusBoost.get())
+            MovementUtils.strafe(verusGroundBoost.get())
             mc.thePlayer.motionY = verusY.get().toDouble()
         }
+        MovementUtils.strafe(if (mc.thePlayer.hurtTime == 7) verusSpeed.get() else 1F)
     }
 
     override fun onMove(event: MoveEvent) {

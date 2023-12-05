@@ -136,3 +136,12 @@ fun Entity.getLookDistanceToEntityBox(entity: Entity=this, rotation: Rotation? =
     val end = (rotation?: RotationUtils.targetRotation).toDirection().multiply(range).add(eyes)
     return entity.entityBoundingBox.calculateIntercept(eyes, end)?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
 }
+val Entity.eyesLoc: Vec3
+    get() = getPositionEyes(1f)
+fun Vec3.distanceTo(bb: AxisAlignedBB): Double {
+    val pos = getNearestPointBB(this, bb)
+    val xDist = abs(pos.xCoord - this.xCoord)
+    val yDist = abs(pos.yCoord - this.yCoord)
+    val zDist = abs(pos.zCoord - this.zCoord)
+    return sqrt(xDist.pow(2) + yDist.pow(2) + zDist.pow(2))
+}

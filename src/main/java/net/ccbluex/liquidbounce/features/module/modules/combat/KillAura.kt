@@ -129,7 +129,6 @@ object KillAura : Module() {
     private val text11 = TitleValue("AutoBlock")
     val autoBlockValue =
         ListValue("AutoBlock", arrayOf("Vanilla", "Damage", "Hypixel", "Fake", "None"), "None")
-    private val hydebug = BoolValue("Hypixel-Debug", false)
     private val legitBlock = BoolValue(
         "LegitBlock",
         false
@@ -238,12 +237,15 @@ object KillAura : Module() {
     val displayBlocking: Boolean
         get() = blockingStatus || ((autoBlockValue.equals("Fake") || autoBlockValue.equals("Hypixel")) && canFakeBlock)
     //Hypixel Block
-    var hyblocked = false
-    var hyslotchange = 0
-    var hysendBlock = false
-    var hysetDelay = false
-    var hyblocking = false
-    var hywaitDelay = 0.0
+    private var hypixelc02 = 0
+    private var hypixeldelay = 0
+    private var hypixelcancelTicks = 0
+    private var hypixelunblockdelay = 0
+    private var hypixelkaing = false
+    private var hypixelblinking = false
+    private var hypixelblock = false
+    private var hypixelblocked = false
+    private var hypixelcancelc02 = false
 
     //Legit Attack
     private var LegitBlocking = false
@@ -310,40 +312,32 @@ object KillAura : Module() {
                 0
             }
         )
-    }
-    private fun swap() {
-        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
-        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-        if (hydebug.get()) ClientUtils.displayAlert("Block")
-    }
-    private fun block() {
-        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement())
-        if (hydebug.get()) ClientUtils.displayAlert("Swap")
+        BlinkUtils.setBlinkState(off = true, release = true)
+        hypixelkaing = false
+        hypixelblocked = false
+        hypixelc02 = 0
+        hypixeldelay = 0
     }
     /**
      * Packet event
      */
     @EventTarget
     fun onPacket(event: PacketEvent) {
+        if (autoBlockValue.equals("Hypixel")) return
         val packet = event.packet
-        if (autoBlockValue.equals("Hypixel")) {
-            if (packet is C08PacketPlayerBlockPlacement && currentTarget != null) {
+        if (mc.thePlayer.heldItem?.item is ItemSword && currentTarget != null && hypixelkaing) {
+            if (packet is C08PacketPlayerBlockPlacement || packet is C07PacketPlayerDigging) {
                 event.cancelEvent()
-                hyblocked = true
-            } else if (packet is C07PacketPlayerDigging && hyblocked && currentTarget != null){
+            }
+        }
+        if (mc.thePlayer.heldItem?.item is ItemSword && currentTarget != null && hypixelblocked || hypixelcancelc02) {
+            if (packet is C02PacketUseEntity) {
                 event.cancelEvent()
-                hyblocked = false
+                hypixelblocked = false
             }
-            if (packet is C02PacketUseEntity && hyslotchange >= 2 && hyblocking) {
-                if (!hysetDelay) {
-                    hysendBlock = true
-                    swap()
-                }
-                if (hysetDelay) {
-                    event.cancelEvent()
-                    if (hydebug.get()) ClientUtils.displayAlert("CancelHit")
-                }
-            }
+        }
+        if (packet is C02PacketUseEntity && hypixelblinking) {
+            hypixelc02++
         }
     }
     /**
@@ -351,34 +345,6 @@ object KillAura : Module() {
      */
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (autoBlockValue.equals("Hypixel")) {
-            if (event.eventState == EventState.POST) {
-                if (hysetDelay) {
-                    hywaitDelay +=   0.9
-                }
-            }
-            if (hywaitDelay >= 1.8) {
-                hysetDelay = false
-                hywaitDelay = 0.0
-            }
-            if (event.isPre()) {
-                if (mc.thePlayer.heldItem.item is ItemSword) {
-                    hyslotchange += 1
-                }
-                if (mc.thePlayer.heldItem.item !is ItemSword) {
-                    hyslotchange = 0
-                }
-                if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null ) {
-                    hyblocking = true
-                }
-                if (hyblocking && currentTarget == null) {
-                    hyblocking = false
-                    hysendBlock = false
-                    hysetDelay = false
-                    hywaitDelay = 0.0
-                }
-            }
-        }
         updateHitable()
         if (legitBlock.get() && mc.thePlayer.isBlocking && autoBlockValue.equals("None")) {
             clicks = 0
@@ -406,7 +372,58 @@ object KillAura : Module() {
                 }
             }
         }
-
+        if (autoBlockValue.equals("Hypixel") && event.eventState == EventState.PRE) {
+            if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
+                hypixelkaing = true
+                hypixelcancelc02 = false
+                hypixelcancelTicks = 0
+                hypixelunblockdelay = 0
+                if (!hypixelblinking) {
+                    BlinkUtils.setBlinkState(all = true)
+                    hypixelblinking = true
+                    hypixelblocked = false
+                }
+                if (hypixelblinking && !hypixelblock) {
+                    hypixeldelay++
+                    if (hypixeldelay >= 2) {
+                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
+                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                        hypixelblocked = false
+                        hypixelblock = true
+                        hypixeldelay = 0
+                    }
+                }
+                if (hypixelblinking && hypixelblock) {
+                    if (hypixelc02 > 1) {
+                        BlinkUtils.setBlinkState(off = true, release = true)
+                        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement())
+                        hypixelblinking = false
+                        hypixelblock = false
+                        hypixelblocked = true
+                        hypixelc02 = 0
+                    }
+                }
+            }
+            if (hypixelkaing && currentTarget == null) {
+                hypixelkaing = false
+                hypixelblocked = false
+                hypixelc02 = 0
+                hypixeldelay = 0
+                BlinkUtils.setBlinkState(off = true, release = true)
+                hypixelcancelc02 = true
+                hypixelcancelTicks = 0
+                if (mc.thePlayer.heldItem.item is ItemSword) {
+                    mc.netHandler.addToSendQueue(C07PacketPlayerDigging())
+                }
+            }
+            if (hypixelcancelc02) {
+                hypixelcancelTicks++
+                if (hypixelcancelTicks >= 3) {
+                    hypixelcancelc02 = false
+                    hypixelcancelTicks = 0
+                }
+            }
+        }
     }
     /**
      * Update event
@@ -650,11 +667,9 @@ object KillAura : Module() {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
             }
         } else {
-            if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && !mc.thePlayer.isRiding) {
-                mc.thePlayer.onCriticalHit(entity)
-            }
-            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, entity.creatureAttribute) > 0F)
+            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, entity.creatureAttribute) > 0F) {
                 mc.thePlayer.onEnchantmentCritical(entity)
+            }
         }
 
         CooldownHelper.resetLastAttackedTicks()
@@ -881,11 +896,6 @@ object KillAura : Module() {
             clicks++
             attackTimer.reset()
             attackDelay = getAttackDelay(minCpsValue.get(), maxCpsValue.get())
-        }
-        if (hysendBlock) {
-            block()
-            hysetDelay = true
-            hysendBlock = false
         }
     }
     /**

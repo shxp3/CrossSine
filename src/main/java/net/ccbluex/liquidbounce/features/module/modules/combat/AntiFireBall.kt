@@ -8,29 +8,26 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.projectile.EntityFireball
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C0APacketAnimation
-import org.lwjgl.opengl.Display
-import java.awt.Color
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.*
+import net.minecraft.util.ResourceLocation
+import kotlin.math.atan2
+import kotlin.math.*
 
 @ModuleInfo(name = "AntiFireBall", "Anti FireBall", category = ModuleCategory.COMBAT)
 class AntiFireBall : Module() {
     private val timer = MSTimer()
-    private val render = BoolValue("ShowFireBall", false)
-    private val radius = FloatValue("Radius", 45F, 1F, 200F)
-    private val size = FloatValue("Size", 10f, 5f, 25f)
+    private val fireBall = BoolValue("indicators-FireBall", true)
+    private val scaleValue = FloatValue("Size", 0.7f, 0.65f, 1.25f)
+    private val radiusValue = FloatValue("Radius", 50f, 15f, 150f)
     private val hitfireball = BoolValue("HitFireBall", false)
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal").displayable { hitfireball.get() }
     private val rotationValue = BoolValue("Rotation",true).displayable { hitfireball.get() }
@@ -61,41 +58,83 @@ class AntiFireBall : Module() {
             }
         }
     }
+
+    var distance = 0f
+    lateinit var displayName : String
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
-        if (render.get()) {
-            for (fireball in mc.theWorld.loadedEntityList) {
-                if (fireball is EntityFireball) {
-                    val x = Display.getWidth() / 2f / if (mc.gameSettings.guiScale == 0) 1 else mc.gameSettings.guiScale
-                    val y = Display.getHeight() / 2f / if (mc.gameSettings.guiScale == 0) 1 else mc.gameSettings.guiScale
-                    val yaw = getRotations(fireball) - mc.thePlayer.rotationYaw
-                    GlStateManager.pushMatrix()
-                    RenderUtils.startSmooth()
-                    GlStateManager.translate(x, y, 0f)
-                    GlStateManager.rotate(yaw, 0f, 0f, 1f)
-                    GlStateManager.translate(-x, -y, 0f)
-                    RenderUtils.drawTracerPointer(x, y - radius.get(), size.get(), 2f, 1f, ClientTheme.getColor(1).rgb)
-                    GlStateManager.translate(x, y, 0f)
-                    GlStateManager.rotate(-yaw, 0f, 0f, 1f)
-                    GlStateManager.translate(-x, -y, 0f)
-                    RenderUtils.endSmooth()
-                    GlStateManager.popMatrix()
-                    GlStateManager.pushMatrix()
-                    RenderUtils.startSmooth()
-                    GlStateManager.translate(x, y, 0f)
-                    GlStateManager.translate(-x, -y, 0f)
-                    mc.fontRendererObj.drawString(DecimalFormat("0.#", DecimalFormatSymbols(Locale.ENGLISH)).format(mc.thePlayer.getDistanceToEntity(fireball)).toString(), x + 2, y - radius.get(), ClientTheme.getColor(1).rgb, true)
-                    GlStateManager.translate(x, y, 0f)
-                    GlStateManager.translate(-x, -y, 0f)
-                    RenderUtils.endSmooth()
-                    GlStateManager.popMatrix()
+        val t = ScaledResolution(mc)
+        for (entity in mc.theWorld.loadedEntityList) {
+            val name = entity.name
+            if (name == "Fireball") {
+                distance = floor(mc.thePlayer.getDistanceToEntity(entity))
+                displayName = name
+
+                val scale = scaleValue.get()
+                val entX = entity.posX
+                val entZ = entity.posZ
+                val px = mc.thePlayer.posX
+                val pz = mc.thePlayer.posZ
+                val pYaw = mc.thePlayer.rotationYaw
+                val radius = radiusValue.get()
+                val yaw = Math.toRadians(getRotations(entX, entZ, px, pz) - pYaw)
+                val arrowX = t.scaledWidth / 2 + radius * sin(yaw)
+                val arrowY = t.scaledHeight / 2 - radius * cos(yaw)
+                val textX = t.scaledWidth / 2 + (radius - 13) * sin(yaw)
+                val textY = t.scaledHeight / 2 - (radius - 13) * cos(yaw)
+                val imgX = (t.scaledWidth / 2) + (radius - 18) * sin(yaw)
+                val imgY = (t.scaledHeight / 2) - (radius - 18) * cos(yaw)
+                val arrowAngle = atan2(arrowY - t.scaledHeight / 2, arrowX - t.scaledWidth / 2)
+                drawArrow(arrowX, arrowY, arrowAngle, 3.0, 100.0)
+                GlStateManager.color(255f, 255f, 255f, 255f)
+                if (displayName == "Fireball" && fireBall.get()) {
+                    GlStateManager.scale(scale, scale, scale)
+                    RenderUtils.drawImage(
+                        ResourceLocation("textures/items/fireball.png"),
+                        (imgX / scale - 5).toInt(),
+                        (imgY / scale - 5).toInt(),
+                        32,
+                        32
+                    )
+                    GlStateManager.scale(1 / scale, 1 / scale, 1 / scale)
                 }
+                GlStateManager.scale(scale, scale, scale)
+                Fonts.minecraftFont.drawStringWithShadow(
+                    distance.toString() + "m",
+                    (textX / scale - (Fonts.minecraftFont.getStringWidth(distance.toString() + "m") / 2)).toFloat(),
+                    (textY / scale - 4).toFloat(),
+                    -1
+                )
+                GlStateManager.scale(1 / scale, 1 / scale, 1 / scale)
             }
         }
     }
-    private fun getRotations(ent: EntityFireball): Float {
-        val x = ent.posX - mc.thePlayer.posX
-        val z = ent.posZ - mc.thePlayer.posZ
-        return (-(Math.atan2(x, z) * 57.29577951308232)).toFloat()
+    fun drawArrow(x: Double, y: Double, angle: Double, size: Double, degrees: Double) {
+        val arrowSize = size * 2
+        val arrowX = x - arrowSize * cos(angle)
+        val arrowY = y - arrowSize * sin(angle)
+        val arrowAngle1 = angle + Math.toRadians(degrees)
+        val arrowAngle2 = angle - Math.toRadians(degrees)
+        RenderUtils.drawLine(
+            x,
+            y,
+            arrowX + arrowSize * cos(arrowAngle1),
+            arrowY + arrowSize * sin(arrowAngle1),
+            size.toFloat(),
+        )
+        RenderUtils.drawLine(
+            x,
+            y,
+            arrowX + arrowSize * cos(arrowAngle2),
+            arrowY + arrowSize * sin(arrowAngle2),
+            size.toFloat(),
+        )
+    }
+
+    fun getRotations(eX: Double, eZ: Double, x: Double, z: Double): Double {
+        val xDiff = eX - x
+        val zDiff = eZ - z
+        val yaw = -(atan2(xDiff, zDiff) * 57.29577951308232)
+        return yaw
     }
 }

@@ -39,10 +39,10 @@ class Velocity : Module() {
     val h = FloatValue("Horizontal", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
     val v = FloatValue("Vertical", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
     val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") }
-    val m = BoolValue("StandardTag", false).displayable { modeValue.equals("Standard") }
-    val og = BoolValue("OnlyGround", false)
-    val oc = BoolValue("OnlyCombat", false)
-    val om = BoolValue("OnlyMove", false)
+    private val m = BoolValue("StandardTag", false).displayable { modeValue.equals("Standard") }
+    private val og = BoolValue("OnlyGround", false)
+    private val oc = BoolValue("OnlyCombat", false)
+    private val om = BoolValue("OnlyMove", false)
     private val noFireValue = BoolValue("noFire", false)
 
     val velocityTimer = MSTimer()

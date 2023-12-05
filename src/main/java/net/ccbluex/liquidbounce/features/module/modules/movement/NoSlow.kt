@@ -36,6 +36,7 @@ class NoSlow : Module() {
     private val modeValue = ListValue("PacketMode", arrayOf("Vanilla", "LiquidBounce", "Custom", "WatchDog", "Watchdog2", "HypixelNew", "NCP", "AAC", "AAC4", "AAC5","SwitchItem", "Matrix", "Vulcan", "Medusa", "OldIntave", "Interact"), "Vanilla")
     private val onlyGround = BoolValue("OnlyGround", false)
     private val onlyMove = BoolValue("OnlyMove", false)
+    private val onlyKa = BoolValue("OnlyKillAura", false)
     //Modify Slowdown / Packets
     private val blockModifyValue = BoolValue("Blocking", true)
     private val blockMultiplier = FloatValue("BlockMultiplier", 1.0F, 0.2F, 1.0F).displayable { blockModifyValue.get() }
@@ -121,7 +122,7 @@ class NoSlow : Module() {
         if (modeValue.get().equals("grimac", ignoreCase = true)) {
             event.eventState == EventState.PRE
         }
-        if ((!MovementUtils.isMoving() && onlyMove.get()) || (onlyGround.get() && !mc.thePlayer.onGround)) {
+        if ((!KillAura.state && onlyKa.get()) || (!MovementUtils.isMoving() && onlyMove.get()) || (onlyGround.get() && !mc.thePlayer.onGround)) {
             return
         }
 
@@ -226,7 +227,7 @@ class NoSlow : Module() {
 
     @EventTarget
     fun onSlowDown(event: SlowDownEvent) {
-        if(mc.thePlayer == null || mc.theWorld == null || (onlyGround.get() && !mc.thePlayer.onGround))
+        if(mc.thePlayer == null || mc.theWorld == null || (onlyKa.get() && !KillAura.state) || (onlyGround.get() && !mc.thePlayer.onGround))
             return
         val heldItem = mc.thePlayer.heldItem?.item
 

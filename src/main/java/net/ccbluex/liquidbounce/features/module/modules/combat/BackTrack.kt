@@ -28,8 +28,8 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
 
-@ModuleInfo(name = "FakeLag", spacedName = "Fake Lag", category = ModuleCategory.COMBAT)
-object FakeLag : Module() {
+@ModuleInfo(name = "BackTrack", spacedName = "Back Track", category = ModuleCategory.COMBAT)
+object BackTrack : Module() {
 
     private val minDistance: FloatValue = object : FloatValue("MinDistance", 2.9f, 1f, 4f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
@@ -91,9 +91,9 @@ object FakeLag : Module() {
                     val afterBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
                     var afterRange: Double
                     var beforeRange: Double
-                        val eyes = mc.thePlayer!!.getPositionEyes(1F)
-                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes)
-                        beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity)
+                    val eyes = mc.thePlayer!!.getPositionEyes(1F)
+                    afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes)
+                    beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity)
 
 
                     if (beforeRange <= maxStartDistance.get()) {
@@ -108,9 +108,9 @@ object FakeLag : Module() {
                             return
                         }
                     } else {
-                            if (afterRange < beforeRange) {
-                                if (needFreeze) releasePackets()
-                            }
+                        if (afterRange < beforeRange) {
+                            if (needFreeze) releasePackets()
+                        }
                     }
                 }
                 if (needFreeze) {
@@ -170,12 +170,12 @@ object FakeLag : Module() {
                     val entity1 = attacked
                     if (entity1 != entity) continue
                     if (!stuckValue.get()) {
-                    if (timer.hasTimePassed(timeValue.get().toLong())) {
-                        if (range >= minAttackReleaseRange.get()) {
-                            release = true
-                            break
+                        if (timer.hasTimePassed(timeValue.get().toLong())) {
+                            if (range >= minAttackReleaseRange.get()) {
+                                release = true
+                                break
+                            }
                         }
-                    }
                     }
                 }
                 if (release) releasePackets()

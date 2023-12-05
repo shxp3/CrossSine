@@ -14,7 +14,6 @@ public class CheckManager {
     private static final Class<?>[] checksClz = {
             AutoBlockCheck.class,
             KillAuraCheck.class,
-
             NoSlowCheck.class,
     };
     private final LinkedList<Check> checks = new LinkedList<>();

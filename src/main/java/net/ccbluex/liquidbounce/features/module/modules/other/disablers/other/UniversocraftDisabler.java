@@ -10,7 +10,6 @@ import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.S07PacketRespawn;
 public class UniversocraftDisabler extends DisablerMode {
     private boolean disabling;
-    private int ticks;
     public UniversocraftDisabler() {
         super("Universocraft");
     }
@@ -18,20 +17,14 @@ public class UniversocraftDisabler extends DisablerMode {
     @Override
     public void onPacket(PacketEvent event) {
         Packet packet = event.getPacket();
-        ticks++;
         if (packet instanceof S07PacketRespawn) {
-            disabling = true;
+            this.disabling = true;
         } else if (packet instanceof C02PacketUseEntity) {
-            disabling = false;
+            this.disabling = false;
         } else if (packet instanceof C03PacketPlayer && mc.thePlayer.ticksExisted <= 10) {
-            disabling = true;
-        } else if (packet instanceof C0FPacketConfirmTransaction && disabling && mc.thePlayer.ticksExisted < 350) {
-            if (ticks >= 1) {
-                ticks = 0;
-                ((C0FPacketConfirmTransaction) packet).uid = Short.MIN_VALUE;
-            } else {
-                ((C0FPacketConfirmTransaction) packet).uid = Short.MAX_VALUE;
-            }
+            this.disabling = true;
+        } else if (packet instanceof C0FPacketConfirmTransaction && this.disabling && mc.thePlayer.ticksExisted < 350) {
+            ((C0FPacketConfirmTransaction)event.getPacket()).uid = ((short)(mc.thePlayer.ticksExisted % 2 == 0 ? -32768 : 32767));
         }
-    };
+    }
 }

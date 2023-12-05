@@ -46,7 +46,6 @@ object Scaffold : Module() {
         "Normal"
     )
     private val spinSpeedValue = IntegerValue("SpinSpeed",20, 1, 90).displayable { rotationsValue.equals("Spin") }
-    private val rotationNorYaw = IntegerValue("Rotation-Normal-Yaw", 180, 0, 180).displayable { rotationsValue.equals("Normal") }
     private val staticRotTelly = BoolValue("StaticRotation", false).displayable { rotationsValue.equals("Telly") }
     private val towerModeValue = ListValue(
         "TowerMode", arrayOf(
@@ -55,6 +54,7 @@ object Scaffold : Module() {
             "NCP",
         ), "None"
     )
+    private val wdSpeedValue = IntegerValue("WatchDog-Speed", 100, 0, 100).displayable { towerModeValue.equals("WatchDog") }
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post", "Legit"), "Pre")
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
     val highBlock = BoolValue("BiggestStack", false)
@@ -159,7 +159,10 @@ object Scaffold : Module() {
     //Place Ticks
     private var placeTicks = 0
     private var tellyPlaceTicks = 0
-
+    //Hypixel Tower
+    private var dowd = false
+    private var wdTicks = 0
+    private var towerTick = 0
     /**
      * Enable module
      */
@@ -175,6 +178,9 @@ object Scaffold : Module() {
         clickTimer.reset()
         placeTicks = 0
         tellyPlaceTicks = 0
+        if (towerModeValue.equals("WatchDog")) {
+            wdTicks = 5
+        }
     }
     /**
      * Update event
@@ -183,6 +189,24 @@ object Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (towerModeValue.get() == "WatchDog") {
+            if (wdTicks != 0) {
+                towerTick = 0
+                return
+            }
+            if (towerTick > 0) {
+                ++towerTick
+                if (towerTick > 6) {
+                    wdSpeed(MovementUtils.getSpeed() * ((100 - this.wdSpeedValue.get()) / 100.0))
+                }
+                if (towerTick > 16) {
+                    towerTick = 0
+                }
+            }
+            if (towerStatus) {
+                towerMove()
+            }
+        }
         spinYaw += spinSpeedValue.get().toFloat()
         if (placeModeValue.equals("Legit")) {
             place()
@@ -197,8 +221,8 @@ object Scaffold : Module() {
             }
         }
         if (mc.thePlayer.onGround) {
-                mc.thePlayer.motionX *= motionValue.get()
-                mc.thePlayer.motionZ *= motionValue.get()
+            mc.thePlayer.motionX *= motionValue.get()
+            mc.thePlayer.motionZ *= motionValue.get()
         }
         if (towerStatus) mc.timer.timerSpeed = towerTimerValue.get()
         if (!towerStatus) mc.timer.timerSpeed = timerValue.get()
@@ -322,8 +346,16 @@ object Scaffold : Module() {
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null) return
         val packet = event.packet
-            if (towerStatus) move()
-
+        if (towerStatus) move()
+        if(towerModeValue.get() == "WatchDog"){
+            if (packet is C03PacketPlayer) {
+                if (dowd) {
+                    val c03PacketPlayer = event.packet as C03PacketPlayer
+                    c03PacketPlayer.onGround = true
+                    dowd = false
+                }
+            }
+        }
         //Verus
         if (packet is C03PacketPlayer) {
             if (doSpoof) {
@@ -360,6 +392,11 @@ object Scaffold : Module() {
     @EventTarget
     fun onMotion(event: MotionEvent) {
         val eventState = event.eventState
+        if (towerModeValue.get() == "WatchDog") {
+            if (wdTicks > 0) {
+                --wdTicks
+            }
+        }
         towerStatus = false
         // Tower
         towerStatus = BlockUtils.getBlock(
@@ -371,8 +408,8 @@ object Scaffold : Module() {
         ) is BlockAir
         towerStatus = mc.gameSettings.keyBindJump.isKeyDown
         if (canRotation()) {
-                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
-                RotationUtils.setTargetRotation(limitedRotation)
+            val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
+            RotationUtils.setTargetRotation(limitedRotation)
         }
         rotationStatic()
         // Update and search for new block
@@ -422,13 +459,6 @@ object Scaffold : Module() {
                         Math.floor(mc.thePlayer.posY),
                         mc.thePlayer.posZ
                     )
-                }
-            }
-            "watchdog" -> {
-                if (MovementUtils.isMoving()) {
-                    if (mc.thePlayer.motionY in 0.16..0.165) {
-                        mc.thePlayer.motionY -= 0.01
-                    }
                 }
             }
         }
@@ -703,7 +733,39 @@ object Scaffold : Module() {
         targetPlace = placeRotation.placeInfo
         return true
     }
+    private fun towerMove() {
+        if (mc.thePlayer.onGround) {
+            if (this.towerTick == 0 || this.towerTick == 5) {
+                val f = mc.thePlayer.rotationYaw * (Math.PI.toFloat() / 180)
+                mc.thePlayer.motionX -= MathHelper.sin(f) * 0.2f * this.wdSpeedValue.get() / 100.0
+                mc.thePlayer.motionY = 0.42
+                mc.thePlayer.motionZ += MathHelper.cos(f) * 0.2f * this.wdSpeedValue.get() / 100.0
+                this.towerTick = 1
+            }
+        } else if (mc.thePlayer.motionY > -0.0784000015258789) {
+            val n = Math.round(mc.thePlayer.posY % 1.0 * 100.0).toInt()
+            when (n) {
+                42 -> {
+                    mc.thePlayer.motionY = 0.33
+                }
 
+                75 -> {
+                    mc.thePlayer.motionY = 1.0 - mc.thePlayer.posY % 1.0
+                    dowd = true
+                }
+
+                0 -> {
+                    mc.thePlayer.motionY = -0.0784000015258789
+                }
+            }
+        }
+    }
+    private fun wdSpeed(d: Double) {
+        val f = MathHelper.wrapAngleTo180_float(
+            Math.toDegrees(atan2(mc.thePlayer.motionZ, mc.thePlayer.motionX)).toFloat() - 90.0f
+        )
+        MovementUtils.setMotion2(d, f)
+    }
     /**
      * @return hotbar blocks amount
      */
@@ -722,6 +784,6 @@ object Scaffold : Module() {
     private val rotationSpeed: Float
         get() = (Math.random() * (maxRotationSpeedValue.get() - minRotationSpeedValue.get()) + minRotationSpeedValue.get()).toFloat()
 
-    override val tag: String?
-        get() = bridgeMode.get().toString()
+    override val tag: String
+        get() = bridgeMode.get()
 }

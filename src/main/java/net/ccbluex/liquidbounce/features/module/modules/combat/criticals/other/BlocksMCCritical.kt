@@ -5,8 +5,8 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.Critica
 
 class BlocksMCCritical : CriticalMode("BlocksMC") {
     override fun onAttack(event: AttackEvent) {
-        critical.sendCriticalPacket(yOffset = 0.0825080378093, ground = false)
-        critical.sendCriticalPacket(yOffset = 0.0215634532004, ground = false)
-        critical.sendCriticalPacket(yOffset = 0.1040220332227, ground = false)
+        critical.sendCriticalPacket(yOffset = mc.thePlayer.posY + 0.001091981, ground = true)
+        critical.sendCriticalPacket(yOffset = mc.thePlayer.posY + 0.000114514, ground = false)
+        critical.sendCriticalPacket(yOffset = mc.thePlayer.posY, ground = false)
     }
 }

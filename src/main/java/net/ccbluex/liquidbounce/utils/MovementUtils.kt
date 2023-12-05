@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.MathHelper
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin
@@ -405,5 +404,9 @@ object MovementUtils : MinecraftInstance() {
             off += 2
         }
         return false
+    }
+    fun setMotion2(d: Double, f: Float) {
+        mc.thePlayer.motionX = -sin(Math.toRadians(f.toDouble())) * d
+        mc.thePlayer.motionZ = cos(Math.toRadians(f.toDouble())) * d
     }
 }

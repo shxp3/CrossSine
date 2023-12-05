@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.BlinkUtils
 import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
+import net.ccbluex.liquidbounce.utils.extensions.down
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.init.Blocks
@@ -27,41 +28,36 @@ import org.lwjgl.input.Mouse
 import java.awt.Color
 
 class BlinkNofall : NoFallMode("Blink") {
-    private val fallDistValue = IntegerValue("${valuePrefix}FallDistance", 9, 3, 15)
     private val textValue = BoolValue("${valuePrefix}ShowText", false)
     private val colorTheme = BoolValue("${valuePrefix}ColorTheme", false).displayable { textValue.get() }
     private val limitValue = BoolValue("${valuePrefix}limitUse", true)
-    private val noMouse = BoolValue("${valuePrefix}NoMouse", false)
     private var start = false
     private var disable = false
 
     override fun onPacket(event: PacketEvent) {
-            val state = (KillAura.state || Scaffold.state || SafeWalk.state || Speed.state || (noMouse.get() && (Mouse.isButtonDown(0) || Mouse.isButtonDown(1))))
-            if (limitValue.get() && state) {
-                start = false
-                disable = false
-                return
+        val state = (KillAura.state || Scaffold.state || SafeWalk.state || Speed.state)
+        if (limitValue.get() && state) {
+            start = false
+            disable = false
+            return
+        }
+        if (start) {
+            Blink.array = false
+            Blink.state = true
+            if (event.packet is C03PacketPlayer) {
+                event.packet.onGround = true
             }
-            if (PlayerUtils.isOnEdge() && mc.thePlayer.fallDistance < fallDistValue.get()) {
-                start = true
-            }
-            if (start) {
-                Blink.array = false
-                Blink.state = true
-                if (event.packet is C03PacketPlayer) {
-                    event.packet.onGround = true
-                }
-            } else {
-                Blink.state = false
-                Blink.array = true
-            }
-            if (mc.thePlayer.fallDistance > 0.5) {
-                disable = true
-            }
-            if (mc.thePlayer.onGround && disable) {
-                disable = false
-                start = false
-            }
+        } else {
+            Blink.state = false
+            Blink.array = true
+        }
+        if (mc.thePlayer.fallDistance > 0.5) {
+            disable = true
+        }
+        if (mc.thePlayer.onGround && disable) {
+            disable = false
+            start = false
+        }
     }
 
     override fun onRender2D(event: Render2DEvent) {

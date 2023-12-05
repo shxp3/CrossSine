@@ -47,7 +47,7 @@ class RightClicker: Module() {
     @EventTarget
     fun onRender(event: Render3DEvent) {
         if (!CrossSine.moduleManager.getModule(FastPlace::class.java)!!.state && (rightBlockOnlyValue.get() || rightseOnlyValue.get())) {
-            if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem && System.currentTimeMillis() - rightLastSwing >= rightDelay && (!rightBlockOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemBlock) && (!rightseOnlyValue.get() || mc.thePlayer.heldItem.item is ItemSnowball || mc.thePlayer.heldItem.item is ItemEgg)) {
+            if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem && System.currentTimeMillis() - rightLastSwing >= rightDelay && (!rightBlockOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemBlock) && (!rightseOnlyValue.get() || (mc.thePlayer.heldItem.item is ItemSnowball || mc.thePlayer.heldItem.item is ItemEgg))) {
                 KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
                 rightLastSwing = System.currentTimeMillis()

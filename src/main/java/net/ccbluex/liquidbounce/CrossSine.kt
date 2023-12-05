@@ -36,7 +36,7 @@ import kotlin.concurrent.thread
 
 object CrossSine {
     // Client information
-
+    var loadState = false
     const val CLIENT_NAME = "CrossSine"
     var USER_NAME = ""
     var CUSTOM_DOMAIN = ".customdomain [domain]"
@@ -49,25 +49,10 @@ object CrossSine {
     @JvmField
     val CLIENT_TITLE = "$CLIENT_NAME $CLIENT_VERSION"
 
-    @JvmField
-    val gitInfo = Properties().also {
-        val inputStream = CrossSine::class.java.classLoader.getResourceAsStream("git.properties")
-        if (inputStream != null) {
-            it.load(inputStream)
-        } else {
-            it["git.branch"] = "Main"
-        }
-    }
-
-
-    @JvmField
-    val CLIENT_BRANCH = (gitInfo["git.branch"] ?: "unknown").let {
-        if (it == "main") "Main" else it
-    }
 
     var isStarting = true
     var isLoadingConfig = true
-    private var latest = ""
+
 
     // Managers
     lateinit var moduleManager: ModuleManager
@@ -190,7 +175,6 @@ object CrossSine {
 
         Display.setTitle(CLIENT_TITLE)
 
-        Notification.sendNotification("CrossSine Client", "Thanks for use CrossSine Client jub jub", TrayIcon.MessageType.INFO,Toolkit.getDefaultToolkit().createImage("crosssine/ui/misc/iconNoti.png"))
         // Set HUD
         hud = HUD.createDefault()
 
@@ -256,8 +240,6 @@ object CrossSine {
             // Save all available configs
             configManager.save(true, true)
             fileManager.saveAllConfigs()
-            Notification.sendNotification("CrossSine Client", "Bye guys see you next time", TrayIcon.MessageType.WARNING,
-                Toolkit.getDefaultToolkit().createImage("crosssine/ui/misc/iconNoti.png"))
             dynamicLaunchOptions.forEach {
                 it.stop()
             }

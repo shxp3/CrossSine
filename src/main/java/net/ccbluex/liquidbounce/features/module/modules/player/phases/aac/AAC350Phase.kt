@@ -41,8 +41,8 @@ class AAC350Phase : PhaseMode("AAC3.5.0") {
         val packet = event.packet
         if (packet is C03PacketPlayer) {
             val yaw = MovementUtils.direction.toFloat()
-            packet.x = packet.x - MathHelper.sin(yaw) * 0.00000001
-            packet.z = packet.z + MathHelper.cos(yaw) * 0.00000001
+            packet.x -= MathHelper.sin(yaw) * 0.00000001
+            packet.z += MathHelper.cos(yaw) * 0.00000001
         }
     }
 }

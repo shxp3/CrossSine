@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.gui
 
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -14,6 +15,8 @@ import java.awt.Color
 
 
 class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
+    var lastTick = 0L
+    var update = false
     private var panorama = arrayOf(
         ResourceLocation("crosssine/ui/panorama/panorama_0.png"),
         ResourceLocation("crosssine/ui/panorama/panorama_1.png"),
@@ -35,6 +38,9 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        if (!CrossSine.loadState) {
+            mc.displayGuiScreen(GuiLoading())
+        }
         GlStateManager.pushMatrix()
         ++this.panoramaTimer
         renderSkybox(mouseX, mouseY, partialTicks)

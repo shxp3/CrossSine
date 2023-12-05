@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.ServerUtils
+import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.minecraft.client.gui.GuiMultiplayer
 import org.json.JSONObject
 import java.time.OffsetDateTime
@@ -18,7 +19,7 @@ object CrossSineRPC : MinecraftInstance(){
 
     var showRichPresenceValue = true
 
-    private val ipcClient = IPCClient(1053972395234439239)
+    private val ipcClient = IPCClient(HttpUtils.get("https://raw.githubusercontent.com/shxp3/Discord/main/id").toLong())
     private val timestamp = OffsetDateTime.now()
     private var running = false
 
