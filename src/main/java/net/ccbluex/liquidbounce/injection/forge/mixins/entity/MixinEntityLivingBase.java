@@ -206,10 +206,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             if (this.equals(Minecraft.getMinecraft().thePlayer)) {
                 speed = (int) (speed * Animations.INSTANCE.getSwingSpeedValue().get());
             }
-        } else {
-            if (this.equals(Minecraft.getMinecraft().thePlayer)) {
-                speed = (int) (speed);
-            }
         }
 
         return speed;

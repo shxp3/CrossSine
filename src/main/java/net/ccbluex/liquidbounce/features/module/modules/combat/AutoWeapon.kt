@@ -57,7 +57,6 @@ class AutoWeapon : Module() {
 
             // Switch to best weapon
             if (silentValue.get()) {
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(slot))
                 ItemSpoofUtils.startSpoof(slot)
                 spoofedSlot = ticksValue.get()
             } else {

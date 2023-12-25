@@ -11,7 +11,7 @@ import java.awt.Color
 object ClientTheme {
     val ClientColorMode = ListValue(
         "ColorMode",
-        arrayOf("Cherry", "Water", "Magic", "DarkNight", "Sun", "Tree", "Flower", "Loyoi", "Soniga", "May", "Mint", "Cero", "Azure"),
+        arrayOf("Cherry", "Water", "Magic", "DarkNight", "Sun", "Tree", "Flower", "Loyoi", "Soniga", "May", "Mint", "Cero", "Azure", "Rainbow"),
         "Cherry"
     ).displayable { false }
     val textValue = BoolValue("TextStaticColor", false).displayable { false }
@@ -97,7 +97,11 @@ object ClientTheme {
             } else if (type == "END") {
                 return Color(0, 90, 255, alpha)
             }
-
+            "rainbow" -> if (type == "START") {
+                return ColorUtils.hslRainbow(1, speed = 0F)
+            } else if (type == "END") {
+                return ColorUtils.hslRainbow(90, speed = 0F)
+            }
         }
 
         return Color(-1)
@@ -202,7 +206,7 @@ object ClientTheme {
                 fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
                 index
             )
-
+            "rainbow" -> return ColorUtils.hslRainbow(index, speed = 20000F / fadespeed.get())
         }
         return Color(-1)
     }
@@ -294,6 +298,7 @@ object ClientTheme {
                 fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
                 index
             )
+            "rainbow" -> return ColorUtils.hslRainbow(index, speed = 20000F / fadespeed.get())
         }
         return Color(-1)
     }
@@ -385,6 +390,7 @@ object ClientTheme {
                 fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
                 index
             ).setAlpha(alpha)
+            "rainbow" -> return ColorUtils.hslRainbow(index, speed = 20000F / fadespeed.get()).setAlpha(alpha)
         }
         return Color(-1)
     }

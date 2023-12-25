@@ -1,24 +1,25 @@
-package net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module
 
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.ColorManager
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.components.ToggleSwitch
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.ValueElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl.*
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.extensions.animSmooth
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components.ToggleSwitch
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.*
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MouseUtils
+import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.ccbluex.liquidbounce.utils.render.Stencil
+import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.TitleElement
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
-
-import java.awt.*
+import java.awt.Color
 
 class ModuleElement(val module: Module): MinecraftInstance() {
 
@@ -45,6 +46,8 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 valueElements.add(IntElement(value))
             if (value is FloatValue)
                 valueElements.add(FloatElement(value))
+            if (value is FontValue)
+                valueElements.add(FontElement(value))
             if (value is TitleValue)
                 valueElements.add(TitleElement(value))
         }
@@ -58,33 +61,34 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 expectedHeight += ve.valueHeight
         animHeight = animPercent / 100F * (expectedHeight + 10F)
 
+//        RoundedRectShader.draw(x + 9.5F, y + 4.5F, x + width - 9.5F, y + height + animHeight - 4.5F, 4F, ColorManager.buttonOutline)
         Stencil.write(true)
-        RenderUtils.originalRoundedRect(x + 10F, y + 5F, x + width - 10F, y + height + animHeight - 5F, 4F, ColorManager.moduleBackground.rgb)
+        ShaderUtil.drawRoundedRect(x + 10F, y + 5F, x + width - 10F, y + height + animHeight - 5F, 4F, ColorManager.moduleBackground)
         Stencil.erase(true)
         RenderUtils.newDrawRect(x + 10F, y + height - 5F, x + width - 10F, y + height - 4.5F, 4281348144L.toInt())
-        Fonts.Nunito40.drawString(module.name, x + 20F, y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F, Color(255,255,255).rgb)
+        Fonts.SFApple40.drawString(module.name, x + 20F, y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 3F, -1)
 
         val keyName = if (listeningToKey) "Listening" else Keyboard.getKeyName(module.keyBind)
 
-        if (MouseUtils.mouseWithinBounds(mouseX, mouseY,
-                x + 25F + Fonts.Nunito40.getStringWidth(module.name),
-                y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F,
-                x + 35F + Fonts.Nunito40.getStringWidth(module.name) + Fonts.Nunito24.getStringWidth(keyName),
-                y + height / 2F + 3F))
+        if (MouseUtils.mouseWithinBounds(mouseX, mouseY, 
+                x + 25F + Fonts.SFApple40.getStringWidth(module.name),
+                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 2F,
+                x + 35F + Fonts.SFApple40.getStringWidth(module.name) + Fonts.SFApple24.getStringWidth(keyName),
+                y + height / 2F))
             fadeKeybind = (fadeKeybind + 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
         else
             fadeKeybind = (fadeKeybind - 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
 
-        RenderUtils.originalRoundedRect(
-                x + 25F + Fonts.Nunito40.getStringWidth(module.name),
-                y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F,
-                x + 35F + Fonts.Nunito40.getStringWidth(module.name) + Fonts.Nunito24.getStringWidth(keyName),
-                y + height / 2F + 5F, 2F, BlendUtils.blend(Color(4282729797L.toInt()), Color(4281677109L.toInt()), fadeKeybind.toDouble()).rgb)
-        Fonts.Nunito24.drawString(keyName, x + 30.5F + Fonts.Nunito40.getStringWidth(module.name), y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 10F, Color(255,255,255).rgb)
+        ShaderUtil.drawRoundedRect(
+                x + 25F + Fonts.SFApple40.getStringWidth(module.name),
+                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 2F,
+                x + 35F + Fonts.SFApple40.getStringWidth(module.name) + Fonts.SFApple24.getStringWidth(keyName),
+                y + height / 2F, 2F, BlendUtils.blend(Color(4282729797L.toInt()), Color(4281677109L.toInt()), fadeKeybind.toDouble()))
+        Fonts.SFApple24.drawString(keyName, x + 30.5F + Fonts.SFApple40.getStringWidth(module.name), y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 5.5F, -1)
 
         toggleSwitch.state = module.state
 
-        if (module.values.size > 0) {
+        if (module.values.isNotEmpty()) {
             RenderUtils.newDrawRect(x + width - 40F, y + 5F, x + width - 39.5F, y + height - 5F, 4281348144L.toInt())
             GlStateManager.resetColor()
             glPushMatrix()
@@ -96,8 +100,8 @@ class ModuleElement(val module: Module): MinecraftInstance() {
             glPopMatrix()
             glPopMatrix()
             toggleSwitch.onDraw(x + width - 70F, y + height / 2F - 5F, 20F, 10F, Color(4280624421L.toInt()), accentColor)
-        } else
-            toggleSwitch.onDraw(x + width - 40F, y + height / 2F - 5F, 20F, 10F, Color(4280624421L.toInt()), accentColor)
+        } else toggleSwitch.onDraw(x + width - 40F, y + height / 2F - 5F, 20F, 10F, Color(4280624421L.toInt()), accentColor)
+
 
         if (expanded || animHeight > 0F) {
             var startYPos = y + height
@@ -116,19 +120,22 @@ class ModuleElement(val module: Module): MinecraftInstance() {
             return
         }
         val keyName = if (listeningToKey) "Listening" else Keyboard.getKeyName(module.keyBind)
-        if (MouseUtils.mouseWithinBounds(mouseX, mouseY,
-                x + 25F + Fonts.Nunito40.getStringWidth(module.name),
-                y + height / 2F - Fonts.Nunito40.FONT_HEIGHT + 7F,
-                x + 35F + Fonts.Nunito40.getStringWidth(module.name) + Fonts.Nunito24.getStringWidth(keyName),
-                y + height / 2F + 3F)) {
+        if (MouseUtils.mouseWithinBounds(mouseX, mouseY, 
+                x + 25F + Fonts.SFApple40.getStringWidth(module.name),
+                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 2F,
+                x + 35F + Fonts.SFApple40.getStringWidth(module.name) + Fonts.SFApple24.getStringWidth(keyName),
+                y + height / 2F)) {
             listeningToKey = true
             return
         }
-        if (MouseUtils.mouseWithinBounds(mouseX, mouseY,
-                x + width - if (module.values.size > 0) 70F else 40F, y,
-                x + width - if (module.values.size > 0) 50F else 20F, y + height))
-            module.toggle()
-        if (module.values.size > 0 && MouseUtils.mouseWithinBounds(mouseX, mouseY, x + width - 40F, y, x + width - 10F, y + height))
+        if (module.values.isNotEmpty()) {
+            if (MouseUtils.mouseWithinBounds(mouseX, mouseY, x + width - 70F, y, x + width - 50F, y + height))
+                module.toggle()
+        } else {
+            if (MouseUtils.mouseWithinBounds(mouseX, mouseY, x + width - 40F, y, x + width - 20F, y + height))
+                module.toggle()
+        }
+        if (module.values.isNotEmpty() && MouseUtils.mouseWithinBounds(mouseX, mouseY, x + width - 40F, y, x + width - 10F, y + height))
             expanded = !expanded
         if (expanded) {
             var startY = y + height

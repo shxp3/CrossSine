@@ -13,18 +13,18 @@ import net.ccbluex.liquidbounce.utils.timer.TimerUtil;
  * @since 7/21/2020 (yes 2020)
  * @since 7/29/2021
  */
-public abstract class  Animations {
+public abstract class  Animation {
 
     public TimerUtil timerUtil = new TimerUtil();
     protected int duration;
     protected double endPoint;
     protected Direction direction;
 
-    public Animations(int ms, double endPoint) {
+    public Animation(int ms, double endPoint) {
         this(ms, endPoint, Direction.FORWARDS);
     }
 
-    public Animations(int ms, double endPoint, Direction direction) {
+    public Animation(int ms, double endPoint, Direction direction) {
         this.duration = ms; //Time in milliseconds of how long you want the animation to take.
         this.endPoint = endPoint; //The desired distance for the animated object to go.
         this.direction = direction; //Direction in which the graph is going. If backwards, will start from endPoint and go to 0.
@@ -62,7 +62,7 @@ public abstract class  Animations {
         return direction;
     }
 
-    public Animations setDirection(Direction direction) {
+    public Animation setDirection(Direction direction) {
         if (this.direction != direction) {
             this.direction = direction;
             timerUtil.setTime(System.currentTimeMillis() - (duration - Math.min(duration, timerUtil.getTime())));

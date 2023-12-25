@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.minecraft.network.play.server.S45PacketTitle
 
 @ModuleInfo(name = "NoRender", spacedName = "No Render", category = ModuleCategory.VISUAL, array = false)
-class NoRender : Module() {
+object NoRender : Module() {
     val confusionEffect = BoolValue("Confusion", true)
     val pumpkinEffect = BoolValue("Pumpkin", true)
     val fireEffect = BoolValue("Fire", true)

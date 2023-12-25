@@ -18,26 +18,13 @@ object StreamerMode : Module() {
 
     @EventTarget
     fun onText(event: TextEvent) {
-        if (mc.thePlayer == null || event.text!!.contains("§8[§9§l" + CrossSine.CLIENT_NAME + "§8] §3") || event.text!!
-                .startsWith("/") || event.text!!.startsWith(CrossSine.commandManager.prefix + "")
-        )
+        if (mc.thePlayer == null || event.text!!.startsWith("/") || event.text!!.startsWith(CrossSine.commandManager.prefix + ""))
             return;
-
-        for (friend in CrossSine.fileManager.friendsConfig.friends) {
-            event.text =
-                StringUtils.replace(
-                    event.text,
-                    friend.playerName,
-                    ColorUtils.translateAlternateColorCodes(friend.alias) + "§f"
-                )
-        }
         event.text = StringUtils.replace(
             event.text,
             mc.thePlayer.getName(),
             ColorUtils.translateAlternateColorCodes(nameDisplay.get()) + "§r"
         )
-
-
         if (allPlayersValue.get()) {
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 event.text = StringUtils.replace(

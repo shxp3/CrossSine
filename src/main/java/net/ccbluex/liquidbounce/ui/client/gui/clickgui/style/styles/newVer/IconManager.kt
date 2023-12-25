@@ -1,17 +1,10 @@
-package net.ccbluex.liquidbounce.ui.client.gui.newVer
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import net.minecraft.util.ResourceLocation
 
 object IconManager {
-    private val path = "crosssine/ui/clickgui/new/"
-    @JvmField
-    val removeIcon = ResourceLocation(path + "error.png")
-    val add = ResourceLocation(path + "import.png")
-    val back = ResourceLocation(path + "back.png")
-    val docs = ResourceLocation(path + "docs.png")
-    val download = ResourceLocation(path + "download.png")
-    val folder = ResourceLocation(path + "folder.png")
-    val online = ResourceLocation(path + "online.png")
-    val reload = ResourceLocation(path + "reload.png")
-    val search = ResourceLocation(path + "search.png")
+    val removeIcon = ResourceLocation("crosssine/ui/clickgui/new/close.png")
+    val back = ResourceLocation("crosssine/ui/clickgui/new/back.png")
+    val search = ResourceLocation("crosssine/ui/clickgui/new/search.png")
+    val brush = ResourceLocation("crosssine/ui/clickgui/new/brush.png")
 }

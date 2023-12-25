@@ -1,31 +1,48 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.impl
 
-import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.TargetHUD
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.TargetStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.extensions.skin
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.Stencil
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class CrossSineTH(inst: TargetHUD) : TargetStyle("CrossSine", inst, true) {
     override fun drawTarget(entity: EntityLivingBase) {
-        val fonts = Fonts.fontTenacityBold40
-        val leagth = fonts.getStringWidth(entity.name)
+        val fonts = Fonts.SFApple40
+        val leagth = if (fonts.getStringWidth(entity.name) < fonts.getStringWidth("HurtTime : ${entity.hurtTime}")) fonts.getStringWidth("HurtTime : ${entity.hurtTime}") else fonts.getStringWidth(entity.name)
         updateAnim(entity.health)
-        RenderUtils.drawRoundedRect(0F,0F, (leagth) * (easingHealth / entity.maxHealth) + 10F, 10F + fonts.FONT_HEIGHT, 2F, Color(255,255,255,fadeAlpha(80)).rgb)
-        RenderUtils.drawRoundedRect(0F,0F, 10F + leagth, 10F + fonts.FONT_HEIGHT, 2F, Color(0,0,0,fadeAlpha(80)).rgb, 1F,  ClientTheme.getColorWithAlpha(1, fadeAlpha(255)).rgb)
+        RenderUtils.drawRoundedRect(0F,0F, 70F + leagth, 42F, 4F, Color(0,0,0,fadeAlpha(80)).rgb, 2F,  ClientTheme.getColorWithAlpha(1, fadeAlpha(255)).rgb)
+        RenderUtils.drawRoundedGradientRectCorner(50F, 32F, 52F +  ((8F + leagth) * easingHealth / 20),37F, 2F, ClientTheme.getColorWithAlpha(0, fadeAlpha(255)).rgb, ClientTheme.getColorWithAlpha(90, fadeAlpha(255)).rgb)
         GlStateManager.enableBlend()
-        fonts.drawString(entity.name, 5F, 5F, Color(255,255,255,fadeAlpha(255)).rgb)
+        fonts.drawString(entity.name, 51F, 5F, Color(255,255,255,fadeAlpha(255)).rgb, true)
+        fonts.drawString("HurtTime : ${entity.hurtTime}", 51F, 18F, Color(255,255,255,fadeAlpha(255)).rgb, true)
+        GL11.glPushMatrix()
+        GL11.glTranslatef(7f, 7f, 0f)
+        Stencil.write(false)
+        GL11.glDisable(GL11.GL_TEXTURE_2D)
+        GL11.glEnable(GL11.GL_BLEND)
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+        RenderUtils.fastRoundedRect(-2F, -3F, 34F, 33F, 6F)
+        GL11.glDisable(GL11.GL_BLEND)
+        GL11.glEnable(GL11.GL_TEXTURE_2D)
+        Stencil.erase(true)
+        RenderUtils.drawHead(entity.skin, -2, -3, 35, 35, Color(255,255,255,fadeAlpha(255)).rgb)
+        Stencil.dispose()
+        GL11.glPopMatrix()
         GlStateManager.disableAlpha()
         GlStateManager.disableBlend()
         GlStateManager.resetColor()
     }
 
     override fun getBorder(entity: EntityLivingBase?): Border? {
-        return Border(0F,0F, 10F + Fonts.fontTenacityBold40.getStringWidth(entity!!.name), 10F + Fonts.fontTenacityBold40.FONT_HEIGHT)
+        return Border(0F,0F, 70F + Fonts.SFApple40.getStringWidth(entity!!.name), 42F)
     }
 }

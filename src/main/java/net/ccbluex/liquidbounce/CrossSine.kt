@@ -38,12 +38,13 @@ object CrossSine {
     // Client information
     var loadState = false
     const val CLIENT_NAME = "CrossSine"
+    const val CLIENT_CLOUD = "https://crosssine.github.io/cloud"
     var USER_NAME = ""
     var CUSTOM_DOMAIN = ".customdomain [domain]"
-    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Release")
+    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Beta")
     const val COLORED_NAME = "§CC§FrossSine"
     const val CLIENT_CREATOR = "Shape"
-    val CLIENT_VERSION = "B35" + if (CLIENT_STATUS.equals("Beta")) " Beta" else ""
+    val CLIENT_VERSION = "Last Build" + if (CLIENT_STATUS.equals("Beta")) " Beta" else ""
     @JvmField
     val CLIENT_LOADING = "Installing CrossSine"
     @JvmField

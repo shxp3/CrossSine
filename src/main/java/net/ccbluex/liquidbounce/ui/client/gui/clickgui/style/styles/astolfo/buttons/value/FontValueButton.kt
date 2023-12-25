@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.Asto
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.FONT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.SELECTED_FORMAT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.geom.Rectangle
+import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.FontUtils
 import net.ccbluex.liquidbounce.utils.MouseButtons
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect

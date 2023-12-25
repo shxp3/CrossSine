@@ -6,6 +6,8 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot.isBot
+import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
 import net.ccbluex.liquidbounce.features.module.modules.world.Target
 import net.ccbluex.liquidbounce.features.module.modules.world.Target.animalValue
 import net.ccbluex.liquidbounce.features.module.modules.world.Target.deadValue
@@ -13,9 +15,8 @@ import net.ccbluex.liquidbounce.features.module.modules.world.Target.friendValue
 import net.ccbluex.liquidbounce.features.module.modules.world.Target.invisibleValue
 import net.ccbluex.liquidbounce.features.module.modules.world.Target.mobValue
 import net.ccbluex.liquidbounce.features.module.modules.world.Target.playerValue
-import net.ccbluex.liquidbounce.features.module.modules.combat.AntiBot.isBot
-import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.boss.EntityDragon
@@ -28,6 +29,8 @@ import net.minecraft.entity.passive.EntityBat
 import net.minecraft.entity.passive.EntitySquid
 import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.scoreboard.ScorePlayerTeam
+
 
 object EntityUtils : MinecraftInstance() {
     fun isSelected(entity: Entity, canAttackCheck: Boolean): Boolean {
@@ -92,7 +95,12 @@ object EntityUtils : MinecraftInstance() {
     fun isMob(entity: Entity): Boolean {
         return entity is EntityMob || entity is EntitySlime || entity is EntityGhast || entity is EntityDragon
     }
-
+    fun getName(networkPlayerInfoIn: NetworkPlayerInfo): String {
+        return if (networkPlayerInfoIn.displayName != null) networkPlayerInfoIn.displayName.formattedText else ScorePlayerTeam.formatPlayerName(
+            networkPlayerInfoIn.playerTeam,
+            networkPlayerInfoIn.gameProfile.name
+        )
+    }
     fun isRendered(entityToCheck: Entity?): Boolean {
         return mc.theWorld != null && mc.theWorld.getLoadedEntityList().contains(entityToCheck)
     }

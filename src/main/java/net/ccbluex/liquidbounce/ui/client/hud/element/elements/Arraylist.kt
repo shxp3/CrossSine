@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.features.module.modules.visual.JelloArrayList
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -34,8 +35,6 @@ class Arraylist(
     scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
-    private val blursValue = false
-    private val blurStrength = 0F
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowNoCutValue = BoolValue("Shadow-NoCut", false)
     private val shadowStrength = IntegerValue("Shadow-Strength", 1, 1, 30).displayable { shadowShaderValue.get() }
@@ -50,7 +49,6 @@ class Arraylist(
     private val OrderValue =ListValue("Order", arrayOf("ABC", "Distance"), "Distance")
     private val Tags = BoolValue("Tags", false)
     private val tagsStyleValue = ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "->", "Space"), "Space")
-    private val shadow = BoolValue("ShadowText", true)
     private val backgroundValue = IntegerValue("Background", 155, 0, 255)
     private val roundStrength = FloatValue("Rounded-Strength", 0F, 0F, 2F)
     private val rectRightValue = ListValue("Rect-Right", arrayOf("None", "Left", "Right", "Outline", "Special", "Top"), "Outline")
@@ -70,6 +68,7 @@ class Arraylist(
     private var sortedModules = emptyList<Module>()
 
     override fun drawElement(partialTicks: Float): Border? {
+        if (CrossSine.moduleManager.getModule(JelloArrayList::class.java)!!.state) return null
         val fontRenderer = fontValue.get()
         val counter = intArrayOf(0)
 
@@ -82,7 +81,6 @@ class Arraylist(
         val space = spaceValue.get()
         val textHeight = textHeightValue.get()
         val textY = textYValue.get()
-        val textShadow = shadow.get()
         val textSpacer = textHeight + space
 
         var inx = 0
@@ -154,14 +152,12 @@ class Arraylist(
                         if (module.state) {
                             if (module.arrayY < yPos) {
                                 module.arrayY += (size -
-                                        Math.min(module.arrayY * 0.002f
-                                            , size - (module.arrayY * 0.0001f) )) * delta
-                                module.arrayY = Math.min(yPos, module.arrayY)
+                                        (module.arrayY * 0.002f).coerceAtMost(size - (module.arrayY * 0.0001f))) * delta
+                                module.arrayY = yPos.coerceAtMost(module.arrayY)
                             } else {
                                 module.arrayY -= (size -
-                                        Math.min(module.arrayY * 0.002f
-                                            , size - (module.arrayY * 0.0001f) )) * delta
-                                module.arrayY = Math.max(module.arrayY, yPos)
+                                        (module.arrayY * 0.002f).coerceAtMost(size - (module.arrayY * 0.0001f))) * delta
+                                module.arrayY = module.arrayY.coerceAtLeast(yPos)
                             }
                         }
                     }
@@ -169,10 +165,10 @@ class Arraylist(
                     "Astolfo" -> {
                         if (module.arrayY < yPos) {
                             module.arrayY += animationSpeed.get() / 2F * delta
-                            module.arrayY = Math.min(yPos, module.arrayY)
+                            module.arrayY = yPos.coerceAtMost(module.arrayY)
                         } else {
                             module.arrayY -= animationSpeed.get() / 2F * delta
-                            module.arrayY = Math.max(module.arrayY, yPos)
+                            module.arrayY = module.arrayY.coerceAtLeast(yPos)
                         }
                     }
                     else -> module.arrayY = yPos
@@ -210,7 +206,7 @@ class Arraylist(
                         if (!shadowNoCutValue.get()) {
                             GL11.glPushMatrix()
                             GL11.glTranslated(renderX, renderY, 0.0)
-                            modules.forEachIndexed { index, module ->
+                            modules.forEachIndexed { _, module ->
                                 val xPos = -module.slide - 2
                                 RenderUtils.quickDrawRect(
                                     xPos - if (rectRightValue.get().equals("right", true)) 3 else 2,
@@ -222,37 +218,6 @@ class Arraylist(
                             GL11.glPopMatrix()
                         }
                     })
-                    GL11.glPopMatrix()
-                    GL11.glTranslated(renderX, renderY, 0.0)
-                }
-
-                if (blursValue) {
-                    GL11.glTranslated(-renderX, -renderY, 0.0)
-                    GL11.glPushMatrix()
-                    val floatX = renderX.toFloat()
-                    val floatY = renderY.toFloat()
-                    var yP = 0F
-                    var xP = 0F
-                    modules.forEachIndexed { index, module ->
-                        val dString = getModName(module)
-                        val wid = fontRenderer.getStringWidth(dString) + 2F
-                        val yPos = if (side.vertical == Vertical.DOWN) -textSpacer else textSpacer *
-                                if (side.vertical == Vertical.DOWN) index + 1 else index
-                        yP += yPos
-                        xP = Math.min(xP, -wid)
-                    }
-
-                    BlurUtils.blur(floatX, floatY, floatX + xP, floatY + yP, blurStrength, false) {
-                        modules.forEachIndexed { index, module ->
-                            val xPos = -module.slide - 2
-                            RenderUtils.quickDrawRect(
-                                floatX + xPos - if (rectRightValue.get().equals("right", true)) 3 else 2,
-                                floatY + module.arrayY,
-                                floatX + if (rectRightValue.get().equals("right", true)) -1F else 0F,
-                                floatY + module.arrayY + textHeight
-                            )
-                        }
-                    }
                     GL11.glPopMatrix()
                     GL11.glTranslated(renderX, renderY, 0.0)
                 }
@@ -270,7 +235,7 @@ class Arraylist(
                         module.arrayY + textHeight, 0F, 0F, 0F, roundStrength.get(), Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, textShadow)
+                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, true)
 
 
                     if (!rectRightValue.get().equals("none", true)) {
@@ -346,7 +311,7 @@ class Arraylist(
                         if (!shadowNoCutValue.get()) {
                             GL11.glPushMatrix()
                             GL11.glTranslated(renderX, renderY, 0.0)
-                            modules.forEachIndexed { index, module ->
+                            modules.forEachIndexed { _, module ->
                                 var displayString = getModName(module)
                                 val width = fontRenderer.getStringWidth(displayString)
                                 val xPos = -(width - module.slide) + if (rectLeftValue.get().equals("left", true)) 3 else 2
@@ -365,42 +330,8 @@ class Arraylist(
                     GL11.glTranslated(renderX, renderY, 0.0)
                 }
 
-                if (blursValue) {
-                    GL11.glTranslated(-renderX, -renderY, 0.0)
-                    GL11.glPushMatrix()
-                    val floatX = renderX.toFloat()
-                    val floatY = renderY.toFloat()
-                    var yP = 0F
-                    var xP = 0F
-                    modules.forEachIndexed { index, module ->
-                        val dString = getModName(module)
-                        val wid = fontRenderer.getStringWidth(dString) + 2F
-                        val yPos = if (side.vertical == Vertical.DOWN) -textSpacer else textSpacer *
-                                if (side.vertical == Vertical.DOWN) index + 1 else index
-                        yP += yPos
-                        xP = Math.max(xP, wid)
-                    }
-
-                    BlurUtils.blur(floatX, floatY, floatX + xP, floatY + yP, blurStrength, false) {
-                        modules.forEachIndexed { index, module ->
-                            var displayString = getModName(module)
-                            val width = fontRenderer.getStringWidth(displayString)
-                            val xPos = -(width - module.slide) + if (rectLeftValue.get().equals("left", true)) 3 else 2
-
-                            RenderUtils.quickDrawRect(
-                                floatX,
-                                floatY + module.arrayY,
-                                floatX + xPos + width + if (rectLeftValue.get().equals("right", true)) 3 else 2,
-                                floatY + module.arrayY + textHeight
-                            )
-                        }
-                    }
-                    GL11.glPopMatrix()
-                    GL11.glTranslated(renderX, renderY, 0.0)
-                }
-
                 modules.forEachIndexed { index, module ->
-                    var displayString = getModName(module)
+                    val displayString = getModName(module)
 
                     val width = fontRenderer.getStringWidth(displayString)
                     val xPos = -(width - module.slide) + if (rectLeftValue.get().equals("left", true)) 3 else 2
@@ -413,7 +344,7 @@ class Arraylist(
                         module.arrayY + textHeight, 0F, 0F, roundStrength.get(), 0F, Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, textShadow)
+                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, true)
 
                     if (!rectLeftValue.get().equals("none", true)) {
                         val rectColor = getColor(index).rgb
@@ -481,8 +412,8 @@ class Arraylist(
 
         // tag prefix, ignore default value
         if (!tagsStyleValue.get().equals("space", true))
-            returnTag += tagsStyleValue.get().get(0).toString() + if (tagsStyleValue.get()
-                    .equals("-", true) || tagsStyleValue.get().equals("|", true) || tagsStyleValue.get().equals("->", true)
+            returnTag += tagsStyleValue.get()[0].toString() + if (tagsStyleValue.get()
+                    .equals("-", true) || tagsStyleValue.get().equals("|", true)
             ) " " else ""
 
         // main tag value
@@ -492,14 +423,13 @@ class Arraylist(
         if (!tagsStyleValue.get().equals("space", true)
             && !tagsStyleValue.get().equals("-", true)
             && !tagsStyleValue.get().equals("|", true)
-            && !tagsStyleValue.get().equals("->", true)
         )
-            returnTag += tagsStyleValue.get().get(1).toString()
+            returnTag += tagsStyleValue.get()[1].toString()
 
         return returnTag
     }
 
-    fun getModName(mod: Module): String {
+    private fun getModName(mod: Module): String {
         var displayName : String = (if (nameBreak.get()) mod.spacedName else mod.localizedName) + getModTag(mod)
 
         when (caseValue.get().lowercase()) {
@@ -509,13 +439,6 @@ class Arraylist(
 
         return displayName
     }
-    fun getBlendFactor(screenCoordinates: Vector2d): Double {
-        return sin(
-            System.currentTimeMillis() / 600.0 + screenCoordinates.getX() * 0.005 + screenCoordinates.getY() * 0.06
-        ) * 0.5 + 0.5
-    }
-    override fun drawBoarderBlur(blurRadius: Float) {}
-
     fun getColor(index : Int) : Color {
         return ClientTheme.getColor(index)
     }

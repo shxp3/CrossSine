@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.utils
 
-import com.jcraft.jogg.Packet
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 
 object ItemSpoofUtils : MinecraftInstance() {
@@ -12,6 +11,7 @@ object ItemSpoofUtils : MinecraftInstance() {
     }
 
     fun startSpoof(slot: Int) {
+        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(slot))
         spoofing = true
         this.slot = slot
     }

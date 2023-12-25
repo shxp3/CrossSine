@@ -41,7 +41,7 @@ object Speed : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.isSneaking || (mc.thePlayer.isInWater && noWater.get())) return
-        if (mc.thePlayer.moveForward > 0 && modes.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
+        if (mc.thePlayer.moveForward > 0 && modeValue.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
         mode.onUpdate()
     }
 
@@ -52,7 +52,7 @@ object Speed : Module() {
             alert("YMotion: " + mc.thePlayer.motionY.toString())
         }
 
-        if (mc.thePlayer.moveForward > 0 && modes.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
+        if (mc.thePlayer.moveForward > 0 && modeValue.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
 
         mode.onMotion(event)
 

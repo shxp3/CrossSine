@@ -19,8 +19,8 @@ public class GameButtonUtils(val button: GuiButton) {
                 button.xPosition + button.width.toFloat(), button.yPosition + button.height.toFloat(),
                  1F,
                 if (mc.currentScreen is GuiMainMenu) 4F else 0F,
-               ClientTheme.setColor("START", 255).rgb,
-               ClientTheme.setColor("END", 255).rgb
+               ClientTheme.getColor(90).rgb,
+               ClientTheme.getColor(0).rgb
             )
         }
     }

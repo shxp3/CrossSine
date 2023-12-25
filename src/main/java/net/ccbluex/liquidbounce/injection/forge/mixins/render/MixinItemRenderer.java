@@ -91,7 +91,7 @@ public abstract class MixinItemRenderer {
                     GlStateManager.depthMask(false);
                 }
             }
-
+            GlStateManager.scale(((float) Animations.INSTANCE.getItemScaleValue().get() / 100), ((float) Animations.INSTANCE.getItemScaleValue().get() / 100), ((float) Animations.INSTANCE.getItemScaleValue().get() / 100));
             this.itemRenderer.renderItemModelForEntity(heldStack, entityIn, transform);
             if (this.isBlockTranslucent(block)) {
                 GlStateManager.depthMask(true);

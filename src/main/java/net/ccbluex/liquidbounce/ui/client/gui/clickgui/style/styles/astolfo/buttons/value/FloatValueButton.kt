@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.Asto
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.SLIDER_OFFSET
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.dim
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.geom.Rectangle
+import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse

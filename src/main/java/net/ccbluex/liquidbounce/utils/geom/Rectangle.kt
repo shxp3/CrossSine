@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.geom
+package net.ccbluex.liquidbounce.utils.geom
 
 import kotlin.Float.Companion.NaN
 

@@ -31,35 +31,16 @@ import org.lwjgl.opengl.GL11
 @ModuleInfo(name = "BackTrack", spacedName = "Back Track", category = ModuleCategory.COMBAT)
 object BackTrack : Module() {
 
-    private val minDistance: FloatValue = object : FloatValue("MinDistance", 2.9f, 1f, 4f) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            if (newValue > maxStartDistance.get()) set(maxStartDistance.get())
-        }
-    }
-    private val maxStartDistance: FloatValue = object : FloatValue("MaxStartDistance", 3.2f, 2f, 4f) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            if (newValue < minDistance.get()) set(minDistance.get())
-            else if (newValue > maxDistance.get()) set(maxDistance.get())
-        }
-    }
-    private val maxDistance: FloatValue = object : FloatValue("MaxActiveDistance", 5f, 2f, 6f) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            if (newValue < maxStartDistance.get()) set(maxStartDistance.get())
-        }
-    }
     private val stuckValue = BoolValue("Stuck", false)
     private val timeValue =  IntegerValue("Time", 200, 0, 2000)
-    private val minAttackReleaseRange = FloatValue("MinAttackReleaseRange", 3.2F, 2f, 6f)
-
     private val onlyKillAura = BoolValue("OnlyKillAura", true)
     private val onlyPlayer = BoolValue("OnlyPlayer", true)
     private val espMode = ListValue(
         "ESPMode",
         arrayOf("FullBox", "OutlineBox", "NormalBox", "OtherOutlineBox", "OtherFullBox", "Model", "None"),
-        "Box"
+        "FullBox"
     )
 
-    private val storageSendPackets = ArrayList<Packet<INetHandlerPlayServer>>()
     private val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
     private val storageEntities = ArrayList<Entity>()
 
@@ -96,12 +77,11 @@ object BackTrack : Module() {
                     beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity)
 
 
-                    if (beforeRange <= maxStartDistance.get()) {
-                        if (afterRange in minDistance.get()..maxDistance.get() && (afterRange > beforeRange + 0.02) && entity.hurtTime <= 10) {
+                    if (beforeRange <= 6) {
+                        if (afterRange in 0F..6F && (afterRange > beforeRange + 0.02) && entity.hurtTime <= 10) {
                             if (!needFreeze) {
                                 timer.reset()
                                 needFreeze = true
-                                stopReverse()
                             }
                             if (!storageEntities.contains(entity)) storageEntities.add(entity)
                             event.cancelEvent()
@@ -163,7 +143,7 @@ object BackTrack : Module() {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
                         range = getNearestPointBB(eyes, entityBB).distanceTo(eyes) + 0.075
                     }
-                    if (range <= minDistance.get()) {
+                    if (range <= 0.5) {
                         release = true
                         break
                     }
@@ -171,7 +151,7 @@ object BackTrack : Module() {
                     if (entity1 != entity) continue
                     if (!stuckValue.get()) {
                         if (timer.hasTimePassed(timeValue.get().toLong())) {
-                            if (range >= minAttackReleaseRange.get()) {
+                            if (range >= 6) {
                                 release = true
                                 break
                             }
@@ -223,11 +203,14 @@ object BackTrack : Module() {
                 mp.swingProgressInt = entity.swingProgressInt
                 mp.hurtTime = entity.hurtTime
                 mp.hurtResistantTime = entity.hurtResistantTime
+                mp.distanceWalkedModified = entity.distanceWalkedModified
+                mp.distanceWalkedOnStepModified = entity.distanceWalkedOnStepModified
                 mc.renderManager.renderEntitySimple(mp, event.partialTicks)
             }
             GlStateManager.enableAlpha()
             GL11.glEnable(GL11.GL_TEXTURE_2D)
             GL11.glEnable(GL11.GL_DEPTH_TEST)
+            GL11.glColor4f(0.2F, 0.2F, 0.2F, 0.2F)
             GlStateManager.resetColor()
             GL11.glPopMatrix()
             return
@@ -353,28 +336,5 @@ object BackTrack : Module() {
             }
         }
         needFreeze = false
-    }
-
-    fun stopReverse() {
-        if (storageSendPackets.isEmpty()) return
-        while (storageSendPackets.isNotEmpty()) {
-            storageSendPackets.removeAt(0).let {
-                try {
-                    val packetEvent = PacketEvent(it, PacketEvent.Type.SEND)
-                    if (!PacketUtils.packets.contains(it)) CrossSine.eventManager.callEvent(packetEvent)
-                    if (!packetEvent.isCancelled) PacketUtils.sendPacketNoEvent(it)
-                } catch (e: Exception) {
-                    CrossSine.hud.addNotification(
-                        Notification(
-                            "BackTrack",
-                            "Something went wrong when sending packet reversing",
-                            NotifyType.ERROR
-                        )
-                    )
-                }
-                // why kotlin
-                return@let
-            }
-        }
     }
 }

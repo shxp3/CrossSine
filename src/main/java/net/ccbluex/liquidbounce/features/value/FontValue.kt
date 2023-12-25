@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.features.value
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.FontUtils
 import net.minecraft.client.gui.FontRenderer
 
 /**
@@ -23,7 +24,8 @@ class FontValue(valueName: String, value: FontRenderer) : Value<FontRenderer>(va
         val valueObject = element.asJsonObject
         value = Fonts.getFontRenderer(valueObject["fontName"].asString, valueObject["fontSize"].asInt)
     }
-
+    val values
+        get() = FontUtils.getAllFontDetails().map { it.second }
     fun set(name: String): Boolean {
         if (name.equals("Minecraft", true)) {
             set(Fonts.minecraftFont)

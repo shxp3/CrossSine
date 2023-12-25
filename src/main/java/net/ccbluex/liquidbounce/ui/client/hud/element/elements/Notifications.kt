@@ -19,7 +19,12 @@ import kotlin.math.max
  * CustomHUD Notification element
  */
 @ElementInfo(name = "Notifications", blur = true)
-class Notifications(x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
+class Notifications(
+    x: Double = 0.0,
+    y: Double = 0.0,
+    scale: Float = 1F,
+    side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
+) : Element(x, y, scale, side) {
 
     /**
      * Example notification for CustomHUD designer
@@ -74,6 +79,7 @@ class Notification(
     var textLengthtitle = 0
     var textLengthcontent = 0
     var textLength = 0f
+
     init {
         textLengthtitle = Fonts.font35.getStringWidth(title)
         textLengthcontent = Fonts.font35.getStringWidth(content)
@@ -149,26 +155,60 @@ class Notification(
         }
         val transX = width - (width * pct) - width
         GL11.glTranslated(transX, transY, 0.0)
-            RenderUtils.drawRoundedRect(0F, 10F, 130F, 30F, 2F, Color(0, 0, 0, 200).rgb)
-            RenderUtils.drawRect(0F, classicHeight - 1.5F, max(width - width * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F), classicHeight.toFloat(), Color(255,255,255))
-            font.drawString(content, 15F, 17F, Color(255, 255, 255).rgb, false)
+        GlStateManager.resetColor()
+        RenderUtils.drawRoundedRect(0F, 10F, 130F, 30F, 2F, Color(0, 0, 0, 200).rgb)
+        RenderUtils.drawRect(
+            0F,
+            classicHeight - 1.5F,
+            max(width - width * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F),
+            classicHeight.toFloat(),
+            Color(255, 255, 255)
+        )
+        font.drawString(content, 15F, 17F, Color(255, 255, 255).rgb, false)
         GlStateManager.resetColor()
         when (type.renderColor) {
             Color(0xFF2F2F) -> {
-                RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/cross.png"),1,(12.3).toInt(),12,12)
+                RenderUtils.drawImage(
+                    ResourceLocation("crosssine/ui/notifications/icons/crosssine/cross.png"),
+                    1,
+                    (12.3).toInt(),
+                    12,
+                    12
+                )
             }
+
             Color(0x60E092) -> {
-                RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/tick.png"),1,(12.3).toInt(),12,12)
+                RenderUtils.drawImage(
+                    ResourceLocation("crosssine/ui/notifications/icons/crosssine/tick.png"),
+                    1,
+                    (12.3).toInt(),
+                    12,
+                    12
+                )
             }
+
             Color(0xF5FD00) -> {
-                RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/warning.png"),1,(12.3).toInt(),12,12)
+                RenderUtils.drawImage(
+                    ResourceLocation("crosssine/ui/notifications/icons/crosssine/warning.png"),
+                    1,
+                    (12.3).toInt(),
+                    12,
+                    12
+                )
             }
+
             Color(0x6490A7) -> {
-                RenderUtils.drawImage(ResourceLocation("crosssine/ui/notifications/icons/crosssine/info.png"),1,(12.3).toInt(),12,12)
+                RenderUtils.drawImage(
+                    ResourceLocation("crosssine/ui/notifications/icons/crosssine/info.png"),
+                    1,
+                    (12.3).toInt(),
+                    12,
+                    12
+                )
             }
         }
         GlStateManager.resetColor()
-            return false
+        return false
     }
 
 }
@@ -180,6 +220,7 @@ enum class NotifyType(var renderColor: Color) {
     WARNING(Color(0xF5FD00)),
     INFO(Color(0x6490A7));
 }
+
 enum class FadeState { IN, STAY, OUT, END }
 
 

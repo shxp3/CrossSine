@@ -7,8 +7,16 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 
 class DamageLongJump: LongJumpMode("DamageVerus") {
-    private val verusGroundBoost = FloatValue("${valuePrefix}Boost", 0.5f, 1f, 1f)
-    private val verusSpeed = FloatValue("${valuePrefix}Boost", 4.25f, 1f, 10f)
+    private val verusSpeed: FloatValue = object : FloatValue("${valuePrefix}Speed", 6F, 1F, 10F) {
+        override fun onChange(oldValue: Float, newValue: Float) {
+            if (verusBoostSpeed.get() > newValue) set(verusBoostSpeed.get())
+        }
+    }
+    private val verusBoostSpeed: FloatValue = object : FloatValue("${valuePrefix}Boost", 4.25f, 1f, 10f) {
+        override fun onChange(oldValue: Float, newValue: Float) {
+            if (verusSpeed.get() < newValue) set(verusSpeed.get())
+        }
+    }
     private val verusY = FloatValue("${valuePrefix}MotionY", 0.42F, 0.30F, 2F)
     private var verjump = 0
     private var damaged = false
@@ -28,10 +36,9 @@ class DamageLongJump: LongJumpMode("DamageVerus") {
         }
         if (mc.thePlayer.hurtTime == 9 && mc.thePlayer.onGround) {
             damaged = true
-            MovementUtils.strafe(verusGroundBoost.get())
             mc.thePlayer.motionY = verusY.get().toDouble()
         }
-        MovementUtils.strafe(if (mc.thePlayer.hurtTime == 7) verusSpeed.get() else 1F)
+        MovementUtils.strafe(if (mc.thePlayer.hurtTime > 7) verusBoostSpeed.get() else verusSpeed.get())
     }
 
     override fun onMove(event: MoveEvent) {

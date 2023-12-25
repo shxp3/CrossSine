@@ -1,13 +1,15 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
 
 
 object ColorUtils {
@@ -202,7 +204,7 @@ object ColorUtils {
     }
 
     @JvmStatic
-    fun astolfo(index: Int, ): Color {
+    fun astolfo(index: Int): Color {
         return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / 1500F) % 2) - 1) * (0.3F)) + 0.55F, 0.55F, 1F)
     }
 
@@ -211,7 +213,7 @@ object ColorUtils {
     }
 
     fun interpolateFloat(oldValue: Float, newValue: Float, interpolationValue: Double): Float {
-        return net.ccbluex.liquidbounce.utils.render.ColorUtils.interpolate(oldValue.toDouble(), newValue.toDouble(), interpolationValue.toFloat().toDouble())!!.toFloat()
+        return interpolate(oldValue.toDouble(), newValue.toDouble(), interpolationValue.toFloat().toDouble())!!.toFloat()
     }
     fun interpolateColorHue(color1: Color, color2: Color, amount: Float): Color? {
         var amount = amount
@@ -300,5 +302,9 @@ object ColorUtils {
         val greenPart = (color1.green * percent + color2.green * inverse_percent).toInt()
         val bluePart = (color1.blue * percent + color2.blue * inverse_percent).toInt()
         return Color(redPart, greenPart, bluePart)
+    }
+    @JvmStatic
+    fun hslRainbow(index: Int, speed: Float): Color {
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / speed) % 2) - 1) * (0.3F)) + 0.55F, 0.8F, 1F)
     }
 }

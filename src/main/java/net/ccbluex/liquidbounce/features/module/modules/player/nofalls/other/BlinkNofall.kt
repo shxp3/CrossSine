@@ -20,6 +20,8 @@ import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.extensions.down
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
+import net.ccbluex.liquidbounce.utils.extensions.getBlock
+import net.minecraft.block.BlockAir
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -29,7 +31,6 @@ import java.awt.Color
 
 class BlinkNofall : NoFallMode("Blink") {
     private val textValue = BoolValue("${valuePrefix}ShowText", false)
-    private val colorTheme = BoolValue("${valuePrefix}ColorTheme", false).displayable { textValue.get() }
     private val limitValue = BoolValue("${valuePrefix}limitUse", true)
     private var start = false
     private var disable = false
@@ -37,38 +38,44 @@ class BlinkNofall : NoFallMode("Blink") {
     override fun onPacket(event: PacketEvent) {
         val state = (KillAura.state || Scaffold.state || SafeWalk.state || Speed.state)
         if (limitValue.get() && state) {
-            start = false
-            disable = false
             return
+        }
+        if (PlayerUtils.isOnEdge() && getBP(1F) && getBP(2F) && getBP(3.5F) && !start) {
+            start = true
         }
         if (start) {
             Blink.array = false
             Blink.state = true
-            if (event.packet is C03PacketPlayer) {
-                event.packet.onGround = true
+            if (mc.thePlayer.fallDistance > 1.5) {
+                disable = true
+                if (event.packet is C03PacketPlayer) {
+                    event.packet.onGround = true
+                }
             }
         } else {
             Blink.state = false
             Blink.array = true
         }
-        if (mc.thePlayer.fallDistance > 0.5) {
-            disable = true
-        }
         if (mc.thePlayer.onGround && disable) {
-            disable = false
             start = false
+            disable = false
         }
     }
 
     override fun onRender2D(event: Render2DEvent) {
         if (start) {
-            mc.fontRendererObj.drawCenteredString(
-                "Blinking : ${BlinkUtils.bufferSize()}",
-                ScaledResolution(mc).scaledWidth / 2F,
-                ScaledResolution(mc).scaledHeight / 2F + 10F,
-                if (colorTheme.get()) ClientTheme.getColor(1).rgb else Color.WHITE.rgb,
-                true
-            )
+            var stringW = ""
+            val string = "Blinking : ${BlinkUtils.bufferSize()}"
+            for (i in string.indices) {
+                mc.fontRendererObj.drawCenteredString(
+                    string[i].toString(),
+                    ScaledResolution(mc).scaledWidth / 2F,
+                    ScaledResolution(mc).scaledHeight / 2F + 10F,
+                    ClientTheme.getColor(i * -135).rgb,
+                    true
+                )
+                stringW += string[i].toString()
+            }
         }
     }
 
@@ -80,5 +87,8 @@ class BlinkNofall : NoFallMode("Blink") {
     override fun onEnable() {
         start = false
         disable = false
+    }
+    private fun getBP(pos: Float) : Boolean {
+        return mc.theWorld?.getBlockState(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - pos, mc.thePlayer.posZ))!!.block is BlockAir
     }
 }

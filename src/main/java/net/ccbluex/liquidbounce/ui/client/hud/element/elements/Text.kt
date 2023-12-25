@@ -42,7 +42,6 @@ class Text(
 
     companion object {
         val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
-        val HOUR_FORMAT = SimpleDateFormat("HH:mm")
 
         val timeValue = LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"))
 
@@ -53,9 +52,6 @@ class Text(
     val shadowValue = BoolValue("Shadow", false)
     val shadowStrength = FloatValue("Shadow-Strength", 1F, 0.01F, 8F).displayable { shadowValue.get() }
     private val shadow = BoolValue("TextShadow", false)
-    val rectValue = ListValue("Rect", arrayOf("Normal", "RNormal", "OneTap", "Skeet", "Rounded", "None"), "None")
-    private val rectExpandValue = FloatValue("RectExpand", 0.3F, 0F, 1F)
-    private val rectRoundValue = FloatValue("RectRoundingMultiplier", 1.5F, 0.1F, 4F)
     private val fontValue = FontValue("Font", Fonts.font40)
 
     private var editMode = false
@@ -157,27 +153,6 @@ class Text(
 
         return result.toString()
     }
-
-    private fun Config() {
-        val Configlist = (CrossSine.fileManager.configsDir.listFiles() ?: return)
-            .filter { it.isFile }
-            .map {
-                val name = it.name
-                if (name.endsWith(".json")) {
-                    name.substring(0, name.length - 5)
-                } else {
-                    name
-                }
-            }
-        for (file in Configlist) {
-            if (file.equals(CrossSine.configManager.nowConfig)) {
-
-            }
-        }
-    }
-    fun getClientName(i: Int,i2: Int): String{
-        return "CrossSine".substring(i,i2);
-    }
     /**
      * Draw element
      */
@@ -185,49 +160,20 @@ class Text(
 
 
         val fontRenderer = fontValue.get()
-
-        val rectColor = if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb
-        val expand = fontRenderer.FONT_HEIGHT * rectExpandValue.get()
-        when (rectValue.get().lowercase()) {
-            "normal" -> {
-                RenderUtils.drawRect(-expand, -expand, fontRenderer.getStringWidth(displayText) + expand, fontRenderer.FONT_HEIGHT + expand, rectColor)
-            }
-
-            "rounded" -> {
-                RenderUtils.drawRoundedCornerRect(-expand, -expand, fontRenderer.getStringWidth(displayText) + expand, fontRenderer.FONT_HEIGHT + expand, 2 + (expand / 4) * rectRoundValue.get(), rectColor)
-            }
-
-            "rnormal" -> {
-                RenderUtils.drawRect(-expand, -expand - 1, fontRenderer.getStringWidth(displayText) + expand, -expand,  if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb)
-                RenderUtils.drawRect(-expand, -expand, fontRenderer.getStringWidth(displayText) + expand, fontRenderer.FONT_HEIGHT + expand, rectColor)
-            }
-            "onetap" -> {
-                RenderUtils.drawRect(-4.0f, -8.0f, (fontRenderer.getStringWidth(displayText) + 3).toFloat(), fontRenderer.FONT_HEIGHT.toFloat(), Color(43, 43, 43).rgb)
-                RenderUtils.drawGradientSidewaysH(-3.0, -7.0, fontRenderer.getStringWidth(displayText) + 2.0, -3.0, Color(rectColor).darker().rgb, rectColor)
-            }
-            "skeet" -> {
-                RenderUtils.drawRect(-11.0, -11.0, (fontRenderer.getStringWidth(displayText) + 10).toDouble(), fontRenderer.FONT_HEIGHT.toDouble() + 8.0, Color(0, 0, 0).rgb)
-                RenderUtils.drawOutLineRect(-10.0, -10.0, (fontRenderer.getStringWidth(displayText) + 9).toDouble(), fontRenderer.FONT_HEIGHT.toDouble() + 7.0, 8.0, Color(59, 59, 59).rgb, Color(59, 59, 59).rgb)
-                RenderUtils.drawOutLineRect(-9.0, -9.0, (fontRenderer.getStringWidth(displayText) + 8).toDouble(), fontRenderer.FONT_HEIGHT.toDouble() + 6.0, 4.0, Color(59, 59, 59).rgb, Color(40, 40, 40).rgb)
-                RenderUtils.drawOutLineRect(-4.0, -4.0, (fontRenderer.getStringWidth(displayText) + 3).toDouble(), fontRenderer.FONT_HEIGHT.toDouble() + 1.0, 1.0, Color(18, 18, 18).rgb, Color(0, 0, 0).rgb)
-            }
-        }
         if (shadowValue.get()) {
             GL11.glTranslated(-renderX, -renderY, 0.0)
             GL11.glPushMatrix()
             ShadowUtils.shadow(shadowStrength.get(), {
                 GL11.glPushMatrix()
                 GL11.glTranslated(renderX, renderY, 0.0)
-                fontRenderer.drawString(
-                    displayText, 0F*scale, 0F*scale, if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb, false)
+                fontRenderer.drawString(displayText, 0F*scale, 0F*scale, if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb, false)
                 GL11.glPopMatrix()
             }, {})
             GL11.glPopMatrix()
             GL11.glTranslated(renderX, renderY, 0.0)
         }
 
-        fontRenderer.drawString(
-                displayText, 0F, 0F, if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb, shadow.get())
+        fontRenderer.drawString(displayText, 0F, 0F, if (ClientTheme.textValue.get()) Color.WHITE.rgb else getColor(1).rgb, shadow.get())
 
 
         if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {

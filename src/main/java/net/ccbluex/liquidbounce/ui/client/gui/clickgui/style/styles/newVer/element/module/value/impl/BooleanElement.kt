@@ -1,7 +1,7 @@
-package net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.impl
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.components.Checkbox
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.element.module.value.ValueElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components.Checkbox
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -14,7 +14,7 @@ class BooleanElement(value: BoolValue): ValueElement<Boolean>(value) {
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         checkbox.state = value.get()
         checkbox.onDraw(x + 10F, y + 5F, 10F, 10F, bgColor, accentColor)
-        Fonts.Nunito40.drawString(value.name, x + 25F, y + 10F - Fonts.Nunito40.FONT_HEIGHT / 2F + 2F, -1)
+        Fonts.SFApple40.drawString(value.name, x + 25F, y + 10F - Fonts.SFApple40.FONT_HEIGHT / 2F + 2F, -1)
         return valueHeight
     }
 

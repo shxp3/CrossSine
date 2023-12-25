@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.HitDelayFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
+import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
@@ -27,6 +28,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Timer;
 import net.minecraft.util.Util;
 import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.Sys;
@@ -92,7 +94,6 @@ public abstract class MixinMinecraft {
 
     @Shadow
     public int fpsCounter;
-
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
         if (displayWidth < 1067)
@@ -134,6 +135,7 @@ public abstract class MixinMinecraft {
         lastFrame = currentTime;
 
         RenderUtils.deltaTime = deltaTime;
+
     }
     @Inject(method = "runTick", at = @At("HEAD"))
     private void runTick(final CallbackInfo callbackInfo) {
@@ -182,7 +184,6 @@ public abstract class MixinMinecraft {
             CrossSine.eventManager.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), this.objectMouseOver.sideHit));
         }
     }
-
 
     @Inject(method = "shutdown", at = @At("HEAD"))
     private void shutdown(CallbackInfo callbackInfo) {
@@ -233,7 +234,6 @@ public abstract class MixinMinecraft {
      * @author CCBlueX
      * @reason
      */
-
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
         try {

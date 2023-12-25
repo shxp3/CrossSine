@@ -108,7 +108,7 @@ object SafeWalk : Module() {
         }
 
     }
-    fun getShift(): Double {
+    private fun getShift(): Double {
         val fuckmin = ShiftMin.get() / 10
         val fuckmax = ShiftMax.get() / 10
         val min = Math.min(fuckmin, fuckmax).toDouble()

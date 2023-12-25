@@ -112,4 +112,44 @@ public abstract class Shader extends MinecraftInstance {
     public int getUniform(final String uniformName) {
         return uniformsMap.get(uniformName);
     }
+    public void setUniformf(final String name, final float... args) {
+        final int loc = GL20.glGetUniformLocation(this.program, name);
+        switch (args.length) {
+            case 1: {
+                GL20.glUniform1f(loc, args[0]);
+                break;
+            }
+            case 2: {
+                GL20.glUniform2f(loc, args[0], args[1]);
+                break;
+            }
+            case 3: {
+                GL20.glUniform3f(loc, args[0], args[1], args[2]);
+                break;
+            }
+            case 4: {
+                GL20.glUniform4f(loc, args[0], args[1], args[2], args[3]);
+                break;
+            }
+        }
+    }
+    public static void drawQuads(final float x, final float y, final float width, final float height) {
+        GL11.glBegin(7);
+        GL11.glTexCoord2f(0.0f, 0.0f);
+        GL11.glVertex2f(x, y);
+        GL11.glEnd();
+    }
+
+    public static void drawQuad(final float x, final float y, final float width, final float height) {
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(0.0F, 0.0F);
+        GL11.glVertex2d(x, y + height);
+        GL11.glTexCoord2f(1.0F, 0.0F);
+        GL11.glVertex2d(x + width, y + height);
+        GL11.glTexCoord2f(1.0F, 1.0F);
+        GL11.glVertex2d(x + width, y);
+        GL11.glTexCoord2f(0.0F, 1.0F);
+        GL11.glVertex2d(x, y);
+        GL11.glEnd();
+    }
 }

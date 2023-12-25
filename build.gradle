@@ -54,7 +54,6 @@ dependencies {
     }
 
     annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
-
     include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     include("me.friwi:jcefmaven:$jcef_version") {
         exclude module: "commons-compress" // minecraft have a old version of this library
@@ -75,6 +74,8 @@ dependencies {
     } // for read dynamic capes
 
     include("com.github.UnlegitMC:Astar3d:bec2291cf2") // pathfinding
+
+    include "com.jhlabs:filters:2.0.235"
 
     include fileTree(include: ["*.jar"], dir: "libs")
 }

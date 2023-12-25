@@ -1,24 +1,28 @@
 package net.ccbluex.liquidbounce.ui.client.gui.colortheme
 
-import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme.fadespeed
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme.textValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme.updown
 import net.ccbluex.liquidbounce.font.FontLoaders
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.extensions.animLinear
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animLinear
 import net.ccbluex.liquidbounce.utils.MouseUtils.mouseWithinBounds
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
+import org.lwjgl.input.Mouse
 import java.awt.Color
 
 class GuiTheme : GuiScreen() {
     private var text = false
     private var textsmooth = 0F
+    private var scroll = 0F
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        val wheel = Mouse.getDWheel()
+        if (wheel != 0) {
+            scroll += if (wheel > 0) 15F else -15F
+        }
         text = textValue.get()
         RenderUtils.drawRoundedRect(10F, 10F, 628F, 428F, 5F, Color(0, 0, 0, 150).rgb, 3F, ClientTheme.getColor(1).rgb)
         RenderUtils.drawImage(ResourceLocation("crosssine/misc/arrowup.png"), 160, 381, 25, 25)
@@ -34,8 +38,10 @@ class GuiTheme : GuiScreen() {
             124.5F,
             140F,
             20F,
-            Color(255, 100, 100).rgb,
-            Color(255, 0, 0).rgb
+            ClientTheme.getColorFromName("Cherry", 0).rgb,
+            ClientTheme.getColorFromName("Cherry", 90).rgb,
+            ClientTheme.getColorFromName("Cherry", 180).rgb,
+            ClientTheme.getColorFromName("Cherry", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Cherry", 58.0, 145.0, ClientTheme.getColorFromName("Cherry", 1).rgb)
         //Water
@@ -47,8 +53,10 @@ class GuiTheme : GuiScreen() {
             249.5F,
             140F,
             20F,
-            Color(100, 100, 255).rgb,
-            Color(0, 0, 255).rgb
+            ClientTheme.getColorFromName("Water", 0).rgb,
+            ClientTheme.getColorFromName("Water", 90).rgb,
+            ClientTheme.getColorFromName("Water", 180).rgb,
+            ClientTheme.getColorFromName("Water", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Water", 184.0, 145.0, ClientTheme.getColorFromName("Water", 1).rgb)
         //Magic
@@ -60,8 +68,10 @@ class GuiTheme : GuiScreen() {
             374.5F,
             140F,
             20F,
-            Color(255, 180, 255).rgb,
-            Color(181, 139, 194).rgb
+            ClientTheme.getColorFromName("Magic", 0).rgb,
+            ClientTheme.getColorFromName("Magic", 90).rgb,
+            ClientTheme.getColorFromName("Magic", 180).rgb,
+            ClientTheme.getColorFromName("Magic", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Magic", 310.0, 145.0, ClientTheme.getColorFromName("Magic", 1).rgb)
         //DarkNight
@@ -73,8 +83,10 @@ class GuiTheme : GuiScreen() {
             499.5F,
             140F,
             20F,
-            Color(203, 200, 204).rgb,
-            Color(93, 95, 95).rgb
+            ClientTheme.getColorFromName("DarkNight", 0).rgb,
+            ClientTheme.getColorFromName("DarkNight", 90).rgb,
+            ClientTheme.getColorFromName("DarkNight", 180).rgb,
+            ClientTheme.getColorFromName("DarkNight", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow(
             "DarkNight",
@@ -91,8 +103,10 @@ class GuiTheme : GuiScreen() {
             624.5F,
             140F,
             20F,
-            Color(252, 205, 44).rgb,
-            Color(255, 143, 0).rgb
+            ClientTheme.getColorFromName("Sun", 0).rgb,
+            ClientTheme.getColorFromName("Sun", 90).rgb,
+            ClientTheme.getColorFromName("Sun", 180).rgb,
+            ClientTheme.getColorFromName("Sun", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Sun", 565.0, 145.0, ClientTheme.getColorFromName("Sun", 1).rgb)
 
@@ -107,8 +121,10 @@ class GuiTheme : GuiScreen() {
             124.5F,
             235F,
             20F,
-            Color(76, 255, 102).rgb,
-            Color(18, 155, 38).rgb
+            ClientTheme.getColorFromName("Tree", 0).rgb,
+            ClientTheme.getColorFromName("Tree", 90).rgb,
+            ClientTheme.getColorFromName("Tree", 180).rgb,
+            ClientTheme.getColorFromName("Tree", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Tree", 60.0, 240.0, ClientTheme.getColorFromName("Tree", 1).rgb)
         //Flower
@@ -120,8 +136,10 @@ class GuiTheme : GuiScreen() {
             249.5F,
             235F,
             20F,
-            Color(182, 140, 195).rgb,
-            Color(184, 85, 199).rgb
+            ClientTheme.getColorFromName("Flower", 0).rgb,
+            ClientTheme.getColorFromName("Flower", 90).rgb,
+            ClientTheme.getColorFromName("Flower", 180).rgb,
+            ClientTheme.getColorFromName("Flower", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Flower", 184.0, 240.0, ClientTheme.getColorFromName("Flower", 1).rgb)
         //Loyoi
@@ -133,8 +151,10 @@ class GuiTheme : GuiScreen() {
             374.5F,
             235F,
             20F,
-            Color(255, 131, 124).rgb,
-            Color(255, 131, 0).rgb
+            ClientTheme.getColorFromName("Loyoi", 0).rgb,
+            ClientTheme.getColorFromName("Loyoi", 90).rgb,
+            ClientTheme.getColorFromName("Loyoi", 180).rgb,
+            ClientTheme.getColorFromName("Loyoi", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Loyoi", 310.0, 240.0, ClientTheme.getColorFromName("Loyoi", 1).rgb)
         //Astolfo
@@ -146,8 +166,10 @@ class GuiTheme : GuiScreen() {
             499.5F,
             235F,
             20F,
-            Color(170, 255, 170).rgb,
-            Color(170, 0, 170).rgb
+            ClientTheme.getColorFromName("Cero", 0).rgb,
+            ClientTheme.getColorFromName("Cero", 90).rgb,
+            ClientTheme.getColorFromName("Cero", 180).rgb,
+            ClientTheme.getColorFromName("Cero", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Cero", 434.0, 240.0, ClientTheme.getColorFromName("Cero", 1).rgb)
         //Soniga
@@ -159,8 +181,10 @@ class GuiTheme : GuiScreen() {
             624.5F,
             235F,
             20F,
-            Color(100, 255, 255).rgb,
-            Color(255, 100, 255).rgb
+            ClientTheme.getColorFromName("Soniga", 0).rgb,
+            ClientTheme.getColorFromName("Soniga", 90).rgb,
+            ClientTheme.getColorFromName("Soniga", 180).rgb,
+            ClientTheme.getColorFromName("Soniga", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Soniga", 560.0, 240.0, ClientTheme.getColorFromName("Soniga", 1).rgb)
 
@@ -173,8 +197,10 @@ class GuiTheme : GuiScreen() {
             124.5F,
             330.0f,
             20F,
-            Color(255, 255, 255).rgb,
-            Color(255, 80, 255).rgb
+            ClientTheme.getColorFromName("May", 0).rgb,
+            ClientTheme.getColorFromName("May", 90).rgb,
+            ClientTheme.getColorFromName("May", 180).rgb,
+            ClientTheme.getColorFromName("May", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("May", 60.0, 335.0, ClientTheme.getColorFromName("May", 1).rgb)
         //Flower
@@ -186,8 +212,10 @@ class GuiTheme : GuiScreen() {
             249.5F,
             330.0f,
             20F,
-            Color(85, 255, 255).rgb,
-            Color(85, 255, 140).rgb
+            ClientTheme.getColorFromName("Mint", 0).rgb,
+            ClientTheme.getColorFromName("Mint", 90).rgb,
+            ClientTheme.getColorFromName("Mint", 180).rgb,
+            ClientTheme.getColorFromName("Mint", 270).rgb
         )
         FontLoaders.SF20.drawStringWithShadow("Mint", 187.0, 335.0, ClientTheme.getColorFromName("Mint", 1).rgb)
         //Azure
@@ -199,10 +227,28 @@ class GuiTheme : GuiScreen() {
             374.5F,
             330F,
             20F,
-            Color(0, 90, 255).rgb,
-            Color(0, 140, 255).rgb
+            ClientTheme.getColorFromName("Azure", 0).rgb,
+            ClientTheme.getColorFromName("Azure", 90).rgb,
+            ClientTheme.getColorFromName("Azure", 180).rgb,
+            ClientTheme.getColorFromName("Azure", 270).rgb
         )
-        FontLoaders.SF20.drawStringWithShadow("Loyoi", 310.0, 335.0, ClientTheme.getColorFromName("Loyoi", 1).rgb)
+        FontLoaders.SF20.drawStringWithShadow("Azure", 310.0, 335.0, ClientTheme.getColorFromName("Azure", 1).rgb)
+        //Rainbow
+        if (ClientTheme.ClientColorMode.equals("Rainbow"))
+            RenderUtils.drawRoundedOutline(397.0f, 258.0f, 501.4f, 332F, 23.5F, 4F, Color(255, 255, 255).rgb)
+        RenderUtils.drawRoundedGradientRectCorner(
+            399F,
+            259.5F,
+            499.5F,
+            330F,
+            20F,
+            ClientTheme.getColorFromName("Rainbow", 0).rgb,
+            ClientTheme.getColorFromName("Rainbow", 90).rgb,
+            ClientTheme.getColorFromName("Rainbow", 180).rgb,
+            ClientTheme.getColorFromName("Rainbow", 270).rgb
+        )
+        FontLoaders.SF20.drawStringWithShadow("Rainbow", 428.0, 335.0, ClientTheme.getColorFromName("Rainbow", 1).rgb)
+
         //Text
         val textColor =
             BlendUtils.blendColors(floatArrayOf(0F, 1F), arrayOf(Color(255, 0, 0), Color(0, 255, 0)), textsmooth).rgb
@@ -270,6 +316,10 @@ class GuiTheme : GuiScreen() {
         if (mouseWithinBounds(mouseX, mouseY, 275F, 260F, 372F, 330F)) {
             ClientTheme.ClientColorMode.set("Azure")
         }
+        if (mouseWithinBounds(mouseX, mouseY, 400F, 260F, 497F, 330F)) {
+            ClientTheme.ClientColorMode.set("Rainbow")
+        }
+
         if (mouseWithinBounds(mouseX, mouseY, 25F, 350.0f, 40F, 365.0f)) {
             textValue.set(!textValue.get())
         }

@@ -1,11 +1,11 @@
 package net.ccbluex.liquidbounce.utils.render.animations.impl;
 
 
-import net.ccbluex.liquidbounce.utils.render.animations.Animations;
+import net.ccbluex.liquidbounce.utils.render.animations.Animation;
 import net.ccbluex.liquidbounce.utils.render.animations.Direction;
 
 //
-public class EaseBackIn extends Animations {
+public class EaseBackIn extends Animation {
     private final float easeAmount;
 
     public EaseBackIn(int ms, double endPoint, float easeAmount) {

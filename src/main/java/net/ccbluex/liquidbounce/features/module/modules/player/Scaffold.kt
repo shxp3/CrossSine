@@ -60,7 +60,7 @@ object Scaffold : Module() {
     val highBlock = BoolValue("BiggestStack", false)
     private val sprintModeValue = ListValue(
         "Sprint",
-        arrayOf("Normal", "Air", "Ground", "BlocksMC", "Telly", "None"),
+        arrayOf("Normal", "Air", "Ground", "BlocksMC", "Legit", "None"),
         "Normal"
     )
     private val bridgeMode = ListValue("BridgeMode", arrayOf("UpSideDown", "Andromeda", "Normal", "Telly", "AutoJump", "KeepUP", "SameY"), "Normal")
@@ -104,6 +104,7 @@ object Scaffold : Module() {
         arrayOf("OFF", "Simple", "Normal", "Rise"),
         "OFF"
     )
+    val flyMode = BoolValue("FlyMode", false)
 
     /**
      * MODULE
@@ -147,7 +148,7 @@ object Scaffold : Module() {
 
     //Other
     private var doSpoof = false
-
+    private var Spoofed = false
     //IDK
     private var offGroundTicks: Int = 0
     private var GroundTicks: Int = 0
@@ -167,6 +168,7 @@ object Scaffold : Module() {
      * Enable module
      */
     override fun onEnable() {
+        Spoofed = false
         prevItem = mc.thePlayer.inventory.currentItem
         slot = mc.thePlayer.inventory.currentItem
         doSpoof = false
@@ -189,6 +191,9 @@ object Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (flyMode.get()) {
+            mc.thePlayer.cameraYaw = 0F
+        }
         if (towerModeValue.get() == "WatchDog") {
             if (wdTicks != 0) {
                 towerTick = 0
@@ -254,7 +259,10 @@ object Scaffold : Module() {
             }
         }
         val sprint = sprintModeValue
-        sprintActive = (sprint.equals("Normal") || (sprint.equals("Telly") && offGroundTicks < tellyTicks.get()) || (sprint.equals("Ground") && mc.thePlayer.onGround) || (sprint.equals("Air") && !mc.thePlayer.onGround)) && MovementUtils.isMoving()
+        sprintActive = (sprint.equals("Normal") || sprint.equals("Legit") || (sprint.equals("Ground") && mc.thePlayer.onGround) || (sprint.equals("Air") && !mc.thePlayer.onGround)) && MovementUtils.isMoving()
+        if (sprint.equals("Legit") && abs(MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw) - MathHelper.wrapAngleTo180_float(RotationUtils.serverRotation.yaw)) > 90) {
+            sprintActive = false
+        }
         if (sprintModeValue.equals("BlocksMC")) {
             if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                 if (mc.thePlayer.onGround) {
@@ -381,9 +389,10 @@ object Scaffold : Module() {
     }
     private fun rotationStatic() {
         when (rotationsValue.get().lowercase()) {
-            "back" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(MovementUtils.movingYaw + 180, 85F), rotationSpeed))
-            "spin" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(spinYaw, 85F), rotationSpeed))
+            "back" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(MovementUtils.movingYaw + 180, lockRotation!!.pitch), rotationSpeed))
+            "spin" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(spinYaw, lockRotation!!.pitch), rotationSpeed))
             "snap" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), rotationSpeed))
+            "none" -> RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), rotationSpeed))
         }
     }
     private fun canRotation() : Boolean {
@@ -556,10 +565,11 @@ object Scaffold : Module() {
                 mc.thePlayer.heldItem.item as ItemBlock
             )))
         ) {
+            Spoofed = true
             ItemSpoofUtils.startSpoof(blockSlot - 36)
-            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(blockSlot - 36))
         } else {
             mc.thePlayer.inventory.currentItem = blockSlot - 36
+            mc.playerController.updateController()
         }
         itemStack = mc.thePlayer.inventoryContainer.getSlot(blockSlot).stack
 
@@ -613,10 +623,10 @@ object Scaffold : Module() {
         RotationUtils.reset()
         if (autoBlockValue.equals("Switch")) {
             mc.thePlayer.inventory.currentItem = prevItem
+        } else if(autoBlockValue.equals("Spoof") && Spoofed) {
+            ItemSpoofUtils.stopSpoof()
+            mc.netHandler.addToSendQueue(C09PacketHeldItemChange( mc.thePlayer.inventory.currentItem))
         }
-        ItemSpoofUtils.stopSpoof()
-        mc.netHandler.addToSendQueue(C09PacketHeldItemChange( mc.thePlayer.inventory.currentItem))
-
     }
 
 
@@ -724,7 +734,9 @@ object Scaffold : Module() {
             "snap" -> {
                 Rotation(MovementUtils.movingYaw + 180, placeRotation.rotation.pitch)
             }
-            else -> null
+            else -> {
+                Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
+            }
         }
         val limitedRotation =
             RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)

@@ -20,8 +20,10 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockBed
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.multiplayer.WorldClient
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.entity.item.EntityItem
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C09PacketHeldItemChange
@@ -29,7 +31,12 @@ import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
+import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
+import kotlin.collections.ArrayList
 
 @ModuleInfo(name = "BedAura", spacedName = "BedAura", category = ModuleCategory.WORLD)
 object BedAura : Module() {
@@ -47,7 +54,9 @@ object BedAura : Module() {
     private val spoofItem = BoolValue("SpoofItem", false)
     private val renderPos = BoolValue("RenderPos", true)
     private val renderBed = BoolValue("RenderBed", true)
+    private val showProcess= BoolValue("ShowProcess", false)
     val betterRot = BoolValue("HypixelRot", false)
+
     /**
      * VALUES
      */
@@ -322,31 +331,46 @@ object BedAura : Module() {
 
         }
     }
-
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        val width = ScaledResolution(mc).scaledWidth
+        val height = ScaledResolution(mc).scaledHeight
+        val d = DecimalFormat("0", DecimalFormatSymbols(Locale.ENGLISH))
+        if (showProcess.get()) {
+            if (pos != null) {
+                mc.fontRendererObj.drawString(
+                    d.format(currentDamage * 100),
+                    width / 2F,
+                    height / 2 + 20F,
+                    Color.WHITE.rgb,
+                    true
+                )
+            }
+        }
+    }
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
         val blockPoss = pos!!
-        val x = blockPoss.x - Minecraft.getMinecraft().renderManager.renderPosX
-        val y = blockPoss.y - Minecraft.getMinecraft().renderManager.renderPosY
-        val z = blockPoss.z - Minecraft.getMinecraft().renderManager.renderPosZ
-        val c =  ClientTheme.getColorWithAlpha(1, 30)
+        val x = blockPoss.x - mc.renderManager.renderPosX
+        val y = blockPoss.y - mc.renderManager.renderPosY
+        val z = blockPoss.z - mc.renderManager.renderPosZ
+        val c = ClientTheme.getColorWithAlpha(1, 30)
         if (renderPos.get()) {
             RenderUtils.renderOutlines(x + 0.5, y - 0.5, z + 0.5, 1.0f, 1.0f, c, 3F)
             GlStateManager.resetColor()
         }
         if (renderBed.get()) {
-        synchronized(posList) {
-            for (blockPos in posList) {
-                val bedx = blockPos.x - Minecraft.getMinecraft().renderManager.renderPosX
-                val bedy = blockPos.y - Minecraft.getMinecraft().renderManager.renderPosY
-                val bedz = blockPos.z - Minecraft.getMinecraft().renderManager.renderPosZ
-                RenderUtils.renderBox(bedx + 0.5, bedy - 0.5, bedz + 0.5, 1.0F, 1.0F, color)
-                GlStateManager.resetColor()
+            synchronized(posList) {
+                for (blockPos in posList) {
+                    val bedx = blockPos.x - mc.renderManager.renderPosX
+                    val bedy = blockPos.y - mc.renderManager.renderPosY
+                    val bedz = blockPos.z - mc.renderManager.renderPosZ
+                    RenderUtils.renderBox(bedx + 0.5, bedy - 0.5, bedz + 0.5, 1.0F, 1.0F, color)
+                    GlStateManager.resetColor()
+                }
             }
         }
-        }
     }
-
     /**
      * Find new target block by [targetID]
      */
@@ -366,8 +390,10 @@ object BedAura : Module() {
 
                     if (Block.getIdFromBlock(block) != targetID) continue
 
-                    if(Head){
-                        if (mc.theWorld.getBlockState(blockPos).getValue(BlockBed.PART) != BlockBed.EnumPartType.HEAD) continue
+                    if (Head) {
+                        if (mc.theWorld.getBlockState(blockPos)
+                                .getValue(BlockBed.PART) != BlockBed.EnumPartType.HEAD
+                        ) continue
                     }
                     nearestBlock = blockPos
                 }
@@ -393,7 +419,7 @@ object BedAura : Module() {
         if (bestSlot != -1) {
             if (spoofItem.get()) {
                 ItemSpoofUtils.startSpoof(bestSlot)
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(bestSlot))
+
             } else mc.thePlayer.inventory.currentItem = bestSlot
         }
     }

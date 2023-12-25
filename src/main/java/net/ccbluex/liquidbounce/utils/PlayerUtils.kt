@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.features.module.modules.visual.Animations
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.minecraft.block.Block
 import net.minecraft.block.BlockSlime
@@ -90,11 +91,7 @@ object PlayerUtils {
     }
     fun swing() {
         val player: EntityPlayerSP = mc.thePlayer
-        val swingEnd =
-            if (player.isPotionActive(Potion.digSpeed)) 6 - (1 + player.getActivePotionEffect(Potion.digSpeed).amplifier) else if (player.isPotionActive(
-                    Potion.digSlowdown
-                )
-            ) 6 + (1 + player.getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6
+        val swingEnd = (if (player.isPotionActive(Potion.digSpeed)) 6 - (1 + player.getActivePotionEffect(Potion.digSpeed).amplifier) else if (player.isPotionActive(Potion.digSlowdown)) 6 + (1 + player.getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6) * Animations.swingSpeedValue.get()
 
         if (mc.thePlayer.getItemInUseCount() > 0) {
             val mouseDown = mc.gameSettings.keyBindAttack.isKeyDown &&

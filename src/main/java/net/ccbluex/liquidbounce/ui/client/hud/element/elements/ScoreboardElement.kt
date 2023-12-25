@@ -152,9 +152,9 @@ class ScoreboardElement(
 
 
             if (side.horizontal == Side.Horizontal.LEFT)
-                RenderUtils.drawAnimatedGradient(l1 + 2.0, -2.0, -5.0, -3.0, if (rectColorMode.equals("ClientTheme")) ClientTheme.getColor("START") else rectCustomColor, if (rectColorMode.equals("ClientTheme")) ClientTheme.getColor("END") else rectCustomColor)
+                RenderUtils.drawGradientRect(l1 + 2, -2, -5, -3, ClientTheme.getColor(0).rgb, ClientTheme.getColor(90).rgb)
             else
-                RenderUtils.drawAnimatedGradient(l1 - 2.0, -2.0, 5.0, -3.0, if (rectColorMode.equals("ClientTheme")) ClientTheme.getColor("START") else rectCustomColor, if (rectColorMode.equals("ClientTheme")) ClientTheme.getColor("END") else rectCustomColor)
+                RenderUtils.drawGradientRect(l1 - 2, -2, 5, -3,ClientTheme.getColor(90).rgb, ClientTheme.getColor(0).rgb)
         }
 
         scoreCollection.forEachIndexed { index, score ->

@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.utils.render;
 
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.geom.Rectangle;
+import net.ccbluex.liquidbounce.utils.geom.Rectangle;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MathUtils;
@@ -43,6 +43,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -2438,6 +2439,73 @@ public final class RenderUtils extends MinecraftInstance {
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
     }
+    public static void drawSquareTriangle(float cx, float cy, float dirX, float dirY, Color color, boolean filled) {
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.resetColor();
+        glColor(color);
+        worldrenderer.begin(filled ? 5 : 2, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(cx + dirX, cy, 0D).endVertex();
+        worldrenderer.pos(cx, cy, 0D).endVertex();
+        worldrenderer.pos(cx, cy + dirY, 0D).endVertex();
+        worldrenderer.pos(cx + dirX, cy, 0D).endVertex();
+        tessellator.draw();
+        enableTexture2D();
+        disableBlend();
+        GlStateManager.color(1, 1, 1, 1);
+    }
+    public static void drawImage(BufferedImage image, int x, int y, int width, int height) {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glDepthMask(false);
+        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+        // Convert BufferedImage to ByteBuffer
+        ByteBuffer buffer = ByteBuffer.allocateDirect(4 * image.getWidth() * image.getHeight());
+        int[] pixels = new int[image.getWidth() * image.getHeight()];
+        image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
+        for (int i = 0; i < pixels.length; i++) {
+            int pixel = pixels[i];
+            buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
+            buffer.put((byte) ((pixel >> 8) & 0xFF));  // Green component
+            buffer.put((byte) (pixel & 0xFF));         // Blue component
+            buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component
+        }
+        buffer.flip();
+
+        // Upload the image data to OpenGL texture
+        int textureId = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+        // Render the texture
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0);
+        glVertex2i(x, y);
+        glTexCoord2f(0, 1);
+        glVertex2i(x, y + height);
+        glTexCoord2f(1, 1);
+        glVertex2i(x + width, y + height);
+        glTexCoord2f(1, 0);
+        glVertex2i(x + width, y);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+
+        // Clean up
+        glDeleteTextures(textureId);
+
+        glDepthMask(true);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+    }
     public static void drawImage(ResourceLocation image, int x, int y, int width, int height, float alpha) {
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -3286,6 +3354,7 @@ public final class RenderUtils extends MinecraftInstance {
         RenderUtils.drawScaledCustomSizeModalRect(x, y, 40F, 8F, 8, 8, width, height,
                 64F, 64F);
     }
+
 
     public static void quickDrawBorderedRect(final float x, final float y, final float x2, final float y2, final float width, final int color1, final int color2) {
         quickDrawRect(x, y, x2, y2, color2);
