@@ -200,7 +200,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 val mc = Minecraft.getMinecraft()
                 mc.session = account.session.let { Session(it.username, it.uuid, it.token, it.type) }
                 CrossSine.eventManager.callEvent(SessionEvent())
-                "Name Chagned" + mc.session.username
+                "Name Chagned§F" + mc.session.username
             } catch (e: Exception) {
                 e.printStackTrace()
                 "ERROR"

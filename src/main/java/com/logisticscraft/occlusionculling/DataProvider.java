@@ -1,5 +1,6 @@
 package com.logisticscraft.occlusionculling;
 
+
 import com.logisticscraft.occlusionculling.util.Vec3d;
 
 public interface DataProvider {

@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -11,7 +10,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.extensions.ping
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.features.value.*
 import net.minecraft.client.Minecraft
@@ -94,7 +92,6 @@ class Text(
                 "yaw" -> return DECIMAL_FORMAT.format(mc.thePlayer.rotationYaw)
                 "pitch" -> return DECIMAL_FORMAT.format(mc.thePlayer.rotationPitch)
                 "attackDist" -> return if (CrossSine.combatManager.target != null) mc.thePlayer.getDistanceToEntity(CrossSine.combatManager.target).toString() + " Blocks" else "Hasn't attacked"
-
             }
         }
 

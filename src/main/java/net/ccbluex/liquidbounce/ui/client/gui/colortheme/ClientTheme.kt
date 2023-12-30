@@ -11,7 +11,7 @@ import java.awt.Color
 object ClientTheme {
     val ClientColorMode = ListValue(
         "ColorMode",
-        arrayOf("Cherry", "Water", "Magic", "DarkNight", "Sun", "Tree", "Flower", "Loyoi", "Soniga", "May", "Mint", "Cero", "Azure", "Rainbow"),
+        arrayOf("Cherry", "Water", "Magic", "DarkNight", "Sun", "Tree", "Flower", "Loyoi", "Soniga", "May", "Mint", "Cero", "Azure", "Rainbow", "Astolfo", "Pumpkin", "Polarized", "Sundae", "Terminal", "Coral"),
         "Cherry"
     ).displayable { false }
     val textValue = BoolValue("TextStaticColor", false).displayable { false }
@@ -97,11 +97,43 @@ object ClientTheme {
             } else if (type == "END") {
                 return Color(0, 90, 255, alpha)
             }
-            "rainbow" -> if (type == "START") {
-                return ColorUtils.hslRainbow(1, speed = 0F)
+            "astolfo" -> if (type == "START") {
+                return ColorUtils.astolfo(0, 20000F / fadespeed.get())
             } else if (type == "END") {
-                return ColorUtils.hslRainbow(90, speed = 0F)
+                return ColorUtils.astolfo(90, 20000F / fadespeed.get())
             }
+            "rainbow" -> if (type == "START") {
+                return ColorUtils.hslRainbow(0, 20000F / fadespeed.get())
+            } else if (type == "END") {
+                return ColorUtils.hslRainbow(90, 20000F / fadespeed.get())
+            }
+            "pumpkin" -> if (type == "START") {
+                return Color(241, 166, 98, alpha)
+            } else if (type == "END") {
+                return Color(255, 216, 169, alpha)
+            }
+            "polarized" -> if (type == "START") {
+                return Color(173, 239, 209, alpha)
+            } else if (type == "END") {
+                return Color(0, 32, 64, alpha)
+            }
+            "sundae" -> if (type == "START") {
+                return Color(206, 74, 126, alpha)
+            } else if (type == "END") {
+                return Color(28, 28, 27, alpha)
+            }
+            "terminal" -> if (type == "START") {
+                return Color(15, 155, 15, alpha)
+            } else if (type == "END") {
+                return Color(25, 30, 25, alpha)
+            }
+
+            "coral" -> if (type == "START") {
+                return Color(244, 168, 150, alpha)
+            } else if (type == "END") {
+                return Color(52, 133, 151, alpha)
+            }
+
         }
 
         return Color(-1)
@@ -207,6 +239,37 @@ object ClientTheme {
                 index
             )
             "rainbow" -> return ColorUtils.hslRainbow(index, speed = 20000F / fadespeed.get())
+            "astolfo" -> return ColorUtils.astolfo(index, 20000F / fadespeed.get())
+            "pumpkin" -> return ColorUtils.mixColors(
+                Color(255, 216, 169),
+                Color(241, 166, 98),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "polarized" -> return ColorUtils.mixColors(
+                Color(0, 32, 64),
+                Color(173, 239, 209),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "sundae" -> return ColorUtils.mixColors(
+                Color(28, 28, 27),
+                Color(206, 74, 126),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "terminal" -> return ColorUtils.mixColors(
+                Color(25, 30, 25),
+                Color(15, 155, 15),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "coral" -> return ColorUtils.mixColors(
+                Color(52, 133, 151),
+                Color(244, 168, 150),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
         }
         return Color(-1)
     }
@@ -299,6 +362,37 @@ object ClientTheme {
                 index
             )
             "rainbow" -> return ColorUtils.hslRainbow(index, speed = 20000F / fadespeed.get())
+            "astolfo" -> return ColorUtils.astolfo(index, 20000F / fadespeed.get())
+            "pumpkin" -> return ColorUtils.mixColors(
+                Color(255, 216, 169),
+                Color(241, 166, 98),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "polarized" -> return ColorUtils.mixColors(
+                Color(0, 32, 64),
+                Color(173, 239, 209),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "sundae" -> return ColorUtils.mixColors(
+                Color(28, 28, 27),
+                Color(206, 74, 126),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "terminal" -> return ColorUtils.mixColors(
+                Color(25, 30, 25),
+                Color(15, 155, 15),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
+            "coral" -> return ColorUtils.mixColors(
+                Color(52, 133, 151),
+                Color(244, 168, 150),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            )
         }
         return Color(-1)
     }
@@ -391,6 +485,37 @@ object ClientTheme {
                 index
             ).setAlpha(alpha)
             "rainbow" -> return ColorUtils.hslRainbow(index, speed = 20000F / fadespeed.get()).setAlpha(alpha)
+            "astolfo" -> return ColorUtils.astolfo(index, 20000F / fadespeed.get()).setAlpha(alpha)
+            "pumpkin" -> return ColorUtils.mixColors(
+                Color(255, 216, 169),
+                Color(241, 166, 98),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            ).setAlpha(alpha)
+            "polarized" -> return ColorUtils.mixColors(
+                Color(0, 32, 64),
+                Color(173, 239, 209),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            ).setAlpha(alpha)
+            "sundae" -> return ColorUtils.mixColors(
+                Color(28, 28, 27),
+                Color(206, 74, 126),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            ).setAlpha(alpha)
+            "terminal" -> return ColorUtils.mixColors(
+                Color(25, 30, 25),
+                Color(15, 155, 15),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            ).setAlpha(alpha)
+            "coral" -> return ColorUtils.mixColors(
+                Color(52, 133, 151),
+                Color(244, 168, 150),
+                fadespeed.get() / 7.0 * if (updown.get()) 1 else -1,
+                index
+            ).setAlpha(alpha)
         }
         return Color(-1)
     }

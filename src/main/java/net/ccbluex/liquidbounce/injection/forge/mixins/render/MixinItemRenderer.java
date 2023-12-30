@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.AutoTool;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
+import net.ccbluex.liquidbounce.utils.ItemSpoofUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -74,7 +75,6 @@ public abstract class MixinItemRenderer {
     protected abstract void renderPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress);
 
     private Animations animations;
-
     @Overwrite
     public void renderItem(EntityLivingBase entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform) {
         if (heldStack != null) {
@@ -183,6 +183,7 @@ public abstract class MixinItemRenderer {
                                 }
                                 case "Spin": {
                                     transformFirstPersonItem(f / 1.4F, 0.0F);
+                                    GL11.glScaled(2.0,2.0,2.0);
                                     mc.thePlayer.isSwingInProgress = false;
                                     GlStateManager.translate(0, 0.2F, -1);
                                     GlStateManager.rotate(-59, -1, 0, 3);

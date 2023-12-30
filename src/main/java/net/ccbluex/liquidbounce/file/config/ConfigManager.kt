@@ -23,8 +23,8 @@ class ConfigManager {
 
     var nowConfig = "default"
     private var nowConfigInFile = "default"
-    var configFile = File(CrossSine.fileManager.configsDir, "$nowConfig.json")
-    var needSave = false
+    private var configFile = File(CrossSine.fileManager.configsDir, "$nowConfig.json")
+    private var needSave = false
 
     init {
         ClassUtils.resolvePackage("${this.javaClass.`package`.name}.sections", ConfigSection::class.java)
@@ -39,7 +39,7 @@ class ConfigManager {
     fun load(name: String, save: Boolean = true) {
         CrossSine.isLoadingConfig = true
         if (save && nowConfig != name) {
-            save(true, true) // 保存老配置
+            save(saveConfigSet = true, forceSave = true) // 保存老配置
         }
 
         nowConfig = name
@@ -48,7 +48,7 @@ class ConfigManager {
         val json = if (configFile.exists()) {
             JsonParser().parse(configFile.reader(Charsets.UTF_8)).asJsonObject
         } else {
-            JsonObject() // 这样方便一点,虽然效率会低
+            JsonObject()
         }
 
         for (section in sections) {
@@ -87,6 +87,7 @@ class ConfigManager {
 
         ClientUtils.logInfo("Config $nowConfig.json saved.")
     }
+
     private fun saveTicker() {
         if(!needSave) {
             return
@@ -117,86 +118,7 @@ class ConfigManager {
 
         configSetFile.writeText(FileManager.PRETTY_GSON.toJson(configSet), Charsets.UTF_8)
     }
-    fun executeScript(script: String) {
-        script.lines().filter { it.isNotEmpty() && !it.startsWith('#') }.forEachIndexed { _, s ->
-            val args = s.split(" ").toTypedArray()
 
-            if (args.size <= 1) {
-                return@forEachIndexed
-            }
-
-            when (args[0]) {
-                "load" -> {
-                    val url = StringUtils.toCompleteString(args, 1)
-
-                    try {
-                        executeScript(HttpUtils.get(url))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-
-                "targetPlayer", "targetPlayers" -> {
-                    Target.playerValue.set(args[1].equals("true", ignoreCase = true))
-                }
-
-                "targetMobs" -> {
-                    Target.mobValue.set(args[1].equals("true", ignoreCase = true))
-                }
-
-                "targetAnimals" -> {
-                    Target.animalValue.set(args[1].equals("true", ignoreCase = true))
-                }
-
-                "targetInvisible" -> {
-                    Target.invisibleValue.set(args[1].equals("true", ignoreCase = true))
-                }
-
-                "targetDead" -> {
-                    Target.deadValue.set(args[1].equals("true", ignoreCase = true))
-                }
-                "nofriend" -> {
-                    Target.friendValue.set(args[1].equals("true", true))
-                }
-
-                else -> {
-                    if (args.size != 3) {
-                        return@forEachIndexed
-                    }
-
-                    val moduleName = args[0]
-                    val valueName = args[1]
-                    val value = args[2]
-                    val module = CrossSine.moduleManager.getModule(moduleName) ?: return@forEachIndexed
-
-                    if (valueName.equals("toggle", ignoreCase = true)) {
-                        module.state = value.equals("true", ignoreCase = true)
-                        return@forEachIndexed
-                    }
-
-                    if (valueName.equals("bind", ignoreCase = true)) {
-                        module.keyBind = Keyboard.getKeyIndex(value)
-                        return@forEachIndexed
-                    }
-
-                    val moduleValue = module.getValue(valueName) ?: return@forEachIndexed
-
-                    try {
-                        when (moduleValue) {
-                            is BoolValue -> moduleValue.changeValue(value.toBoolean())
-                            is FloatValue -> moduleValue.changeValue(value.toFloat())
-                            is IntegerValue -> moduleValue.changeValue(value.toInt())
-                            is TextValue -> moduleValue.changeValue(value)
-                            is ListValue -> moduleValue.changeValue(value)
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-        }
-        save(true, true)
-    }
     fun loadLegacySupport() {
         if (CrossSine.fileManager.loadLegacy()) {
             if (File(CrossSine.fileManager.configsDir, "$nowConfig.json").exists()) {
@@ -209,9 +131,86 @@ class ConfigManager {
             ClientUtils.logWarn("Converted legacy config")
         }
 
+        fun executeScript(script: String) {
+            script.lines().filter { it.isNotEmpty() && !it.startsWith('#') }.forEachIndexed { _, s ->
+                val args = s.split(" ").toTypedArray()
+
+                if (args.size <= 1) {
+                    return@forEachIndexed
+                }
+
+                when (args[0]) {
+                    "load" -> {
+                        val url = StringUtils.toCompleteString(args, 1)
+
+                        try {
+                            executeScript(HttpUtils.get(url))
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    "targetPlayer", "targetPlayers" -> {
+                        Target.playerValue.set(args[1].equals("true", ignoreCase = true))
+                    }
+
+                    "targetMobs" -> {
+                        Target.mobValue.set(args[1].equals("true", ignoreCase = true))
+                    }
+
+                    "targetAnimals" -> {
+                        Target.animalValue.set(args[1].equals("true", ignoreCase = true))
+                    }
+
+                    "targetInvisible" -> {
+                        Target.invisibleValue.set(args[1].equals("true", ignoreCase = true))
+                    }
+
+                    "targetDead" -> {
+                        Target.deadValue.set(args[1].equals("true", ignoreCase = true))
+                    }
+
+                    else -> {
+                        if (args.size != 3) {
+                            return@forEachIndexed
+                        }
+
+                        val moduleName = args[0]
+                        val valueName = args[1]
+                        val value = args[2]
+                        val module = CrossSine.moduleManager.getModule(moduleName) ?: return@forEachIndexed
+
+                        if (valueName.equals("toggle", ignoreCase = true)) {
+                            module.state = value.equals("true", ignoreCase = true)
+                            return@forEachIndexed
+                        }
+
+                        if (valueName.equals("bind", ignoreCase = true)) {
+                            module.keyBind = Keyboard.getKeyIndex(value)
+                            return@forEachIndexed
+                        }
+
+                        val moduleValue = module.getValue(valueName) ?: return@forEachIndexed
+
+                        try {
+                            when (moduleValue) {
+                                is BoolValue -> moduleValue.changeValue(value.toBoolean())
+                                is FloatValue -> moduleValue.changeValue(value.toFloat())
+                                is IntegerValue -> moduleValue.changeValue(value.toInt())
+                                is TextValue -> moduleValue.changeValue(value)
+                                is ListValue -> moduleValue.changeValue(value)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
+
         val oldSettingDir = File(CrossSine.fileManager.dir, "settings")
         if (oldSettingDir.exists()) {
-            oldSettingDir.listFiles().forEach {
+            oldSettingDir.listFiles()?.forEach {
                 if (it.isFile) {
                     val name = nowConfig
                     ClientUtils.logWarn("Converting legacy setting \"${it.name}\"")
@@ -219,7 +218,7 @@ class ConfigManager {
                     nowConfig = it.name
                     configFile = File(CrossSine.fileManager.configsDir, "$nowConfig.json")
                     executeScript(String(Files.readAllBytes(it.toPath())))
-                    save(false, true)
+                    save(saveConfigSet = false, forceSave = true)
                     // set data back
                     nowConfig = name
                     configFile = File(CrossSine.fileManager.configsDir, "$nowConfig.json")
@@ -235,17 +234,10 @@ class ConfigManager {
         }
     }
 
-//    fun toLegacy(name: String){
-//        if(!LiquidBounce.fileManager.legacySettingsDir.exists())
-//            LiquidBounce.fileManager.legacySettingsDir.mkdir()
-//
-//        val jsonObject=JsonParser().parse()
-//    }
-
     /**
      * Register [section]
      */
-    fun registerSection(section: ConfigSection) = sections.add(section)
+    private fun registerSection(section: ConfigSection) = sections.add(section)
 
     /**
      * Register [sectionClass]

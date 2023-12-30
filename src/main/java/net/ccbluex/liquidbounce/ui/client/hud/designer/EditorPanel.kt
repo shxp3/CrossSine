@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.minecraft.client.gui.Gui
 import net.minecraft.util.MathHelper
 import org.lwjgl.input.Mouse
@@ -141,7 +142,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             height += 10
             realHeight += 10
         }
-        RenderUtils.drawRoundedCornerRect(x.toFloat()-4f, y-2F, x + width.toFloat()+4, y + 12F ,3f, Color(112,57,239, 170).rgb)
+        RenderUtils.drawGradientRoundedRect(x.toFloat()-4f, y-2F, x + width.toFloat()+4, y + 12F ,3, ClientTheme.getColor(0).rgb, ClientTheme.getColor(90).rgb)
 
         //Gui.drawRect(x, y, x + width, y + 12, Color(0, 0, 0, 150).rgb)
         Fonts.font35.drawString("§lCreate element", x + 2F, y + 3.5F, Color.WHITE.rgb)
@@ -193,7 +194,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             height += 10
             realHeight += 10
         }
-        RenderUtils.drawRoundedCornerRect(x.toFloat()-4f, y-2F, x + width.toFloat()+4, y + 12F ,3f, Color(112,57,239, 170).rgb)
+        RenderUtils.drawGradientRoundedRect(x.toFloat()-4f, y-2F, x + width.toFloat()+4, y + 12F ,3, ClientTheme.getColor(0).rgb, ClientTheme.getColor(90).rgb)
         //Gui.drawRect(x, y, x + width, y + 12, Color(0, 0, 0, 150).rgb)
         Fonts.font35.drawString("§lEditor", x + 2F, y + 3.5f, Color.WHITE.rgb)
     }

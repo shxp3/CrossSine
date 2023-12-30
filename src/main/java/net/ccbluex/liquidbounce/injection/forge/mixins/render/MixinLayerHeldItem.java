@@ -1,15 +1,13 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+ 
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
+import net.ccbluex.liquidbounce.utils.ItemSpoofUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -17,6 +15,7 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -92,8 +91,11 @@ public class MixinLayerHeldItem {
             if(entitylivingbaseIn.isSneaking()) {
                 GlStateManager.translate(0.0F, 0.203125F, 0.0F);
             }
-
-            minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
+            if(!(entitylivingbaseIn instanceof EntityPlayerSP)) {
+                minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
+            } else {
+                minecraft.getItemRenderer().renderItem(entitylivingbaseIn,ItemSpoofUtils.INSTANCE.getSpoofing() ? ItemSpoofUtils.INSTANCE.getStack() : itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
+            }
             GlStateManager.popMatrix();
         }
     }

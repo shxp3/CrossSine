@@ -164,7 +164,7 @@ class Notification(
             classicHeight.toFloat(),
             Color(255, 255, 255)
         )
-        font.drawString(content, 15F, 17F, Color(255, 255, 255).rgb, false)
+        font.drawString(content, 15F, 17F, Color(255, 255, 255).rgb, true)
         GlStateManager.resetColor()
         when (type.renderColor) {
             Color(0xFF2F2F) -> {

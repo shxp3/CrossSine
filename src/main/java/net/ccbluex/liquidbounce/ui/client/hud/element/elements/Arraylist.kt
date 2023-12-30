@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
 import net.ccbluex.liquidbounce.features.module.modules.visual.JelloArrayList
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
@@ -17,9 +18,14 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.*
+import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.MathHelper
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.util.stream.Collectors
 import javax.vecmath.Vector2d
 import kotlin.math.sin
 
@@ -57,7 +63,10 @@ class Arraylist(
     private val spaceValue = FloatValue("Space", 0F, 0F, 5F)
     private val textHeightValue = FloatValue("TextHeight", 11F, 1F, 20F)
     private val textYValue = FloatValue("TextY", 1F, 0F, 20F)
+    private val noRender = BoolValue("NoRenderModule", false)
+    private var shadow = ResourceLocation("crosssine/ui/shadow/shadow.png")
     companion object {
+        private val customFont = BoolValue("CustomFont", false)
         val fontValue = FontValue("Font", Fonts.fontTenacity40)
     }
     private var x2 = 0
@@ -68,7 +77,6 @@ class Arraylist(
     private var sortedModules = emptyList<Module>()
 
     override fun drawElement(partialTicks: Float): Border? {
-        if (CrossSine.moduleManager.getModule(JelloArrayList::class.java)!!.state) return null
         val fontRenderer = fontValue.get()
         val counter = intArrayOf(0)
 
@@ -396,15 +404,22 @@ class Arraylist(
     }
 
     override fun updateElement() {
-        modules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules
-            .filter { it.array && (if (hAnimation.get().equals("none", ignoreCase = true)) it.state else it.slide > 0) }
-        else CrossSine.moduleManager.modules
-            .filter { it.array && (if (hAnimation.get().equals("none", ignoreCase = true)) it.state else it.slide > 0) }
-            .sortedBy { -fontValue.get().getStringWidth(getModName(it)) }
-        sortedModules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules.toList()
-        else CrossSine.moduleManager.modules.sortedBy { -fontValue.get().getStringWidth(getModName(it)) }.toList()
+            modules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules
+                .filter {
+                    it.array && !shouldExpect(it) && (if (hAnimation.get()
+                            .equals("none", ignoreCase = true)
+                    ) it.state else it.slide > 0)
+                }
+            else CrossSine.moduleManager.modules
+                .filter {
+                    it.array && !shouldExpect(it) && (if (hAnimation.get()
+                            .equals("none", ignoreCase = true)
+                    ) it.state else it.slide > 0)
+                }
+                .sortedBy { -fontValue.get().getStringWidth(getModName(it)) }
+            sortedModules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules.toList()
+            else CrossSine.moduleManager.modules.sortedBy { -fontValue.get().getStringWidth(getModName(it)) }.toList()
     }
-
     private fun getModTag(m: Module): String {
         if (!Tags.get() || m.tag == null) return ""
 
@@ -412,9 +427,8 @@ class Arraylist(
 
         // tag prefix, ignore default value
         if (!tagsStyleValue.get().equals("space", true))
-            returnTag += tagsStyleValue.get()[0].toString() + if (tagsStyleValue.get()
-                    .equals("-", true) || tagsStyleValue.get().equals("|", true)
-            ) " " else ""
+            returnTag +=
+                tagsStyleValue.get()[0].toString() + if (tagsStyleValue.get().equals("-", true) || tagsStyleValue.get().equals("|", true)) " " else ""
 
         // main tag value
         returnTag += m.tag
@@ -423,6 +437,7 @@ class Arraylist(
         if (!tagsStyleValue.get().equals("space", true)
             && !tagsStyleValue.get().equals("-", true)
             && !tagsStyleValue.get().equals("|", true)
+            && !tagsStyleValue.get().equals("->", true)
         )
             returnTag += tagsStyleValue.get()[1].toString()
 
@@ -439,7 +454,16 @@ class Arraylist(
 
         return displayName
     }
+    private fun shouldExpect(module: Module): Boolean {
+        return noRender.get() && module.category == ModuleCategory.VISUAL
+    }
     fun getColor(index : Int) : Color {
         return ClientTheme.getColor(index)
+    }
+    private fun getFont(): FontRenderer {
+        return if (customFont.get())
+            fontValue.get()
+        else
+            Fonts.SFApple40
     }
 }

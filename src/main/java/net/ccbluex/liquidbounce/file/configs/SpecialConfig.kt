@@ -15,8 +15,6 @@ class SpecialConfig(file: File) : FileConfig(file) {
 
     override fun loadConfig(config: String) {
         val json = JsonParser().parse(config).asJsonObject
-
-        CrossSine.commandManager.prefix = '.'
         AutoReconnect.delay = 5000
         ClientFixes.enabled = true
         ClientFixes.blockFML = true
@@ -98,7 +96,6 @@ class SpecialConfig(file: File) : FileConfig(file) {
     override fun saveConfig(): String {
         val json = JsonObject()
 
-        json.addProperty("prefix", CrossSine.commandManager.prefix)
         json.addProperty("auto-reconnect", AutoReconnect.delay)
         json.addProperty("alt-field", GuiAltManager.randomAltField.text)
         json.addProperty("client-user", CrossSine.USER_NAME)

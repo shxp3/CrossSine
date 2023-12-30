@@ -33,7 +33,7 @@ class AimAssist : Module() {
             val p = mc.objectMouseOver.blockPos
             if (p != null) {
                 val bl: Block = mc.theWorld.getBlockState(p).block
-                if (bl !== Blocks.air && bl !is BlockLiquid && bl is Block) {
+                if (bl !== Blocks.air && bl !is BlockLiquid) {
                     return
                 }
             }
@@ -41,19 +41,24 @@ class AimAssist : Module() {
         if (mc.gameSettings.keyBindAttack.isKeyDown)
             clickTimer.reset()
 
-        if (onClickValue.get() && clickTimer.hasTimePassed(1L))
+        if (onClickValue.get() && clickTimer.hasTimePassed(100L))
             return
 
-        val player = mc.thePlayer ?: return
-        val range = rangeValue.get()
-        val entity = mc.theWorld.loadedEntityList
-            .filter {
-                EntityUtils.isSelected(it, true) && player.canEntityBeSeen(it) &&
-                        player.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
-            }
-            .minByOrNull { RotationUtils.getRotationDifference(it) } ?: return
-        if (faceCheck.get() && RotationUtils.isFaced(entity, range.toDouble())) return
-           mc.thePlayer.rotationYaw += (-(FovFromTarget(entity) * (ThreadLocalRandom.current().nextDouble(comSpeed.get() - 1.47328, comSpeed.get() + 2.48293) / 100) + FovFromTarget(entity) / (101.0 - ThreadLocalRandom.current().nextDouble(norspeed.get() - 4.723847, norspeed.get().toDouble())))).toFloat()
+            val player = mc.thePlayer ?: return
+            val range = rangeValue.get()
+            val entity = mc.theWorld.loadedEntityList
+                .filter {
+                    EntityUtils.isSelected(it, true) && player.canEntityBeSeen(it) &&
+                            player.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
+                }
+                .minByOrNull { RotationUtils.getRotationDifference(it) } ?: return
+            if (faceCheck.get() && RotationUtils.isFaced(entity, range.toDouble())) return
+            mc.thePlayer.rotationYaw += (-(FovFromTarget(entity) * (ThreadLocalRandom.current().nextDouble(
+                comSpeed.get() - 1.47328,
+                comSpeed.get() + 2.48293
+            ) / 100) + FovFromTarget(entity) / (101.0 - ThreadLocalRandom.current()
+                .nextDouble(norspeed.get() - 4.723847, norspeed.get().toDouble())))).toFloat()
+
     }
     private fun FovFromTarget(tg: Entity): Double {
         return ((mc.thePlayer.rotationYaw - FovToTarget(tg)).toDouble() % 360.0 + 540.0) % 360.0 - 180.0

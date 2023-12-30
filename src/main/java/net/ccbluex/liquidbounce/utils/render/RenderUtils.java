@@ -820,6 +820,19 @@ public final class RenderUtils extends MinecraftInstance {
             drawGradientRect(left, top, right, bottom, startColor, endColor);
             Stencil.dispose();
     }
+        public static void drawGradientRoundedRect(float left, float top, float right, float bottom, int radius, int startColor, int endColor) {
+            Stencil.write(false);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            fastRoundedRect(left, top, right, bottom, radius);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            Stencil.erase(true);
+            drawGradientRect(left, top, right, bottom, startColor, endColor);
+            Stencil.dispose();
+    }
+
 
     public static void drawGradientSideways(double left, double top, double right, double bottom, int col1, int col2) {
         float f = (float) (col1 >> 24 & 255) / 255.0f;
@@ -3242,7 +3255,16 @@ public final class RenderUtils extends MinecraftInstance {
         glEnd();
         glEnable(GL_TEXTURE_2D);
     }
-
+    public static void drawLine(final float x, final float y, final float x1, final float y1, final float width, final Color color) {
+        glDisable(GL_TEXTURE_2D);
+        color(color);
+        glLineWidth(width);
+        glBegin(GL_LINES);
+        glVertex2d(x, y);
+        glVertex2d(x1, y1);
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+    }
     public static void startDrawing() {
         GL11.glEnable(3042);
         GL11.glEnable(3042);
@@ -4295,4 +4317,5 @@ public final class RenderUtils extends MinecraftInstance {
             GlStateManager.popMatrix();
         }
     }
+
 }

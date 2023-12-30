@@ -9,10 +9,7 @@ import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.file.configs.*
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.util.ResourceLocation
 import java.io.*
-import javax.imageio.ImageIO
 
 class FileManager : MinecraftInstance() {
     val dir = File(mc.mcDataDir, "CrossSine")
@@ -20,7 +17,6 @@ class FileManager : MinecraftInstance() {
     val configsDir = File(dir, "configs")
     val hertaSoundDir = File(dir, "sounds/herta")
     val legacySettingsDir = File(dir, "legacy-settings.json")
-    val capesDir = File(dir, "capes")
     val themesDir = File(dir, "themes")
     val accountsConfig = AccountsConfig(File(dir, "accounts.json"))
     var friendsConfig = FriendsConfig(File(dir, "friends.json"))
@@ -29,7 +25,6 @@ class FileManager : MinecraftInstance() {
     val subscriptsConfig = ScriptConfig(File(dir, "subscripts.json"))
     val specialConfig = SpecialConfig(File(dir, "special.json"))
     val themeConfig = ThemeConfig(File(dir, "themeColor.json"))
-
     /**
      * Setup everything important
      */
@@ -54,10 +49,6 @@ class FileManager : MinecraftInstance() {
         }
         if (!hertaSoundDir.exists()) {
             hertaSoundDir.mkdir()
-        }
-
-        if (!capesDir.exists()) {
-            capesDir.mkdir()
         }
 
         if (!themesDir.exists()) {

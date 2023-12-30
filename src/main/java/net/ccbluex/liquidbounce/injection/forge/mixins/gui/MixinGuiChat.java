@@ -1,8 +1,4 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+ 
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
@@ -29,6 +25,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import static net.minecraft.client.gui.Gui.drawRect;
+
 @Mixin(GuiChat.class)
 public abstract class MixinGuiChat extends MixinGuiScreen {
 
@@ -38,7 +36,6 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     @Shadow
     private List<String> foundPlayerNames;
 
-    private Element selectedElement;
     @Shadow
     private boolean waitingOnAutocomplete;
 
@@ -184,8 +181,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     public void drawScreen(int mouseX, int mouseY, float partialTicks,CallbackInfo ci) {
         //RenderUtils.drawRect(10,10,20,20,new Color(255,255,255,255).getRGB());
-        RenderUtils.drawRoundedCornerRect(1, this.height - (int) fade - 2, this.width - 4, this.height - 1 , 2f, new Color(255,255,255,50).getRGB());
-        RenderUtils.drawRoundedCornerRect(2, this.height - (int) fade - 1, this.width - 3, this.height - 2 ,3f, new Color(0,0,0,200).getRGB());
+        drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
 
         if (CrossSine.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(CrossSine.commandManager.getPrefix()))) {

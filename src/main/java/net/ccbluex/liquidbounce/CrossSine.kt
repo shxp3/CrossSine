@@ -2,8 +2,6 @@
 
 package net.ccbluex.liquidbounce
 
-import com.google.gson.JsonParser
-import doryan.windowsnotificationapi.fr.Notification
 import net.ccbluex.liquidbounce.discordrpc.CrossSineRPC
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventManager
@@ -24,19 +22,15 @@ import net.ccbluex.liquidbounce.ui.client.keybind.KeyBindManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.utils.*
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.Display
-import java.awt.Toolkit
-import java.awt.TrayIcon
 import java.util.*
 import kotlin.concurrent.thread
 
 object CrossSine {
     // Client information
-    var loadState = false
     const val CLIENT_NAME = "CrossSine"
     const val CLIENT_CLOUD = "https://crosssine.github.io/cloud"
     var USER_NAME = ""
@@ -65,7 +59,6 @@ object CrossSine {
     lateinit var combatManager: CombatManager
     lateinit var macroManager: MacroManager
     lateinit var configManager: ConfigManager
-
 
 
     // Some UI things
@@ -208,7 +201,6 @@ object CrossSine {
         // Load configs
         configManager.loadLegacySupport()
         configManager.loadConfigSet()
-
         // Set is starting status
         isStarting = false
         isLoadingConfig = false

@@ -33,6 +33,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
+import org.lwjgl.input.Mouse
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -780,7 +781,6 @@ object KillAura : Module() {
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
             blockingStatus = true
         }
-
         if (interact) {
             val positionEye = mc.renderViewEntity?.getPositionEyes(1F)
 

@@ -1,8 +1,4 @@
-/*
- * CrossSine Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/shxp3/CrossSine
- */
+
 package net.ccbluex.liquidbounce.event
 
 import net.minecraft.block.Block
@@ -53,7 +49,10 @@ class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAl
  * Called when player clicks a block
  */
 class ClickBlockEvent(val clickedBlock: BlockPos?, val enumFacing: EnumFacing?) : Event()
-
+/**
+ * Called sync item player
+ */
+class SyncCurrentItemEvent(var slot: Int) : Event()
 
 /**
  * Called when client is shutting down
@@ -84,22 +83,6 @@ class MotionEvent(val eventState: EventState, var onGround: Boolean) : Event() {
     return eventState == EventState.PRE
     }
 }
-
-/**
- * Teleport event
- */
-class PreMotionEvent : Event() {
-    val posX = 0.0
-    val posY = 0.0
-    val posZ = 0.0
-    val yaw = 0f
-    val pitch = 0f
-    val onGround = false
-}
-/**
- * Called when a model updates
- */
-class UpdateModelEvent(val player: EntityPlayer, val model: ModelPlayer) : Event()
 
 /**
  * Called when an entity receives damage
@@ -207,7 +190,10 @@ class Render3DEvent(val partialTicks: Float) : Event()
  * Called when the screen changes
  */
 class ScreenEvent(val guiScreen: GuiScreen?) : Event()
-
+/**
+ * Called when new Chat
+ */
+class ChatEvent(var chatString: String) : Event()
 /**
  * Called when the session changes
  */

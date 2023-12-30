@@ -4,7 +4,7 @@ package net.ccbluex.liquidbounce.utils;
  * @author superblaubeere27
  */
 public class CPSCounter {
-    private static final int MAX_CPS = 250;
+    private static final int MAX_CPS = 500;
     private static final RollingArrayLongBuffer[] TIMESTAMP_BUFFERS = new RollingArrayLongBuffer[MouseButton.values().length];
 
     static {

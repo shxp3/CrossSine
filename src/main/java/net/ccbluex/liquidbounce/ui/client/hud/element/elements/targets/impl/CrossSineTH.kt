@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.TargetHUD
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.TargetStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.extensions.hurtPercent
 import net.ccbluex.liquidbounce.utils.extensions.skin
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.Stencil
@@ -26,11 +27,12 @@ class CrossSineTH(inst: TargetHUD) : TargetStyle("CrossSine", inst, true) {
         fonts.drawString("HurtTime : ${entity.hurtTime}", 51F, 18F, Color(255,255,255,fadeAlpha(255)).rgb, true)
         GL11.glPushMatrix()
         GL11.glTranslatef(7f, 7f, 0f)
+        GL11.glColor4f(1f, 1 - entity.hurtPercent, 1 - entity.hurtPercent, 1f)
         Stencil.write(false)
         GL11.glDisable(GL11.GL_TEXTURE_2D)
         GL11.glEnable(GL11.GL_BLEND)
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        RenderUtils.fastRoundedRect(-2F, -3F, 34F, 33F, 6F)
+        RenderUtils.fastRoundedRect(-2F, -3F, 33F, 33F, 8F)
         GL11.glDisable(GL11.GL_BLEND)
         GL11.glEnable(GL11.GL_TEXTURE_2D)
         Stencil.erase(true)

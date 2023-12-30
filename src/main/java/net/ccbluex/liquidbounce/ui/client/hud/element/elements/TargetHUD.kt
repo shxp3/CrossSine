@@ -50,7 +50,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             NormalTH(this),
             SimpleTH(this),
             CrossSineTH(this),
-        ).toTypedArray(), "RavenB4")
+        ).toTypedArray(), "CrossSine")
     }
     var mainTarget: EntityLivingBase? = null
     var animProgress = 0F
@@ -79,7 +79,6 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
         val returnBorder = mainStyle.getBorder(mainTarget) ?: return null
         val scaleX = animProgress * (4F / ((returnBorder.x2 - returnBorder.x) / 2F))
         val scaleY = animProgress * (4F / ((returnBorder.y2 - returnBorder.y) / 2F))
-        val tranX = (returnBorder.x2 - returnBorder.x) / 2F * scaleX
         val tranY = (returnBorder.y2 - returnBorder.y) / 2F * scaleY
         if (mainTarget == null) {
             mainStyle.easingHealth = 0F

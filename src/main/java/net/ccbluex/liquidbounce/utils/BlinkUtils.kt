@@ -1,8 +1,4 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+
 package net.ccbluex.liquidbounce.utils
 
 import net.minecraft.network.Packet
@@ -20,7 +16,6 @@ import java.util.*
 
 object BlinkUtils : MinecraftInstance() {
     private val playerBuffer = LinkedList<Packet<INetHandlerPlayServer>>()
-    const val Invalid_Type = -301
     const val MisMatch_Type = -302
     var movingPacketStat = false
     var transactionStat = false

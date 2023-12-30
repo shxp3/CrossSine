@@ -1,8 +1,4 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+ 
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import com.google.common.base.Predicates;
@@ -25,6 +21,7 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
@@ -183,7 +180,11 @@ public abstract class MixinEntityRenderer {
 
     @Redirect(method = "updateCameraAndRender", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;inGameHasFocus:Z", opcode = GETFIELD))
     public boolean updateCameraAndRender(Minecraft minecraft) {
-        return FreeLook.overrideMouse();
+        if (CrossSine.moduleManager.getModule(FreeLook.class).getState()) {
+            if (!CrossSine.moduleManager.getModule(FreeLook.class).reverse.get())
+                return FreeLook.overrideMouse();
+            else return true;
+        } else return mc.inGameHasFocus && Display.isActive();
     }
 
     @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationYaw:F", opcode = GETFIELD))
@@ -202,7 +203,7 @@ public abstract class MixinEntityRenderer {
 
     @Redirect(method = "setupCameraTransform", at = @At(value = "FIELD", target = "Lnet/minecraft/client/settings/GameSettings;viewBobbing:Z", ordinal = 0))
     public boolean setupCameraTransform(GameSettings instance) {
-        return !CrossSine.moduleManager.getModule(ViewBobing.class).getMiniViewBobing().get() && mc.gameSettings.viewBobbing;
+        return !CrossSine.moduleManager.getModule(ViewBobing.class).getMiniViewBobing().get() && CrossSine.moduleManager.getModule(ViewBobing.class).getState() && mc.gameSettings.viewBobbing;
     }
     @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationPitch:F"))
     public float getPrevRotationPitch(Entity entity) {

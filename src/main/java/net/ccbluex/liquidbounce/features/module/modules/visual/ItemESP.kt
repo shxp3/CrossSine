@@ -1,8 +1,4 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+ 
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -155,12 +151,7 @@ class ItemESP : Module() {
         if (nameTags.get()) {
             for (item in mc.theWorld.getLoadedEntityList()) {
                 if (item is EntityItem) {
-                    var distance = mc.thePlayer.getDistanceToEntity(item) / 4F
                     val string = (item.entityItem.displayName + if (itemCount.get() && item.entityItem.stackSize > 1) " x${item.entityItem.stackSize}" else "")
-                    val scale = (distance / 150F) * scaleValue.get()
-                    if (distance < 4F) {
-                        distance = 4F
-                    }
                     GL11.glPushMatrix()
                     GL11.glTranslated(
                         item.lastTickPosX + (item.posX - item.lastTickPosX) * mc.timer.renderPartialTicks - mc.renderManager.renderPosX,
@@ -169,7 +160,7 @@ class ItemESP : Module() {
                     )
                     GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
                     RenderUtils.disableGlCap(GL11.GL_LIGHTING, GL11.GL_DEPTH_TEST)
-                    GL11.glScalef(-scale, -scale, -scale)
+                    GL11.glScalef(-scaleValue.get(), -scaleValue.get(), -scaleValue.get())
                     mc.fontRendererObj.drawString(string, -6F, -30F,
                         Color(255,255,255).rgb,true)
                     RenderUtils.enableGlCap(GL11.GL_BLEND)

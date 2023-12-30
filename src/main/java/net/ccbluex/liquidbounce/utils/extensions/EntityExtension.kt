@@ -1,8 +1,4 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+
 package net.ccbluex.liquidbounce.utils.extensions
 
 import net.ccbluex.liquidbounce.CrossSine
@@ -75,8 +71,9 @@ val EntityLivingBase.renderHurtTime: Float
 val EntityLivingBase.hurtPercent: Float
     get() = (this.renderHurtTime) / 10
 
-val EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
+var EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
     get() = if (this is EntityPlayer) { Minecraft.getMinecraft().netHandler.getPlayerInfo(this.uniqueID)?.locationSkin } else { null } ?: DefaultPlayerSkin.getDefaultSkinLegacy()
+    set(value) {}
 
 val EntityLivingBase.ping: Int
     get() = if (this is EntityPlayer) { Minecraft.getMinecraft().netHandler.getPlayerInfo(this.uniqueID)?.responseTime?.coerceAtLeast(0) } else { null } ?: -1

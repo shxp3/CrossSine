@@ -40,62 +40,17 @@ class LeftClicker : Module() {
         }
     }.displayable { modeValue.equals("Normal") } as IntegerValue
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false)
-    private val autoBlock = BoolValue("AutoBlock", false)
-    private val abLimitTarget = BoolValue("AutoBlock-Limit-Target", false).displayable { autoBlock.get() }
-    private val autoBlockMode =
-        ListValue("AutoBlock-Mode", arrayOf("Spam", "Damage"), "Spam").displayable { autoBlock.get() }
-    private val autoDamageHT =
-        IntegerValue("AutoBlock-Damage-HurtTime", 0, 0, 10).displayable { autoBlockMode.equals("Damage") }
-    private val limitCps = BoolValue("LimitCPS", false).displayable { autoBlock.get() }
-    private val blockMaxCps: IntegerValue = object : IntegerValue("Block-Max-CPS", 8, 1, 20) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val minCPS = blockMinCps.get()
-            if (minCPS > newValue) {
-                set(minCPS)
-            }
-        }
-    }.displayable { autoBlock.get() && limitCps.get() } as IntegerValue
-    private val blockMinCps: IntegerValue = object : IntegerValue("Block-Min-CPS", 5, 1, 20) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val maxCPS = blockMaxCps.get()
-            if (maxCPS < newValue) {
-                set(maxCPS)
-            }
-        }
-    }.displayable { autoBlock.get() && limitCps.get() } as IntegerValue
     private var leftDelay = 50L
     private var leftLastSwing = 0L
-    private var blockDelay = 50L
-    private var LastBlock = 0L
     private var cDelay = 0
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword) && mc.playerController.curBlockDamageMP == 0F) {
+        if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword)) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
             leftLastSwing = System.currentTimeMillis()
             leftDelay = getDelay().toLong()
-        }
-        if (!abLimitTarget.get() || EntityUtils.isSelected(mc.objectMouseOver.entityHit, true)) {
-            if (autoBlock.get() && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && mc.thePlayer.heldItem?.item is ItemSword && mc.objectMouseOver.entityHit != null) {
-                if (autoBlockMode.equals("Damage")) {
-                    if (mc.thePlayer.hurtTime > autoDamageHT.get()) {
-                        MouseUtils.setMouseButtonState(mc.gameSettings.keyBindUseItem.keyCode, true)
-                    }
-                } else {
-                    if (limitCps.get()) {
-                        if (System.currentTimeMillis() - LastBlock >= blockDelay) {
-                            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
-
-                            LastBlock = System.currentTimeMillis()
-                            blockDelay = TimeUtils.randomClickDelay(blockMinCps.get(), blockMaxCps.get())
-                        }
-                    } else {
-                        KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
-                    }
-                }
-            }
         }
     }
 

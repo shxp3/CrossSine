@@ -1,14 +1,11 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+ 
 package net.ccbluex.liquidbounce.features.module.modules.visual;
 
 import net.ccbluex.liquidbounce.features.module.EnumTriggerType;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
+import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.features.value.ListValue;
 import net.minecraft.client.Minecraft;
@@ -18,7 +15,8 @@ import java.util.Locale;
 
 @ModuleInfo(name = "FreeLook", spacedName = "Free Look",category = ModuleCategory.VISUAL, triggerType = EnumTriggerType.PRESS, array = false)
 public final class FreeLook extends Module {
-    private final IntegerValue camera = new IntegerValue("CameraMode", 0, 0, 2);
+    private final BoolValue thirdPerson = new BoolValue("ThirdPerson",true);
+    public final BoolValue reverse = new BoolValue("Reverse",true);
     private static final Minecraft mc = Minecraft.getMinecraft();
     public static boolean perspectiveToggled = false;
     public static float cameraYaw = 0F;
@@ -31,7 +29,9 @@ public final class FreeLook extends Module {
        cameraPitch = mc.thePlayer.rotationPitch;
        if (perspectiveToggled) {
            previousPerspective = mc.gameSettings.thirdPersonView;
-           mc.gameSettings.thirdPersonView = camera.get();
+           if (thirdPerson.get()) {
+               mc.gameSettings.thirdPersonView = 1;
+           }
        } else {
            mc.gameSettings.thirdPersonView = previousPerspective;
        }

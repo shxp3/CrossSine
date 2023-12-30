@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.event.ChatEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.GuiChatModule;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -204,6 +205,8 @@ public abstract class MixinGuiNewChat {
                                 GlStateManager.color(1F, 1F, 1F, 1F);
 
                                 String s = fixString(chatline.getChatComponent().getFormattedText());
+                                final ChatEvent event = new ChatEvent(s);
+                                CrossSine.eventManager.callEvent(event);
                                 GlStateManager.enableBlend();
                                 if (guiChatModule.getState() && lineBeingDrawn <= newLines)
                                     (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), new Color(1F, 1F, 1F, animationPercent * (float) d0).getRGB(), true);

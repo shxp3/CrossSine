@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
@@ -177,8 +178,6 @@ object BackTrack : Module() {
 
         if (espMode.get() == "Model") {
             GL11.glPushMatrix()
-            GL11.glDisable(GL11.GL_TEXTURE_2D)
-            GL11.glDisable(GL11.GL_DEPTH_TEST)
             GlStateManager.disableAlpha()
             for (entity in storageEntities) {
                 if (entity !is EntityOtherPlayerMP) return
@@ -208,9 +207,6 @@ object BackTrack : Module() {
                 mc.renderManager.renderEntitySimple(mp, event.partialTicks)
             }
             GlStateManager.enableAlpha()
-            GL11.glEnable(GL11.GL_TEXTURE_2D)
-            GL11.glEnable(GL11.GL_DEPTH_TEST)
-            GL11.glColor4f(0.2F, 0.2F, 0.2F, 0.2F)
             GlStateManager.resetColor()
             GL11.glPopMatrix()
             return

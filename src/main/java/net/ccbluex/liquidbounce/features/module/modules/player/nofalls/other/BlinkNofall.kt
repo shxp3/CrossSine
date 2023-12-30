@@ -30,7 +30,6 @@ import org.lwjgl.input.Mouse
 import java.awt.Color
 
 class BlinkNofall : NoFallMode("Blink") {
-    private val textValue = BoolValue("${valuePrefix}ShowText", false)
     private val limitValue = BoolValue("${valuePrefix}limitUse", true)
     private var start = false
     private var disable = false
@@ -64,18 +63,14 @@ class BlinkNofall : NoFallMode("Blink") {
 
     override fun onRender2D(event: Render2DEvent) {
         if (start) {
-            var stringW = ""
             val string = "Blinking : ${BlinkUtils.bufferSize()}"
-            for (i in string.indices) {
                 mc.fontRendererObj.drawCenteredString(
-                    string[i].toString(),
+                    string,
                     ScaledResolution(mc).scaledWidth / 2F,
                     ScaledResolution(mc).scaledHeight / 2F + 10F,
-                    ClientTheme.getColor(i * -135).rgb,
+                    ClientTheme.getColor(1).rgb,
                     true
                 )
-                stringW += string[i].toString()
-            }
         }
     }
 

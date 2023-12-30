@@ -1,8 +1,3 @@
-/*
- * CrossSine Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/shxp3/CrossSine
- */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.ClickBlockEvent
@@ -25,12 +20,13 @@ object AutoTool : Module() {
     private var tickDelay = 0
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
+        if (tickDelay < 3) return
         switchSlot(event.clickedBlock ?: return)
     }
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
-        if (Mouse.isButtonDown(0)) {
+        if (Mouse.isButtonDown(0) && mc.objectMouseOver.blockPos != null && mc.objectMouseOver.entityHit == null) {
             tickDelay++
         } else tickDelay = 0
         if (!mining && Mouse.isButtonDown(0)) {

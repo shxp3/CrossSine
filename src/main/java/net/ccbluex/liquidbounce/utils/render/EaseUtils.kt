@@ -162,6 +162,7 @@ object EaseUtils {
 
     fun getEnumEasingOrderList(name: String) = ListValue(name, EnumEasingOrder.values().map { it.toString() }.toTypedArray(), EnumEasingOrder.FAST_AT_START.toString())
 
+    @JvmStatic
     fun apply(type: EnumEasingType, order: EnumEasingOrder, value: Double): Double {
         if (type == EnumEasingType.NONE) {
             return value

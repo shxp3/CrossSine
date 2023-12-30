@@ -204,8 +204,8 @@ object ColorUtils {
     }
 
     @JvmStatic
-    fun astolfo(index: Int): Color {
-        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / 1500F) % 2) - 1) * (0.3F)) + 0.55F, 0.55F, 1F)
+    fun astolfo(index: Int, speed: Float): Color {
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / speed) % 2) - 1) * (0.3F)) + 0.55F, 0.55F, 1F)
     }
 
     fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double? {

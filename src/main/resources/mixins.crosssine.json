@@ -58,6 +58,7 @@
     "gui.MixinGuiGameOver",
     "gui.MixinGuiButton",
     "gui.MixinGuiButtonExt",
+    "fml.MixinFMLClientHandler",
     "network.MixinC00Handshake",
     "network.MixinNetHandlerPlayClient",
     "network.MixinNetworkManager",

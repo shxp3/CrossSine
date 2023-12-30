@@ -38,9 +38,6 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        if (!CrossSine.loadState) {
-            mc.displayGuiScreen(GuiLoading())
-        }
         GlStateManager.pushMatrix()
         ++this.panoramaTimer
         renderSkybox(mouseX, mouseY, partialTicks)

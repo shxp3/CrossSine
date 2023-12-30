@@ -101,11 +101,6 @@ public class Fonts {
     @FontDetails(fontName = "Nunito60", fontSize = 60)
     public static GameFontRenderer Nunito60;
 
-    @FontDetails(fontName = "ThaiRounded35", fontSize = 35)
-    public static GameFontRenderer ThaiRounded35;
-
-    @FontDetails(fontName = "ThaiRounded40", fontSize = 40)
-    public static GameFontRenderer ThaiRounded40;
     @FontDetails(fontName = "SFApple24", fontSize = 24)
     public static GameFontRenderer SFApple24;
     @FontDetails(fontName = "SFApple30", fontSize = 30)
@@ -156,8 +151,6 @@ public class Fonts {
         Nunito40 = new GameFontRenderer(getFontcustom(40, "Nunito"));
         Nunito50 = new GameFontRenderer(getFontcustom(50, "Nunito"));
         Nunito60 = new GameFontRenderer(getFontcustom(60, "Nunito"));
-        ThaiRounded35 = new GameFontRenderer(getFontcustom(35, "thairounded"));
-        ThaiRounded40 = new GameFontRenderer(getFontcustom(40, "thairounded"));
         SFApple40 = new GameFontRenderer(getFontcustom(40, "SFApple"));
         SFApple30 = new GameFontRenderer(getFontcustom(30, "SFApple"));
         SFApple35 = new GameFontRenderer(getFontcustom(35, "SFApple"));

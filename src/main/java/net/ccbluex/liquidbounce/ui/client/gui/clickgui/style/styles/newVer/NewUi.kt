@@ -7,6 +7,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.eleme
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.ui.client.gui.paint.GuiPaint
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
@@ -134,30 +135,8 @@ class NewUi private constructor() : GuiScreen() {
             windowYStart = mouseY + y2
             windowXEnd = windowXStart + w
             windowYEnd = windowYStart + h
-//            lastMouseX = mouseX.toFloat()
-//            lastMouseY = mouseY.toFloat()
         }
-
-//        xAnimDelta = AnimationHelper.animation(xAnimDelta, lastMouseX, 0.01f)
-//        yAnimDelta = AnimationHelper.animation(yAnimDelta, lastMouseY, 0.01f)
     }
-    
-//    private fun handlingPreRotationAnimation(): Boolean {
-//        if (!isDoneRotatingAnimation()) {
-//            GlStateManager.pushMatrix()
-//            GlStateManager.translate(lastMouseX, lastMouseY, 0F)
-//            GlStateManager.rotate((lastMouseX - xAnimDelta) / width.toFloat() * 180f + (lastMouseY - yAnimDelta) / (height.toFloat()) * 360f, 0f, 0f, 1f)
-//            return true
-//        }
-//        return false
-//    }
-//
-//    private fun handlingPostRotationAnimation() {
-//        if (!isDoneRotatingAnimation())
-//            GlStateManager.popMatrix()
-//    }
-//
-//    private fun isDoneRotatingAnimation() = NewGUI.fastRenderValue.get() || (abs(lastMouseX - xAnimDelta) <= 0f && abs(lastMouseY - yAnimDelta) <= 0f)
 
     private fun handleResize(mouseX: Int, mouseY: Int) {
         val mouseX = mouseX - xHoldOffset
@@ -248,11 +227,12 @@ class NewUi private constructor() : GuiScreen() {
         RenderUtils.customRounded((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYStart + yOffset) + 20f, windowRadius, windowRadius, 0f, 0f, backgroundColor2.rgb)
 
         // something to make it look more like windoze - inf, 2022
-        if (mouseX.toFloat() in (windowXEnd - 20F)..(windowXEnd) && mouseY.toFloat() in (windowYStart - 20F)..(windowYStart))
+        if (mouseX.toFloat() in (windowXEnd - 20F)..(windowXEnd) && mouseY.toFloat() in (windowYStart)..(windowYStart + 20F))
             RenderUtils.customRounded((windowXEnd + xOffset) - 20f, (windowYStart + yOffset), (windowXEnd + xOffset), (windowYStart + yOffset) + 20f, 0f, windowRadius, 0f, 0f, xButtonColor.rgb)
         GlStateManager.disableAlpha()
         RenderUtils.drawImage(IconManager.removeIcon, (windowXEnd + xOffset).toInt() - 15, (windowYStart + yOffset).toInt() + 5, 10, 10)
         RenderUtils.drawImage(IconManager.brush, (windowXStart + xOffset).toInt() + 6, (windowYEnd + yOffset).toInt() - 30, 24,24)
+        RenderUtils.drawImage(IconManager.paint, (windowXStart + xOffset).toInt() + 6, (windowYEnd + yOffset).toInt() - 60, 24,24)
         GlStateManager.enableAlpha()
 
         // reset search pos
@@ -329,6 +309,10 @@ class NewUi private constructor() : GuiScreen() {
         }
         if (Rectangle(windowXStart, windowYEnd - 40, 40f, 40f).contains(mouseX, mouseY)) {
             mc.displayGuiScreen(GuiHudDesigner())
+            return
+        }
+       if (Rectangle(windowXStart , windowYEnd - 80, 40f, 40f).contains(mouseX, mouseY)) {
+            mc.displayGuiScreen(GuiPaint())
             return
         }
 

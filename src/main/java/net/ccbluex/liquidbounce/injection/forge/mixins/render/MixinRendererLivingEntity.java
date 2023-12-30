@@ -1,8 +1,4 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+ 
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.CrossSine;
@@ -45,7 +41,10 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     public abstract <T extends EntityLivingBase> int getColorMultiplier(T entitylivingbaseIn, float lightBrightness, float partialTickTime);
     @Shadow
     protected FloatBuffer brightnessBuffer = GLAllocation.createDirectFloatBuffer(4);
-
+    @Shadow
+    public ModelBase getMainModel() {
+        return this.mainModel;
+    }
     private static final DynamicTexture field_177096_e = new DynamicTexture(16, 16);
     @Shadow
     protected <T extends EntityLivingBase> float getDeathMaxRotation(T p_getDeathMaxRotation_1_) {

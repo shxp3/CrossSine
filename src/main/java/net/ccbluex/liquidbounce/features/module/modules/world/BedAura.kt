@@ -45,7 +45,8 @@ object BedAura : Module() {
      * SETTINGS
      */
     private val rangeValue = FloatValue("Range", 5F, 1F, 7F)
-    private val instantValue = BoolValue("Instant", false)
+    private val fastMineValue = BoolValue("FastMine", false)
+    private val fastMineSpeed = FloatValue("FastMine-Speed", 1.5f, 1f, 3f).displayable { fastMineValue.get() }
     private val swingValue = BoolValue("Swing", false)
     private val onClickMouse = BoolValue("onClick", false)
     private val noMoveValue = BoolValue("noMove", false)
@@ -99,7 +100,39 @@ object BedAura : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
     }
-
+    @EventTarget
+    fun onMotion(e: MotionEvent) {
+        if (!fastMineValue.get()) return
+        if (e.isPre()) {
+            mc.playerController.blockHitDelay = 0
+            if (pos != null && boost) {
+                val blockState = mc.theWorld.getBlockState(pos) ?: return
+                damage += try {
+                    blockState.block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos) * fastMineSpeed.get()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    return
+                }
+                if (damage >= 1) {
+                    try {
+                        mc.theWorld.setBlockState(pos, Blocks.air.defaultState, 11)
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                        return
+                    }
+                    PacketUtils.sendPacketNoEvent(
+                        C07PacketPlayerDigging(
+                            C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
+                            pos,
+                            facing
+                        )
+                    )
+                    damage = 0f
+                    boost = false
+                }
+            }
+        }
+    }
     @EventTarget
     fun onWorld(event: WorldEvent) {
         if (event.worldClient != lastWorld) {
@@ -211,6 +244,7 @@ object BedAura : Module() {
 
             // Reset switch timer when position changed
             if (oldPos != null && oldPos != currentPos) {
+                ItemSpoofUtils.stopSpoof()
                 currentDamage = 0F
                 switchTimer.reset()
             }
@@ -234,29 +268,6 @@ object BedAura : Module() {
                 actionValue || surroundings || !isRealBlock -> {
                     if (surroundingsValue.get() && throughWall.get()) {
                         AutoToolFun(currentPos)
-                    }
-                    // Break block
-                    if (instantValue.get()) {
-                        // CivBreak style block breaking
-                        mc.netHandler.addToSendQueue(
-                            C07PacketPlayerDigging(
-                                C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                                currentPos, EnumFacing.DOWN
-                            )
-                        )
-                        if (swingValue.get()) {
-                            mc.thePlayer.swingItem()
-                        } else {
-                            mc.netHandler.addToSendQueue(C0APacketAnimation())
-                        }
-                        mc.netHandler.addToSendQueue(
-                            C07PacketPlayerDigging(
-                                C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                                currentPos, EnumFacing.DOWN
-                            )
-                        )
-                        currentDamage = 0F
-                        return
                     }
                     // Minecraft block breaking
                     val block = currentPos.getBlock() ?: return
@@ -336,10 +347,21 @@ object BedAura : Module() {
         val width = ScaledResolution(mc).scaledWidth
         val height = ScaledResolution(mc).scaledHeight
         val d = DecimalFormat("0", DecimalFormatSymbols(Locale.ENGLISH))
+        var damage = currentDamage
+        var damageTick = 0F
+        if (damage >= 1F) {
+            damage = 1F
+        }
+        if (damage == 1F) {
+            damageTick++
+        }
+        if (damageTick >= 5F) {
+            damage = currentDamage
+        }
         if (showProcess.get()) {
-            if (pos != null) {
+            if (damage != 0F) {
                 mc.fontRendererObj.drawString(
-                    d.format(currentDamage * 100),
+                    d.format(damage * 100) + "%",
                     width / 2F,
                     height / 2 + 20F,
                     Color.WHITE.rgb,
@@ -452,6 +474,21 @@ object BedAura : Module() {
             if (slot != -1) {
                 bestSlot = slot
                 serverSideSlot = bestSlot
+            }
+        }
+        if (fastMineValue.get()) {
+            if (e.packet is C07PacketPlayerDigging) {
+                val packet = e.packet
+                if (packet.status == C07PacketPlayerDigging.Action.START_DESTROY_BLOCK) {
+                    boost = true
+                    pos = packet.position
+                    facing = packet.facing
+                    damage = 0f
+                } else if ((packet.status == C07PacketPlayerDigging.Action.ABORT_DESTROY_BLOCK) or (packet.status == C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK)) {
+                    boost = false
+                    pos = null
+                    facing = null
+                }
             }
         }
     }

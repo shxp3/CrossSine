@@ -16,28 +16,28 @@ import net.ccbluex.liquidbounce.utils.extensions.drawCenteredStringFade
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.GlowUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
+import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.swing.text.JTextComponent.KeyBinding
 
 @ModuleInfo(name = "HUD", "HUD", category = ModuleCategory.VISUAL, array = false, defaultOn = true)
 object HUD : Module() {
-    val test1 = FloatValue("Test1", 0F, -50F, 50F)
-    val test2 = FloatValue("Test2", 0F, -50F, 50F)
-    val test3 = FloatValue("Test3", 0F, -50F, 50F)
-    val test4 = FloatValue("Test4", 0F, -50F, 50F)
-    val test5 = IntegerValue("test5", 0, 0, 10)
+    val test1 = FloatValue("Test", 0F, 0F, 5F)
     val hudtext = BoolValue("HUDText", true)
     val title = TitleValue(".clientusername (name)")
     val buttonValue = BoolValue("ContainerButton", false)
     val inventoryParticle = BoolValue("InventoryParticle", false)
+    val inventoryAnimation = BoolValue("InventoryAnimation", false)
     val UiShadowValue = ListValue("UiEffect", arrayOf("Shadow", "Glow", "None"), "None")
     val ColorGuiInGameValue = IntegerValue("ColorGuiInGame", 0, 0, 9)
     var scafState = false
@@ -46,6 +46,9 @@ object HUD : Module() {
     @EventTarget
     fun onTick(event: TickEvent) {
         mc.guiAchievement.clearAchievements()
+        if (Keyboard.isKeyDown(Keyboard.KEY_PERIOD) && mc.currentScreen == null) {
+            mc.displayGuiScreen(GuiChat("."))
+        }
     }
 
     @EventTarget
@@ -57,7 +60,7 @@ object HUD : Module() {
             val name = "CrossSine"
             val other = " | ${CrossSine.USER_NAME} | ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"))}"
             val leagth = Fonts.fontTenacityBold40.getStringWidth(name) + Fonts.fontTenacityBold35.getStringWidth(other)
-            RenderUtils.drawSmoothRoundedRect(2F, 3.5F, leagth + 6F, Fonts.fontTenacityBold40.FONT_HEIGHT + 5F, 5F, Color(0,0,0,180))
+            RenderUtils.customRounded(2F, 3.5F, leagth + 6F, Fonts.fontTenacityBold40.FONT_HEIGHT + 5F, 0F, 0F, 5F, 5F, Color(0,0,0,180).rgb)
             RenderUtils.drawAnimatedGradient(2.0, 3.0, leagth + 6.0, 4.0, ClientTheme.getColor(0).rgb, ClientTheme.getColor(90).rgb)
             GlowUtils.drawGlow(3.79F, 6.07F, 3.83F + Fonts.fontTenacityBold40.getStringWidth(name).toFloat(), 7.21F, 9, ClientTheme.getColor(1))
             for (l in name.indices) {

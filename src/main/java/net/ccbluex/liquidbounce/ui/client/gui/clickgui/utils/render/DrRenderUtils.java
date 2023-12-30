@@ -1,8 +1,4 @@
-/*
- * CrossSine Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/shxp3/CrossSine
- */
+
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.render;
 
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.animations.Animation;

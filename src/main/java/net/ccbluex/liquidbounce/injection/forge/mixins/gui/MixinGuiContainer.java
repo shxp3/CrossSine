@@ -1,8 +1,4 @@
-/*
- * CrossSine Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/shxp3/CrossSine
- */
+
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
@@ -13,6 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
+import net.ccbluex.liquidbounce.utils.render.EaseUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -42,6 +39,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
     protected int guiTop;
 
     private long guiOpenTime = -1;
+
     private boolean translated = false;
 
     @Shadow
@@ -65,9 +63,11 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         }
         lastMS = System.currentTimeMillis();
         progress = 0F;
-
      }
-
+    @Inject(method = "initGui", at = @At("RETURN"))
+    private void initGuiReturn(CallbackInfo callbackInfo) {
+        guiOpenTime = System.currentTimeMillis();
+    }
     @Override
     protected void actionPerformed(GuiButton button) {
         if (button.id == 1024576)
@@ -105,6 +105,21 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             }
         } else {
             mc.currentScreen.drawWorldBackground(0);
+            if (HUD.INSTANCE.getInventoryAnimation().get() && HUD.INSTANCE.getState()) {
+                double pct = Math.max(500 - (System.currentTimeMillis() - guiOpenTime), 0) / ((double) 500);
+                if (pct != 0) {
+                    GL11.glPushMatrix();
+                    pct = EaseUtils.apply(EaseUtils.EnumEasingType.CIRC,
+                            EaseUtils.EnumEasingOrder.FAST_AT_START, pct);
+
+                    double scale = 1 - pct;
+                    GL11.glScaled(scale, scale, scale);
+                    GL11.glTranslated(((guiLeft + (xSize * 0.5 * pct)) / scale) - guiLeft,
+                            ((guiTop + (ySize * 0.5d * pct)) / scale) - guiTop,
+                            0);
+                    translated = true;
+                }
+            }
         }
     }
 
