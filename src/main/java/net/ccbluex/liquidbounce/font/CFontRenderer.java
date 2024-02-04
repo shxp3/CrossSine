@@ -3,7 +3,6 @@
 package net.ccbluex.liquidbounce.font;
 
 import net.ccbluex.liquidbounce.ui.font.Fonts;
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -81,7 +80,6 @@ public class CFontRenderer extends CFont {
         return isLegalChar;
     }
     public static int DisplayFontWidth(String str, CFontRenderer font) {
-        str = LanguageManager.INSTANCE.get(LanguageManager.INSTANCE.replace(str));
         int x=0;
         for(int iF = 0; iF < str.length(); ++iF) {
             String s = String.valueOf(str.toCharArray()[iF]);
@@ -100,7 +98,6 @@ public class CFontRenderer extends CFont {
         return DisplayFontWidths(str,font);
     }
     public int DisplayFontWidths(String str, CFontRenderer font) {
-        str = LanguageManager.INSTANCE.get(LanguageManager.INSTANCE.replace(str));
         int x=0;
         for(int iF = 0; iF < str.length(); ++iF) {
             String s = String.valueOf(str.toCharArray()[iF]);
@@ -131,7 +128,6 @@ public class CFontRenderer extends CFont {
         }
     }
     public static float DisplayFont(String str, float x, float y, int color,boolean shadow, CFontRenderer font) {
-        str = LanguageManager.INSTANCE.get(LanguageManager.INSTANCE.replace(str));
         str=" "+str;
         //ClientUtils.INSTANCE.displayAlert(str);
         for(int iF = 0; iF < str.length(); ++iF) {
@@ -154,7 +150,6 @@ public class CFontRenderer extends CFont {
     }
 
     public static float DisplayFont(String str, float x, float y, int color, CFontRenderer font) {
-        str = LanguageManager.INSTANCE.get(LanguageManager.INSTANCE.replace(str));
         str=" "+str;
         for(int iF = 0; iF < str.length(); ++iF) {
             String s = String.valueOf(str.toCharArray()[iF]);
@@ -173,7 +168,6 @@ public class CFontRenderer extends CFont {
     }
 
     public float DisplayFonts(String str, float x, float y, int color, CFontRenderer font) {
-        str = LanguageManager.INSTANCE.get(LanguageManager.INSTANCE.replace(str));
         str=" "+str;
         for(int iF = 0; iF < str.length(); ++iF) {
             String s = String.valueOf(str.toCharArray()[iF]);

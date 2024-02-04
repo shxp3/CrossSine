@@ -16,7 +16,7 @@ import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB
 
 @ModuleInfo(name = "NoFall", spacedName = "No Fall", category = ModuleCategory.PLAYER, autoDisable = EnumAutoDisableType.FLAG)
-class NoFall : Module() {
+object NoFall : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.nofalls", NoFallMode::class.java)
         .map { it.newInstance() as NoFallMode }
         .sortedBy { it.modeName }

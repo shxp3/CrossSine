@@ -17,7 +17,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 @ModuleInfo(name = "Crosshair", spacedName = "Crosshair", category = ModuleCategory.VISUAL)
-class Crosshair : Module() {
+object Crosshair : Module() {
 
     // Size, width, hitmarker
     private val widthValue = FloatValue("Width", 0.5f, 0.25f, 10f)

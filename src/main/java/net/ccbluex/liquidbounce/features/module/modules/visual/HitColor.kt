@@ -8,9 +8,9 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 
 @ModuleInfo(name = "HitColor", spacedName = "HitColor", category = ModuleCategory.VISUAL)
 class HitColor : Module() {
-    val hitColorRainbow = BoolValue("RainBow", false)
-    val hitColorRValue = IntegerValue("HitRed", 255, 0, 255).displayable { !hitColorRainbow.get() }
-    val hitColorGValue = IntegerValue("HitGreen", 255, 0, 255).displayable { !hitColorRainbow.get() }
-    val hitColorBValue = IntegerValue("HitBlue", 255, 0, 255).displayable { !hitColorRainbow.get() }
-    val hitColorAlphaValue = IntegerValue("HitAlpha", 255, 0, 255).displayable { !hitColorRainbow.get() }
+    val hitColorTheme = BoolValue("ColorTheme", false)
+    val hitColorRValue = IntegerValue("HitRed", 255, 0, 255).displayable { !hitColorTheme.get() }
+    val hitColorGValue = IntegerValue("HitGreen", 255, 0, 255).displayable { !hitColorTheme.get() }
+    val hitColorBValue = IntegerValue("HitBlue", 255, 0, 255).displayable { !hitColorTheme.get() }
+    val hitColorAlphaValue = IntegerValue("HitAlpha", 255, 0, 255)
 }

@@ -20,13 +20,13 @@ import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "SafeWalk", "Safe Walk", category = ModuleCategory.GHOST)
 object SafeWalk : Module() {
-    private val shiftValue = BoolValue("Shift", false)
-    private val og = BoolValue("OnlyGround", false)
-    private val onBlock = BoolValue("Block only", false).displayable { shiftValue.get() }
-    private val onMouse = BoolValue("MouseDown Only", false).displayable { shiftValue.get() }
-    private val noSpeedPotion = BoolValue("NoPotionSpeed", false).displayable { shiftValue.get() }
-    private val onHoldShift = BoolValue("OnHoldShift", false).displayable { shiftValue.get() }
-    private val ShiftMax: IntegerValue = object : IntegerValue("Shift-Max", 0, 0, 20) {
+
+    val shiftValue = BoolValue("Shift", false)
+    val og = BoolValue("OnlyGround", false)
+    val onBlock = BoolValue("Block only", false).displayable { shiftValue.get() }
+    val noSpeedPotion = BoolValue("NoPotionSpeed", false).displayable { shiftValue.get() }
+    val onHoldShift = BoolValue("OnHoldShift", false).displayable { shiftValue.get() }
+    val ShiftMax: IntegerValue = object : IntegerValue("Shift-Max", 0, 0, 20) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val ShiftMin = ShiftMin.get()
             if (ShiftMin > newValue) {
@@ -42,8 +42,8 @@ object SafeWalk : Module() {
             }
         }
     }.displayable { shiftValue.get() } as IntegerValue
-    private val PitchLitmit = BoolValue("Pitch", false)
-    private val PitchMax: IntegerValue = object : IntegerValue("Pitch-Max", 0, 0, 90) {
+    val PitchLitmit = BoolValue("Pitch", false)
+    val PitchMax: IntegerValue = object : IntegerValue("Pitch-Max", 0, 0, 90) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val PitchMin = PitchMin.get()
             if (PitchMin > newValue) {
@@ -51,7 +51,7 @@ object SafeWalk : Module() {
             }
         }
     }.displayable { PitchLitmit.get() } as IntegerValue
-    private val PitchMin: IntegerValue = object : IntegerValue("Pitch-Min", 0, 0, 90) {
+    val PitchMin: IntegerValue = object : IntegerValue("Pitch-Min", 0, 0, 90) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val PitchMax = PitchMax.get()
             if (PitchMax < newValue) {
@@ -59,14 +59,15 @@ object SafeWalk : Module() {
             }
         }
     }.displayable { PitchLitmit.get() } as IntegerValue
+
     @EventTarget
     fun onMove(event: MoveEvent) {
         if (shiftValue.get()) return
-            if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
-                event.isSafeWalk = true
-            } else {
-                event.isSafeWalk = false
-            }
+        if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
+            event.isSafeWalk = true
+        } else {
+            event.isSafeWalk = false
+        }
     }
 
     @EventTarget
@@ -75,20 +76,18 @@ object SafeWalk : Module() {
         if (mc.currentScreen == null) {
             if (mc.gameSettings.keyBindBack.isKeyDown) {
                 if (!onBlock.get() || mc.thePlayer.heldItem.item is ItemBlock) {
-                    if (!onMouse.get() || Mouse.isButtonDown(1)) {
-                        if (!onHoldShift.get() || Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
-                            if (!og.get() || mc.thePlayer.onGround) {
-                                if (!noSpeedPotion.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                                    if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
-                                        mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
-                                            BlockPos(
-                                                mc.thePlayer.posX + mc.thePlayer.motionX * getShift(),
-                                                mc.thePlayer.posY - 1.0,
-                                                mc.thePlayer.posZ + mc.thePlayer.motionZ * getShift()
-                                            )
-                                        ).block == Blocks.air
-                                        return
-                                    }
+                    if (!onHoldShift.get() || Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
+                        if (!og.get() || mc.thePlayer.onGround) {
+                            if (!noSpeedPotion.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                                if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
+                                    mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
+                                        BlockPos(
+                                            mc.thePlayer.posX + mc.thePlayer.motionX * getShift(),
+                                            mc.thePlayer.posY - 1.0,
+                                            mc.thePlayer.posZ + mc.thePlayer.motionZ * getShift()
+                                        )
+                                    ).block == Blocks.air
+                                    return
                                 }
                             }
                         }
@@ -108,6 +107,7 @@ object SafeWalk : Module() {
         }
 
     }
+
     private fun getShift(): Double {
         val fuckmin = ShiftMin.get() / 10
         val fuckmax = ShiftMax.get() / 10

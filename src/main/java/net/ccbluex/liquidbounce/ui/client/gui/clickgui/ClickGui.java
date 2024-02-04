@@ -4,17 +4,15 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
-import net.ccbluex.liquidbounce.file.config.ConfigManager;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ButtonElement;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.Element;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ModuleElement;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.Style;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.SlowlyStyle;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.LiquidBounceStyle;
 import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
-import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.GuiScreen;
@@ -22,7 +20,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +31,7 @@ import static net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage;
 public class ClickGui extends GuiScreen {
 
     public final List<Panel> panels = new ArrayList<>();
-    public Style style = new SlowlyStyle();
+    public Style style = new LiquidBounceStyle();
     private Panel clickedPanel;
     private int mouseX;
     private int mouseY;

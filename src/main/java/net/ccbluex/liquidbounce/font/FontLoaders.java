@@ -15,6 +15,7 @@ public abstract class FontLoaders {
     public static final CFontRenderer F40 = new CFontRenderer(getFont(40), true, true);
     public static final CFontRenderer C18 = new CFontRenderer(getComfortaa(18), true, true);
     public static CFontRenderer SF17 = new CFontRenderer(getSF(17), true, true);
+    public static CFontRenderer SF18 = new CFontRenderer(getSF(18), true, true);
     public static CFontRenderer SF20 = new CFontRenderer(getSF(20), true, true);
     public static CFontRenderer SF30 = new CFontRenderer(getSF(30), true, true);
     public static CFontRenderer SF40 = new CFontRenderer(getSF(40), true, true);
@@ -60,7 +61,7 @@ public abstract class FontLoaders {
         public static Font getSF(int size) {
         Font font;
         try {
-            font = Font.createFont(0, Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("crosssine/font/SF.ttf")).getInputStream()).deriveFont(Font.PLAIN, (float) size);
+            font = Font.createFont(0, Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("crosssine/font/SFApple.ttf")).getInputStream()).deriveFont(Font.PLAIN, (float) size);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("Error loading font");

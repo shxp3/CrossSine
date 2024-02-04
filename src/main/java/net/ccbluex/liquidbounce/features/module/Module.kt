@@ -5,7 +5,6 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.utils.AnimationHelper
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
@@ -66,11 +65,7 @@ open class Module : MinecraftInstance(), Listenable {
     }
 
     open fun onLoad() {
-        localizedName = if(LanguageManager.getAndFormat("module.$name.name") == "module.$name.name") {
-            name
-        } else {
-            LanguageManager.getAndFormat("module.$name.name")
-        }
+        localizedName = name
     }
 
     // Current state of module
@@ -84,9 +79,9 @@ open class Module : MinecraftInstance(), Listenable {
             // Play sound and add notification
             if (!CrossSine.isStarting) {
                 if (value) {
-                    CrossSine.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.enable", localizedName), NotifyType.SUCCESS))
+                    CrossSine.hud.addNotification(Notification("Module", "Enabled $localizedName", NotifyType.SUCCESS))
                 } else {
-                    CrossSine.hud.addNotification(Notification(LanguageManager.getAndFormat("notify.module.title"), LanguageManager.getAndFormat("notify.module.disable", localizedName), NotifyType.ERROR))
+                    CrossSine.hud.addNotification(Notification("Module", "Disable $localizedName", NotifyType.ERROR))
                 }
             }
 

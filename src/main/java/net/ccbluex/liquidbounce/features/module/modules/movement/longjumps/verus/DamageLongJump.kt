@@ -23,7 +23,7 @@ class DamageLongJump: LongJumpMode("DamageVerus") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is C03PacketPlayer) {
-            if (verjump < 4) {
+            if (verjump < 3) {
                 packet.onGround = false
             }
         }
@@ -34,7 +34,7 @@ class DamageLongJump: LongJumpMode("DamageVerus") {
             mc.thePlayer.jump()
             verjump += 1
         }
-        if (mc.thePlayer.hurtTime == 9 && mc.thePlayer.onGround) {
+        if (mc.thePlayer.hurtTime == 9) {
             damaged = true
             mc.thePlayer.motionY = verusY.get().toDouble()
         }

@@ -35,9 +35,9 @@ import java.text.DecimalFormat
 @ModuleInfo(name = "ESP", spacedName = "ESP", category = ModuleCategory.VISUAL)
 class ESP : Module() {
     val modeValue = ListValue(
-        "Mode",
-        arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow", "HealthLine"),
-    "Outline")
+            "Mode",
+            arrayOf("Box", "OtherBox", "2D", "Real2D", "CSGO", "CSGO-Old", "Outline", "ShaderOutline", "ShaderGlow", "HealthLine"),
+            "Outline")
     private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
     private val shaderOutlineRadiusValue = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f).displayable { modeValue.equals("ShaderOutline") }
     private val shaderGlowRadiusValue = FloatValue("ShaderGlow-Radius", 2.3f, 2f, 3f).displayable { modeValue.equals("ShaderGlow") }
@@ -91,11 +91,11 @@ class ESP : Module() {
                         val renderManager = mc.renderManager
                         val timer = mc.timer
                         val posX =
-                            entityLiving.lastTickPosX + (entityLiving.posX - entityLiving.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX
+                                entityLiving.lastTickPosX + (entityLiving.posX - entityLiving.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX
                         val posY =
-                            entityLiving.lastTickPosY + (entityLiving.posY - entityLiving.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY
+                                entityLiving.lastTickPosY + (entityLiving.posY - entityLiving.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY
                         val posZ =
-                            entityLiving.lastTickPosZ + (entityLiving.posZ - entityLiving.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
+                                entityLiving.lastTickPosZ + (entityLiving.posZ - entityLiving.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
                         RenderUtils.draw2D(entityLiving, posX, posY, posZ, color.rgb, Color.BLACK.rgb)
                     }
 
@@ -103,22 +103,22 @@ class ESP : Module() {
                         val renderManager = mc.renderManager
                         val timer = mc.timer
                         val bb = entityLiving.entityBoundingBox
-                            .offset(-entityLiving.posX, -entityLiving.posY, -entityLiving.posZ)
-                            .offset(
-                                entityLiving.lastTickPosX + (entityLiving.posX - entityLiving.lastTickPosX) * timer.renderPartialTicks,
-                                entityLiving.lastTickPosY + (entityLiving.posY - entityLiving.lastTickPosY) * timer.renderPartialTicks,
-                                entityLiving.lastTickPosZ + (entityLiving.posZ - entityLiving.lastTickPosZ) * timer.renderPartialTicks
-                            )
-                            .offset(-renderManager.renderPosX, -renderManager.renderPosY, -renderManager.renderPosZ)
+                                .offset(-entityLiving.posX, -entityLiving.posY, -entityLiving.posZ)
+                                .offset(
+                                        entityLiving.lastTickPosX + (entityLiving.posX - entityLiving.lastTickPosX) * timer.renderPartialTicks,
+                                        entityLiving.lastTickPosY + (entityLiving.posY - entityLiving.lastTickPosY) * timer.renderPartialTicks,
+                                        entityLiving.lastTickPosZ + (entityLiving.posZ - entityLiving.lastTickPosZ) * timer.renderPartialTicks
+                                )
+                                .offset(-renderManager.renderPosX, -renderManager.renderPosY, -renderManager.renderPosZ)
                         val boxVertices = arrayOf(
-                            doubleArrayOf(bb.minX, bb.minY, bb.minZ),
-                            doubleArrayOf(bb.minX, bb.maxY, bb.minZ),
-                            doubleArrayOf(bb.maxX, bb.maxY, bb.minZ),
-                            doubleArrayOf(bb.maxX, bb.minY, bb.minZ),
-                            doubleArrayOf(bb.minX, bb.minY, bb.maxZ),
-                            doubleArrayOf(bb.minX, bb.maxY, bb.maxZ),
-                            doubleArrayOf(bb.maxX, bb.maxY, bb.maxZ),
-                            doubleArrayOf(bb.maxX, bb.minY, bb.maxZ)
+                                doubleArrayOf(bb.minX, bb.minY, bb.minZ),
+                                doubleArrayOf(bb.minX, bb.maxY, bb.minZ),
+                                doubleArrayOf(bb.maxX, bb.maxY, bb.minZ),
+                                doubleArrayOf(bb.maxX, bb.minY, bb.minZ),
+                                doubleArrayOf(bb.minX, bb.minY, bb.maxZ),
+                                doubleArrayOf(bb.minX, bb.maxY, bb.maxZ),
+                                doubleArrayOf(bb.maxX, bb.maxY, bb.maxZ),
+                                doubleArrayOf(bb.maxX, bb.minY, bb.maxZ)
                         )
                         var minX = mc.displayWidth.toFloat()
                         var minY = mc.displayHeight.toFloat()
@@ -126,9 +126,9 @@ class ESP : Module() {
                         var maxY = 0f
                         for (boxVertex in boxVertices) {
                             val screenPos = WorldToScreen.worldToScreen(
-                                Vector3f(
-                                    boxVertex[0].toFloat(), boxVertex[1].toFloat(), boxVertex[2].toFloat()
-                                ), mvMatrix, projectionMatrix, mc.displayWidth, mc.displayHeight
+                                    Vector3f(
+                                            boxVertex[0].toFloat(), boxVertex[1].toFloat(), boxVertex[2].toFloat()
+                                    ), mvMatrix, projectionMatrix, mc.displayWidth, mc.displayHeight
                             ) ?: continue
                             minX = screenPos.x.coerceAtMost(minX)
                             minY = screenPos.y.coerceAtMost(minY)
@@ -226,9 +226,9 @@ class ESP : Module() {
                         val renderManager = mc.renderManager
                         val timer = mc.timer
                         GL11.glTranslated(
-                            entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX,
-                            entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY - 0.2,
-                            entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
+                                entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX,
+                                entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY - 0.2,
+                                entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
                         )
                         GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
                         RenderUtils.disableGlCap(GL11.GL_LIGHTING, GL11.GL_DEPTH_TEST)

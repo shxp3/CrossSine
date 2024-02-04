@@ -1,8 +1,10 @@
 package net.ccbluex.liquidbounce.ui.client.keybind
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.client.other.PopUI
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
@@ -20,6 +22,7 @@ class KeyBindManager : GuiScreen() {
 
     private val keys = ArrayList<KeyInfo>()
     var nowDisplayKey: KeyInfo? = null
+    var clicked: Boolean = false
     var popUI: PopUI? = null
 
     override fun initGui() {
@@ -44,18 +47,17 @@ class KeyBindManager : GuiScreen() {
 
         GL11.glPushMatrix()
 
-//        GL11.glPushMatrix()
-        GL11.glScalef(2f, 2f, 2f)
-        FontLoaders.C18.DisplayFonts("%ui.keybind.title%", width * 0.21f * 0.5f, height * 0.2f * 0.5f, Color.WHITE.rgb, FontLoaders.C18)
-//        GL11.glPopMatrix()
-        GL11.glScalef(0.5f, 0.5f, 0.5f)
+        GL11.glPushMatrix()
+        GL11.glScalef(2.0F, 2.0F, 2.0F)
+        Fonts.fontRockoFLF40.drawString("KeyBind Manager", width * 0.21f * 0.5f, height * 0.2f * 0.5f - 0.5F, Color.WHITE.rgb, false)
+        GL11.glPopMatrix()
 
-        GL11.glTranslatef(width * 0.2f, height * 0.2f + FontLoaders.C18.height * 2.3f, 0F)
+        GL11.glTranslatef(width * 0.2f, height * 0.2f + Fonts.SFApple40.height * 2.3f, 0F)
         val scale = mcWidth / baseWidth.toFloat()
         // It's easier to use scale
         GL11.glScalef(scale, scale, scale)
 
-        RenderUtils.drawRect(0F, 0F, baseWidth.toFloat(), baseHeight.toFloat(), Color.WHITE.rgb)
+        RenderUtils.drawRoundedRect(0F, 0F, baseWidth.toFloat(), baseHeight.toFloat(), 7F, Color.WHITE.rgb)
 
         for (key in keys) {
             key.render()
@@ -76,7 +78,7 @@ class KeyBindManager : GuiScreen() {
                     popUI!!.onStroll(width, height, mouseX, mouseY, wheel)
                 } else if (nowDisplayKey != null) {
                     val scaledMouseX = (mouseX - width * 0.2f) / scale
-                    val scaledMouseY = (mouseY - (height * 0.2f + FontLoaders.C18.height * 2.3f)) / scale
+                    val scaledMouseY = (mouseY - (height * 0.2f + Fonts.SFApple40.height * 2.3f)) / scale
 
                     nowDisplayKey!!.stroll(scaledMouseX, scaledMouseY, wheel)
                 }
@@ -91,7 +93,7 @@ class KeyBindManager : GuiScreen() {
         if (popUI == null) {
             val scale = ((width * 0.8f) - (width * 0.2f)) / baseWidth
             val scaledMouseX = (mouseX - width * 0.2f) / scale
-            val scaledMouseY = (mouseY - (height * 0.2f + FontLoaders.C18.height * 2.3f)) / scale
+            val scaledMouseY = (mouseY - (height * 0.2f + Fonts.SFApple40.height * 2.3f)) / scale
 
             if (nowDisplayKey == null) {
                 // click out of area

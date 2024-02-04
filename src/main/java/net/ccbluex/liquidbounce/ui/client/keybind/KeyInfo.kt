@@ -6,12 +6,13 @@ import net.ccbluex.liquidbounce.features.macro.Macro
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
+import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -48,12 +49,9 @@ class KeyInfo(
     fun render() {
         GL11.glPushMatrix()
         GL11.glTranslatef(posX, posY, 0F)
-
-        RenderUtils.drawRect(0F, 0F, width, height, keyColor)
-        RenderUtils.drawRect(0F, height * 0.9F, width, height, shadowColor)
-        (if (hasKeyBind) { Fonts.font40 } else { Fonts.font40 })
-            .drawCenteredString(keyName, width * 0.5F, height * 0.9F * 0.5F - (Fonts.font35.FONT_HEIGHT * 0.5F) + 3F, if (hasKeyBind) { usedColor } else { unusedColor }, false)
-
+        RenderUtils.drawRoundedRect(0F, 2F, width, height + 15, 6F, shadowColor)
+        RenderUtils.drawRoundedRect(0F, 0F, width, height, 6F, keyColor)
+        Fonts.SFApple40.drawCenteredString(keyName, width * 0.5F, height * 0.9F * 0.5F - (Fonts.SFApple35.FONT_HEIGHT * 0.5F) + 3F, if (hasKeyBind) { usedColor } else { unusedColor }, false)
         GL11.glPopMatrix()
     }
 
@@ -61,19 +59,19 @@ class KeyInfo(
         GL11.glPushMatrix()
 
         GL11.glTranslatef((posX + width * 0.5F) - baseTabWidth * 0.5F, if (direction) { posY - baseTabHeight } else { posY + height }, 0F)
-        RenderUtils.drawRect(0F, 0F, baseTabWidth.toFloat(), baseTabHeight.toFloat(), Color.WHITE.rgb)
+        RenderUtils.drawRoundedRect(0F, 0F, baseTabWidth.toFloat(), baseTabHeight.toFloat(), 4F, Color.WHITE.rgb)
 
         // render modules
-        val fontHeight = 10F - Fonts.font40.height * 0.5F
-        var yOffset = (12F + Fonts.font40.height + 10F) - stroll
+        val fontHeight = 10F - Fonts.SFApple40.height * 0.5F
+        var yOffset = (12F + Fonts.SFApple40.height + 10F) - stroll
         for (module in modules) {
             if (yOffset> 0 && (yOffset - 20) <100) {
                 GL11.glPushMatrix()
                 GL11.glTranslatef(0F, yOffset, 0F)
 
-                Fonts.font40.drawString(LanguageManager.get(module.localizedName.replace("%", "")), 12F, fontHeight, Color.DARK_GRAY.rgb, false)
-                Fonts.font40.drawString(
-                    "-", baseTabWidth - 12F - Fonts.font40.getStringWidth("-"), fontHeight, Color.RED.rgb, false
+                Fonts.SFApple40.drawString(module.localizedName, 12F, fontHeight, Color.DARK_GRAY.rgb, false)
+                Fonts.SFApple40.drawString(
+                    "-", baseTabWidth - 12F - Fonts.SFApple40.getStringWidth("-"), fontHeight, Color.RED.rgb, false
                 )
 
                 GL11.glPopMatrix()
@@ -85,9 +83,9 @@ class KeyInfo(
                 GL11.glPushMatrix()
                 GL11.glTranslatef(0F, yOffset, 0F)
 
-                Fonts.font40.drawString(macro.command, 12F, fontHeight, Color.DARK_GRAY.rgb, false)
-                Fonts.font40.drawString(
-                    "-", baseTabWidth - 12F - Fonts.font40.getStringWidth("-"), fontHeight, Color.RED.rgb, false
+                Fonts.SFApple40.drawString(macro.command, 12F, fontHeight, Color.DARK_GRAY.rgb, false)
+                Fonts.SFApple40.drawString(
+                    "-", baseTabWidth - 12F - Fonts.SFApple40.getStringWidth("-"), fontHeight, Color.RED.rgb, false
                 )
 
                 GL11.glPopMatrix()
@@ -96,10 +94,10 @@ class KeyInfo(
         }
 
         // cover the excess
-        RenderUtils.drawRect(0F, 0F, baseTabWidth.toFloat(), 12F + Fonts.font40.height + 10F, Color.WHITE.rgb)
-        RenderUtils.drawRect(0F, baseTabHeight - 22F - Fonts.font40.height, baseTabWidth.toFloat(), baseTabHeight.toFloat(), Color.WHITE.rgb)
-        FontLoaders.C18.DisplayFonts(LanguageManager.getAndFormat("ui.keybind.key", keyDisplayName), 12F, 12F, Color.BLACK.rgb, FontLoaders.C18)
-        FontLoaders.C18.DisplayFonts("%ui.keybind.add%", baseTabWidth - 12F - Fonts.font40.getStringWidth("%ui.keybind.add%"), baseTabHeight - 12F - Fonts.font40.height, Color(0, 191, 255).rgb/*sky blue*/, FontLoaders.C18)
+        RenderUtils.drawRoundedRect(0F, 0F, baseTabWidth.toFloat(), 12F + Fonts.SFApple40.height + 10F, 6F, Color.WHITE.rgb)
+        RenderUtils.drawRoundedRect(0F, baseTabHeight - 22F - Fonts.SFApple40.height, baseTabWidth.toFloat(), baseTabHeight.toFloat(), 6F, Color.WHITE.rgb)
+        Fonts.SFApple40.drawString("Key $keyDisplayName", 12F, 12F, Color.BLACK.rgb, false)
+        Fonts.SFApple40.drawString("Add", baseTabWidth - 12F - Fonts.SFApple40.getStringWidth("Add"), baseTabHeight - 12F - Fonts.SFApple40.height, Color(0, 191, 255).rgb/*sky blue*/,false)
 
         GL11.glPopMatrix()
     }
@@ -130,21 +128,23 @@ class KeyInfo(
 
         if (keyBindMgr.nowDisplayKey == null) {
             keyBindMgr.nowDisplayKey = this
+            keyBindMgr.clicked = true
             mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("random.click"), 1F))
         } else {
             val scaledMouseX = mouseX - ((posX + width * 0.5F) - baseTabWidth * 0.5F)
             val scaledMouseY = mouseY - (if (direction) { posY - baseTabHeight } else { posY + height })
             if (scaledMouseX <0 || scaledMouseY <0 || scaledMouseX> baseTabWidth || scaledMouseY> baseTabHeight) {
                 keyBindMgr.nowDisplayKey = null // close it when click out of area
+                keyBindMgr.clicked = false
                 return
             }
 
-            if (scaledMouseY> 22F + Fonts.font40.height &&
-                scaledMouseX> baseTabWidth - 12F - Fonts.font40.getStringWidth("%ui.keybind.add%")) {
-                if (scaledMouseY> baseTabHeight - 22F - Fonts.font40.height) {
+            if (scaledMouseY> 22F + Fonts.SFApple40.height &&
+                scaledMouseX> baseTabWidth - 12F - Fonts.SFApple40.getStringWidth("Add")) {
+                if (scaledMouseY> baseTabHeight - 22F - Fonts.SFApple40.height) {
                     keyBindMgr.popUI = KeySelectUI(this)
                 } else {
-                    var yOffset = (12F + Fonts.font40.height + 10F) - stroll
+                    var yOffset = (12F + Fonts.SFApple40.height + 10F) - stroll
                     for (module in modules) {
                         if (scaledMouseY> (yOffset + 5) && scaledMouseY <(yOffset + 15)) {
                             module.keyBind = Keyboard.KEY_NONE

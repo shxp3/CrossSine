@@ -41,6 +41,7 @@ class Arraylist(
     scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
+    private val textshadow = BoolValue("TextShadow", false)
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowNoCutValue = BoolValue("Shadow-NoCut", false)
     private val shadowStrength = IntegerValue("Shadow-Strength", 1, 1, 30).displayable { shadowShaderValue.get() }
@@ -64,9 +65,7 @@ class Arraylist(
     private val textHeightValue = FloatValue("TextHeight", 11F, 1F, 20F)
     private val textYValue = FloatValue("TextY", 1F, 0F, 20F)
     private val noRender = BoolValue("NoRenderModule", false)
-    private var shadow = ResourceLocation("crosssine/ui/shadow/shadow.png")
     companion object {
-        private val customFont = BoolValue("CustomFont", false)
         val fontValue = FontValue("Font", Fonts.fontTenacity40)
     }
     private var x2 = 0
@@ -77,6 +76,7 @@ class Arraylist(
     private var sortedModules = emptyList<Module>()
 
     override fun drawElement(partialTicks: Float): Border? {
+        if (CrossSine.moduleManager.getModule(JelloArrayList::class.java)!!.state) return null
         val fontRenderer = fontValue.get()
         val counter = intArrayOf(0)
 
@@ -94,7 +94,7 @@ class Arraylist(
         var inx = 0
         for (module in sortedModules) {
             // update slide x
-            if (module.array && (module.state || module.slide != 0F)) {
+            if (module.array && !shouldExpect(module) && (module.state || module.slide != 0F)) {
                 var displayString = getModName(module)
 
                 val width = fontRenderer.getStringWidth(displayString)
@@ -243,7 +243,7 @@ class Arraylist(
                         module.arrayY + textHeight, 0F, 0F, 0F, roundStrength.get(), Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, true)
+                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, textshadow.get())
 
 
                     if (!rectRightValue.get().equals("none", true)) {
@@ -352,7 +352,7 @@ class Arraylist(
                         module.arrayY + textHeight, 0F, 0F, roundStrength.get(), 0F, Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, true)
+                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, textshadow.get())
 
                     if (!rectLeftValue.get().equals("none", true)) {
                         val rectColor = getColor(index).rgb
@@ -439,8 +439,11 @@ class Arraylist(
             && !tagsStyleValue.get().equals("|", true)
             && !tagsStyleValue.get().equals("->", true)
         )
-            returnTag += tagsStyleValue.get()[1].toString()
-
+            if (tagsStyleValue.equals("->")) {
+                returnTag += tagsStyleValue.get()
+            } else {
+                returnTag += tagsStyleValue.get()[1].toString()
+            }
         return returnTag
     }
 
@@ -459,11 +462,5 @@ class Arraylist(
     }
     fun getColor(index : Int) : Color {
         return ClientTheme.getColor(index)
-    }
-    private fun getFont(): FontRenderer {
-        return if (customFont.get())
-            fontValue.get()
-        else
-            Fonts.SFApple40
     }
 }

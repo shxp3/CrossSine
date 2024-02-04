@@ -9,10 +9,10 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.visual.Breadcrumbs
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.BlinkUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.client.entity.EntityOtherPlayerMP
@@ -24,9 +24,7 @@ import java.util.*
 
 @ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
 object Blink : Module() {
-
-    private val outgoingValue = BoolValue("OutGoing", true)
-    private val inboundValue = BoolValue("Inbound", false)
+    val renderPlayer = BoolValue("Render", false)
     private val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 100, 5000).displayable { pulseValue.get() }
 
@@ -38,8 +36,8 @@ object Blink : Module() {
 
     override fun onEnable() {
         if (mc.thePlayer == null) return
-        if (outgoingValue.get()) {
-            BlinkUtils.setBlinkState(all = true)
+        BlinkUtils.setBlinkState(all = true)
+        if (renderPlayer.get()) {
             if (!pulseValue.get()) {
                 fakePlayer = EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.gameProfile)
                 fakePlayer!!.clonePlayer(mc.thePlayer, true)
@@ -97,7 +95,6 @@ object Blink : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (!inboundValue.get()) return
         val packet = event.packet
         if (packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) {
             if (mc.thePlayer.ticksExisted < 20) return
@@ -108,7 +105,7 @@ object Blink : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (!outgoingValue.get()) return
+        if (!renderPlayer.get()) return
         val breadcrumbs = CrossSine.moduleManager[Breadcrumbs::class.java]!!
         synchronized(positions) {
             GL11.glPushMatrix()
@@ -134,4 +131,7 @@ object Blink : Module() {
             GL11.glPopMatrix()
         }
     }
+
+    override val tag: String
+        get() = "" + BlinkUtils.bufferSize().toString()
 }

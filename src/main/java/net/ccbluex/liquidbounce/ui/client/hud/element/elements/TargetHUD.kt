@@ -1,6 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.event.AttackEvent
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.InfiniteAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -18,6 +20,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.impl.Norm
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.impl.RavenB4TH
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.impl.SimpleTH
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.timer.TimerMS
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
@@ -37,6 +40,9 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
     val animationSpeed = FloatValue("Animation Speed", 1F, 0.1F, 2F).displayable { fadeValue.get() || animationValue.get() }
     val globalAnimSpeed = FloatValue("Health Speed", 3F, 0.1F, 5F)
     var target = (CrossSine.moduleManager[KillAura::class.java] as KillAura).currentTarget
+    var noneTarget: EntityPlayer? = null
+    val targetTimer = TimerMS()
+
     override val values: List<Value<*>>
         get() {
             val valueList = mutableListOf<Value<*>>()
@@ -59,27 +65,28 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
 
     override fun drawElement(partialTicks: Float): Border? {
         val mainStyle = getCurrentStyle(styleValue.get()) ?: return null
-
         val actualTarget = if (KillAura.currentTarget != null && (!onlyPlayer.get() || KillAura.currentTarget is EntityPlayer)) KillAura.currentTarget
         else if (InfiniteAura.lastTarget != null && (!onlyPlayer.get() || InfiniteAura.lastTarget is EntityPlayer)) InfiniteAura.lastTarget
         else if ((mc.currentScreen is GuiChat && showinchat.get()) || mc.currentScreen is GuiHudDesigner) mc.thePlayer
-        else null
+        else noneTarget
+        if (targetTimer.hasTimePassed(500)) {
+            noneTarget = null
+        }
         if (fadeValue.get()) {
             animProgress += (0.0075F * animationSpeed.get() * RenderUtils.deltaTime * if (actualTarget != null) -1F else 1F)
         } else {
             animProgress = 0F
         }
         animProgress = animProgress.coerceIn(0F, 1F)
-        if (actualTarget != null || !fadeValue.get()) {
+        if (actualTarget != null || !fadeValue.get() || !animationValue.get()) {
             mainTarget = actualTarget
         }
         else if (animProgress >= 1F)
             mainTarget = null
 
         val returnBorder = mainStyle.getBorder(mainTarget) ?: return null
-        val scaleX = animProgress * (4F / ((returnBorder.x2 - returnBorder.x) / 2F))
-        val scaleY = animProgress * (4F / ((returnBorder.y2 - returnBorder.y) / 2F))
-        val tranY = (returnBorder.y2 - returnBorder.y) / 2F * scaleY
+        val scaleXZ = animProgress * (4F / ((returnBorder.x2 - returnBorder.x) / 2F))
+        val tranXZ = (returnBorder.x2 - returnBorder.x) / 2F * scaleXZ
         if (mainTarget == null) {
             mainStyle.easingHealth = 0F
             return returnBorder
@@ -87,8 +94,8 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
         val convertTarget = mainTarget!!
         if (animationValue.get()) {
             GL11.glPushMatrix()
-            GL11.glTranslatef(tranY, tranY, tranY)
-            GL11.glScalef(1F - scaleY, 1F - scaleY, 1F - scaleY)
+            GL11.glTranslatef(tranXZ, tranXZ, tranXZ)
+            GL11.glScalef(1F - scaleXZ, 1F - scaleXZ, 1F - scaleXZ)
         }
         mainStyle.drawTarget(convertTarget)
         if (animationValue.get()) {
@@ -108,6 +115,11 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             nameList.add(it.name)
         }
         return nameList
+    }
+    @EventTarget
+    fun onAttack(event: AttackEvent) {
+        noneTarget = event.targetEntity as EntityPlayer
+        targetTimer.reset()
     }
 
     private fun getCurrentStyle(styleName: String): TargetStyle? = styleList.find { it.name.equals(styleName, true) }

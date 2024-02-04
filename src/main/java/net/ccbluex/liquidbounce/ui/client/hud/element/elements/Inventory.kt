@@ -51,8 +51,6 @@ class Inventory : Element(300.0, 50.0, 1F, Side(Side.Horizontal.RIGHT, Side.Vert
 
         // draw rect
         RenderUtils.drawRect(0F, startY, 174F, 66F, backgroundColor)
-        shadowRenderUtils.drawShadowWithCustomAlpha(0F, startY, 174F, 66F-startY, 255f)
-
         if(themeValue.equals("CS:GO")) {
             RenderUtils.drawRect(0F, startY, 174F, startY + 1f, borderColor)
         } else {

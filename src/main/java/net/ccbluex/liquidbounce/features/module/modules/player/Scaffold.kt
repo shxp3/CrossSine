@@ -20,12 +20,10 @@ import net.ccbluex.liquidbounce.utils.extensions.rayTraceWithServerSideRotation
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
+import net.ccbluex.liquidbounce.utils.timer.TimerMS
 import net.minecraft.block.BlockAir
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
 import net.minecraft.util.*
@@ -41,33 +39,34 @@ import kotlin.math.cos
 object Scaffold : Module() {
 
     private val rotationsValue = ListValue(
-        "Rotations",
-        arrayOf("Normal", "Back", "Back2", "45", "Telly", "Spin", "Snap", "None"),
-        "Normal"
+            "Rotations",
+            arrayOf("Normal", "Back", "Back2", "45", "Telly", "Spin", "Snap", "None"),
+            "Normal"
     )
     private val spinSpeedValue = IntegerValue("SpinSpeed", 20, 1, 90).displayable { rotationsValue.equals("Spin") }
     private val staticRotTelly = BoolValue("StaticRotation", false).displayable { rotationsValue.equals("Telly") }
     private val towerModeValue = ListValue(
-        "TowerMode", arrayOf(
+            "TowerMode", arrayOf(
             "None",
             "WatchDog",
             "NCP",
-        ), "None"
+            "MMC"
+    ), "None"
     )
     private val wdSpeedValue =
-        IntegerValue("WatchDog-Speed", 100, 0, 100).displayable { towerModeValue.equals("WatchDog") }
+            IntegerValue("WatchDog-Speed", 100, 0, 100).displayable { towerModeValue.equals("WatchDog") }
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post", "Legit"), "Pre")
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "OFF"), "Switch")
     val highBlock = BoolValue("BiggestStack", false)
     private val sprintModeValue = ListValue(
-        "Sprint",
-        arrayOf("Normal", "Air", "Ground", "BlocksMC", "Legit", "None"),
-        "Normal"
+            "Sprint",
+            arrayOf("Normal", "Air", "Ground", "BlocksMC", "Legit", "None"),
+            "Normal"
     )
     private val bridgeMode = ListValue(
-        "BridgeMode",
-        arrayOf("UpSideDown", "Andromeda", "Normal", "Telly", "AutoJump", "KeepUP", "SameY"),
-        "Normal"
+            "BridgeMode",
+            arrayOf("UpSideDown", "Andromeda", "Normal", "Telly", "AutoJump", "KeepUP", "SameY"),
+            "Normal"
     )
     private val tellyTicks = IntegerValue("TellyTicks", 0, 0, 10).displayable { bridgeMode.equals("Telly") }
     private val delayTelly = BoolValue("SmartDelay-Telly", false).displayable { bridgeMode.equals("Telly") }
@@ -80,35 +79,47 @@ object Scaffold : Module() {
     private val downValue = BoolValue("Downward", false)
     private val safeWalkValue = BoolValue("SafeWalk", false)
     private val zitterModeValue = BoolValue("Zitter", false)
-    private val minRotationSpeedValue: IntegerValue = object : IntegerValue("MinRotationSpeed", 90, 0, 90) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val v = maxRotationSpeedValue.get()
-            if (v < newValue) set(v)
-        }
-    }.displayable { !rotationsValue.equals("None") } as IntegerValue
     private val maxRotationSpeedValue: IntegerValue = object : IntegerValue("MaxRotationSpeed", 90, 0, 90) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val v = minRotationSpeedValue.get()
             if (v > newValue) set(v)
         }
     }.displayable { !rotationsValue.equals("None") } as IntegerValue
+    private val minRotationSpeedValue: IntegerValue = object : IntegerValue("MinRotationSpeed", 90, 0, 90) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val v = maxRotationSpeedValue.get()
+            if (v < newValue) set(v)
+        }
+    }.displayable { !rotationsValue.equals("None") } as IntegerValue
+    private val maxPlaceDelay: IntegerValue = object : IntegerValue("MaxPlaceDelay", 0, 0, 1000) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val v = minPlaceDelay.get()
+            if (v > newValue) set(v)
+        }
+    }
+    private val minPlaceDelay: IntegerValue = object : IntegerValue("MinPlaceDelay", 0, 0, 1000) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            val v = maxPlaceDelay.get()
+            if (v < newValue) set(v)
+        }
+    }
     private val expandLengthValue = IntegerValue("ExpandLength", 1, 1, 6)
     private val omniDirectionalExpand =
-        BoolValue("OmniDirectionalExpand", false).displayable { expandLengthValue.get() > 1 }
+            BoolValue("OmniDirectionalExpand", false).displayable { expandLengthValue.get() > 1 }
     private val timerValue = FloatValue("Timer", 1f, 0.1f, 5f)
     private val towerTimerValue = FloatValue("TowerTimer", 1f, 0.1f, 5f)
     private val eagleValue = ListValue("Eagle", arrayOf("Silent", "Normal", "Off"), "Off")
     private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10).displayable { !eagleValue.equals("Off") }
     private val edgeDistanceValue =
-        FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") }
+            FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") }
 
     private val hitableCheckValue = ListValue("HitableCheck", arrayOf("Simple", "Strict", "OFF"), "Simple")
 
     // Visuals
     val counterMode = ListValue(
-        "Counter",
-        arrayOf("OFF", "Simple", "Normal", "Rise"),
-        "OFF"
+            "Counter",
+            arrayOf("OFF", "Simple", "Normal", "Rise"),
+            "OFF"
     )
 
     /**
@@ -135,11 +146,10 @@ object Scaffold : Module() {
 
 
     // Delay
-    private val delayTimer = MSTimer()
     private val zitterTimer = MSTimer()
-    private val clickTimer = MSTimer()
-    private var delay: Long = 0
+    private val delayTimer = TimerMS()
     private var lastPlace = 0
+    private var delay = 0L
 
     // Eagle
     private var placedBlocksWithoutEagle = 0
@@ -168,6 +178,7 @@ object Scaffold : Module() {
     private var andromedaPlaceTicks = 0
     private var tellyPlaceTicks = 0
     private var rotPlaceTicks = 0
+
     //Hypixel Tower
     private var dowd = false
     private var wdTicks = 0
@@ -183,10 +194,7 @@ object Scaffold : Module() {
         doSpoof = false
         if (mc.thePlayer == null) return
         lastGroundY = mc.thePlayer.posY.toInt()
-        lastPlace = 2
-        delayTimer.reset()
         zitterTimer.reset()
-        clickTimer.reset()
         andromedaPlaceTicks = 0
         tellyPlaceTicks = 0
         rotPlaceTicks = 0
@@ -202,6 +210,11 @@ object Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (lastPlace == 1) {
+            delayTimer.reset()
+            delay = getDelay
+            lastPlace = 0
+        }
         if (rotPlaceTicks == 4)
             rotPlaceTicks = 0
         if (towerModeValue.get() == "WatchDog") {
@@ -235,10 +248,6 @@ object Scaffold : Module() {
                 andromedaPlaceTicks = 0
             }
         }
-        if (mc.thePlayer.onGround) {
-            mc.thePlayer.motionX *= motionValue.get()
-            mc.thePlayer.motionZ *= motionValue.get()
-        }
         if (towerStatus) mc.timer.timerSpeed = towerTimerValue.get()
         if (!towerStatus) mc.timer.timerSpeed = timerValue.get()
         if (towerStatus || mc.thePlayer.isCollidedHorizontally) {
@@ -268,42 +277,44 @@ object Scaffold : Module() {
                 }
             }
         }
-        val sprint = sprintModeValue
-        sprintActive =
-            (sprint.equals("Normal") || sprint.equals("Legit") || (sprint.equals("Ground") && mc.thePlayer.onGround) || (sprint.equals(
-                "Air"
-            ) && !mc.thePlayer.onGround)) && MovementUtils.isMoving()
-        if (sprint.equals("Legit") && abs(
-                MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw) - MathHelper.wrapAngleTo180_float(
-                    RotationUtils.serverRotation.yaw
-                )
-            ) > 90
-        ) {
-            sprintActive = false
-        }
-        if (sprintModeValue.equals("BlocksMC")) {
-            if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                if (mc.thePlayer.onGround) {
-                    mc.thePlayer.motionX *= 1.185
-                    mc.thePlayer.motionZ *= 1.185
-                }
-            } else {
-                if (mc.thePlayer.onGround) {
-                    mc.thePlayer.motionX *= 1.0
-                    mc.thePlayer.motionZ *= 1.0
+        if (MovementUtils.isMoving()){
+            val sprint = sprintModeValue
+            sprintActive =
+                    (sprint.equals("Normal") || sprint.equals("Legit") || (sprint.equals("Ground") && mc.thePlayer.onGround) || (sprint.equals(
+                            "Air"
+                    ) && !mc.thePlayer.onGround))
+            if (sprint.equals("Legit") && abs(
+                            MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw) - MathHelper.wrapAngleTo180_float(
+                                    RotationUtils.serverRotation.yaw
+                            )
+                    ) > 90
+            ) {
+                sprintActive = false
+            }
+            if (sprintModeValue.equals("BlocksMC")) {
+                if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.motionX *= 1.185
+                        mc.thePlayer.motionZ *= 1.185
+                    }
+                } else {
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.motionX *= 1.0
+                        mc.thePlayer.motionZ *= 1.0
+                    }
                 }
             }
         }
         shouldGoDown =
-            downValue.get() && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && blocksAmount > 1
+                downValue.get() && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && blocksAmount > 1
         if (shouldGoDown) mc.gameSettings.keyBindSneak.pressed = false
         if (mc.thePlayer.onGround) {
             // Smooth Zitter
             if (zitterModeValue.get()) {
                 if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed =
-                    false
+                        false
                 if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed =
-                    false
+                        false
                 if (zitterTimer.hasTimePassed(100)) {
                     zitterDirection = !zitterDirection
                     zitterTimer.reset()
@@ -329,11 +340,11 @@ object Scaffold : Module() {
                         val neighbor = blockPos.offset(facingType)
                         if (isReplaceable(neighbor)) {
                             val calcDif =
-                                (if (facingType == EnumFacing.NORTH || facingType == EnumFacing.SOUTH) {
-                                    abs((neighbor.z + 0.5) - mc.thePlayer.posZ)
-                                } else {
-                                    abs((neighbor.x + 0.5) - mc.thePlayer.posX)
-                                }) - 0.5
+                                    (if (facingType == EnumFacing.NORTH || facingType == EnumFacing.SOUTH) {
+                                        abs((neighbor.z + 0.5) - mc.thePlayer.posZ)
+                                    } else {
+                                        abs((neighbor.x + 0.5) - mc.thePlayer.posX)
+                                    }) - 0.5
 
                             if (calcDif < dif) {
                                 dif = calcDif
@@ -343,17 +354,17 @@ object Scaffold : Module() {
                 }
                 if (placedBlocksWithoutEagle >= blocksToEagleValue.get()) {
                     val shouldEagle =
-                        isReplaceable(blockPos) || (edgeDistanceValue.get() > 0 && dif < edgeDistanceValue.get())
+                            isReplaceable(blockPos) || (edgeDistanceValue.get() > 0 && dif < edgeDistanceValue.get())
                     if (eagleValue.get().equals("Silent", true)) {
                         if (eagleSneaking != shouldEagle) {
                             mc.netHandler.addToSendQueue(
-                                C0BPacketEntityAction(
-                                    mc.thePlayer, if (shouldEagle) {
+                                    C0BPacketEntityAction(
+                                            mc.thePlayer, if (shouldEagle) {
                                         C0BPacketEntityAction.Action.START_SNEAKING
                                     } else {
                                         C0BPacketEntityAction.Action.STOP_SNEAKING
                                     }
-                                )
+                                    )
                             )
                         }
                         eagleSneaking = shouldEagle
@@ -372,7 +383,6 @@ object Scaffold : Module() {
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null) return
         val packet = event.packet
-        if (towerStatus) move()
         if (towerModeValue.get() == "WatchDog") {
             if (packet is C03PacketPlayer) {
                 if (dowd) {
@@ -409,42 +419,43 @@ object Scaffold : Module() {
     private fun rotationStatic() {
         when (rotationsValue.get().lowercase()) {
             "back" -> RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(MovementUtils.movingYaw + 180, if (lockRotation == null) 85F else lockRotation!!.pitch),
-                    rotationSpeed
-                )
+                    RotationUtils.limitAngleChange(
+                            RotationUtils.serverRotation,
+                            Rotation(MovementUtils.movingYaw + 180, if (lockRotation == null) 85F else lockRotation!!.pitch),
+                            rotationSpeed
+                    )
             )
+
             "back2" -> RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(if (rotPlaceTicks >= 3) MovementUtils.movingYaw + 135f else MovementUtils.movingYaw + 180, if (lockRotation != null) lockRotation!!.pitch else 85F),
-                    rotationSpeed
-                )
+                    RotationUtils.limitAngleChange(
+                            RotationUtils.serverRotation,
+                            Rotation(if (rotPlaceTicks >= 3) MovementUtils.movingYaw + 135f else MovementUtils.movingYaw + 180, if (lockRotation != null) lockRotation!!.pitch else 85F),
+                            rotationSpeed
+                    )
             )
 
             "spin" -> RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(spinYaw, if (lockRotation == null) 85F else lockRotation!!.pitch),
-                    rotationSpeed
-                )
+                    RotationUtils.limitAngleChange(
+                            RotationUtils.serverRotation,
+                            Rotation(spinYaw, if (lockRotation == null) 85F else lockRotation!!.pitch),
+                            rotationSpeed
+                    )
             )
 
             "snap" -> RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch),
-                    rotationSpeed
-                )
+                    RotationUtils.limitAngleChange(
+                            RotationUtils.serverRotation,
+                            Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch),
+                            rotationSpeed
+                    )
             )
 
             "none" -> RotationUtils.setTargetRotation(
-                RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch),
-                    rotationSpeed
-                )
+                    RotationUtils.limitAngleChange(
+                            RotationUtils.serverRotation,
+                            Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch),
+                            rotationSpeed
+                    )
             )
         }
     }
@@ -456,6 +467,22 @@ object Scaffold : Module() {
     @EventTarget
     fun onMotion(event: MotionEvent) {
         val eventState = event.eventState
+        //IDK
+        if (mc.thePlayer.onGround) {
+            GroundTicks++
+            offGroundTicks = 0
+        } else {
+            GroundTicks = 0
+            offGroundTicks++
+        }
+        if (mc.thePlayer.onGround && !sprintModeValue.equals("BlocksMC")) {
+            mc.thePlayer.motionX *= motionValue.get()
+            mc.thePlayer.motionZ *= motionValue.get()
+        }
+        CrossSine.moduleManager[MovementFix::class.java]!!.applyForceStrafe(
+                !rotationsValue.equals("None"),
+                strafeFix.get()
+        )
         if (towerModeValue.get() == "WatchDog") {
             if (wdTicks > 0) {
                 --wdTicks
@@ -464,23 +491,23 @@ object Scaffold : Module() {
         towerStatus = false
         // Tower
         towerStatus = BlockUtils.getBlock(
-            BlockPos(
-                mc.thePlayer.posX,
-                mc.thePlayer.posY + 2,
-                mc.thePlayer.posZ
-            )
+                BlockPos(
+                        mc.thePlayer.posX,
+                        mc.thePlayer.posY + 2,
+                        mc.thePlayer.posZ
+                )
         ) is BlockAir
         towerStatus = mc.gameSettings.keyBindJump.isKeyDown
         if (canRotation()) {
             val limitedRotation =
-                RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
+                    RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation, rotationSpeed)
             RotationUtils.setTargetRotation(limitedRotation)
         }
         rotationStatic()
         // Update and search for new block
         if (event.eventState == EventState.PRE) {
             if (if (!autoBlockValue.equals("off")) InventoryUtils.findAutoBlockBlock(highBlock.get()) == -1 else mc.thePlayer.heldItem == null ||
-                        InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
+                            InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)
             ) {
                 return
             }
@@ -490,25 +517,6 @@ object Scaffold : Module() {
 
         // Place block
         if (placeModeValue.equals(eventState.stateName)) place()
-        //IDK
-        if (mc.thePlayer.onGround) {
-            GroundTicks++
-            offGroundTicks = 0
-        } else {
-            GroundTicks = 0
-            offGroundTicks++
-        }
-
-        // Reset placeable delay
-        if (targetPlace == null || !towerStatus) {
-            if (lastPlace == 0) {
-                delayTimer.reset()
-            }
-        }
-        CrossSine.moduleManager[MovementFix::class.java]!!.applyForceStrafe(
-            !rotationsValue.equals("None"),
-            strafeFix.get()
-        )
     }
 
     private fun move() {
@@ -516,16 +524,16 @@ object Scaffold : Module() {
             "ncp" -> {
                 if (mc.thePlayer.posY % 1 <= 0.00153598) {
                     mc.thePlayer.setPosition(
-                        mc.thePlayer.posX,
-                        Math.floor(mc.thePlayer.posY),
-                        mc.thePlayer.posZ
+                            mc.thePlayer.posX,
+                            Math.floor(mc.thePlayer.posY),
+                            mc.thePlayer.posZ
                     )
                     mc.thePlayer.motionY = 0.42
                 } else if (mc.thePlayer.posY % 1 < 0.1 && offGroundTicks != 0) {
                     mc.thePlayer.setPosition(
-                        mc.thePlayer.posX,
-                        Math.floor(mc.thePlayer.posY),
-                        mc.thePlayer.posZ
+                            mc.thePlayer.posX,
+                            Math.floor(mc.thePlayer.posY),
+                            mc.thePlayer.posZ
                     )
                 }
             }
@@ -558,16 +566,16 @@ object Scaffold : Module() {
             BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ).down()
         }
         if (!expand && (!isReplaceable(blockPosition) || search(
-                blockPosition,
-                !shouldGoDown
-            ))
+                        blockPosition,
+                        !shouldGoDown
+                ))
         ) return
         if (expand) {
             val yaw = mc.thePlayer.rotationYaw.toRadiansD()
             val x =
-                if (omniDirectionalExpand.get()) -sin(yaw).roundToInt() else mc.thePlayer.horizontalFacing.directionVec.x
+                    if (omniDirectionalExpand.get()) -sin(yaw).roundToInt() else mc.thePlayer.horizontalFacing.directionVec.x
             val z =
-                if (omniDirectionalExpand.get()) cos(yaw).roundToInt() else mc.thePlayer.horizontalFacing.directionVec.z
+                    if (omniDirectionalExpand.get()) cos(yaw).roundToInt() else mc.thePlayer.horizontalFacing.directionVec.z
             for (i in 0 until expandLengthValue.get()) {
                 if (search(blockPosition.add(x * i, 0, z * i), false)) {
                     return
@@ -591,15 +599,7 @@ object Scaffold : Module() {
         if (!towerStatus && bridgeMode.equals("Telly") && (!delayTelly.get() || tellyPlaceTicks > 0)) {
             if (offGroundTicks < tellyTicks.get()) return
         }
-        if (targetPlace == null) {
-            if (lastPlace == 0) delayTimer.reset()
-            if (lastPlace > 0) lastPlace = 0
-            return
-        }
-        if (!delayTimer.hasTimePassed(delay) || !towerStatus && canSameY && lastGroundY - 1 != targetPlace!!.vec3.yCoord.toInt()) {
-            return
-        }
-
+        if (!delayTimer.hasTimePassed(delay) && !towerStatus) return
         if (!rotationsValue.equals("None")) {
             val rayTraceInfo = mc.thePlayer.rayTraceWithServerSideRotation(5.0)
             when (hitableCheckValue.get().lowercase()) {
@@ -623,8 +623,8 @@ object Scaffold : Module() {
         blockSlot = InventoryUtils.findAutoBlockBlock(highBlock.get())
         if (blockSlot == -1) return
         if (autoBlockValue.equals("Spoof") && (mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(
-                mc.thePlayer.heldItem.item as ItemBlock
-            )))
+                        mc.thePlayer.heldItem.item as ItemBlock
+                )))
         ) {
             Spoofed = true
             ItemSpoofUtils.startSpoof(blockSlot - 36)
@@ -635,15 +635,14 @@ object Scaffold : Module() {
         itemStack = mc.thePlayer.inventoryContainer.getSlot(blockSlot).stack
 
         if (mc.playerController.onPlayerRightClick(
-                mc.thePlayer,
-                mc.theWorld,
-                itemStack,
-                targetPlace!!.blockPos,
-                targetPlace!!.enumFacing,
-                targetPlace!!.vec3
-            )
+                        mc.thePlayer,
+                        mc.theWorld,
+                        itemStack,
+                        targetPlace!!.blockPos,
+                        targetPlace!!.enumFacing,
+                        targetPlace!!.vec3
+                )
         ) {
-            delayTimer.reset()
 
             if (swingValue.get()) {
                 mc.thePlayer.swingItem()
@@ -653,7 +652,7 @@ object Scaffold : Module() {
             tellyPlaceTicks++
             andromedaPlaceTicks++
             rotPlaceTicks++
-            lastPlace = 2
+            lastPlace++
             lastPlaceBlock = targetPlace!!.blockPos.add(targetPlace!!.enumFacing.directionVec)
         }
 
@@ -672,10 +671,10 @@ object Scaffold : Module() {
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
             if (eagleSneaking) mc.netHandler.addToSendQueue(
-                C0BPacketEntityAction(
-                    mc.thePlayer,
-                    C0BPacketEntityAction.Action.STOP_SNEAKING
-                )
+                    C0BPacketEntityAction(
+                            mc.thePlayer,
+                            C0BPacketEntityAction.Action.STOP_SNEAKING
+                    )
             )
         }
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
@@ -700,6 +699,9 @@ object Scaffold : Module() {
      */
     @EventTarget
     fun onMove(event: MoveEvent) {
+        if (towerModeValue.equals("MMC") && towerStatus) {
+            MovementUtils.jump(event)
+        }
         if (safeWalkValue.get() && mc.thePlayer.onGround) event.isSafeWalk = true
         return
     }
@@ -715,9 +717,9 @@ object Scaffold : Module() {
     private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
         if (!isReplaceable(blockPosition)) return false
         val eyesPos = Vec3(
-            mc.thePlayer.posX,
-            mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(),
-            mc.thePlayer.posZ
+                mc.thePlayer.posX,
+                mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(),
+                mc.thePlayer.posZ
         )
         var placeRotation: PlaceRotation? = null
         for (side in StaticStorage.facings()) {
@@ -734,8 +736,8 @@ object Scaffold : Module() {
                         val distanceSqPosVec = eyesPos.squareDistanceTo(posVec)
                         val hitVec = posVec.add(Vec3(dirVec.xCoord * 0.5, dirVec.yCoord * 0.5, dirVec.zCoord * 0.5))
                         if (checks && (eyesPos.squareDistanceTo(hitVec) > 18.0 || distanceSqPosVec > eyesPos.squareDistanceTo(
-                                posVec.add(dirVec)
-                            ) || mc.theWorld.rayTraceBlocks(eyesPos, hitVec, false, true, false) != null)
+                                        posVec.add(dirVec)
+                                ) || mc.theWorld.rayTraceBlocks(eyesPos, hitVec, false, true, false) != null)
                         ) {
                             zSearch += 0.1
                             continue
@@ -747,14 +749,14 @@ object Scaffold : Module() {
                         val diffZ = hitVec.zCoord - eyesPos.zCoord
                         val diffXZ = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ).toDouble()
                         val rotation = Rotation(
-                            MathHelper.wrapAngleTo180_float(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
-                            MathHelper.wrapAngleTo180_float((-Math.toDegrees(atan2(diffY, diffXZ))).toFloat())
+                                MathHelper.wrapAngleTo180_float(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
+                                MathHelper.wrapAngleTo180_float((-Math.toDegrees(atan2(diffY, diffXZ))).toFloat())
                         )
                         val rotationVector = RotationUtils.getVectorForRotation(rotation)
                         val vector = eyesPos.addVector(
-                            rotationVector.xCoord * 4,
-                            rotationVector.yCoord * 4,
-                            rotationVector.zCoord * 4
+                                rotationVector.xCoord * 4,
+                                rotationVector.yCoord * 4,
+                                rotationVector.zCoord * 4
                         )
                         val obj = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
                         if (!(obj.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && obj.blockPos == neighbor)) {
@@ -762,8 +764,8 @@ object Scaffold : Module() {
                             continue
                         }
                         if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(
-                                placeRotation.rotation
-                            )
+                                        placeRotation.rotation
+                                )
                         ) placeRotation = PlaceRotation(PlaceInfo(neighbor, side.opposite, hitVec), rotation)
                         zSearch += 0.1
                     }
@@ -781,12 +783,12 @@ object Scaffold : Module() {
             "telly" -> {
                 if (!towerStatus) {
                     Rotation(
-                        if (tellyPlaceTicks == 0 && delayTelly.get()) mc.thePlayer.rotationYaw + 180 else if (offGroundTicks < tellyTicks.get()) mc.thePlayer.rotationYaw else if (staticRotTelly.get()) mc.thePlayer.rotationYaw + 180 else placeRotation.rotation.yaw,
-                        placeRotation.rotation.pitch
+                            if (tellyPlaceTicks == 0 && delayTelly.get()) mc.thePlayer.rotationYaw + 180 else if (offGroundTicks < tellyTicks.get()) mc.thePlayer.rotationYaw else if (staticRotTelly.get()) mc.thePlayer.rotationYaw + 180 else placeRotation.rotation.yaw,
+                            placeRotation.rotation.pitch
                     )
                 } else Rotation(
-                    if (staticRotTelly.get()) mc.thePlayer.rotationYaw + 180 else placeRotation.rotation.yaw,
-                    placeRotation.rotation.pitch
+                        if (staticRotTelly.get()) mc.thePlayer.rotationYaw + 180 else placeRotation.rotation.yaw,
+                        placeRotation.rotation.pitch
                 )
             }
 
@@ -805,15 +807,17 @@ object Scaffold : Module() {
             "snap" -> {
                 Rotation(MovementUtils.movingYaw + 180, placeRotation.rotation.pitch)
             }
+
             "back2" -> {
                 Rotation(if (rotPlaceTicks >= 3) MovementUtils.movingYaw + 135f else MovementUtils.movingYaw + 180, placeRotation.rotation.pitch)
             }
+
             else -> {
                 Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
             }
         }
         val limitedRotation =
-            RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
+                RotationUtils.limitAngleChange(RotationUtils.serverRotation, lockRotation!!, rotationSpeed)
         RotationUtils.setTargetRotation(limitedRotation)
 
         targetPlace = placeRotation.placeInfo
@@ -850,7 +854,7 @@ object Scaffold : Module() {
 
     private fun wdSpeed(d: Double) {
         val f = MathHelper.wrapAngleTo180_float(
-            Math.toDegrees(atan2(mc.thePlayer.motionZ, mc.thePlayer.motionX)).toFloat() - 90.0f
+                Math.toDegrees(atan2(mc.thePlayer.motionZ, mc.thePlayer.motionX)).toFloat() - 90.0f
         )
         MovementUtils.setMotion2(d, f)
     }
@@ -872,7 +876,8 @@ object Scaffold : Module() {
 
     private val rotationSpeed: Float
         get() = (Math.random() * (maxRotationSpeedValue.get() - minRotationSpeedValue.get()) + minRotationSpeedValue.get()).toFloat()
-
+    private val getDelay: Long
+        get() = TimeUtils.randomDelay(minPlaceDelay.get(), maxPlaceDelay.get())
     override val tag: String
         get() = bridgeMode.get()
 }

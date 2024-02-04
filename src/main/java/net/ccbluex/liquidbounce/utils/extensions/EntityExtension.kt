@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.AxisAlignedBB
@@ -71,10 +72,8 @@ val EntityLivingBase.renderHurtTime: Float
 val EntityLivingBase.hurtPercent: Float
     get() = (this.renderHurtTime) / 10
 
-var EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
+val EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
     get() = if (this is EntityPlayer) { Minecraft.getMinecraft().netHandler.getPlayerInfo(this.uniqueID)?.locationSkin } else { null } ?: DefaultPlayerSkin.getDefaultSkinLegacy()
-    set(value) {}
-
 val EntityLivingBase.ping: Int
     get() = if (this is EntityPlayer) { Minecraft.getMinecraft().netHandler.getPlayerInfo(this.uniqueID)?.responseTime?.coerceAtLeast(0) } else { null } ?: -1
 /**

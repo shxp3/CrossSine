@@ -30,7 +30,6 @@ class ItemESP : Module() {
     private val entityConvertedPointsMap: MutableMap<EntityItem, DoubleArray> = HashMap()
     private val nameTags = BoolValue("NameTag", false)
     private val itemCount = BoolValue("ItemCount", false).displayable { nameTags.get() }
-    private val scaleValue = FloatValue("Scale", 1F, 1F, 4F).displayable { itemCount.get() }
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "LightBox"), "Box")
     private val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
     private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { !colorThemeClient.get() }
@@ -160,7 +159,7 @@ class ItemESP : Module() {
                     )
                     GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
                     RenderUtils.disableGlCap(GL11.GL_LIGHTING, GL11.GL_DEPTH_TEST)
-                    GL11.glScalef(-scaleValue.get(), -scaleValue.get(), -scaleValue.get())
+                    GL11.glScalef(-0.03F, -0.03F, -0.03F)
                     mc.fontRendererObj.drawString(string, -6F, -30F,
                         Color(255,255,255).rgb,true)
                     RenderUtils.enableGlCap(GL11.GL_BLEND)

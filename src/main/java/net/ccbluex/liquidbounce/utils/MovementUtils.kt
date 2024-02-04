@@ -61,7 +61,9 @@ object MovementUtils : MinecraftInstance() {
     fun move() {
         move(getSpeed())
     }
-
+    fun getSpeedAmplifier(): Int {
+        return if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) 1 + mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier else 0
+    }
     fun isMoving(): Boolean {
         return mc.thePlayer != null && (mc.thePlayer.movementInput.moveForward != 0f || mc.thePlayer.movementInput.moveStrafe != 0f)
     }
@@ -100,7 +102,10 @@ object MovementUtils : MinecraftInstance() {
         }
         return baseSpeed
     }
-
+    fun getSpeed(e: EntityLivingBase): Float {
+        return sqrt((e.posX - e.prevPosX) * (e.posX - e.prevPosX) + (e.posZ - e.prevPosZ) * (e.posZ - e.prevPosZ))
+            .toFloat()
+    }
 
     fun doTargetStrafe(
         curTarget: EntityLivingBase,

@@ -180,7 +180,6 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
      */
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     public void drawScreen(int mouseX, int mouseY, float partialTicks,CallbackInfo ci) {
-        //RenderUtils.drawRect(10,10,20,20,new Color(255,255,255,255).getRGB());
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
 

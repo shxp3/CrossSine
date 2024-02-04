@@ -19,20 +19,20 @@ class GuiServerSpoof(private val prevGui: GuiScreen) : GuiScreen() {
         textField.text = ServerSpoof.address
         textField.maxStringLength = 114514
         buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 96, "STATUS").also { stat = it })
-        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 120, "%ui.back%"))
+        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 120, "Back"))
         updateButtonStat()
     }
 
     private fun updateButtonStat() {
-        stat.displayString = "%ui.status%: " + if (ServerSpoof.enable) "§a%ui.on%" else "§c%ui.off%"
+        stat.displayString = "%ui.status%: " + if (ServerSpoof.enable) "§aOn" else "§cOff"
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
-        drawCenteredString(mc.fontRendererObj, "%ui.serverSpoof%", width / 2, 34, 0xffffff)
+        drawCenteredString(mc.fontRendererObj, "ServerSpoof", width / 2, 34, 0xffffff)
         textField.drawTextBox()
         if (textField.text.isEmpty() && !textField.isFocused) {
-            drawString(mc.fontRendererObj, "§7%ui.serverSpoof.address%", width / 2 - 100, 66, 0xffffff)
+            drawString(mc.fontRendererObj, "§7Server Address", width / 2 - 100, 66, 0xffffff)
         }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

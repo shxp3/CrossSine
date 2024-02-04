@@ -8,10 +8,8 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
-import net.ccbluex.liquidbounce.features.value.ListValue;
-import net.ccbluex.liquidbounce.features.value.TextValue;
-import net.ccbluex.liquidbounce.hackChecks.Check;
-import net.ccbluex.liquidbounce.hackChecks.CheckManager;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.Check;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.CheckManager;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
@@ -32,9 +30,6 @@ public class HackerDetector extends Module {
 
     private final BoolValue warningValue = new BoolValue("Warning", true);
     private final IntegerValue warningVLValue = new IntegerValue("WarningVL", 30, 20, 400);
-    private final TextValue warningMessageValue = new TextValue("WarningMessage", "%player% is using %module% hack!");
-    private final BoolValue autoReportValue = new BoolValue("AutoReportWhenWarning", false);
-    private final TextValue reportCommandValue = new TextValue("ReportCommand", "/report %player% %module%");
     private final BoolValue alertValue = new BoolValue("Alert", false);
     private final BoolValue debugValue = new BoolValue("Debug", false) {
         @Override
@@ -111,26 +106,16 @@ public class HackerDetector extends Module {
         playersChecks.clear();
     }
 
-    public static void removeCheck(int id) {
-        INSTANCE.playersChecks.remove(id);
-    }
 
-    public static String completeMessage(String player, String module, String value) {
+    public static String completeMessage(String player, String module, double vl, String value) {
         value = value.replaceAll("%player%", player);
         value = value.replaceAll("%module%", module);
+        value = value.replaceAll("%vl%", String.valueOf(vl));
         return value;
     }
 
-    public void report(String player, String module) {
-        mc.thePlayer.sendChatMessage(completeMessage(player, module, reportCommandValue.get()));
-    }
-
-    public void warning(String player, String module) {
-            ClientUtils.INSTANCE.displayChatMessage("§l§7[§l§9HackDetector§l§7]§r " + completeMessage(player, module, warningMessageValue.get()));
-    }
-
-    public boolean shouldReport() {
-        return autoReportValue.get();
+    public void warning(String player, String module, double vl) {
+        ClientUtils.INSTANCE.displayChatMessage("§l§7[§l§9HackDetector§l§7]§r " + completeMessage(player, module,  vl,"%player% detected for §C%module% §F(§7%vl%§F)"));
     }
 
     public boolean shouldWarning() {
@@ -144,10 +129,7 @@ public class HackerDetector extends Module {
     public static boolean catchPlayer(String player, String module, double totalVL) {
         if (INSTANCE.reachedVL(totalVL)) {
             if (INSTANCE.shouldWarning()) {
-                INSTANCE.warning(player, module);
-            }
-            if (INSTANCE.shouldReport()) {
-                INSTANCE.report(player, module);
+                INSTANCE.warning(player, module, totalVL);
             }
             return true;
         }

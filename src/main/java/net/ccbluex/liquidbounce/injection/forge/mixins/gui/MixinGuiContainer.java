@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -105,8 +106,8 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             }
         } else {
             mc.currentScreen.drawWorldBackground(0);
-            if (HUD.INSTANCE.getInventoryAnimation().get() && HUD.INSTANCE.getState()) {
-                double pct = Math.max(500 - (System.currentTimeMillis() - guiOpenTime), 0) / ((double) 500);
+            if (HUD.INSTANCE.getInventoryAnimation().get() && HUD.INSTANCE.getState() && guiScreen instanceof GuiInventory) {
+                double pct = Math.max(300 - (System.currentTimeMillis() - guiOpenTime), 0) / ((double) 300);
                 if (pct != 0) {
                     GL11.glPushMatrix();
                     pct = EaseUtils.apply(EaseUtils.EnumEasingType.CIRC,

@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.KeepSprint;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
+import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimations;
 import net.ccbluex.liquidbounce.utils.CooldownHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,15 +16,20 @@ import net.minecraft.util.FoodStats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(EntityPlayer.class)
 public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
-
+    @Unique
+    private float currentHeight = 1.62F;
+    @Unique
+    private long lastMillis = System.currentTimeMillis();
     @Shadow
     public abstract String getName();
 
@@ -89,5 +95,35 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
                 this.setSprinting(true);
             }
         }
+    }
+    @Inject(method = "getEyeHeight", at = @At("HEAD"), cancellable = true)
+    private void modifyEyeHeight(CallbackInfoReturnable<Float> cir) {
+        if (!OldAnimations.INSTANCE.getOldSneak().get()) return;
+        final int delay = 1000 / 100;
+        if (isSneaking()) {
+            final float sneakingHeight = 1.54F;
+            if (currentHeight > sneakingHeight) {
+                final long time = System.currentTimeMillis();
+                final long timeSinceLastChange = time - lastMillis;
+                if (timeSinceLastChange > delay) {
+                    currentHeight -= 0.012F;
+                    lastMillis = time;
+                }
+            }
+        } else {
+            final float standingHeight = 1.62F;
+            if (currentHeight < standingHeight && currentHeight > 0.2F) {
+                final long time = System.currentTimeMillis();
+                final long timeSinceLastChange = time - lastMillis;
+                if (timeSinceLastChange > delay) {
+                    currentHeight += 0.012F;
+                    lastMillis = time;
+                }
+            } else {
+                currentHeight = 1.62F;
+            }
+        }
+
+        cir.setReturnValue(currentHeight);
     }
 }

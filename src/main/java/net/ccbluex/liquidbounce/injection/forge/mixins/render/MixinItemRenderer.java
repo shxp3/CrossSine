@@ -4,6 +4,7 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.AutoTool;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
+import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimations;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.utils.ItemSpoofUtils;
 import net.minecraft.block.Block;
@@ -25,7 +26,9 @@ import net.minecraft.util.MovingObjectPosition;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
@@ -144,7 +147,7 @@ public abstract class MixinItemRenderer {
         GlStateManager.pushMatrix();
 
         if (this.itemToRender != null) {
-            if (animations.getBlockAnimation().get() && (itemToRender.getItem() instanceof ItemCarrotOnAStick || itemToRender.getItem() instanceof ItemFishingRod)) {
+            if (OldAnimations.INSTANCE.getBlockAnimation().get() && (itemToRender.getItem() instanceof ItemCarrotOnAStick || itemToRender.getItem() instanceof ItemFishingRod)) {
                 GlStateManager.translate(0.08F, -0.027F, -0.33F);
                 GlStateManager.scale(0.93F, 1.0F, 1.0F);
             }
@@ -161,7 +164,7 @@ public abstract class MixinItemRenderer {
                     case EAT:
                     case DRINK:
                         this.performDrinking(abstractclientplayer, partialTicks);
-                        if (animations.getBlockAnimation().get()) {
+                        if (OldAnimations.INSTANCE.getBlockAnimation().get()) {
                             this.transformFirstPersonItem(f, f1);
                         } else {
                             this.transformFirstPersonItem(f, 0.0F);
@@ -216,7 +219,7 @@ public abstract class MixinItemRenderer {
                         }
                         break;
                     case BOW:
-                        if (animations.getBlockAnimation().get()) {
+                        if (OldAnimations.INSTANCE.getBlockAnimation().get()) {
                             this.transformFirstPersonItem(f, f1);
                         } else {
                             this.transformFirstPersonItem(f, 0.0F);
@@ -228,7 +231,6 @@ public abstract class MixinItemRenderer {
                     this.doItemUsedTransformations(f1);
                 this.transformFirstPersonItem(f, f1);
             }
-
             this.renderItem(abstractclientplayer, this.itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
         }else if(!abstractclientplayer.isInvisible()) {
             this.renderPlayerArm(abstractclientplayer, f, f1);

@@ -36,9 +36,6 @@ object Animations : Module() {
     val itemScaleValue = IntegerValue("ItemScale", 100,0,100)
     val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f)
     val fluxAnimation = BoolValue("Flux Swing", false)
-    val BlockAnimation = BoolValue("Block Animation", false)
-    val useItem = BoolValue("Use item while digging", false)
-    private var attacking = false
     var flagRenderTabOverlay = false
         get() = field
 
@@ -57,15 +54,6 @@ object Animations : Module() {
             itemScaleValue.set(100)
             swingSpeedValue.set(1F)
             resetValue.set(false)
-        }
-        if (useItem.get()) {
-            attacking = Mouse.isButtonDown(0)
-            if (mc.gameSettings.keyBindUseItem.isKeyDown && mc.objectMouseOver.blockPos != null) {
-                mc.playerController.resetBlockRemoving()
-            }
-        }
-        if (BlockAnimation.get()) {
-            PlayerUtils.swing()
         }
     }
 }

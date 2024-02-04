@@ -20,23 +20,31 @@ import net.ccbluex.liquidbounce.utils.ServerUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.entity.Entity
 import net.minecraft.network.play.server.*
+import javax.net.ssl.HttpsURLConnection
 import kotlin.concurrent.thread
 
 @ModuleInfo(name = "StaffChecker", spacedName = "StaffChecker", category = ModuleCategory.WORLD)
 class StaffChecker : Module() {
-    private val chat = BoolValue("Chat", true)
+    private val antiV = BoolValue("AntiVanish", false)
+    private val chat = BoolValue("AlertChat", true)
     private val leave = BoolValue("Leave", true)
     private val leavemsg = TextValue("LeaveMessage", "leave")
+    private val customValue = BoolValue("CustomName", false)
+    private val customName = TextValue("Name-of-staff", "").displayable { customValue.get() }
     private var staffs = mutableListOf<String>()
+    private var csstaffs = mutableListOf<String>()
     private var staffsInWorld = mutableListOf<String>()
     private var bmcStaffList: String = "${CrossSine.CLIENT_CLOUD}/StaffList/bmcstaff.txt"
     private val onBMC: Boolean
         get() = !mc.isSingleplayer && ServerUtils.serverData != null && ServerUtils.serverData.serverIP.contains("blocksmc.com")
+    private val Custom: Boolean
+        get() = !mc.isSingleplayer && ServerUtils.serverData != null && customValue.get()
 
 
     override fun onInitialize() {
         thread {
             staffs.addAll(HttpUtils.get(bmcStaffList).split(","))
+            csstaffs.addAll(if (customName.get().lowercase().contains("https")) HttpUtils.get(customName.get()).split(",") else customName.get().split(","))
         }
     }
 
@@ -60,9 +68,17 @@ class StaffChecker : Module() {
 
         staffsInWorld.add(name)
     }
+    private fun vanish() {
+        if (chat.get())
+            chat("[§CAntiStaff§F] Detected someone vanished!")
+        if (leave.get())
+            mc.thePlayer.sendChatMessage("/${leavemsg.get()}")
+    }
 
     private fun isStaff(entity: Entity): Boolean {
-        if (onBMC) {
+        if (Custom) {
+            return entity.name in csstaffs || entity.displayName.unformattedText in csstaffs || entity.name.contains(csstaffs.toString())
+        } else if (onBMC) {
             return entity.name in staffs || entity.displayName.unformattedText in staffs || entity.name.contains(staffs.toString())
         }
 
@@ -73,7 +89,7 @@ class StaffChecker : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         if (mc.theWorld == null || mc.thePlayer == null) return
-        if (onBMC) {
+        if (Custom || onBMC) {
             when (val packet = event.packet) {
                 is S0CPacketSpawnPlayer -> {
                     val entity = mc.theWorld.getEntityByID(packet.entityID) ?: return
@@ -106,6 +122,11 @@ class StaffChecker : Module() {
                 }
 
                 is S1DPacketEntityEffect -> {
+                    if (antiV.get()) {
+                        if(mc.theWorld.getEntityByID(packet.entityId)==null){
+                            vanish()
+                        }
+                    }
                     val entity = mc.theWorld.getEntityByID(packet.entityId) ?: return
                     if (isStaff(entity))
                         warn(entity.name)
@@ -130,6 +151,9 @@ class StaffChecker : Module() {
                 }
 
                 is S14PacketEntity -> {
+                    if(packet.getEntity(mc.theWorld)==null){
+                        vanish()
+                    }
                     val entity = packet.getEntity(mc.theWorld) ?: return
                     if (isStaff(entity))
                         warn(entity.name)

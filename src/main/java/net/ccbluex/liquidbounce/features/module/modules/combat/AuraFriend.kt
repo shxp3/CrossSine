@@ -25,7 +25,7 @@ class AuraFriend: Module() {
                 }
             }
             for (ent in mc.theWorld.playerEntities) {
-                if (ent != mc.thePlayer && mc.thePlayer.ticksExisted in 6..50) {
+                if (ent != mc.thePlayer && mc.thePlayer.ticksExisted in 6..20) {
                     if (mc.thePlayer.getDistanceToEntity(ent) <= rangeValue.get()) {
                         CrossSine.fileManager.friendsConfig.addFriend(ent.name)
                         CrossSine.fileManager.friendsConfig.saveConfig()

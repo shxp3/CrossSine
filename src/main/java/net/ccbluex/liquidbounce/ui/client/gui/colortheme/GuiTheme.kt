@@ -687,21 +687,22 @@ class GuiTheme : GuiScreen() {
         }
 
         //Line 4
-
-        if (mouseWithinBounds(mouseX, mouseY, 25F, 355F + scroll, 122F, 425F + scroll)) {
-            ClientTheme.ClientColorMode.set("Pumpkin")
-        }
-        if (mouseWithinBounds(mouseX, mouseY, 150F, 355F + scroll, 247F, 425F + scroll)) {
-            ClientTheme.ClientColorMode.set("Polarized")
-        }
-        if (mouseWithinBounds(mouseX, mouseY, 275F, 355F + scroll, 372F, 425F + scroll)) {
-            ClientTheme.ClientColorMode.set("Sundae")
-        }
-        if (mouseWithinBounds(mouseX, mouseY, 400F, 355F + scroll, 497F, 425F + scroll)) {
-            ClientTheme.ClientColorMode.set("Terminal")
-        }
-        if (mouseWithinBounds(mouseX, mouseY, 525F, 355F + scroll, 622F, 425F + scroll)) {
-            ClientTheme.ClientColorMode.set("Coral")
+        if (scroll < -75F) {
+            if (mouseWithinBounds(mouseX, mouseY, 25F, 355F + scroll, 122F, 425F + scroll)) {
+                ClientTheme.ClientColorMode.set("Pumpkin")
+            }
+            if (mouseWithinBounds(mouseX, mouseY, 150F, 355F + scroll, 247F, 425F + scroll)) {
+                ClientTheme.ClientColorMode.set("Polarized")
+            }
+            if (mouseWithinBounds(mouseX, mouseY, 275F, 355F + scroll, 372F, 425F + scroll)) {
+                ClientTheme.ClientColorMode.set("Sundae")
+            }
+            if (mouseWithinBounds(mouseX, mouseY, 400F, 355F + scroll, 497F, 425F + scroll)) {
+                ClientTheme.ClientColorMode.set("Terminal")
+            }
+            if (mouseWithinBounds(mouseX, mouseY, 525F, 355F + scroll, 622F, 425F + scroll)) {
+                ClientTheme.ClientColorMode.set("Coral")
+            }
         }
 
         if (mouseWithinBounds(mouseX, mouseY, 25F, 350.0f, 40F, 365.0f)) {

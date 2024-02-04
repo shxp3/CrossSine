@@ -21,20 +21,19 @@ class CPSHudCounter : Element() {
     private val rightValue = BoolValue("Right Click", false)
     private val fontColor = BoolValue("Color Theme", false)
     private val backGround = BoolValue("BackGround", true)
-    private val backAlpha = IntegerValue("BackGround Alpha", 190,0,255).displayable {backGround.get()}
+    private val backAlpha = IntegerValue("BackGround Alpha", 120,0,255).displayable {backGround.get()}
     private val backRounded = FloatValue("BackGround Rounded", 5F, 0F, 5F).displayable {backGround.get()}
     private val glowValue = BoolValue("Glow", false).displayable {backGround.get()}
-    private val glowRadius = FloatValue("Glow Radius", 5F, 1F, 8F)
     override fun drawElement(partialTicks: Float): Border? {
         val font = fontValue.get()
-        val string: String = if (backGround.get()) "CPS : ${CPSCounter.getCPS(CPSCounter.MouseButton.LEFT)}" + if (rightValue.get()) " | ${CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT)}" else "" else "[CPS : ${CPSCounter.getCPS(CPSCounter.MouseButton.LEFT)}" + if (rightValue.get()) " | ${CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT)}]" else "]"
+        val string: String = if (backGround.get()) "CPS ${CPSCounter.getCPS(CPSCounter.MouseButton.LEFT)}" + if (rightValue.get()) " | ${CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT)}" else "" else "[CPS ${CPSCounter.getCPS(CPSCounter.MouseButton.LEFT)}" + if (rightValue.get()) " | ${CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT)}]" else "]"
         if (backGround.get()) {
             RenderUtils.drawRoundedRect(0F, 0F, 10F + font.getStringWidth(string), 10F + font.FONT_HEIGHT, backRounded.get(), Color(0,0,0,backAlpha.get()).rgb)
         }
         if(glowValue.get() && backGround.get()) {
-            GlowUtils.drawGlow(0F, 0F, 10F + font.getStringWidth(string), 10F + font.FONT_HEIGHT, glowRadius.get().toInt(), Color(0,0,0,backAlpha.get()))
+            GlowUtils.drawGlow(0F, 0F, 10F + font.getStringWidth(string), 10F + font.FONT_HEIGHT, 8, Color(0,0,0,backAlpha.get()))
         }
-        font.drawString(string, if (backGround.get()) 5F else 0F, if (backGround.get()) 5F else 0F, if (fontColor.get()) ClientTheme.getColor(1).rgb else Color(255,255,255).rgb, true)
+        font.drawString(string, if (backGround.get()) 5F else 0F, if (backGround.get()) 6F else 0F, if (fontColor.get()) ClientTheme.getColor(1).rgb else Color(255,255,255).rgb, true)
         return Border(0F, 0F, if (backGround.get()) 10F + font.getStringWidth(string) else font.getStringWidth(string).toFloat(), if (backGround.get()) 10F + font.FONT_HEIGHT else font.FONT_HEIGHT.toFloat())
     }
 }

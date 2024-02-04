@@ -8,7 +8,7 @@ import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.PacketEvent;
-import net.ccbluex.liquidbounce.features.module.modules.combat.BackTrack;
+import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.special.ProxyManager;
 import net.ccbluex.liquidbounce.utils.BlinkUtils;
@@ -50,11 +50,17 @@ public abstract class MixinNetworkManager {
     @Overwrite
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception {
         final PacketEvent event = new PacketEvent(p_channelRead0_2_, PacketEvent.Type.RECEIVE);
-        if (BackTrack.INSTANCE.getState()) {
+        if (FakeLag.INSTANCE.shouldPacketBeSpoofed(p_channelRead0_2_)) {
             try {
-                BackTrack.INSTANCE.onPacket(event);
-            } catch (Exception e) {
-                //Minecraft.logger.error("Exception caught in BackTrack", e);
+              FakeLag.INSTANCE.spoofPacket(p_channelRead0_2_);
+            } catch (Exception ignored) {}
+        } else {
+            if (FakeLag.INSTANCE.getState()) {
+                try {
+                    FakeLag.INSTANCE.onPacket(event);
+                } catch (Exception e) {
+                    //Minecraft.logger.error("Exception caught in BackTrack", e);
+                }
             }
         }
         CrossSine.eventManager.callEvent(event);

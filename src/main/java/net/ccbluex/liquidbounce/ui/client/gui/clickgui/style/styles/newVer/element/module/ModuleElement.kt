@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
+import javax.xml.soap.Text
 
 class ModuleElement(val module: Module): MinecraftInstance() {
 
@@ -50,6 +51,10 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 valueElements.add(FontElement(value))
             if (value is TitleValue)
                 valueElements.add(TitleElement(value))
+            if (value is TextValue)
+                valueElements.add(TextElement(value))
+            if (value is KeyValue)
+                valueElements.add(KeyElement(value))
         }
     }
 

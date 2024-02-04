@@ -22,21 +22,21 @@ class GuiProxySelect(private val prevGui: GuiScreen) : GuiScreen() {
         textField.maxStringLength = 114514
         buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 96, "").also { type = it })
         buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 120, "").also { stat = it })
-        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 144, "%ui.back%"))
+        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 144, "Back"))
         updateButtonStat()
     }
 
     private fun updateButtonStat() {
-        type.displayString = "%ui.proxy.type%: " + ProxyManager.proxyType.name
-        stat.displayString = "%ui.status%: " + if (ProxyManager.isEnable) "§a%ui.on%" else "§c%ui.off%"
+        type.displayString = "Proxy Type: " + ProxyManager.proxyType.name
+        stat.displayString = "%ui.status%: " + if (ProxyManager.isEnable) "§aOn" else "§cOff"
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
-        drawCenteredString(mc.fontRendererObj, "%ui.proxy.screen%", width / 2, 34, 0xffffff)
+        drawCenteredString(mc.fontRendererObj, "Proxy Manager", width / 2, 34, 0xffffff)
         textField.drawTextBox()
         if (textField.text.isEmpty() && !textField.isFocused) {
-            drawString(mc.fontRendererObj, "§7%ui.proxy.address%", width / 2 - 100, 66, 0xffffff)
+            drawString(mc.fontRendererObj, "§7Address", width / 2 - 100, 66, 0xffffff)
         }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

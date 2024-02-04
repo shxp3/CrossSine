@@ -93,8 +93,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     Color(41, 41, 41).rgb)
 
             val v = 197 * (-scroll / (realHeight - 170F))
-            RenderUtils.drawRect(x + width - 5F, y + 15 + v, x + width - 2F, y + 20 + v,
-                    Color(112,57,239, 170).rgb)
+            RenderUtils.drawGradientRoundedRect(x + width - 5F, y + 15 + v, x + width - 2F, y + 20 + v,
+                3, ClientTheme.getColor(0).rgb, ClientTheme.getColor(90).rgb)
 
             GL11.glDisable(GL11.GL_SCISSOR_TEST)
             GL11.glPopMatrix()

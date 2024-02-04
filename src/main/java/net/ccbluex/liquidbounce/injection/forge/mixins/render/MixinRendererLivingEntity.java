@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.features.module.modules.visual.Chams;
 import net.ccbluex.liquidbounce.features.module.modules.visual.HitColor;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NameTags;
 import net.ccbluex.liquidbounce.features.module.modules.visual.TrueSight;
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme;
 import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.minecraft.client.Minecraft;
@@ -98,8 +99,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             if (flag1) {
                 assert hitColor != null;
                 if (hitColor.getState()) {
-                    if (!hitColor.getHitColorRainbow().get()) {
-                        int color = new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
+                        int color = hitColor.getHitColorTheme().get() ? ClientTheme.INSTANCE.getColorWithAlpha(1, hitColor.getHitColorAlphaValue().get()).getRGB() : new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
                         float red = (float) (color >> 16 & 0xFF) / 255.0f;
                         float green = (float) (color >> 8 & 0xFF) / 255.0f;
                         float blue = (float) (color & 0xFF) / 255.0f;
@@ -108,17 +108,6 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                         this.brightnessBuffer.put(green);
                         this.brightnessBuffer.put(blue);
                         this.brightnessBuffer.put(alpha);
-                    } else {
-                        int color = ColorUtils.slowlyRainbow(System.nanoTime(), 30 * 1, 1F, 1F).getRGB();
-                        float red = (float) (color >> 16 & 0xFF) / 255.0f;
-                        float green = (float) (color >> 8 & 0xFF) / 255.0f;
-                        float blue = (float) (color & 0xFF) / 255.0f;
-                        float alpha = (float) (color >> 24 & 0xFF) / 255.0f;
-                        this.brightnessBuffer.put(red);
-                        this.brightnessBuffer.put(green);
-                        this.brightnessBuffer.put(blue);
-                        this.brightnessBuffer.put(alpha);
-                    }
                 } else {
                     this.brightnessBuffer.put(1.0F);
                     this.brightnessBuffer.put(0.0F);

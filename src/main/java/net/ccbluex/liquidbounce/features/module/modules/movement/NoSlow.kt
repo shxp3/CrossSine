@@ -33,10 +33,10 @@ import kotlin.math.sqrt
 @ModuleInfo(name = "NoSlow", "No Slow",category = ModuleCategory.MOVEMENT)
 class NoSlow : Module() {
     //Basic settings
-    private val modeValue = ListValue("PacketMode", arrayOf("Vanilla", "LiquidBounce", "Custom", "WatchDog", "Watchdog2", "HypixelNew", "NCP", "AAC", "AAC4", "AAC5","SwitchItem", "Matrix", "Vulcan", "Medusa", "OldIntave", "Interact"), "Vanilla")
+    private val modeValue = ListValue("PacketMode", arrayOf("Vanilla", "LiquidBounce", "Custom", "WatchDog", "Watchdog2", "invalid", "HypixelNew", "NCP", "AAC", "AAC4", "AAC5","SwitchItem", "Matrix", "Vulcan", "Medusa", "OldIntave", "Interact"), "Vanilla")
     private val onlyGround = BoolValue("OnlyGround", false)
     private val onlyMove = BoolValue("OnlyMove", false)
-    private val onlyKa = BoolValue("OnlyKillAura", false)
+    val onlyKa = BoolValue("OnlyKillAura", false)
     //Modify Slowdown / Packets
     private val blockModifyValue = BoolValue("Blocking", true)
     private val blockMultiplier = FloatValue("BlockMultiplier", 1.0F, 0.2F, 1.0F).displayable { blockModifyValue.get() }
@@ -70,7 +70,8 @@ class NoSlow : Module() {
     private var waitC03 = false
     private var sendPacket = false
     private var lastBlockingStat = false
-
+    private var canuse = true
+    private var packeton = false
     override fun onDisable() {
         msTimer.reset()
         pendingFlagApplyPacket = false
@@ -78,6 +79,8 @@ class NoSlow : Module() {
         packetBuf.clear()
         nextTemp = false
         waitC03 = false
+        canuse = true
+        packeton = false
     }
 
     private fun sendPacket(
@@ -223,6 +226,21 @@ class NoSlow : Module() {
                 }
             }
         }
+        if (event.isPre() && modeValue.equals("invalid")) {
+            val Item = mc.thePlayer.heldItem?.item
+            if (mc.thePlayer.isUsingItem) {
+                if (mc.thePlayer.ticksExisted % 2 == 0 && !(Item is ItemPotion || Item is ItemBucketMilk)) {
+                    for (i in 10..45) {
+                        if (mc.thePlayer.inventory.currentItem != i) {
+                            PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), -1,mc.thePlayer.inventory.getStackInSlot(i % 36 + 1), -1F, -1F, -1F))
+                            return
+                        }
+                    }
+                }
+            } else {
+                canuse = true
+            }
+        }
     }
 
     @EventTarget
@@ -255,6 +273,10 @@ class NoSlow : Module() {
     fun onUpdate(event: UpdateEvent) {
         if(mc.thePlayer == null || mc.theWorld == null || (onlyGround.get() && !mc.thePlayer.onGround))
             return
+        val Item = mc.thePlayer.heldItem?.item
+        if (packeton && Item is ItemPotion || Item is ItemBucketMilk) {
+            canuse = false
+        }
         if((modeValue.equals("Matrix") || modeValue.equals("Vulcan") || modeValue.equals("GrimAC")) && (lastBlockingStat || isBlocking)) {
             if(msTimer.hasTimePassed(230) && nextTemp) {
                 nextTemp = false
@@ -394,6 +416,11 @@ class NoSlow : Module() {
                     mc.thePlayer.motionY = lastMotionY * teleportDecreasePercentValue.get()
                     mc.thePlayer.motionZ = lastMotionZ * teleportDecreasePercentValue.get()
                 }
+            }
+        }
+        if (modeValue.equals("invalid")) {
+            if (packet is C08PacketPlayerBlockPlacement) {
+                packeton = true
             }
         }
     }

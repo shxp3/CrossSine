@@ -12,7 +12,10 @@ import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.utils.timer.tickTimer
+import net.minecraft.block.Block
+import net.minecraft.block.BlockLiquid
 import net.minecraft.client.settings.KeyBinding
+import net.minecraft.init.Blocks
 import net.minecraft.item.EnumAction
 import net.minecraft.item.ItemSword
 import org.lwjgl.input.Mouse
@@ -46,6 +49,15 @@ class LeftClicker : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
+        if (mc.objectMouseOver != null) {
+            val p = mc.objectMouseOver.blockPos
+            if (p != null) {
+                val bl: Block = mc.theWorld.getBlockState(p).block
+                if (bl !== Blocks.air && bl !is BlockLiquid) {
+                    return
+                }
+            }
+        }
         if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword)) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 

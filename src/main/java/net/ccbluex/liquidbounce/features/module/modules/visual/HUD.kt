@@ -32,13 +32,15 @@ import javax.swing.text.JTextComponent.KeyBinding
 
 @ModuleInfo(name = "HUD", "HUD", category = ModuleCategory.VISUAL, array = false, defaultOn = true)
 object HUD : Module() {
-    val test1 = FloatValue("Test", 0F, 0F, 5F)
-    val hudtext = BoolValue("HUDText", true)
+    val test1 = FloatValue("Test-X", 0F, -10F, 10F)
+    val test2 = FloatValue("Test-Y", 0F, -10F, 10F)
+    val test3 = FloatValue("Test-X1", 0F, -10F, 10F)
+    val hudtext = BoolValue("HUDText", false)
     val title = TitleValue(".clientusername (name)")
     val buttonValue = BoolValue("ContainerButton", false)
     val inventoryParticle = BoolValue("InventoryParticle", false)
     val inventoryAnimation = BoolValue("InventoryAnimation", false)
-    val UiShadowValue = ListValue("UiEffect", arrayOf("Shadow", "Glow", "None"), "None")
+    val noF5 = BoolValue("NoF5-Crosshair", false)
     val ColorGuiInGameValue = IntegerValue("ColorGuiInGame", 0, 0, 9)
     var scafState = false
     var fadeProgress = 0F

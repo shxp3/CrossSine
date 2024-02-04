@@ -7,7 +7,6 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.eleme
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
-import net.ccbluex.liquidbounce.ui.client.gui.paint.GuiPaint
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
@@ -309,10 +308,6 @@ class NewUi private constructor() : GuiScreen() {
         }
         if (Rectangle(windowXStart, windowYEnd - 40, 40f, 40f).contains(mouseX, mouseY)) {
             mc.displayGuiScreen(GuiHudDesigner())
-            return
-        }
-       if (Rectangle(windowXStart , windowYEnd - 80, 40f, 40f).contains(mouseX, mouseY)) {
-            mc.displayGuiScreen(GuiPaint())
             return
         }
 

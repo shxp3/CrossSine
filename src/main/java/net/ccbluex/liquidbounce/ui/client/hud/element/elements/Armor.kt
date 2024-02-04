@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.ItemSpoofUtils
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
@@ -60,7 +61,7 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
             }
 
             if (mode.equals("Exhibition", true)) {
-                val mainStack = mc.thePlayer.heldItem
+                val mainStack = mc.thePlayer.inventory.getStackInSlot(ItemSpoofUtils.getSlot())
                 val enchant = if (enchantItemValue.get()) {
                     RenderUtils.drawExhiEnchants(mainStack, x.toFloat(), y.toFloat())
                 } else null

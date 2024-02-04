@@ -206,11 +206,11 @@ public abstract class MixinGuiNewChat {
 
                                 String s = fixString(chatline.getChatComponent().getFormattedText());
                                 final ChatEvent event = new ChatEvent(s);
-                                CrossSine.eventManager.callEvent(event);
                                 GlStateManager.enableBlend();
-                                if (guiChatModule.getState() && lineBeingDrawn <= newLines)
+                                if (guiChatModule.getState() && lineBeingDrawn <= newLines) {
+                                    CrossSine.eventManager.callEvent(event);
                                     (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), new Color(1F, 1F, 1F, animationPercent * (float) d0).getRGB(), true);
-                                else
+                                } else
                                     (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), 16777215 + (l1 << 24), true);
                                 GlStateManager.disableAlpha();
                                 GlStateManager.disableBlend();

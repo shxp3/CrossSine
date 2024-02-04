@@ -24,10 +24,11 @@ class AutoPlace : Module() {
     private val md = BoolValue("MouseDown", false)
     private val up = BoolValue("Up", false)
     private val down = BoolValue("Down", false)
+    private val side = BoolValue("Side", true)
     private val nofly = BoolValue("NoFly", false)
     private val PitchLitmit = BoolValue("Pitch", false)
-    private val PitchMax = IntegerValue("Pitch-MAX", 0, 0, 90).displayable { PitchLitmit.get() }
-    private val PitchMin = IntegerValue("Pitch-MIN", 0, 0, 90).displayable { PitchLitmit.get() }
+    private val PitchMax = IntegerValue("Pitch-MAX", 90, 0, 90).displayable { PitchLitmit.get() }
+    private val PitchMin = IntegerValue("Pitch-MIN", 75, 0, 90).displayable { PitchLitmit.get() }
     private var l = 0L
     private var f = 0
     private var lm: MovingObjectPosition? = null
@@ -42,7 +43,7 @@ class AutoPlace : Module() {
                 val i = mc.thePlayer.heldItem
                 if (i != null && i.item is ItemBlock) {
                     val m = mc.objectMouseOver
-                    if (m != null && m.typeOfHit == MovingObjectType.BLOCK && (up.get() || m.sideHit != EnumFacing.UP) && (down.get() || m.sideHit != EnumFacing.DOWN) || m!!.sideHit == EnumFacing.NORTH || m.sideHit == EnumFacing.EAST || m.sideHit == EnumFacing.SOUTH || m.sideHit == EnumFacing.WEST) {
+                    if (m != null && m.typeOfHit == MovingObjectType.BLOCK && (up.get() || m.sideHit != EnumFacing.UP) && (down.get() || m.sideHit != EnumFacing.DOWN) ||(!side.get() || m!!.sideHit == EnumFacing.NORTH || m.sideHit == EnumFacing.EAST || m.sideHit == EnumFacing.SOUTH || m.sideHit == EnumFacing.WEST)) {
                         if (lm != null && f.toDouble() < dl.get()) {
                             ++f
                         } else {

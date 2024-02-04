@@ -1,5 +1,3 @@
-@file:Suppress("UNREACHABLE_CODE")
-
 package net.ccbluex.liquidbounce
 
 import net.ccbluex.liquidbounce.discordrpc.CrossSineRPC
@@ -20,13 +18,10 @@ import net.ccbluex.liquidbounce.ui.client.gui.LaunchOption
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.keybind.KeyBindManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.utils.*
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.Display
-import java.util.*
 import kotlin.concurrent.thread
 
 object CrossSine {
@@ -35,10 +30,10 @@ object CrossSine {
     const val CLIENT_CLOUD = "https://crosssine.github.io/cloud"
     var USER_NAME = ""
     var CUSTOM_DOMAIN = ".customdomain [domain]"
-    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Beta")
+    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Release")
     const val COLORED_NAME = "§CC§FrossSine"
     const val CLIENT_CREATOR = "Shape"
-    val CLIENT_VERSION = "Last Build" + if (CLIENT_STATUS.equals("Beta")) " Beta" else ""
+    val CLIENT_VERSION = "Last Build" + if (CLIENT_STATUS.equals("Beta")) " Beta" else " B36"
     @JvmField
     val CLIENT_LOADING = "Installing CrossSine"
     @JvmField
@@ -109,9 +104,6 @@ object CrossSine {
         // Create event manager
         eventManager = EventManager()
 
-        // Load language
-        LanguageManager.switchLanguage(Minecraft.getMinecraft().gameSettings.language)
-
         // Register listeners
         eventManager.registerListener(RotationUtils())
         eventManager.registerListener(ClientFixes)
@@ -125,6 +117,7 @@ object CrossSine {
 
 
         // Init Discord RPC
+        clientRichPresence = CrossSineRPC
         clientRichPresence = CrossSineRPC
 
         // Create command manager
@@ -207,16 +200,6 @@ object CrossSine {
 
         ClientUtils.logInfo("$CLIENT_NAME $CLIENT_VERSION started!")
 
-        if (clientRichPresence.showRichPresenceValue) {
-            thread {
-                try {
-                    clientRichPresence.run()
-                } catch (throwable: Throwable) {
-                    ClientUtils.logError("Failed to setup Discord RPC.", throwable)
-                }
-            }
-        }
-
     }
 
 
@@ -237,6 +220,5 @@ object CrossSine {
                 it.stop()
             }
         }
-        clientRichPresence.stop()
     }
 }

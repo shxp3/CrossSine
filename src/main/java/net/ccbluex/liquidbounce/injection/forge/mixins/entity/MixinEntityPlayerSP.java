@@ -388,7 +388,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         
         //Don't check current Sprint state cuz it's not updated in real time :bruh:
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState()) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && (!noSlow.getOnlyKa().get() || killAura.getState())) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);

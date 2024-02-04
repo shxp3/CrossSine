@@ -347,17 +347,6 @@ object BedAura : Module() {
         val width = ScaledResolution(mc).scaledWidth
         val height = ScaledResolution(mc).scaledHeight
         val d = DecimalFormat("0", DecimalFormatSymbols(Locale.ENGLISH))
-        var damage = currentDamage
-        var damageTick = 0F
-        if (damage >= 1F) {
-            damage = 1F
-        }
-        if (damage == 1F) {
-            damageTick++
-        }
-        if (damageTick >= 5F) {
-            damage = currentDamage
-        }
         if (showProcess.get()) {
             if (damage != 0F) {
                 mc.fontRendererObj.drawString(

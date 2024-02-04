@@ -137,6 +137,7 @@ public abstract class MixinMinecraft {
         RenderUtils.deltaTime = deltaTime;
 
     }
+
     @Inject(method = "runTick", at = @At("HEAD"))
     private void runTick(final CallbackInfo callbackInfo) {
         StaticStorage.scaledResolution = new ScaledResolution((Minecraft) (Object) this);

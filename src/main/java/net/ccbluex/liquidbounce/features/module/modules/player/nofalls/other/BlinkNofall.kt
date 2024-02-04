@@ -45,11 +45,11 @@ class BlinkNofall : NoFallMode("Blink") {
         if (start) {
             Blink.array = false
             Blink.state = true
-            if (mc.thePlayer.fallDistance > 1.5) {
+            if (event.packet is C03PacketPlayer) {
+                event.packet.onGround = true
+            }
+            if (mc.thePlayer.fallDistance > 0.2) {
                 disable = true
-                if (event.packet is C03PacketPlayer) {
-                    event.packet.onGround = true
-                }
             }
         } else {
             Blink.state = false

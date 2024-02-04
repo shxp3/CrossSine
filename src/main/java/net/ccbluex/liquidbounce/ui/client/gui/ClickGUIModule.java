@@ -24,7 +24,7 @@ import java.awt.*;
 
 @ModuleInfo(name = "ClickGUI", category = ModuleCategory.VISUAL, keyBind = Keyboard.KEY_RSHIFT, canEnable = false)
 public class ClickGUIModule extends Module {
-    public ListValue styleValue = new ListValue("Style", new String[]{"LB+", "LiquidBounce", "Slowly", "Astolfo"}, "LB+") {
+    public ListValue styleValue = new ListValue("Style", new String[]{"LB+", "LiquidBounce", "Astolfo"}, "LB+") {
         @Override
         protected void onChanged(final String oldValue, final String newValue) {
             updateStyle();
@@ -48,7 +48,6 @@ public class ClickGUIModule extends Module {
 
     @Override
     public void onEnable() {
-
         if (styleValue.get().equalsIgnoreCase("Astolfo")) {
             mc.displayGuiScreen(new AstolfoClickGui());
         } else if (styleValue.get().equalsIgnoreCase("LB+")) {
@@ -62,14 +61,7 @@ public class ClickGUIModule extends Module {
     }
 
     private void updateStyle() {
-        switch (styleValue.get().toLowerCase()) {
-            case "liquidbounce":
-                modernuiLaunchOption.clickGui.style = new LiquidBounceStyle();
-                break;
-            case "slowly":
-                modernuiLaunchOption.clickGui.style = new SlowlyStyle();
-                break;
-        }
+        modernuiLaunchOption.clickGui.style = new LiquidBounceStyle();
     }
 
     @EventTarget(ignoreCondition = true)

@@ -115,7 +115,7 @@ public class SplashProgress {
         //barBackgroundColor = getHex("barBackground", 16777215);
         barBackgroundColor = new Color(200, 200, 255).getRGB();
         final ResourceLocation fontLoc = new ResourceLocation(getString("fontTexture", "minecraft:textures/font/ascii.png"));
-        final ResourceLocation backgroundLoc = new ResourceLocation(getString("backgroundTexture", "client/background/splash.png"));
+        final ResourceLocation backgroundLoc = new ResourceLocation(getString("backgroundTexture", "crosssine/ui/splash.png"));
         File miscPackFile = new File(Minecraft.getMinecraft().mcDataDir, getString("resourcePackPath", "resources"));
         FileWriter w = null;
 
