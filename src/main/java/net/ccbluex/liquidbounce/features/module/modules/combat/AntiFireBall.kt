@@ -11,10 +11,13 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.projectile.EntityFireball
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C0APacketAnimation
@@ -22,38 +25,45 @@ import net.minecraft.util.ResourceLocation
 import kotlin.math.atan2
 import kotlin.math.*
 
-@ModuleInfo(name = "AntiFireBall", "Anti FireBall", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "AntiFireBall", category = ModuleCategory.COMBAT)
 class AntiFireBall : Module() {
-    private val timer = MSTimer()
     private val fireBall = BoolValue("indicators-FireBall", true)
     private val scaleValue = FloatValue("Size", 0.7f, 0.65f, 1.25f)
     private val radiusValue = FloatValue("Radius", 50f, 15f, 150f)
     private val hitfireball = BoolValue("HitFireBall", false)
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal").displayable { hitfireball.get() }
     private val rotationValue = BoolValue("Rotation",true).displayable { hitfireball.get() }
-
+    private val maxTurnSpeed: FloatValue =
+        object : FloatValue("MaxTurnSpeed", 120f, 0f, 180f) {
+            override fun onChanged(oldValue: Float, newValue: Float) {
+                val i = minTurnSpeed.get()
+                if (i > newValue) set(i)
+            }
+        }.displayable {hitfireball.get()} as FloatValue
+    private val minTurnSpeed: FloatValue =
+        object : FloatValue("MinTurnSpeed", 80f, 0f, 180f) {
+            override fun onChanged(oldValue: Float, newValue: Float) {
+                val i = maxTurnSpeed.get()
+                if (i < newValue) set(i)
+            }
+        }.displayable {hitfireball.get()} as FloatValue
+    private var leftDelay = 50L
+    private var leftLastSwing = 0L
     @EventTarget
-    private fun onUpdate(event: UpdateEvent) {
+    fun onUpdate(event: UpdateEvent) {
         if (hitfireball.get()) {
             for (entity in mc.theWorld.loadedEntityList) {
-                if (entity is EntityFireball && mc.thePlayer.getDistanceToEntity(entity) < 5.5 && timer.hasTimePassed(
-                        300
-                    )
-                ) {
+                if (entity is EntityFireball && mc.thePlayer.getDistanceToEntity(entity) < 5.5) {
                     if (rotationValue.get()) {
-                        RotationUtils.setTargetRotation(RotationUtils.getRotationsNonLivingEntity(entity))
+                        RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation,RotationUtils.getRotationsNonLivingEntity(entity), RandomUtils.nextFloat(minTurnSpeed.get(), maxTurnSpeed.get())), 0)
                     }
+                    if (mc.objectMouseOver.entityHit == entity) {
+                        if (System.currentTimeMillis() - leftLastSwing >= leftDelay) {
+                            KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
-                    mc.thePlayer.sendQueue.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
-
-                    if (swingValue.equals("Normal")) {
-                        mc.thePlayer.swingItem()
-                    } else if (swingValue.equals("Packet")) {
-                        mc.netHandler.addToSendQueue(C0APacketAnimation())
+                            leftLastSwing = System.currentTimeMillis()
+                            leftDelay = TimeUtils.randomClickDelay(12, 12)
+                        }
                     }
-
-                    timer.reset()
-                    break
                 }
             }
         }

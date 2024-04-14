@@ -11,9 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix
 import net.ccbluex.liquidbounce.features.module.modules.movement.TargetStrafe
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.player.FreeCam
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
-import net.ccbluex.liquidbounce.features.module.modules.world.BedAura
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.*
@@ -129,7 +127,7 @@ object KillAura : Module() {
     // AutoBlock
     private val text11 = TitleValue("AutoBlock")
     val autoBlockValue =
-        ListValue("AutoBlock", arrayOf("Vanilla", "LegitBlock", "Damage", "Hypixel", "Fake", "None"), "None")
+        ListValue("AutoBlock", arrayOf("Vanilla", "Damage", "Hypixel", "Fake", "None"), "None")
     private val cancelAttack = BoolValue(
         "CancelAttackWhenClickBlock",
         false
@@ -178,7 +176,6 @@ object KillAura : Module() {
             "Smooth2"
         )
     } as IntegerValue
-    private val gcdValue = BoolValue("GDC", false).displayable { !rotationModeValue.equals("None") }
     private val rotationRevValue = BoolValue("RotationReverse", false).displayable { !rotationModeValue.equals("None") }
     private val rotationRevTickValue = IntegerValue(
         "RotationReverseTick",
@@ -447,11 +444,6 @@ object KillAura : Module() {
     }
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if(mc.thePlayer.heldItem.item !is ItemSword) return
-        if (autoBlockValue.equals("LegitBlock") && (mc.thePlayer.isBlocking || blockingStatus)) {
-            event.cancelEvent()
-            stopBlocking()
-        }
         if (cancelAttack.get() && mc.thePlayer.isBlocking) {
             event.cancelEvent()
         }
@@ -623,13 +615,6 @@ object KillAura : Module() {
      * Update killaura rotations to enemy
      */
     private fun updateRotations(entity: Entity): Boolean {
-        if (BedAura.betterRot.get()) {
-            if (BedAura.pos != null) {
-                if (BedAura.rotTicks in 1..3) {
-                    return true
-                }
-            }
-        }
         if (rotationModeValue.equals("None")) {
             return true
         }
@@ -666,6 +651,7 @@ object KillAura : Module() {
                 rModes,
                 randomCenterModeValue.get(),
                 (randomCenRangeValue.get()).toDouble(),
+                false,
                 boundingBox,
                 predictValue.get(),
                 true
@@ -733,7 +719,7 @@ object KillAura : Module() {
                 }
             )
         } else {
-            rotation.toPlayer(mc.thePlayer, gcdValue.get())
+            rotation.toPlayer(mc.thePlayer)
         }
         return true
     }
@@ -748,7 +734,7 @@ object KillAura : Module() {
             return
         }
         val entityDist = mc.thePlayer.getDistanceToEntityBox(currentTarget as Entity)
-        canSwing = entityDist < swingRangeValue.get()
+        canSwing = entityDist <= swingRangeValue.get()
         if (hitAbleValue.get()) {
             hitable = entityDist <= maxRange.toDouble()
             return
@@ -770,7 +756,7 @@ object KillAura : Module() {
      */
     private fun startBlocking(interactEntity: Entity, interact: Boolean) {
         when (autoBlockValue.get().lowercase()) {
-            "vanilla", "hypixel", "legitblock" -> {
+            "vanilla", "hypixel" -> {
                 mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
                 blockingStatus = true
             }
@@ -891,14 +877,6 @@ object KillAura : Module() {
      */
     private val maxRange: Float
         get() = max(rangeValue.get(), if (!throughWallsValue.get()) rangeValue.get() else 0.0f)
-
-    /**
-     * Switch Item
-     */
-    fun switchItem(slot: Int) {
-        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % slot + 1))
-        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-    }
 
     /**
      * HUD Tag

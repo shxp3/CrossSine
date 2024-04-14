@@ -20,7 +20,7 @@ import net.minecraft.network.play.server.*
 import net.minecraft.world.WorldSettings
 import java.util.*
 
-@ModuleInfo(name = "AntiBot", "Anti Bot",category = ModuleCategory.COMBAT, array = false)
+@ModuleInfo(name = "AntiBot", category = ModuleCategory.COMBAT, array = false)
 object AntiBot : Module() {
 
     private val tabValue = BoolValue("Tab", true)

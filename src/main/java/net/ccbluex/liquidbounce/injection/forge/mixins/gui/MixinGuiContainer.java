@@ -5,12 +5,11 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.KeyEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.InvManager;
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
 import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -56,7 +55,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
     public void injectInitGui(CallbackInfo callbackInfo){
         GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
         if (guiScreen instanceof GuiChest) {
-            if (HUD.INSTANCE.getButtonValue().get()){
+            if (Interface.INSTANCE.getButtonValue().get()){
                 buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 150, 20, "Disable KillAura"));
                 buttonList.add(InventorymanagerButton = new GuiButton(321123, 5, 27, 150, 20, "Disable InventoryManager"));
                 buttonList.add(chestStealerButton = new GuiButton(727, 5, 49, 150, 20, "Disable Stealer"));
@@ -106,7 +105,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             }
         } else {
             mc.currentScreen.drawWorldBackground(0);
-            if (HUD.INSTANCE.getInventoryAnimation().get() && HUD.INSTANCE.getState() && guiScreen instanceof GuiInventory) {
+            if (Interface.INSTANCE.getInventoryAnimation().get() && Interface.INSTANCE.getState() && guiScreen instanceof GuiInventory) {
                 double pct = Math.max(300 - (System.currentTimeMillis() - guiOpenTime), 0) / ((double) 300);
                 if (pct != 0) {
                     GL11.glPushMatrix();

@@ -2,6 +2,8 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EventTarget;
+import net.ccbluex.liquidbounce.event.KeyBindEvent;
+import net.ccbluex.liquidbounce.event.KeyEvent;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
@@ -30,6 +33,7 @@ public class LiquidBounceStyle extends Style {
 
     private boolean mouseDown;
     private boolean rightMouseDown;
+    private int keyCode;
 
     @Override
     public void drawPanel(int mouseX, int mouseY, Panel panel) {
@@ -94,6 +98,29 @@ public class LiquidBounceStyle extends Style {
 
                         GlStateManager.resetColor();
                         Fonts.Nunito35.drawString(text, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, ((BoolValue) value).get() ? guiColor : Integer.MAX_VALUE);
+                        yPos += 12;
+                    }else if (value instanceof KeyValue) {
+                        final KeyValue keyValue = (KeyValue) value;
+                        final String name = value.getName();
+                        final float textWidth = Fonts.Nunito35.getStringWidth(name);
+
+                        if (moduleElement.getSettingsWidth() < textWidth + 8)
+                            moduleElement.setSettingsWidth(textWidth + 8);
+
+                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
+                        if (mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
+                            if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
+                                keyValue.setFocused(!keyValue.getFocused());
+                                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+                            }
+                        }
+                        if (keyValue.getFocused()) {
+                            keyValue.set(keyCode);
+                                keyValue.setFocused(false);
+                            }
+
+                        GlStateManager.resetColor();
+                        Fonts.Nunito35.drawString(name + " " + (keyValue.getFocused() ? "Binding" : keyValue.get()), moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, 0xffffff);
                         yPos += 12;
                     }else if(value instanceof ListValue) {
                         ListValue listValue = (ListValue) value;
@@ -281,7 +308,12 @@ public class LiquidBounceStyle extends Style {
             }
         }
     }
-
+    @EventTarget
+    public void onKey(KeyBindEvent event) {
+        if (event.getCode() != Keyboard.KEY_RETURN && event.getCode() != Keyboard.KEY_UP && event.getCode() != Keyboard.KEY_DOWN && event.getCode() != Keyboard.KEY_LEFT && event.getCode() != Keyboard.KEY_RIGHT) {
+            keyCode = event.getCode();
+        }
+    }
     private BigDecimal round(final float f) {
         BigDecimal bd = new BigDecimal(Float.toString(f));
         bd = bd.setScale(2, 4);

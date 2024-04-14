@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.input.Mouse
 
-@ModuleInfo(name = "MCF", spacedName = "MCF", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "MCF", category = ModuleCategory.PLAYER)
 class MCF : Module() {
 
     private var wasDown = false

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public abstract class FontLoaders {
     public static final CFontRenderer T18 = new CFontRenderer(getTena(18), true, true);
     public static final CFontRenderer F14 = new CFontRenderer(getFont(14), true, true);
+    public static final CFontRenderer F16 = new CFontRenderer(getFont(16), true, true);
     public static final CFontRenderer F18 = new CFontRenderer(getFont(18), true, true);
     public static CFontRenderer F24 = new CFontRenderer(getFont(24), true, true);
     public static final CFontRenderer F40 = new CFontRenderer(getFont(40), true, true);

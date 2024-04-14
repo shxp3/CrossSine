@@ -10,8 +10,9 @@ import net.ccbluex.liquidbounce.utils.misc.StringUtils;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.TextValue
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 
-@ModuleInfo(name = "StreamerMode", spacedName = "Streamer Mode",category = ModuleCategory.OTHER)
+@ModuleInfo(name = "StreamerMode", category = ModuleCategory.OTHER)
 object StreamerMode : Module() {
     private val nameDisplay = TextValue("Name", "CrossSineUser")
     private val allPlayersValue = BoolValue("SensorPlayer", false)
@@ -22,15 +23,15 @@ object StreamerMode : Module() {
             return;
         event.text = StringUtils.replace(
             event.text,
-            mc.thePlayer.getName(),
+            mc.thePlayer.name,
             ColorUtils.translateAlternateColorCodes(nameDisplay.get()) + "§r"
         )
         if (allPlayersValue.get()) {
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 event.text = StringUtils.replace(
                     event.text,
-                    playerInfo.getGameProfile().getName(),
-                    ColorUtils.translateAlternateColorCodes("Player") + "§f"
+                    playerInfo.gameProfile.name,
+                    RandomUtils.randomString(playerInfo.gameProfile.name.length) + "§f"
                 )
             }
         }

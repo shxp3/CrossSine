@@ -35,7 +35,7 @@ import net.minecraft.util.Vec3
 import kotlin.concurrent.schedule
 import kotlin.random.Random
 
-@ModuleInfo(name = "Stealer", spacedName = "Stealer", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "Stealer", category = ModuleCategory.WORLD)
 object Stealer : Module() {
     /**
      * OPTIONS
@@ -90,7 +90,6 @@ object Stealer : Module() {
 
     //Chest Aura
     private val Aura = BoolValue("Aura", false)
-    private val AuraShowTag = BoolValue("ThroughWalls", true).displayable { Aura.get() }
     private val AurarangeValue = FloatValue("Range", 5F, 1F, 6F).displayable { Aura.get() }
     private val AuradelayValue = IntegerValue("Delay", 100, 50, 500).displayable { Aura.get() }
     private val AurathroughWallsValue = BoolValue("ThroughWalls", true).displayable { Aura.get() }
@@ -117,10 +116,7 @@ object Stealer : Module() {
     private val autoCloseTimer = MSTimer()
     private var nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
 
-    public var contentReceived = 0
-
-    public var once = false
-    val StealerShadowValue = false
+    var contentReceived = 0
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
@@ -272,7 +268,7 @@ object Stealer : Module() {
                 if (AurarotationsValue.get()) {
                     RotationUtils.setTargetRotation(
                         (RotationUtils.faceBlock(AuracurrentBlock ?: return)
-                            ?: return).rotation
+                            ?: return).rotation ,0
                     )
                 }
             } else if (AuracurrentBlock != null && InventoryUtils.INV_TIMER.hasTimePassed(

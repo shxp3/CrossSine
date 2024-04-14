@@ -27,7 +27,7 @@ object  ItemUtils {
         return 0
     }
 
-    fun getEnchantmentCount(itemStack: ItemStack): Int {
+    private fun getEnchantmentCount(itemStack: ItemStack): Int {
         if (itemStack.enchantmentTagList == null || itemStack.enchantmentTagList.hasNoTags()) return 0
         var c = 0
         for (i in 0 until itemStack.enchantmentTagList.tagCount()) {

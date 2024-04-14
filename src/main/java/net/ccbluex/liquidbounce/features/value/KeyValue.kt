@@ -7,6 +7,7 @@ import com.google.gson.JsonPrimitive
  * Text value represents a value with a string
  */
 open class KeyValue(name: String, value: Int) : Value<Int>(name, value) {
+    var focused = false
     override fun toJson() = JsonPrimitive(value)
 
     override fun fromJson(element: JsonElement) {

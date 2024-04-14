@@ -7,32 +7,27 @@ import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlyMode
+import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.network.play.server.S19PacketEntityStatus
-import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 @ModuleInfo(
     name = "Flight",
-    "Flight",
     category = ModuleCategory.MOVEMENT,
     autoDisable = EnumAutoDisableType.FLAG,
-    keyBind = Keyboard.KEY_F
 )
 object Flight : Module() {
-    val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.flights", FlyMode::class.java)
-        .map { it.newInstance() as FlyMode }
+    val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.flights", FlightMode::class.java)
+        .map { it.newInstance() as FlightMode }
         .sortedBy { it.modeName }
 
-    private val mode: FlyMode
+    private val mode: FlightMode
         get() = modes.find { modeValue.equals(it.modeName) } ?: throw NullPointerException() // this should not happen
 
     private val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "Vanilla") {
@@ -47,7 +42,6 @@ object Flight : Module() {
 
     private val motionResetValue = BoolValue("MotionReset", false)
     private val motionResetYValue = BoolValue("ResetY", false).displayable { motionResetValue.get() }
-    private val renderTimeValue = BoolValue("RenderTime", false)
 
     // Visuals
     private val markValue = ListValue("Mark", arrayOf("Up", "Down", "Off"), "Off")
@@ -118,22 +112,6 @@ object Flight : Module() {
     fun onUpdate(event: UpdateEvent) {
         mode.onUpdate(event)
     }
-
-    @EventTarget
-    fun onRender2d(event: Render2DEvent) {
-        if (renderTimeValue.get()) {
-            if (state) {
-                time++
-            }
-            Fonts.font40.drawString(
-                "Time : ${time / 100} Second",
-                ScaledResolution(mc).scaledWidth / 2f,
-                (ScaledResolution(mc).scaledHeight / 2 + 20).toFloat(),
-                -1,
-                true
-            )
-        }
-    }
     @EventTarget
     fun onMotion(event: MotionEvent) {
         if (viewBobbingValue.get()) {
@@ -156,6 +134,10 @@ object Flight : Module() {
     @EventTarget
     fun onMove(event: MoveEvent) {
         mode.onMove(event)
+    }
+    @EventTarget
+    fun onTick(event: TickEvent) {
+        mode.onTick(event)
     }
 
     @EventTarget

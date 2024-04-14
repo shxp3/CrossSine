@@ -2,6 +2,7 @@
 package net.ccbluex.liquidbounce.event
 
 import net.minecraft.block.Block
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.model.ModelPlayer
@@ -48,16 +49,6 @@ class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAl
  * Called when a model updates
  */
 class UpdateModelEvent(val player: EntityPlayer, val model: ModelPlayer) : Event()
-
-/**
- * Called when player clicks a block
- */
-class ClickBlockEvent(val clickedBlock: BlockPos?, val enumFacing: EnumFacing?) : Event()
-/**
- * Called sync item player
- */
-class SyncCurrentItemEvent(var slot: Int) : Event()
-
 /**
  * Called when client is shutting down
  */
@@ -68,7 +59,9 @@ class ClientShutdownEvent : Event()
  *
  * @param motion jump motion (y motion)
  */
-class JumpEvent(var motion: Float) : CancellableEvent()
+class JumpEvent(var motion: Float, var movementYaw: Float) : CancellableEvent() {
+    var boosting: Boolean = Minecraft.getMinecraft().thePlayer.isSprinting
+}
 
 /**
  * Called when user press a key once
@@ -76,18 +69,40 @@ class JumpEvent(var motion: Float) : CancellableEvent()
  * @param key Pressed key
  */
 class KeyEvent(val key: Int) : Event()
-
+/**
+ * Called when user press a key once (for key bind ClickGui)
+ */
+class KeyBindEvent : Event() {
+    var code: Int = 0
+    fun setKey(key: Int) {
+        code = key
+    }
+}
 /**
  * Called in "onUpdateWalkingPlayer"
  *
  * @param eventState PRE or POST
  */
-class MotionEvent(val eventState: EventState, var onGround: Boolean) : Event() {
+class MotionEvent(
+var x: Double,
+var y: Double,
+var z: Double,
+var yaw: Float,
+var pitch: Float,
+var onGround: Boolean
+) : Event() {
+    var eventState: EventState = EventState.PRE
     fun isPre() : Boolean {
-    return eventState == EventState.PRE
+        return eventState == EventState.PRE
     }
 }
-
+/**
+ * Called when player sprints or sneaks, after pre-motion event
+ *
+ * @param sprinting player's sprint state
+ * @param sneaking player's sneak state
+ */
+class ActionEvent(var sprinting: Boolean, var sneaking: Boolean) : Event()
 /**
  * Called when an entity receives damage
  */
@@ -122,7 +137,10 @@ class EntityMovementEvent(val moveEntity: Entity) : Event()
  */
 class MoveEvent(var x: Double, var y: Double, var z: Double) : CancellableEvent() {
     var isSafeWalk = false
-
+    var eventState: EventState = EventState.PRE
+    fun isPre() : Boolean {
+        return eventState == EventState.PRE
+    }
     fun zero() {
         x = 0.0
         y = 0.0

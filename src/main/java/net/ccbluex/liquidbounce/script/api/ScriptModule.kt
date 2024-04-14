@@ -126,10 +126,6 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
 
     @EventTarget
     fun onClickWindow(clickWindowEvent: ClickWindowEvent) = callEvent("clickWindow", clickWindowEvent)
-
-    @EventTarget
-    fun onClickBlock(clickBlockEvent: ClickBlockEvent) = callEvent("clickBlock", clickBlockEvent)
-
     @EventTarget
     fun onStrafe(strafeEvent: StrafeEvent) = callEvent("strafe", strafeEvent)
 

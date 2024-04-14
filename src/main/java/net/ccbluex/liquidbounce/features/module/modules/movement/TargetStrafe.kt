@@ -6,6 +6,8 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.render.ColorManager
@@ -19,7 +21,7 @@ import java.awt.Color
 import kotlin.math.cos
 import kotlin.math.sin
 
-@ModuleInfo(name = "TargetStrafe",  spacedName = "Target Strafe", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "TargetStrafe", category = ModuleCategory.MOVEMENT)
 class TargetStrafe : Module() {
     private val thirdPersonViewValue = BoolValue("ThirdPersonView", false)
     private val renderModeValue = ListValue("RenderMode", arrayOf("Circle", "Polygon", "None"), "Polygon")
@@ -40,9 +42,8 @@ class TargetStrafe : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        val target = targetEntity
-        if (renderModeValue.get() != "None" && canStrafe(target)) {
-            if (target == null || !doStrafe) return
+        if (renderModeValue.get() != "None" && canStrafe(targetEntity)) {
+            if (targetEntity == null || !doStrafe) return
             val counter = intArrayOf(0)
             if (renderModeValue.get().equals("Circle", ignoreCase = true)) {
                 GL11.glPushMatrix()
@@ -59,9 +60,9 @@ class TargetStrafe : Module() {
                 GL11.glDepthMask(false)
                 GL11.glLineWidth(lineWidthValue.get())
                 GL11.glBegin(3)
-                val x = target.lastTickPosX + (target.posX - target.lastTickPosX) * event.partialTicks - mc.renderManager.viewerPosX
-                val y = target.lastTickPosY + (target.posY - target.lastTickPosY) * event.partialTicks - mc.renderManager.viewerPosY
-                val z = target.lastTickPosZ + (target.posZ - target.lastTickPosZ) * event.partialTicks - mc.renderManager.viewerPosZ
+                val x = targetEntity!!.lastTickPosX + (targetEntity!!.posX - targetEntity!!.lastTickPosX) * event.partialTicks - mc.renderManager.viewerPosX
+                val y = targetEntity!!.lastTickPosY + (targetEntity!!.posY - targetEntity!!.lastTickPosY) * event.partialTicks - mc.renderManager.viewerPosY
+                val z = targetEntity!!.lastTickPosZ + (targetEntity!!.posZ - targetEntity!!.lastTickPosZ) * event.partialTicks - mc.renderManager.viewerPosZ
                 for (i in 0..359) {
                     val rainbow = Color(
                         Color.HSBtoRGB(
@@ -94,9 +95,9 @@ class TargetStrafe : Module() {
                 GL11.glDepthMask(false)
                 GL11.glLineWidth(lineWidthValue.get())
                 GL11.glBegin(3)
-                val x = target.lastTickPosX + (target.posX - target.lastTickPosX) * event.partialTicks - mc.renderManager.viewerPosX
-                val y = target.lastTickPosY + (target.posY - target.lastTickPosY) * event.partialTicks - mc.renderManager.viewerPosY
-                val z = target.lastTickPosZ + (target.posZ - target.lastTickPosZ) * event.partialTicks - mc.renderManager.viewerPosZ
+                val x = targetEntity!!.lastTickPosX + (targetEntity!!.posX - targetEntity!!.lastTickPosX) * event.partialTicks - mc.renderManager.viewerPosX
+                val y = targetEntity!!.lastTickPosY + (targetEntity!!.posY - targetEntity!!.lastTickPosY) * event.partialTicks - mc.renderManager.viewerPosY
+                val z = targetEntity!!.lastTickPosZ + (targetEntity!!.posZ - targetEntity!!.lastTickPosZ) * event.partialTicks - mc.renderManager.viewerPosZ
                 for (i in 0..10) {
                     counter[0] = counter[0] + 1
                     val rainbow = Color(ColorManager.astolfoRainbow(counter[0] * 100, 5, 107))
@@ -179,39 +180,36 @@ class TargetStrafe : Module() {
                 GL11.glPopMatrix()
             }
         }
-
-        @EventTarget
-        fun onMove(event: MoveEvent) {
-            if(doStrafe && (!ongroundValue.get() || mc.thePlayer.onGround)) {
-                val _entity : EntityLivingBase = targetEntity?:return
-                if(!canStrafe(_entity)) {
-                    isEnabled = false
-                    return
-                }
-                var aroundVoid = false
-                for (x in -1..0) for (z in -1..0) 
-                    if (isVoid(x, z)) 
-                        aroundVoid = true
-                if (aroundVoid) 
-                    direction *= -1
-                var _1IlIll1 = 0
-                if (radiusModeValue.get().equals("Strict", ignoreCase = true)) {
-                    _1IlIll1 = 1
-                }
-                MovementUtils.doTargetStrafe(_entity, direction.toFloat(), radiusValue.get(), event, _1IlIll1.toInt())
-                callBackYaw = RotationUtils.getRotationsEntity(_entity).yaw.toDouble()
-                isEnabled = true
-                if (!thirdPersonViewValue.get()) 
-                    return
-                mc.gameSettings.thirdPersonView = if (canStrafe(target)) 3 else 0
-            }else {
+    }
+    @EventTarget
+    fun onMove(event: MoveEvent) {
+        if(doStrafe && (!ongroundValue.get() || mc.thePlayer.onGround)) {
+            if(!canStrafe(targetEntity)) {
                 isEnabled = false
-                if (!thirdPersonViewValue.get()) return
-                mc.gameSettings.thirdPersonView = 3
+                return
             }
+            var aroundVoid = false
+            for (x in -1..0) for (z in -1..0)
+                if (isVoid(x, z))
+                    aroundVoid = true
+            if (aroundVoid)
+                direction *= -1
+            var _1IlIll1 = 0
+            if (radiusModeValue.get().equals("Strict", ignoreCase = true)) {
+                _1IlIll1 = 1
+            }
+            MovementUtils.doTargetStrafe(targetEntity!!, direction.toFloat(), radiusValue.get(), event, _1IlIll1.toInt())
+            callBackYaw = RotationUtils.getRotationsEntity(targetEntity).yaw.toDouble()
+            isEnabled = true
+            if (!thirdPersonViewValue.get())
+                return
+            mc.gameSettings.thirdPersonView = if (canStrafe(targetEntity)) 3 else 0
+        }else {
+            isEnabled = false
+            if (!thirdPersonViewValue.get()) return
+            mc.gameSettings.thirdPersonView = 3
         }
     }
-
         private fun canStrafe(target: EntityLivingBase?): Boolean {
             return target != null && (!holdSpaceValue.get() || mc.gameSettings.keyBindJump.isKeyDown) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state) && (!onlyFlightValue.get() || CrossSine.moduleManager[Flight::class.java]!!.state)
         }
@@ -231,12 +229,13 @@ class TargetStrafe : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        targetEntity = if (KillAura.state) KillAura.currentTarget else if (KillAura2.state) KillAura2.target else CrossSine.combatManager.target
         if (mc.thePlayer.isCollidedHorizontally) {
             direction = -direction
-            if (direction >= 0) {
-                direction = 1.0
+            direction = if (direction >= 0) {
+                1.0
             }else {
-                direction = -1.0
+                -1.0
             }
         }
     }
@@ -245,9 +244,9 @@ class TargetStrafe : Module() {
         if(!state)
             return false
         if(doStrafe && (!ongroundValue.get() || mc.thePlayer.onGround)) {
-            val _entity : EntityLivingBase = targetEntity?:return false
-            MovementUtils.doTargetStrafe(_entity, direction.toFloat(), radiusValue.get(), event)
-            callBackYaw = RotationUtils.getRotationsEntity(_entity).yaw.toDouble()
+            val entity : EntityLivingBase = targetEntity?:return false
+            MovementUtils.doTargetStrafe(entity, direction.toFloat(), radiusValue.get(), event)
+            callBackYaw = RotationUtils.getRotationsEntity(entity).yaw.toDouble()
             isEnabled = true
         }else {
             isEnabled = false

@@ -18,7 +18,7 @@ import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 
-@ModuleInfo(name = "SafeWalk", "Safe Walk", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "SafeWalk", category = ModuleCategory.GHOST)
 object SafeWalk : Module() {
 
     val shiftValue = BoolValue("Shift", false)

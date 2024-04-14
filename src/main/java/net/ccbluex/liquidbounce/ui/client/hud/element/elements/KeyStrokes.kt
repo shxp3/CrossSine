@@ -19,7 +19,6 @@ class KeyStrokes : Element() {
     private val showMouse = BoolValue("Show Mouse", false)
     private val roundValue = FloatValue("Rounded", 0F, 0F, 5F)
     private val fadeSpeed = FloatValue("FadeSpeed", 15F, 15F, 30F)
-    private val glowValue = BoolValue("Glow", false)
     private var wPressed = 0F
     private var aPressed = 0F
     private var sPressed = 0F
@@ -49,9 +48,7 @@ class KeyStrokes : Element() {
     private fun renderKey(keyString: String, textPosX: Float, textPosY: Float, posX: Float, posY: Float, size: Float, size2: Float, keyTick: Float, index: Int,round: Float) {
         val font = Fonts.SFApple50
         RenderUtils.drawRoundedRect(posX, posY, size, size2, round, Color(0,0,0,90 + (120 * (keyTick / fadeSpeed.get())).toInt()).rgb)
-        if (glowValue.get()) {
-            GlowUtils.drawGlow(posX, posY, size - posX, size2 - posY, 8, Color(0,0,0,90 + (120 * (keyTick / fadeSpeed.get())).toInt()))
-        }
+        GlowUtils.drawGlow(posX, posY, size - posX, size2 - posY, 8, Color(0,0,0,90 + (120 * (keyTick / fadeSpeed.get())).toInt()))
         font.drawCenteredString(keyString, posX + textPosX, posY + textPosY, if (keyColor.get()) ClientTheme.getColor(index).rgb else Color(255,255,255).rgb, true)
     }
     private fun fadeKey(isKeyDown: Boolean, currentValue: Float, fadeSpeed: Float): Float {

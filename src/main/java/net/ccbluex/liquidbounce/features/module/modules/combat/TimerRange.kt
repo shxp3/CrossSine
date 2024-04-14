@@ -1,17 +1,19 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import akka.actor.Kill
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import kotlin.random.Random
 
-@ModuleInfo(name = "TimerRange", spacedName = "Timer Range", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "TimerRange",category = ModuleCategory.COMBAT)
 class TimerRange : Module() {
 
     private var playerTicks = 0

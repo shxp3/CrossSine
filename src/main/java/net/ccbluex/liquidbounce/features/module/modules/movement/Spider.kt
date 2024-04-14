@@ -19,7 +19,7 @@ import kotlin.math.floor
 import kotlin.math.sin
 
 
-@ModuleInfo(name = "Spider", spacedName = "Spider", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "Spider",category = ModuleCategory.MOVEMENT)
 class Spider : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Collide", "Motion", "AAC3.3.12", "AAC4", "Checker", "Vulcan"), "Collide")

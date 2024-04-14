@@ -9,7 +9,7 @@ import java.awt.Color
 class TitleElement(value: TitleValue): ValueElement<String>(value) {
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
-        Fonts.SFApple50.drawString(value.name, x + 10F, y + 10F - Fonts.SFApple50.FONT_HEIGHT / 2F + 2F, -1)
+        Fonts.SFApple50.drawStringWithShadow(value.name, x + 10F, y + 10F - Fonts.SFApple50.FONT_HEIGHT / 2F + 2F, -1)
         return valueHeight
     }
 

@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
-@ModuleInfo(name = "Chams", spacedName = "Chams", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Chams", category = ModuleCategory.VISUAL)
 class Chams : Module() {
     val targetsValue = BoolValue("Targets", true)
     val chestsValue = BoolValue("Chests", true)

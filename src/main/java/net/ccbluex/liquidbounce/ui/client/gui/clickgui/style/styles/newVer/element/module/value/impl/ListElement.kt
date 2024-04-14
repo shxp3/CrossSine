@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.exten
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
@@ -25,8 +24,8 @@ class ListElement(val saveValue: ListValue): ValueElement<String>(saveValue) {
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F)
         val percent = expandHeight / (16F * (saveValue.values.size - 1F))
-        Fonts.SFApple40.drawString(value.name, x + 10F, y + 10F - Fonts.SFApple40.FONT_HEIGHT / 2F + 2F, -1)
-        ShaderUtil.drawRoundedRect(x + width - 18F - maxSubWidth, y + 2F, x + width - 10F, y + 18F + expandHeight, 4F, ColorManager.button)
+        Fonts.SFApple40.drawStringWithShadow(value.name, x + 10F, y + 10F - Fonts.SFApple40.FONT_HEIGHT / 2F + 2F, -1)
+        RenderUtils.drawRoundedRect(x + width - 18F - maxSubWidth, y + 2F, x + width - 10F, y + 18F + expandHeight, 4F, ColorManager.button.rgb)
         GlStateManager.resetColor()
         glPushMatrix()
         glTranslatef(x + width - 20F, y + 10F, 0F)
@@ -36,13 +35,13 @@ class ListElement(val saveValue: ListValue): ValueElement<String>(saveValue) {
         RenderUtils.drawImage(expanding, -4, -4, 8, 8)
         glPopMatrix()
         glPopMatrix()
-        Fonts.SFApple40.drawString(value.get(), x + width - 14F - maxSubWidth, y + 6F, -1)
+        Fonts.SFApple40.drawStringWithShadow(value.get(), x + width - 14F - maxSubWidth, y + 6F, -1)
         glPushMatrix()
         GlStateManager.translate(x + width - 14F - maxSubWidth, y + 7F, 0F)
         GlStateManager.scale(percent, percent, percent)
         var vertHeight = 0F
         if (percent > 0F) for (subV in unusedValues) {
-            Fonts.SFApple40.drawString(subV, 0F, (16F + vertHeight) * percent - 1F, Color(.5F, .5F, .5F, percent.coerceIn(0F, 1F)).rgb)
+            Fonts.SFApple40.drawStringWithShadow(subV, 0F, (16F + vertHeight) * percent - 1F, Color(.5F, .5F, .5F, percent.coerceIn(0F, 1F)).rgb)
             vertHeight += 16F
         }
         glPopMatrix()

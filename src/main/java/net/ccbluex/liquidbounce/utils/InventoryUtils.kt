@@ -4,6 +4,7 @@ package net.ccbluex.liquidbounce.utils
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
 import net.minecraft.enchantment.Enchantment
@@ -17,7 +18,7 @@ import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.potion.Potion
 
 
-object InventoryUtils : MinecraftInstance(), Listenable {
+object InventoryUtils : Listenable {
     @kotlin.jvm.JvmField
     val CLICK_TIMER = MSTimer()
     val INV_TIMER = MSTimer()
@@ -25,7 +26,6 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         Blocks.anvil, Blocks.sand, Blocks.web, Blocks.torch, Blocks.crafting_table, Blocks.furnace, Blocks.waterlily,
         Blocks.dispenser, Blocks.stone_pressure_plate, Blocks.wooden_pressure_plate, Blocks.red_flower, Blocks.flower_pot, Blocks.yellow_flower,
         Blocks.noteblock, Blocks.dropper, Blocks.standing_banner, Blocks.wall_banner, Blocks.tnt)
-
 
     fun findItem(startSlot: Int, endSlot: Int, item: Item): Int {
         for (i in startSlot until endSlot) {
@@ -51,7 +51,6 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         }
         return -1
     }
-
     fun findSword(): Int {
         var bestDurability = -1
         var bestDamage = -1f
@@ -83,29 +82,30 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         }
         return false
     }
-
     fun findAutoBlockBlock(biggest: Boolean): Int {
         if (biggest) {
-            var a = -1
-            var aa = 0
+            var bestSlot = -1
+            var bestSlotStackSize = 0
+
             for (i in 36..44) {
-                if (mc.thePlayer.inventoryContainer.getSlot(i).hasStack) {
-                    val aaa = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
-                    var aaaa = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                    if (aaa is ItemBlock && aaaa.stackSize > aa) {
-                        aa = aaaa.stackSize
-                        a = i
+                val stack: ItemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                val itemBlock = stack.item as ItemBlock
+                val block = itemBlock.getBlock()
+                if (stack.item is ItemBlock && canPlaceBlock(block)) {
+                    if (stack.stackSize > bestSlotStackSize) {
+                        bestSlot = i
+                        bestSlotStackSize = stack.stackSize
                     }
                 }
             }
-            return a
+            return bestSlot
         } else {
             for (i in 36..44) {
                 val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
                 if (itemStack != null && itemStack.item is ItemBlock) {
                     val itemBlock = itemStack.item as ItemBlock
                     val block = itemBlock.getBlock()
-                    if (canPlaceBlock(block) && itemStack.stackSize > 0) {
+                    if (canPlaceBlock(block) && (mc.thePlayer.ping > 100 && itemStack.stackSize > 2 || itemStack.stackSize != 0)) {
                         return i
                     }
                 }
@@ -163,7 +163,6 @@ object InventoryUtils : MinecraftInstance(), Listenable {
                 return true
             }
         }
-
         return false
     }
 

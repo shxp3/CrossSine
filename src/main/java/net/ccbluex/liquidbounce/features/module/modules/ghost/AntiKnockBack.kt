@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
-@ModuleInfo(name = "AntiKnockback", spacedName = "AntiKnockback", category = ModuleCategory.GHOST)
-class AntiKnockBack : Module() {
+@ModuleInfo(name = "AntiKnockback",category = ModuleCategory.GHOST)
+object AntiKnockBack : Module() {
     private val xz = IntegerValue("X-Z", 0, 0, 100)
     private val y = IntegerValue("Y", 0, 0, 100)
     private val onlyGround = BoolValue("OnlyGround", false)

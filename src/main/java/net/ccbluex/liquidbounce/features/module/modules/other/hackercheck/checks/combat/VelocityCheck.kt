@@ -7,34 +7,25 @@ import net.minecraft.client.entity.EntityOtherPlayerMP
 
 public class VelocityCheck(val playerMP: EntityOtherPlayerMP) : Check(playerMP) {
     private var veloBuffer = 0
-    private var veloOut = TimerMS()
+    var motionZ = 0.0
+    var motionX = 0.0
     init {
         name = "Velocity"
         checkViolationLevel = 10.0
     }
 
     override fun onLivingUpdate() {
-        val posX = handlePlayer.posX
-        val posZ = handlePlayer.posZ
-        val prevPosX = handlePlayer.prevPosX
-        val prevPosZ = handlePlayer.prevPosZ
-        if (handlePlayer.hurtTime >= 8) {
-            if (posX == prevPosX && posZ == prevPosZ) {
+        val prevX = motionX
+        val prevZ = motionZ
+        motionX = handlePlayer.motionX
+        motionZ = handlePlayer.motionZ
+        if (handlePlayer.hurtTime >= 9) {
+            if (prevX == motionX && prevZ == motionZ) {
                 if (++veloBuffer > 5) {
-                    flag("No position change after got damaged", 3.0)
-                    veloOut.reset()
+                    flag("No motion change after got damaged", 3.0)
                 }
-            }
-        }
-        if (handlePlayer.hurtTime == 0) {
-            if (veloOut.hasTimePassed(500)) {
-                veloBuffer = 0
             }
         }
     }
 
-    override fun reset() {
-        veloOut.reset()
-        veloBuffer = 0
-    }
 }

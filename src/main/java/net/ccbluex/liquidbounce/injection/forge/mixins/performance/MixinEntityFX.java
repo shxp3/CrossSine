@@ -1,3 +1,4 @@
+
 package net.ccbluex.liquidbounce.injection.forge.mixins.performance;
 
 import net.ccbluex.liquidbounce.features.module.modules.world.FPSBoost;
@@ -6,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(value={EntityFX.class})
+@Mixin(value = {EntityFX.class})
 public class MixinEntityFX {
     @Redirect(method={"renderParticle"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/particle/EntityFX;getBrightnessForRender(F)I"))
     private int renderParticle(EntityFX entityFX, float f) {

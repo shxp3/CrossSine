@@ -4,7 +4,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
@@ -40,7 +39,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     protected boolean isJumping;
     @Shadow
     private int jumpTicks;
-
+    @Shadow
+    public float rotationYawHead;
+    @Shadow
+    public float prevRotationYawHead;
     @Shadow
     protected abstract float getJumpUpwardsMotion();
 
@@ -53,6 +55,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Shadow
     public void onLivingUpdate() {
     }
+
     @Shadow
     private EntityLivingBase lastAttacker;
     @Shadow
@@ -77,39 +80,65 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Overwrite
     protected float updateDistance(float p_110146_1_, float p_110146_2_) {
-        float rotationYaw = this.rotationYaw;
-        if ((EntityLivingBase) (Object)this instanceof EntityPlayerSP) {
-            RenderRotation renderRotation = CrossSine.moduleManager.getModule(RenderRotation.class);
+        RenderRotation renderRotation = CrossSine.moduleManager.getModule(RenderRotation.class);
+        if (renderRotation.getState() && renderRotation.getRotationMode().equals("Smooth")) {
+            float rotationYaw = this.rotationYaw;
+            if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
                 if (renderRotation.getPlayerYaw() != null) {
-                    if (this.swingProgress > 0F){
+                    if (this.swingProgress > 0F) {
                         p_110146_1_ = renderRotation.getPlayerYaw();
                     }
                     rotationYaw = renderRotation.getPlayerYaw();
                 }
-        }
-        float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
-        this.renderYawOffset += f * 0.3F;
-        float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
-        boolean flag = f1 < -90.0F || f1 >= 90.0F;
-        if (f1 < -75.0F) {
-            f1 = -75.0F;
-        }
+            }
+            float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
+            this.renderYawOffset += f * 0.3F;
+            float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
+            boolean flag = f1 < -90.0F || f1 >= 90.0F;
+            if (f1 < -75.0F) {
+                f1 = -75.0F;
+            }
 
-        if (f1 >= 75.0F) {
-            f1 = 75.0F;
-        }
+            if (f1 >= 75.0F) {
+                f1 = 75.0F;
+            }
 
-        this.renderYawOffset = rotationYaw - f1;
-        if (f1 * f1 > 2500.0F) {
-            this.renderYawOffset += f1 * 0.2F;
-        }
+            this.renderYawOffset = rotationYaw - f1;
+            if (f1 * f1 > 2500.0F) {
+                this.renderYawOffset += f1 * 0.2F;
+            }
 
-        if (flag) {
-            p_110146_2_ *= -1.0F;
-        }
+            if (flag) {
+                p_110146_2_ *= -1.0F;
+            }
 
-        return p_110146_2_;
+            return p_110146_2_;
+        } else {
+            float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
+            this.renderYawOffset += f * 0.3F;
+            float f1 = MathHelper.wrapAngleTo180_float(this.rotationYaw - this.renderYawOffset);
+            boolean flag = f1 < -90.0F || f1 >= 90.0F;
+            if (f1 < -75.0F) {
+                f1 = -75.0F;
+            }
+
+            if (f1 >= 75.0F) {
+                f1 = 75.0F;
+            }
+
+            this.renderYawOffset = this.rotationYaw - f1;
+            if (f1 * f1 > 2500.0F) {
+                this.renderYawOffset += f1 * 0.2F;
+            }
+
+            if (flag) {
+                p_110146_2_ *= -1.0F;
+            }
+
+            return p_110146_2_;
         }
+    }
+
     /**
      * @author CCBlueX
      * @author CoDynamic
@@ -118,39 +147,26 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
      */
     @Overwrite
     protected void jump() {
-        if (!this.equals(Minecraft.getMinecraft().thePlayer)) {
-            return;
-        }
-
-        /**
-         * Jump Process Fix
-         * use updateFixState to reset Jump Fix state
-         * @param fixedYaw  The yaw player should have (NOT RotationYaw)
-         * @param movementFix MovementFix Module
-         */
-
-        final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion());
-        CrossSine.eventManager.callEvent(jumpEvent);
-        if (jumpEvent.isCancelled())
-            return;
-
-        this.motionY = jumpEvent.getMotion();
-        final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
-        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
-
-        if (this.isSprinting()) {
-            float fixedYaw = this.rotationYaw;
-            if(RotationUtils.targetRotation != null && movementFix.getDoFix()) {
-                fixedYaw = RotationUtils.targetRotation.getYaw();
+        if (this.equals(Minecraft.getMinecraft().thePlayer)) {
+            final JumpEvent eventJump = new JumpEvent((float) this.motionY, this.rotationYaw);
+            CrossSine.eventManager.callEvent(eventJump);
+            if (eventJump.isCancelled()) return;
+            this.motionY = this.getJumpUpwardsMotion();
+            if (this.isPotionActive(Potion.jump)) {
+                this.motionY += (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1f;
+            } else {
+                this.motionY = this.getJumpUpwardsMotion();
+                if (this.isPotionActive(Potion.jump)) {
+                    this.motionY += (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1f;
+                }
+                if (this.isSprinting() || eventJump.getBoosting()) {
+                    final float f2 = eventJump.getMovementYaw() * 0.017453292f;
+                    this.motionX -= MathHelper.sin(f2) * 0.2f;
+                    this.motionZ += MathHelper.cos(f2) * 0.2f;
+                }
             }
-            if(sprint.getState() && sprint.getJumpDirectionsValue().get()) {
-                fixedYaw += MovementUtils.INSTANCE.getMovingYaw() - this.rotationYaw;
-            }
-            this.motionX -= MathHelper.sin(fixedYaw / 180F * 3.1415927F) * 0.2F;
-            this.motionZ += MathHelper.cos(fixedYaw / 180F * 3.1415927F) * 0.2F;
+            this.isAirBorne = true;
         }
-
-        this.isAirBorne = true;
     }
 
     @Inject(method = "onLivingUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;isJumping:Z", ordinal = 1))
@@ -168,19 +184,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         if (Objects.requireNonNull(CrossSine.moduleManager.getModule(ViaVersionFix.class)).getState())
             return 0.003D;
         return 0.005D;
-    }
-
-    @Inject(method = "onLivingUpdate", at = @At("HEAD"))
-    private void headLiving(CallbackInfo callbackInfo) {
-        final NoJumpDelay noJumpDelay = CrossSine.moduleManager.getModule(NoJumpDelay.class);
-        if (noJumpDelay.getState())
-        jumpTicks = 0;
-    }
-
-    @Inject(method = "getLook", at = @At("HEAD"), cancellable = true)
-    private void getLook(CallbackInfoReturnable<Vec3> callbackInfoReturnable) {
-        if (((EntityLivingBase) (Object) this) instanceof EntityPlayerSP)
-            callbackInfoReturnable.setReturnValue(getVectorForRotation(this.rotationPitch, this.rotationYaw));
     }
 
     @Inject(method = "isPotionActive(Lnet/minecraft/potion/Potion;)Z", at = @At("HEAD"), cancellable = true)
@@ -206,6 +209,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
         return speed;
     }
+
     public EntityLivingBase getLastAttacker() {
         return this.lastAttacker;
     }

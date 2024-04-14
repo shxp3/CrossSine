@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.abs
@@ -32,10 +31,10 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
 
     fun drawLabel(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, height: Float) {
         if (focused)
-            ShaderUtil.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.dropDown)
+            RenderUtils.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.dropDown.rgb)
         else if (MouseUtils.mouseWithinBounds(mouseX, mouseY, x, y, x + width, y + height))
-            ShaderUtil.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.border)
-        Fonts.SFApple40.drawString(name, x + 16F, y + height / 2F - Fonts.SFApple40.FONT_HEIGHT / 2F + 2F, -1)
+            RenderUtils.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.border.rgb)
+        Fonts.SFApple40.drawStringWithShadow(name, x + 16F, y + height / 2F - Fonts.SFApple40.FONT_HEIGHT / 2F + 2F, -1)
     }
 
     fun drawPanel(mX: Int, mY: Int, x: Float, y: Float, width: Float, height: Float, wheel: Int, accentColor: Color) {
@@ -80,12 +79,12 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
         if (lastHeight > height - (startYY + 10F)) {
             val last = (height - (startYY + 10F)) - (height - (startYY + 10F)) * ((height - (startYY + 10F)) / lastHeight)
             val multiply = last * abs(animScrollHeight / (-lastHeight + height - (startYY + 10F))).coerceIn(0F, 1F)
-            ShaderUtil.drawRoundedRect(
+            RenderUtils.drawRoundedRect(
                 x + width - 6F,
                 y + multiply - 40f,
                 x + width - 4F,
                 y + (height - (startYY + 10F)) * ((height - (startYY + 10F)) / lastHeight) + multiply - 40f,
-                1F, Color(0x50FFFFFF))
+                1F, Color(0x50FFFFFF).rgb)
         }
     }
 

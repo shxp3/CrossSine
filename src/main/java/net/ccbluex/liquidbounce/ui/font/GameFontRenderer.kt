@@ -33,7 +33,7 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         FONT_HEIGHT = height
     }
 
-    fun getColorIndex2(type: Char): Int {
+    private fun getColorIndex2(type: Char): Int {
         return when (type) {
             in '0'..'9' -> type - '0'
             in 'a'..'f' -> type - 'a' + 10
@@ -46,11 +46,9 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
     fun drawString(s: String, x: Float, y: Float, color: Int) = drawString(s, x, y, color, false)
 
     fun drawStringFade(s: String, x: Float, y: Float, color: Color) {
-        drawString(s, x+0.7F, y+0.7F, Color(0,0,0,color.alpha).rgb, false)
+        drawString(s, x+0.85F, y+0.85F, Color(0,0,0,color.alpha).rgb, false)
         drawString(s, x, y, color.rgb, false)
     }
-
-    fun stringWidth(text: CharSequence?) {}
 
     override fun drawStringWithShadow(text: String, x: Float, y: Float, color: Int) = drawString(text, x, y, color, true)
 
@@ -66,17 +64,12 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         currentText = event.text ?: return 0
 
         val currY = y - 3F
-
-        val rainbow = RainbowFontShader.INSTANCE.isInUse
-
-        if (shadow) {
-            drawText(currentText, x + 1f, currY + 1f, Color(20, 20, 20, 200).rgb, true)
-        }
-
-        return drawText(currentText, x, currY, color, false, rainbow)
+        if (shadow)
+            drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
+        return drawText(currentText, x, currY, color, false)
     }
 
-    private fun drawText(text: String?, x: Float, y: Float, color: Int, ignoreColor: Boolean, rainbow: Boolean = false): Int {
+    private fun drawText(text: String?, x: Float, y: Float, colorHex: Int, ignoreColor: Boolean): Int {
         if (text == null)
             return 0
         if (text.isNullOrEmpty())
@@ -88,14 +81,11 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
         GlStateManager.enableTexture2D()
 
-        var currentColor = color
+        var hexColor = colorHex
+        if (hexColor and -67108864 == 0)
+            hexColor = hexColor or -16777216
 
-        if (currentColor and -0x4000000 == 0)
-            currentColor = currentColor or -16777216
-
-        val defaultColor = currentColor
-
-        val alpha: Int = (currentColor shr 24 and 0xff)
+        val alpha: Int = (hexColor shr 24 and 0xff)
 
         if (text.contains("§")) {
             val parts = text.split("§")
@@ -116,19 +106,16 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
                     return@forEachIndexed
 
                 if (index == 0) {
-                    currentFont.drawString(part, width, 0.0, currentColor)
+                    currentFont.drawString(part, width, 0.0, hexColor)
                     width += currentFont.getStringWidth(part)
                 } else {
                     val words = part.substring(1)
                     val type = part[0]
 
-                    when (val colorIndex = getColorIndex2(type)) {
+                    when (val colorIndex = getColorIndex(type)) {
                         in 0..15 -> {
                             if (!ignoreColor) {
-                                currentColor = ColorUtils.hexColors[colorIndex] or (alpha shl 24)
-
-                                if (rainbow)
-                                    GL20.glUseProgram(0)
+                                hexColor = ColorUtils.hexColors[colorIndex] or (alpha shl 24)
                             }
 
                             bold = false
@@ -137,18 +124,16 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
                             underline = false
                             strikeThrough = false
                         }
+
                         16 -> randomCase = true
                         17 -> bold = true
                         18 -> strikeThrough = true
                         19 -> underline = true
                         20 -> italic = true
                         21 -> {
-                            currentColor = color
-
-                            if (currentColor and -67108864 == 0)
-                                currentColor = currentColor or -16777216
-
-
+                            hexColor = colorHex
+                            if (hexColor and -67108864 == 0)
+                                hexColor = hexColor or -16777216
 
                             bold = false
                             italic = false
@@ -167,25 +152,32 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
                     else
                         defaultFont
 
-                    currentFont.drawString(if (randomCase) ColorUtils.randomMagicText(words) else words, width, 0.0, currentColor)
+                    currentFont.drawString(
+                        if (randomCase) ColorUtils.randomMagicText(words) else words,
+                        width,
+                        0.0,
+                        hexColor
+                    )
 
                     if (strikeThrough)
-                        RenderUtils.drawLine(width / 2.0 + 1, currentFont.height / 3.0,
+                        RenderUtils.drawLine(
+                            width / 2.0 + 1, currentFont.height / 3.0,
                             (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 3.0,
-                            FONT_HEIGHT / 16F)
+                            FONT_HEIGHT / 16F
+                        )
 
                     if (underline)
-                        RenderUtils.drawLine(width / 2.0 + 1, currentFont.height / 2.0,
+                        RenderUtils.drawLine(
+                            width / 2.0 + 1, currentFont.height / 2.0,
                             (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 2.0,
-                            FONT_HEIGHT / 16F)
+                            FONT_HEIGHT / 16F
+                        )
 
                     width += currentFont.getStringWidth(words)
                 }
             }
-        } else {
-            // Color code states
-            defaultFont.drawString(text, 0.0, 0.0, currentColor)
-        }
+        } else
+            defaultFont.drawString(text, 0.0, 0.0, hexColor)
 
         GlStateManager.disableBlend()
         GlStateManager.translate(-(x - 1.5), -(y + 0.5), 0.0)
@@ -193,121 +185,6 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
 
         return (x + getStringWidth(text)).toInt()
     }
-
-    private fun drawText(text: String?, x: Float, y: Float, colorHex: Int, ignoreColor: Boolean): Int {
-        if (text == null)
-            return 0
-        if (text.isNullOrEmpty())
-            return x.toInt()
-
-        GlStateManager.translate(x - 1.5, y + 0.5, 0.0)
-        GlStateManager.enableAlpha()
-        GlStateManager.enableBlend()
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
-        GlStateManager.enableTexture2D()
-
-        var hexColor = colorHex
-        if (hexColor and -67108864 == 0) {
-            hexColor = hexColor or -16777216
-        }
-
-        val alpha: Int = (hexColor shr 24 and 0xff)
-
-        if (text.contains("§")) {
-            val parts = text.split("§")
-
-            var currentFont = defaultFont
-
-            var width = 0.0
-
-            // Color code states
-            var randomCase = false
-            var bold = false
-            var italic = false
-            var strikeThrough = false
-            var underline = false
-
-            parts.forEachIndexed { index, part ->
-                if (part.isEmpty()) {
-                    return@forEachIndexed
-                }
-
-                if (index == 0) {
-                    currentFont.drawString(part, width, 0.0, hexColor)
-                    width += currentFont.getStringWidth(part)
-                } else {
-                    val words = part.substring(1)
-                    val type = part[0]
-
-                    when (val colorIndex = getColorIndex2(type)) {
-                        in 0..15 -> {
-                            if (!ignoreColor) {
-                                hexColor = ColorUtils.hexColors[colorIndex] or (alpha shl 24)
-                            }
-
-                            bold = false
-                            italic = false
-                            randomCase = false
-                            underline = false
-                            strikeThrough = false
-                        }
-                        16 -> randomCase = true
-                        17 -> bold = true
-                        18 -> strikeThrough = true
-                        19 -> underline = true
-                        20 -> italic = true
-                        21 -> {
-                            hexColor = colorHex
-                            if (hexColor and -67108864 == 0) {
-                                hexColor = hexColor or -16777216
-                            }
-
-                            bold = false
-                            italic = false
-                            randomCase = false
-                            underline = false
-                            strikeThrough = false
-                        }
-                    }
-
-                    currentFont = if (bold && italic) {
-                        boldItalicFont
-                    } else if (bold) {
-                        boldFont
-                    } else if (italic) {
-                        italicFont
-                    } else {
-                        defaultFont
-                    }
-
-                    currentFont.drawString(if (randomCase) ColorUtils.randomMagicText(words) else words, width, 0.0, hexColor)
-
-                    if (strikeThrough) {
-                        RenderUtils.drawLine(width / 2.0 + 1, currentFont.height / 3.0,
-                            (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 3.0,
-                            FONT_HEIGHT / 16F)
-                    }
-
-                    if (underline) {
-                        RenderUtils.drawLine(width / 2.0 + 1, currentFont.height / 2.0,
-                            (width + currentFont.getStringWidth(words)) / 2.0 + 1, currentFont.height / 2.0,
-                            FONT_HEIGHT / 16F)
-                    }
-
-                    width += currentFont.getStringWidth(words)
-                }
-            }
-        } else {
-            defaultFont.drawString(text, 0.0, 0.0, hexColor)
-        }
-
-        GlStateManager.translate(-(x - 1.5), -(y + 0.5), 0.0)
-        GlStateManager.resetColor()
-        GlStateManager.color(1f, 1f, 1f, 1f)
-
-        return (x + getStringWidth(text)).toInt()
-    }
-
     override fun getColorCode(charCode: Char) =
         ColorUtils.hexColors[getColorIndex2(charCode)]
 
@@ -370,22 +247,9 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
             defaultFont.getStringWidth(currentText) / 2
         }
     }
-
     override fun getCharWidth(character: Char) = getStringWidth(character.toString())
-
     override fun onResourceManagerReload(resourceManager: IResourceManager) {}
-
     override fun bindTexture(location: ResourceLocation?) {}
-
-
-    fun drawOutlineStringWithoutGL(s: String, x: Float, y: Float, color: Int,font: FontRenderer) {
-
-        font.drawString(ColorUtils.stripColor(s), (x * 2 - 1).toInt(), (y * 2).toInt(), Color.BLACK.rgb)
-        font.drawString(ColorUtils.stripColor(s), (x * 2 + 1).toInt(), (y * 2).toInt(), Color.BLACK.rgb)
-        font.drawString(ColorUtils.stripColor(s), (x * 2).toInt(), (y * 2 - 1).toInt(), Color.BLACK.rgb)
-        font.drawString(ColorUtils.stripColor(s), (x * 2).toInt(), (y * 2 + 1).toInt(), Color.BLACK.rgb)
-        font.drawString(s, (x * 2).toInt(), (y * 2).toInt(), color)
-    }
 
 
     companion object {

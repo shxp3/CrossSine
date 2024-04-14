@@ -17,9 +17,7 @@ import kotlin.concurrent.thread
 
 object CrossSineRPC : MinecraftInstance(){
 
-    var showRichPresenceValue = true
-
-    private val ipcClient = IPCClient(HttpUtils.get("https://raw.githubusercontent.com/shxp3/Discord/main/id").toLong())
+    private val ipcClient = IPCClient(1218820754552918096)
     private val timestamp = OffsetDateTime.now()
     private var running = false
 
@@ -71,10 +69,9 @@ object CrossSineRPC : MinecraftInstance(){
             builder.setDetails("Playing : ${ServerUtils.getRemoteIp()}")
         }
         else
-            builder.setDetails(mc.session.username + "is best player")
+            builder.setDetails(mc.session.username + " is best player")
 
-        builder.setState("Version : ${CrossSine.CLIENT_VERSION}")
-        // Check ipc client is connected and send rpc
+        builder.setState("Version : Build ${CrossSine.CLIENT_VERSION}")
         if (ipcClient.status == PipeStatus.CONNECTED) ipcClient.sendRichPresence(builder.build())
     }
 

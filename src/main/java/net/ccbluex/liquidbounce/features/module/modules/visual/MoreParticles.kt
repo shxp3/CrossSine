@@ -14,24 +14,22 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Blocks
 import net.minecraft.util.EnumParticleTypes
 
-@ModuleInfo(name = "MoreParticles", spacedName = "More Particles", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "MoreParticles",  category = ModuleCategory.VISUAL)
 class MoreParticles : Module() {
     private val timesValue = IntegerValue("Times", 1, 1, 10)
     private val sharpness = BoolValue("FakeSharp", false)
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-            displayEffectFor(event.targetEntity as EntityLivingBase)
+        displayEffectFor(event.targetEntity as EntityLivingBase)
     }
 
     private fun displayEffectFor(entity: EntityLivingBase) {
         repeat(timesValue.get()) {
             if (sharpness.get()) {
                 mc.effectRenderer.emitParticleAtEntity(entity, EnumParticleTypes.CRIT_MAGIC)
-                mc.effectRenderer.emitParticleAtEntity(entity, EnumParticleTypes.CRIT)
-            } else {
-                mc.effectRenderer.emitParticleAtEntity(entity, EnumParticleTypes.CRIT)
             }
+            mc.effectRenderer.emitParticleAtEntity(entity, EnumParticleTypes.CRIT)
         }
     }
 }

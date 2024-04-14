@@ -18,8 +18,8 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
 
-@ModuleInfo(name = "Velocity", "Velocity",category = ModuleCategory.COMBAT)
-class Velocity : Module() {
+@ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
+object Velocity : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
         .map { it.newInstance() as VelocityMode }
         .sortedBy { it.modeName }

@@ -53,20 +53,6 @@ abstract class Value<T>(val name: String, var value: T) {
     protected open fun onChange(oldValue: T, newValue: T) {}
     protected open fun onChanged(oldValue: T, newValue: T) {}
 
-    // this is better api for ListValue and TextValue
-
-    open class ColorValue(name: String, value: Int, canDisplay: () -> Boolean) : Value<Int>(name, value) {
-        val minimum: Int = -10000000
-        val maximum: Int = 1000000
-        fun set(newValue: Number) {
-            set(newValue.toInt())
-        }
-        override fun toJson() = JsonPrimitive(value)
-        override fun fromJson(element: JsonElement) {
-            if (element.isJsonPrimitive)
-                value = element.asInt
-        }
-    }
 
     fun nah(other: String?, ignoreCase: Boolean = false): Boolean {
         if (this === null)

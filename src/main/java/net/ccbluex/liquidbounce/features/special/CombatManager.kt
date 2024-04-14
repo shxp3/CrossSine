@@ -32,12 +32,12 @@ class CombatManager : Listenable, MinecraftInstance() {
             }
         }
 
-        if (!lastAttackTimer.hasTimePassed(250)) {
+        if (!lastAttackTimer.hasTimePassed(1000)) {
             inCombat = true
             return
         }
         if (target != null) {
-            if (mc.thePlayer.getDistanceToEntity(target) > 7 || !inCombat) {
+            if (mc.thePlayer.getDistanceToEntity(target) > 7 || !inCombat || target!!.isDead) {
                 target = null
             } else {
                 inCombat = true
@@ -66,23 +66,12 @@ class CombatManager : Listenable, MinecraftInstance() {
         focusedPlayerList.clear()
     }
 
-//    @EventTarget
-//    fun onPacket(event: PacketEvent) {
-//        val packet = event.packet
-//        if(packet is S02PacketChat) {
-//            val raw = packet.chatComponent.unformattedText
-//            val found = hackerWords.filter { raw.contains(it, true) }
-//            if(raw.contains(mc.session.username, true) && found.isNotEmpty()) {
-//                LiquidBounce.hud.addNotification(Notification("Someone call you a hacker!", found.joinToString(", "), NotifyType.ERROR))
-//            }
-//        }
-//    }
 
     fun getNearByEntity(radius: Float): EntityLivingBase? {
         return try {
             mc.theWorld.loadedEntityList
-                .filter { mc.thePlayer.getDistanceToEntity(it) < radius && EntityUtils.isSelected(it, true) }
-                .sortedBy { it.getDistanceToEntity(mc.thePlayer) }[0] as EntityLivingBase?
+                    .filter { mc.thePlayer.getDistanceToEntity(it) < radius && EntityUtils.isSelected(it, true) }
+                    .sortedBy { it.getDistanceToEntity(mc.thePlayer) }[0] as EntityLivingBase?
         } catch (e: Exception) {
             null
         }

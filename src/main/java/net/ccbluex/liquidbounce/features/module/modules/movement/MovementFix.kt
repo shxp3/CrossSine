@@ -43,12 +43,6 @@ object MovementFix : Module() {
         isOverwrited = true
     }
 
-    fun updateOverwrite() {
-        isOverwrited = false
-        doFix = state
-        silentFix = silentFixVaule.get()
-    }
-
     fun runStrafeFixLoop(isSilent: Boolean, event: StrafeEvent) {
         if (event.isCancelled) {
             return

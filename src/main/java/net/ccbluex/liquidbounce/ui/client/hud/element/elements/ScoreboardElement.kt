@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.modules.other.StreamerMode
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
+import net.ccbluex.liquidbounce.features.module.modules.visual.Interface
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -23,10 +23,8 @@ import net.minecraft.scoreboard.ScoreObjective
 import net.minecraft.scoreboard.ScorePlayerTeam
 import net.minecraft.scoreboard.Scoreboard
 import net.minecraft.util.EnumChatFormatting
-import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 
 /**
  * CustomHUD scoreboard
@@ -46,14 +44,15 @@ class ScoreboardElement(
     private val backgroundColorGreenValue = IntegerValue("Background-G", 0, 0, 255)
     private val backgroundColorBlueValue = IntegerValue("Background-B", 0, 0, 255)
     private val backgroundColorAlphaValue = IntegerValue("Background-Alpha", 95, 0, 255)
+    private val backgroundRoundedValue = FloatValue("Background-Rounded", 0F, 0F, 5F)
+    private val backgroundWidthValue = FloatValue("Background-Width", 0F, 0F, 3F)
 
-    private val rectValue = BoolValue("Rect", false)
-    private val rectColorModeValue = ListValue("Color", arrayOf("Custom", "ClientTheme"), "Custom").displayable { rectValue.get() }
+    private val ColorModeValue = ListValue("Color", arrayOf("Custom", "ClientTheme"), "Custom").displayable { backgroundWidthValue.get() > 0F || changeDomain.get() }
 
-    private val rectColorRedValue = IntegerValue("Red", 0, 0, 255).displayable { rectColorModeValue.equals("Custom") && rectValue.get() }
-    private val rectColorGreenValue = IntegerValue("Green", 111, 0, 255).displayable { rectColorModeValue.equals("Custom") && rectValue.get() }
-    private val rectColorBlueValue = IntegerValue("Blue", 255, 0, 255).displayable { rectColorModeValue.equals("Custom") && rectValue.get() }
-    private val rectColorBlueAlpha = IntegerValue("Alpha", 255, 0, 255).displayable { rectColorModeValue.equals("Custom") && rectValue.get() }
+    private val ColorRedValue = IntegerValue("Red", 0, 0, 255).displayable { ColorModeValue.equals("Custom") && (backgroundWidthValue.get() > 0F || changeDomain.get()) }
+    private val ColorGreenValue = IntegerValue("Green", 111, 0, 255).displayable { ColorModeValue.equals("Custom") && (backgroundWidthValue.get() > 0F || changeDomain.get()) }
+    private val ColorBlueValue = IntegerValue("Blue", 255, 0, 255).displayable { ColorModeValue.equals("Custom") && (backgroundWidthValue.get() > 0F || changeDomain.get()) }
+    private val ColorAlphaValue = IntegerValue("Alpha", 255, 0, 255).displayable { ColorModeValue.equals("Custom") && (backgroundWidthValue.get() > 0F || changeDomain.get()) }
 
     private val shadowValue = BoolValue("TextShadow", false)
     private val changeDomain = BoolValue("ChangeDomain", false)
@@ -82,9 +81,9 @@ class ScoreboardElement(
         val fontRenderer = fontValue.get()
         val backColor = backgroundColor().rgb
 
-        val rectColorMode = rectColorModeValue.get()
-        val rectCustomColor = Color(rectColorRedValue.get(), rectColorGreenValue.get(), rectColorBlueValue.get(),
-            rectColorBlueAlpha.get()).rgb
+        val colorMode = ColorModeValue.get()
+        val customColor = Color(ColorRedValue.get(), ColorGreenValue.get(), ColorBlueValue.get(),
+            ColorAlphaValue.get()).rgb
 
         val worldScoreboard: Scoreboard = mc.theWorld.scoreboard
         var currObjective: ScoreObjective? = null
@@ -112,7 +111,7 @@ class ScoreboardElement(
 
         var maxWidth = fontRenderer.getStringWidth(objective.displayName)
 
-        val hud = CrossSine.moduleManager.getModule(HUD::class.java) as HUD
+        val hud = CrossSine.moduleManager.getModule(Interface::class.java) as Interface
 
         for (score in scoreCollection) {
             val scorePlayerTeam = scoreboard.getPlayersTeam(score.playerName)
@@ -141,20 +140,12 @@ class ScoreboardElement(
         val l1 = if (side.horizontal == Side.Horizontal.LEFT) {maxWidth + 3} else {-maxWidth - 3}
 
         if (side.horizontal == Side.Horizontal.LEFT) {
-            Gui.drawRect(l1 + 2, -2, -5, maxHeight + fontRenderer.FONT_HEIGHT, backColor)
+            RenderUtils.drawRoundedRect(-8F, -5F, 8F + maxWidth, maxHeight + fontRenderer.FONT_HEIGHT.toFloat() + 10F, backgroundRoundedValue.get(), backColor, backgroundWidthValue.get(), if (colorMode == "ClientTheme") ClientTheme.getColor().rgb else customColor)
             GlStateManager.resetColor()
         }
         else {
-            Gui.drawRect(l1 - 2, -2, 5, maxHeight + fontRenderer.FONT_HEIGHT, backColor)
+            RenderUtils.drawRoundedRect(l1 - 2F, -7F, 12F + maxWidth, maxHeight + fontRenderer.FONT_HEIGHT.toFloat() + 10F, backgroundRoundedValue.get(), backColor, backgroundWidthValue.get(), if (colorMode == "ClientTheme") ClientTheme.getColor().rgb else customColor)
             GlStateManager.resetColor()
-        }
-        if (rectValue.get() && scoreCollection.size > 0) {
-
-
-            if (side.horizontal == Side.Horizontal.LEFT)
-                RenderUtils.drawGradientRect(l1 + 2, -2, -5, -3, ClientTheme.getColor(0).rgb, ClientTheme.getColor(90).rgb)
-            else
-                RenderUtils.drawGradientRect(l1 - 2, -2, 5, -3,ClientTheme.getColor(90).rgb, ClientTheme.getColor(0).rgb)
         }
 
         scoreCollection.forEachIndexed { index, score ->
@@ -196,7 +187,7 @@ class ScoreboardElement(
             if (changed) {
                 var stringZ = ""
                 for (z in 0..(name.length-1)) {
-                    val typeColor = ClientTheme.getColor(z * 135).rgb
+                    val typeColor = if(colorMode == "ClientTheme")ClientTheme.getColor(z * 135).rgb else customColor
 
                     if (side.horizontal == Side.Horizontal.LEFT)
                         fontRenderer.drawString(name.get(z).toString(), -3F + fontRenderer.getStringWidth(stringZ).toFloat(), height.toFloat(), typeColor, shadowValue.get())
@@ -229,7 +220,7 @@ class ScoreboardElement(
 
         }
 
-        return if (side.horizontal == Side.Horizontal.LEFT) Border(maxWidth.toFloat() + 5, -2F, -5F, maxHeight.toFloat() + fontRenderer.FONT_HEIGHT) else Border(-maxWidth.toFloat() - 5, -2F, 5F, maxHeight.toFloat() + fontRenderer.FONT_HEIGHT)
+        return if (side.horizontal == Side.Horizontal.LEFT) Border(maxWidth.toFloat() + 7, -4F, -7F, maxHeight.toFloat() + fontRenderer.FONT_HEIGHT) else Border(-maxWidth.toFloat() - 7, -4F, 7F, maxHeight.toFloat() + fontRenderer.FONT_HEIGHT)
     }
 
     private fun backgroundColor() = Color(backgroundColorRedValue.get(), backgroundColorGreenValue.get(),

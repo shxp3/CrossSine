@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 
-@ModuleInfo(name = "JumpReset", "JumpReset", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "JumpReset",  category = ModuleCategory.GHOST)
 class JumpReset : Module() {
     private val onMouse = BoolValue("onMouseDown", false)
     @EventTarget

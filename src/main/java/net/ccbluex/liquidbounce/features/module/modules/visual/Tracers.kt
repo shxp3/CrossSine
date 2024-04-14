@@ -17,7 +17,7 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-@ModuleInfo(name = "Tracers", spacedName = "Tracers", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Tracers",  category = ModuleCategory.VISUAL)
 class Tracers : Module() {
 
     private val thicknessValue = FloatValue("Thickness", 2F, 1F, 5F)

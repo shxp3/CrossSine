@@ -58,28 +58,12 @@ class FileManager : MinecraftInstance() {
     }
 
     /**
-     * Load all configs in file manager
-     */
-    fun loadAllConfigs() {
-        for (field in javaClass.declaredFields) {
-            if (field.type == FileConfig::class.java) {
-                try {
-                    if (!field.isAccessible) field.isAccessible = true
-                    val fileConfig = field[this] as FileConfig
-                    loadConfig(fileConfig)
-                } catch (e: IllegalAccessException) {
-                    ClientUtils.logError("Failed to load config file of field " + field.name + ".", e)
-                }
-            }
-        }
-    }
-
-    /**
      * Load a list of configs
      *
      * @param configs list
      */
     fun loadConfigs(vararg configs: FileConfig) {
+        if (CrossSine.destruced) return
         for (fileConfig in configs)
             loadConfig(fileConfig)
     }
@@ -90,6 +74,7 @@ class FileManager : MinecraftInstance() {
      * @param config to load
      */
     fun loadConfig(config: FileConfig) {
+        if (CrossSine.destruced) return
         if (!config.hasConfig()) {
             ClientUtils.logInfo("[FileManager] Skipped loading config: " + config.file.name + ".")
             saveConfig(config, true)
@@ -107,6 +92,7 @@ class FileManager : MinecraftInstance() {
      * Save all configs in file manager
      */
     fun saveAllConfigs() {
+        if (CrossSine.destruced) return
         for (field in javaClass.declaredFields) {
             try {
                 field.isAccessible = true
@@ -126,6 +112,7 @@ class FileManager : MinecraftInstance() {
      * @param configs list
      */
     fun saveConfigs(vararg configs: FileConfig) {
+        if (CrossSine.destruced) return
         for (fileConfig in configs) saveConfig(fileConfig)
     }
 
@@ -135,6 +122,7 @@ class FileManager : MinecraftInstance() {
      * @param config to save
      */
     fun saveConfig(config: FileConfig) {
+        if (CrossSine.destruced) return
         saveConfig(config, true)
     }
 
@@ -145,6 +133,7 @@ class FileManager : MinecraftInstance() {
      * @param ignoreStarting check starting
      */
     private fun saveConfig(config: FileConfig, ignoreStarting: Boolean) {
+        if (CrossSine.destruced) return
         if (!ignoreStarting && CrossSine.isStarting) return
         try {
             if (!config.hasConfig()) config.createConfig()
@@ -161,6 +150,7 @@ class FileManager : MinecraftInstance() {
 
     @Throws(IOException::class)
     fun loadLegacy(): Boolean {
+        if (CrossSine.destruced) return false
         var modified = false
         val modulesFile = File(dir, "modules.json")
         if (modulesFile.exists()) {

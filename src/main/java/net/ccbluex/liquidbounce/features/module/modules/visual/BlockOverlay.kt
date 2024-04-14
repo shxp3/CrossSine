@@ -2,31 +2,23 @@
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.block.Block
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11
-import java.awt.Color
 
-@ModuleInfo(name = "BlockOverlay", spacedName = "Block Overlay", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "BlockOverlay", category = ModuleCategory.VISUAL)
 class BlockOverlay : Module() {
     private val colorAlphaValue = IntegerValue("Alpha", 100, 0, 255)
     private val colorWidthValue = FloatValue("LineWidth", 2.0F, 0.0F, 10.0F)
-    private val infoValue = BoolValue("Info", false)
-
     private val currentBlock: BlockPos?
         get() {
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
@@ -60,33 +52,15 @@ class BlockOverlay : Module() {
         val axisAlignedBB = block.getSelectedBoundingBox(mc.theWorld, blockPos)
                 .expand(0.0020000000949949026, 0.0020000000949949026, 0.0020000000949949026)
                 .offset(-x, -y, -z)
-
+        GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL)
+        GL11.glPolygonOffset(1.0f, -1000000f)
         RenderUtils.drawSelectionBoundingBox(axisAlignedBB)
         RenderUtils.drawFilledBox(axisAlignedBB)
+        GL11.glPolygonOffset(1.0f, 1000000f)
+        GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL)
         GlStateManager.depthMask(true)
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
         GlStateManager.resetColor()
-    }
-
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        if (infoValue.get()) {
-            val blockPos = currentBlock ?: return
-            val block = getBlock(blockPos) ?: return
-
-            val info = "${block.localizedName} §7ID: ${Block.getIdFromBlock(block)}"
-
-            RenderUtils.drawBorderedRect(
-                event.scaledResolution.scaledWidth / 2 - 2F,
-                event.scaledResolution.scaledHeight / 2 + 5F,
-                event.scaledResolution.scaledWidth / 2 + Fonts.font40.getStringWidth(info) + 2F,
-                event.scaledResolution.scaledHeight / 2 + 16F,
-                    3F, Color.BLACK.rgb, Color.BLACK.rgb
-            )
-            GlStateManager.resetColor()
-            Fonts.font40.drawString(info, event.scaledResolution.scaledWidth / 2, event.scaledResolution.scaledHeight / 2 + 7,
-                    Color.WHITE.rgb)
-        }
     }
 }

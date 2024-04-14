@@ -84,8 +84,7 @@ public abstract class MixinEntity {
     public World worldObj;
 
     @Shadow
-    public void moveEntity(double x, double y, double z) {
-    }
+    public void moveEntity(double x, double y, double z) {}
 
     @Shadow
     public boolean isInWeb;

@@ -49,7 +49,7 @@ class KeyInfo(
     fun render() {
         GL11.glPushMatrix()
         GL11.glTranslatef(posX, posY, 0F)
-        RenderUtils.drawRoundedRect(0F, 2F, width, height + 15, 6F, shadowColor)
+        RenderUtils.drawRoundedRect(0F, 2F, width, height + 8, 6F, shadowColor)
         RenderUtils.drawRoundedRect(0F, 0F, width, height, 6F, keyColor)
         Fonts.SFApple40.drawCenteredString(keyName, width * 0.5F, height * 0.9F * 0.5F - (Fonts.SFApple35.FONT_HEIGHT * 0.5F) + 3F, if (hasKeyBind) { usedColor } else { unusedColor }, false)
         GL11.glPopMatrix()

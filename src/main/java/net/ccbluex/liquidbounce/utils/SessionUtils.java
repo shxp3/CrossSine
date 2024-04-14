@@ -59,12 +59,11 @@ public class SessionUtils extends MinecraftInstance implements Listenable {
 
     public static String getFormatSessionTime() {
         if (System.currentTimeMillis() - sessionTimer.time < 0L) sessionTimer.reset();
-
         int realTime = (int) (System.currentTimeMillis() - sessionTimer.time) / 1000;
         int hours = realTime / 3600;
         int seconds = (realTime % 3600) % 60;
         int minutes = (realTime % 3600) / 60;
-
+        if (hours < 0 || minutes < 0 || seconds < 0) sessionTimer.reset();
         return hours + "h " + minutes + "m " + seconds + "s";
     }
 

@@ -17,7 +17,7 @@ import net.minecraft.item.ItemEgg
 import net.minecraft.item.ItemSnowball
 import net.minecraft.item.ItemSword
 
-@ModuleInfo(name = "RightClicker", spacedName = "Right Clicker", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "RightClicker",  category = ModuleCategory.GHOST)
 class RightClicker: Module() {
     private val MaxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {

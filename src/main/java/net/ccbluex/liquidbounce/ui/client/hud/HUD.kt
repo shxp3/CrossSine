@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.opengl.GL11
 import kotlin.math.max
@@ -33,7 +34,6 @@ open class HUD : MinecraftInstance() {
                 .addElement(ScoreboardElement())
                 .addElement(Armor())
                 .addElement(Notifications())
-                .addElement(TargetHUD())
         }
     }
 

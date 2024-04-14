@@ -22,9 +22,8 @@ import org.lwjgl.input.Mouse
 import kotlin.random.Random
 
 
-@ModuleInfo(name = "LeftClicker", spacedName = "Left Clicker", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "LeftClicker",  category = ModuleCategory.GHOST)
 class LeftClicker : Module() {
-    //click code from fdp (Thanks)
     private val modeValue = ListValue("Click-Mode", arrayOf("Normal", "Jitter", "Butterfly"), "Normal")
     private val maxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -49,15 +48,6 @@ class LeftClicker : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (mc.objectMouseOver != null) {
-            val p = mc.objectMouseOver.blockPos
-            if (p != null) {
-                val bl: Block = mc.theWorld.getBlockState(p).block
-                if (bl !== Blocks.air && bl !is BlockLiquid) {
-                    return
-                }
-            }
-        }
         if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword)) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 

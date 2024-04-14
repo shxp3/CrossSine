@@ -32,6 +32,5 @@ object Target : Module() {
         }
         return false
     }
-    // always handle event
     override fun handleEvents() = true
 }

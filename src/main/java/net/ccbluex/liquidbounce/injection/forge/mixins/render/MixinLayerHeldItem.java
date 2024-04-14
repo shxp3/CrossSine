@@ -3,11 +3,10 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.utils.ItemSpoofUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -15,7 +14,7 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -58,7 +57,7 @@ public class MixinLayerHeldItem {
             final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
             Item item = itemstack.getItem();
 
-            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && killAura.getCurrentTarget() != null && CrossSine.moduleManager.getModule(Animations.class).getState() && KillAura.INSTANCE.getDisplayBlocking() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
+            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && (killAura.getDisplayBlocking() && killAura.getCurrentTarget() != null || KillAura2.INSTANCE.getCanBlock() &&  KillAura2.INSTANCE.getTarget() != null)&& CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
                 if(entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped) this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     GlStateManager.translate(-0.58F, 0.3F, -0.2F);
@@ -91,11 +90,7 @@ public class MixinLayerHeldItem {
             if(entitylivingbaseIn.isSneaking()) {
                 GlStateManager.translate(0.0F, 0.203125F, 0.0F);
             }
-            if(!(entitylivingbaseIn instanceof EntityPlayerSP)) {
-                minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
-            } else {
-                minecraft.getItemRenderer().renderItem(entitylivingbaseIn,ItemSpoofUtils.INSTANCE.getSpoofing() ? ItemSpoofUtils.INSTANCE.getStack() : itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
-            }
+            minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
             GlStateManager.popMatrix();
         }
     }

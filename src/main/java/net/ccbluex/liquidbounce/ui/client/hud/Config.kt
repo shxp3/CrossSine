@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.Companion.createDefault
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.Companion.elements
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -21,6 +22,7 @@ class Config {
     }
 
     constructor(hud: HUD) {
+        if (CrossSine.destruced) return
         for (element in hud.elements) {
             val elementObject = JsonObject()
             elementObject.addProperty("Type", element.name)

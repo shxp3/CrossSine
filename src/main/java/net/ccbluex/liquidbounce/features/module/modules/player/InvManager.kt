@@ -28,7 +28,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
-@ModuleInfo(name = "InvManager", spacedName = "Inv Manager", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "InvManager", category = ModuleCategory.PLAYER)
 object InvManager : Module() {
 
     /**

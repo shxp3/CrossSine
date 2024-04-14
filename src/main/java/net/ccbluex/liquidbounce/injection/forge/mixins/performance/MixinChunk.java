@@ -1,3 +1,4 @@
+
 package net.ccbluex.liquidbounce.injection.forge.mixins.performance;
 
 import net.ccbluex.liquidbounce.injection.access.IChunk;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value={Chunk.class})
+@Mixin(value = {Chunk.class})
 public abstract class MixinChunk implements IChunk {
     @Shadow
     @Final
@@ -107,8 +108,7 @@ public abstract class MixinChunk implements IChunk {
                 return extendedBlockStorage.get(n4, n5, n6);
             }
             return Blocks.air.getDefaultState();
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             CrashReport crashReport = CrashReport.makeCrashReport(throwable, "Getting block state");
             CrashReportCategory crashReportCategory = crashReport.makeCategory("Block being got");
             crashReportCategory.addCrashSectionCallable("Location", () -> CrashReportCategory.getCoordinateInfo(new BlockPos(n, n2, n3)));

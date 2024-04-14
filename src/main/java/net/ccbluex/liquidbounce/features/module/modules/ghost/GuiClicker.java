@@ -13,7 +13,7 @@ import org.lwjgl.input.Mouse;
 
 import java.lang.reflect.InvocationTargetException;
 
-@ModuleInfo(name = "GuiClicker", spacedName = "Gui Clicker", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "GuiClicker",  category = ModuleCategory.GHOST)
 public class GuiClicker extends Module {
     private final IntegerValue delayValue = new IntegerValue("Delay", 5, 0, 10);
     int mouseDown;

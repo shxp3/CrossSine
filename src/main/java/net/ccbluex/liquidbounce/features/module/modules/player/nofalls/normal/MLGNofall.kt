@@ -23,7 +23,7 @@ import kotlin.math.ceil
 import kotlin.math.sqrt
 
 class MLGNofall : NoFallMode("MLG") {
-    private val silentro = BoolValue("SilentRotation", false)
+    private val silentRo = BoolValue("SilentRotation", false)
     private val turnSpeed = IntegerValue("TurnSpeed", 10, 10, 90)
     private val minFallDistanceValue = FloatValue("${valuePrefix}MinMLGHeight", 5f, 2f, 50f)
     private val mlgTimer = tickTimer()
@@ -86,12 +86,12 @@ class MLGNofall : NoFallMode("MLG") {
                     mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(index))
                 }
 
-                if (silentro.get()) {
-                  RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(mc.thePlayer.rotationYaw, 90F),
+                if (silentRo.get()) {
+                  RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, RotationUtils.faceBlock(collision).rotation,
                       turnSpeed.get().toFloat()
-                  )
+                  ), 0)
                 } else {
-                    RotationUtils.faceBlock(collision)!!.rotation.toPlayer(mc.thePlayer, true)
+                    RotationUtils.faceBlock(collision)!!.rotation.toPlayer(mc.thePlayer)
                 }
             }
         } else if (currentMlgRotation != null) {

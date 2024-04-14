@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PlayerUtils
 
-@ModuleInfo(name = "Parkour", "Parkour" ,category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "Parkour", category = ModuleCategory.MOVEMENT)
 class Parkour : Module() {
 
     @EventTarget

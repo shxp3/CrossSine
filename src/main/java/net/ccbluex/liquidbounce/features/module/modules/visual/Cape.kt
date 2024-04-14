@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.util.ResourceLocation
 import java.util.*
 
-@ModuleInfo(name = "Cape", spacedName = "Cape", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Cape", category = ModuleCategory.VISUAL)
 class Cape : Module() {
 
     val styleValue = ListValue(

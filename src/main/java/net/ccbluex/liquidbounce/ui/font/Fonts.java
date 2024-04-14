@@ -112,6 +112,17 @@ public class Fonts {
     @FontDetails(fontName = "SFApple50", fontSize = 50)
     public static GameFontRenderer SFApple50;
 
+    @FontDetails(fontName = "Nova24", fontSize = 24)
+    public static GameFontRenderer Nova24;
+    @FontDetails(fontName = "Nova30", fontSize = 30)
+    public static GameFontRenderer Nova30;
+    @FontDetails(fontName = "Nova35", fontSize = 35)
+    public static GameFontRenderer Nova35;
+    @FontDetails(fontName = "Nova40", fontSize = 40)
+    public static GameFontRenderer Nova40;
+    @FontDetails(fontName = "Nova50", fontSize = 50)
+    public static GameFontRenderer Nova50;
+
 
 
     private static final List<GameFontRenderer> CUSTOM_FONT_RENDERERS = new ArrayList<>();
@@ -156,6 +167,11 @@ public class Fonts {
         SFApple35 = new GameFontRenderer(getFontcustom(35, "SFApple"));
         SFApple50 = new GameFontRenderer(getFontcustom(50, "SFApple"));
         SFApple24 = new GameFontRenderer(getFontcustom(24, "SFApple"));
+        Nova40 = new GameFontRenderer(getFontcustom(40, "ProximaNovaLight"));
+        Nova30 = new GameFontRenderer(getFontcustom(30, "ProximaNovaLight"));
+        Nova35 = new GameFontRenderer(getFontcustom(35, "ProximaNovaLight"));
+        Nova50 = new GameFontRenderer(getFontcustom(50, "ProximaNovaLight"));
+        Nova24 = new GameFontRenderer(getFontcustom(24, "ProximaNovaLight"));
 
 
         getCustomFonts();

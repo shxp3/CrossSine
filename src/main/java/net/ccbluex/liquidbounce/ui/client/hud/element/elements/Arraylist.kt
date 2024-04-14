@@ -3,8 +3,6 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
-import net.ccbluex.liquidbounce.features.module.modules.visual.JelloArrayList
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -18,16 +16,9 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.*
-import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.MathHelper
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import java.util.stream.Collectors
-import javax.vecmath.Vector2d
-import kotlin.math.sin
 
 /**
  * CustomHUD Arraylist element
@@ -41,7 +32,6 @@ class Arraylist(
     scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
-    private val textshadow = BoolValue("TextShadow", false)
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowNoCutValue = BoolValue("Shadow-NoCut", false)
     private val shadowStrength = IntegerValue("Shadow-Strength", 1, 1, 30).displayable { shadowShaderValue.get() }
@@ -52,10 +42,9 @@ class Arraylist(
     private val hAnimation = ListValue("HorizontalAnimation", arrayOf("Default", "None", "Slide", "Astolfo"), "None")
     private val vAnimation = ListValue("VerticalAnimation", arrayOf("None", "LiquidSense", "Slide", "Rise", "Astolfo"), "None")
     private val animationSpeed = FloatValue("Animation-Speed", 0.25F, 0.01F, 1F)
-    private val nameBreak = BoolValue("SpaceName", true)
+    private val nameBreak = BoolValue("SpaceName", false)
     private val OrderValue =ListValue("Order", arrayOf("ABC", "Distance"), "Distance")
-    private val Tags = BoolValue("Tags", false)
-    private val tagsStyleValue = ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "->", "Space"), "Space")
+    private val tagsStyleValue = ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "->", "Space", "None"), "Space")
     private val backgroundValue = IntegerValue("Background", 155, 0, 255)
     private val roundStrength = FloatValue("Rounded-Strength", 0F, 0F, 2F)
     private val rectRightValue = ListValue("Rect-Right", arrayOf("None", "Left", "Right", "Outline", "Special", "Top"), "Outline")
@@ -76,7 +65,6 @@ class Arraylist(
     private var sortedModules = emptyList<Module>()
 
     override fun drawElement(partialTicks: Float): Border? {
-        if (CrossSine.moduleManager.getModule(JelloArrayList::class.java)!!.state) return null
         val fontRenderer = fontValue.get()
         val counter = intArrayOf(0)
 
@@ -149,12 +137,14 @@ class Arraylist(
             var yPos = (if (side.vertical == Vertical.DOWN) -textSpacer else textSpacer) *
                     if (side.vertical == Vertical.DOWN) inx + 1 else inx
 
-            if (module.array && module.slide > 0F) {
+            if (module.array && !shouldExpect(module) && module.slide > 0F) {
                 if (vAnimation.get().equals("Rise", ignoreCase = true) && !module.state)
                     yPos = -fontRenderer.FONT_HEIGHT - textY
 
                 val size = modules.size * 2.0E-2f
+                var displayString = getModName(module)
 
+                val width = fontRenderer.getStringWidth(displayString)
                 when (vAnimation.get()) {
                     "LiquidSense" -> {
                         if (module.state) {
@@ -231,9 +221,8 @@ class Arraylist(
                 }
 
                 modules.forEachIndexed { index, module ->
-                    var displayString = getModName(module)
+                    val displayString = getModName(module)
 
-                    val width = fontRenderer.getStringWidth(displayString)
                     val xPos = -module.slide - 2
 
                   RenderUtils.customRounded(
@@ -243,7 +232,7 @@ class Arraylist(
                         module.arrayY + textHeight, 0F, 0F, 0F, roundStrength.get(), Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, textshadow.get())
+                    fontRenderer.drawString(displayString, xPos - if (rectRightValue.get().equals("right", true)) 1 else 0, module.arrayY + textY, getColor(index).rgb, true)
 
 
                     if (!rectRightValue.get().equals("none", true)) {
@@ -352,7 +341,7 @@ class Arraylist(
                         module.arrayY + textHeight, 0F, 0F, roundStrength.get(), 0F, Color(0,0,0,backgroundValue.get()).rgb
                     )
 
-                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, textshadow.get())
+                    fontRenderer.drawString(displayString, xPos, module.arrayY + textY, getColor(index).rgb, true)
 
                     if (!rectLeftValue.get().equals("none", true)) {
                         val rectColor = getColor(index).rgb
@@ -420,35 +409,22 @@ class Arraylist(
             sortedModules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules.toList()
             else CrossSine.moduleManager.modules.sortedBy { -fontValue.get().getStringWidth(getModName(it)) }.toList()
     }
-    private fun getModTag(m: Module): String {
-        if (!Tags.get() || m.tag == null) return ""
-
-        var returnTag = " §7"
-
-        // tag prefix, ignore default value
-        if (!tagsStyleValue.get().equals("space", true))
-            returnTag +=
-                tagsStyleValue.get()[0].toString() + if (tagsStyleValue.get().equals("-", true) || tagsStyleValue.get().equals("|", true)) " " else ""
-
-        // main tag value
-        returnTag += m.tag
-
-        // tag suffix, ignore default, -, | values
-        if (!tagsStyleValue.get().equals("space", true)
-            && !tagsStyleValue.get().equals("-", true)
-            && !tagsStyleValue.get().equals("|", true)
-            && !tagsStyleValue.get().equals("->", true)
-        )
-            if (tagsStyleValue.equals("->")) {
-                returnTag += tagsStyleValue.get()
-            } else {
-                returnTag += tagsStyleValue.get()[1].toString()
-            }
-        return returnTag
+    private fun getModuleTag(module: Module): String {
+        module.tag ?: return ""
+        return when (tagsStyleValue.get().lowercase()) {
+            "-" -> "§7 - ${module.tag}"
+            "|" -> "§7|${module.tag}"
+            "()" -> "§7 (${module.tag})"
+            "[]" -> "§7 [${module.tag}]"
+            "<>" -> "§7 <${module.tag}>"
+            "->" -> "§7 -> ${module.tag}"
+            "space" -> "§7 ${module.tag}"
+            else -> ""
+        }
     }
 
     private fun getModName(mod: Module): String {
-        var displayName : String = (if (nameBreak.get()) mod.spacedName else mod.localizedName) + getModTag(mod)
+        var displayName : String = (if (nameBreak.get()) mod.localizedName.replace(Regex("([a-z])([A-Z])"), "$1 $2") else mod.localizedName) + getModuleTag(mod)
 
         when (caseValue.get().lowercase()) {
             "lower" -> displayName = displayName.lowercase()

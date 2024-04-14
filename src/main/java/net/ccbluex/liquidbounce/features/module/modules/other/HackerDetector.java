@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@ModuleInfo(name = "HackerDetector", spacedName = "Hacker Detector", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "HackerDetector",  category = ModuleCategory.OTHER)
 public class HackerDetector extends Module {
     public static final HackerDetector INSTANCE = new HackerDetector();
     public final ConcurrentHashMap<Integer, CheckManager> playersChecks = new ConcurrentHashMap<>();

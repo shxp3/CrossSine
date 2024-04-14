@@ -11,16 +11,15 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.ccbluex.liquidbounce.utils.render.Stencil
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.TitleElement
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
-import javax.xml.soap.Text
 
 class ModuleElement(val module: Module): MinecraftInstance() {
 
@@ -53,8 +52,6 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 valueElements.add(TitleElement(value))
             if (value is TextValue)
                 valueElements.add(TextElement(value))
-            if (value is KeyValue)
-                valueElements.add(KeyElement(value))
         }
     }
 
@@ -68,28 +65,28 @@ class ModuleElement(val module: Module): MinecraftInstance() {
 
 //        RoundedRectShader.draw(x + 9.5F, y + 4.5F, x + width - 9.5F, y + height + animHeight - 4.5F, 4F, ColorManager.buttonOutline)
         Stencil.write(true)
-        ShaderUtil.drawRoundedRect(x + 10F, y + 5F, x + width - 10F, y + height + animHeight - 5F, 4F, ColorManager.moduleBackground)
+        RenderUtils.drawRoundedRect(x + 10F, y + 5F, x + width - 10F, y + height + animHeight - 5F, 4F, ColorManager.moduleBackground.rgb)
         Stencil.erase(true)
         RenderUtils.newDrawRect(x + 10F, y + height - 5F, x + width - 10F, y + height - 4.5F, 4281348144L.toInt())
-        Fonts.SFApple40.drawString(module.name, x + 20F, y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 3F, -1)
+        Fonts.SFApple40.drawStringWithShadow(module.name, x + 18.5F, y + 4F + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 3F, -1)
 
         val keyName = if (listeningToKey) "Listening" else Keyboard.getKeyName(module.keyBind)
 
         if (MouseUtils.mouseWithinBounds(mouseX, mouseY, 
                 x + 25F + Fonts.SFApple40.getStringWidth(module.name),
-                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 2F,
+                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 6.5F,
                 x + 35F + Fonts.SFApple40.getStringWidth(module.name) + Fonts.SFApple24.getStringWidth(keyName),
-                y + height / 2F))
+                y + 4.5F + height / 2F))
             fadeKeybind = (fadeKeybind + 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
         else
             fadeKeybind = (fadeKeybind - 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
 
-        ShaderUtil.drawRoundedRect(
+        RenderUtils.drawRoundedRect(
                 x + 25F + Fonts.SFApple40.getStringWidth(module.name),
-                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 2F,
+                y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 6.5F,
                 x + 35F + Fonts.SFApple40.getStringWidth(module.name) + Fonts.SFApple24.getStringWidth(keyName),
-                y + height / 2F, 2F, BlendUtils.blend(Color(4282729797L.toInt()), Color(4281677109L.toInt()), fadeKeybind.toDouble()))
-        Fonts.SFApple24.drawString(keyName, x + 30.5F + Fonts.SFApple40.getStringWidth(module.name), y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 5.5F, -1)
+                y + 4.5F + height / 2F, 2F, BlendUtils.blend(Color(4282729797L.toInt()), Color(4281677109L.toInt()), fadeKeybind.toDouble()).rgb)
+        Fonts.SFApple24.drawStringWithShadow(keyName, x + 30.5F + Fonts.SFApple40.getStringWidth(module.name), y + height / 2F - Fonts.SFApple40.FONT_HEIGHT + 10F, -1)
 
         toggleSwitch.state = module.state
 
@@ -131,6 +128,7 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 x + 35F + Fonts.SFApple40.getStringWidth(module.name) + Fonts.SFApple24.getStringWidth(keyName),
                 y + height / 2F)) {
             listeningToKey = true
+            NewUi.getInstance().cant = true
             return
         }
         if (module.values.isNotEmpty()) {
@@ -168,9 +166,11 @@ class ModuleElement(val module: Module): MinecraftInstance() {
             if (code == 1) {
                 module.keyBind = 0
                 listeningToKey = false
+                NewUi.getInstance().cant = false
             } else {
                 module.keyBind = code
                 listeningToKey = false
+                NewUi.getInstance().cant = false
             }
             return true
         }
@@ -179,10 +179,16 @@ class ModuleElement(val module: Module): MinecraftInstance() {
                 if (ve.isDisplayable() && ve.onKeyPress(typed, code)) return true
         return false
     }
+    fun handleTyped(typed: Char, code: Int) {
+        if (expanded)
+            for (ve in valueElements)
+                if (ve.isDisplayable()) ve.onTyped(typed, code)
+    }
 
     fun listeningKeybind(): Boolean = listeningToKey
     fun resetState() {
         listeningToKey = false
+        NewUi.getInstance().cant = false
     }
 
 }

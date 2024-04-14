@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "WorldTime", spacedName = "World Time", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "WorldTime", category = ModuleCategory.VISUAL)
 class WorldTime : Module() {
     private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 20000)
     private val arrowValue = BoolValue("ArrowButton", false)

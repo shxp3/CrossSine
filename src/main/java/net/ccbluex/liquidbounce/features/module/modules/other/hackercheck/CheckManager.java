@@ -1,12 +1,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck;
 
+import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.features.module.modules.other.HackerDetector;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.AutoBlockCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.KillAuraCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.VelocityCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move.*;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.player.NofallACheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.player.PingSpoofCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.rotation.RotationCheck;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.data.PlayerDataSamples;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
@@ -14,15 +17,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 
 public class CheckManager {
+    private final PlayerDataSamples data = new PlayerDataSamples();
     private static final Class<?>[] checksClz = {
             KillAuraCheck.class,
+            AutoBlockCheck.class,
             NoSlowCheck.class,
-            RotationCheck.class,
             ScaffoldCheck.class,
+            RotationCheck.class,
+            LegitScaffoldCheck.class,
             NofallACheck.class,
             PingSpoofCheck.class,
-            VelocityCheck.class,
-            LegitScaffoldCheck.class
+            OmiSprint.class,
+            VelocityCheck.class
     };
     private final LinkedList<Check> checks = new LinkedList<>();
     private double totalVL = 0;
@@ -53,6 +59,7 @@ public class CheckManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            data.onTick(check.handlePlayer);
         }
         // reduce 0.1 per second
         if (--addedTicks <= 0) totalVL -= totalVL > 0 ? 0.005 : 0;

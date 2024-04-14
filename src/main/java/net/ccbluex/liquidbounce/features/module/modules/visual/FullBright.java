@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 
-@ModuleInfo(name = "FullBright", spacedName = "Full Bright",category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "FullBright",category = ModuleCategory.VISUAL)
 public class FullBright extends Module {
     private final ListValue modeValue = new ListValue("Mode", new String[] {"Gamma", "NightVision"}, "Gamma");
 

@@ -8,5 +8,5 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.minecraft.network.play.client.C03PacketPlayer
 
-@ModuleInfo(name = "NoPitchLimit", spacedName = "No Pitch Limit", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "NoPitchLimit", category = ModuleCategory.WORLD)
 class NoPitchLimit : Module()

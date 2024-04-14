@@ -15,7 +15,7 @@ import net.minecraft.util.MovingObjectPosition
 import org.lwjgl.input.Mouse
 
 
-@ModuleInfo(name = "Animations", spacedName = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true, array = false)
+@ModuleInfo(name = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true, array = false)
 object Animations : Module() {
     val blockingModeValue = ListValue(
         "BlockingMode",
@@ -24,24 +24,20 @@ object Animations : Module() {
             "1.7",
             "Slash",
             "Sigma4",
-            "Spin"
+            "Spin",
+            "Exhibition",
+            "Jello"
         ),
         "1.8"
     )
     private val showTag = BoolValue("ShowTag", false)
-    val resetValue = BoolValue("Reset", false)
+    private val resetValue = BoolValue("Reset", false)
     val itemPosXValue = FloatValue("ItemPosX", 0F, -1.0F, 1.0F)
     val itemPosYValue = FloatValue("ItemPosY", 0F, -1.0F, 1.0F)
     val itemPosZValue = FloatValue("ItemPosZ", 0F, -1.0F, 1.0F)
     val itemScaleValue = IntegerValue("ItemScale", 100,0,100)
     val swingSpeedValue = FloatValue("SwingSpeed", 1f, 0.5f, 5.0f)
     val fluxAnimation = BoolValue("Flux Swing", false)
-    var flagRenderTabOverlay = false
-        get() = field
-
-    var tabPercent = 0f
-    var tabHopePercent = 0f
-    var lastTabSync = 0L
     override val tag: String?
         get() = if (showTag.get()) blockingModeValue.get() else null
 

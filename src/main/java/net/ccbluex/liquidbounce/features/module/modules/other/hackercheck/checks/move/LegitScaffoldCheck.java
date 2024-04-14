@@ -2,13 +2,13 @@ package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.check
 
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.Check;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
+import net.ccbluex.liquidbounce.utils.timer.TimerMS;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.item.ItemBlock;
 
 public class LegitScaffoldCheck extends Check {
-   int sneakTime;
-   short sneakFlag;
-   int timePassed;
+    short sneakFlag;
+    TimerMS timePassed;
     public LegitScaffoldCheck(EntityOtherPlayerMP playerMP) {
         super(playerMP);
         name = "LegitScaffold";
@@ -18,16 +18,10 @@ public class LegitScaffoldCheck extends Check {
     @Override
     public void onLivingUpdate() {
         if (handlePlayer.isSneaking()) {
-            timePassed = 0;
-            sneakTime++;
-        } else {
-            if (sneakTime < 4) {
-                sneakFlag += 1;
-            }
-            sneakTime = 0;
-            timePassed++;
+            timePassed.reset();
+            sneakFlag += 1;
         }
-        if (timePassed >= 300) {
+        if (timePassed.hasTimePassed(140)) {
             sneakFlag = 0;
         }
         if (handlePlayer.rotationPitch > 75 && handlePlayer.rotationPitch < 90 && handlePlayer.isSwingInProgress) {
@@ -40,12 +34,5 @@ public class LegitScaffoldCheck extends Check {
                 }
             }
         }
-    }
-
-    @Override
-    public void reset() {
-        sneakFlag = 0;
-        sneakTime = 0;
-        timePassed = 0;
     }
 }

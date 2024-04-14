@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 
-@ModuleInfo(name = "AutoWho", spacedName = "Auto Who", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "AutoWho",  category = ModuleCategory.OTHER)
 class AutoWho : Module() {
     private val debug = BoolValue("Debug", false)
 

@@ -4,9 +4,6 @@ import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.server.*
-import java.util.ArrayList
-
-
 
 
 object PacketUtils : MinecraftInstance() {
@@ -24,7 +21,6 @@ object PacketUtils : MinecraftInstance() {
         packets.add(packet)
         mc.netHandler.addToSendQueue(packet)
     }
-
     val S12PacketEntityVelocity.realMotionX: Float
         get() = motionX / 8000f
 

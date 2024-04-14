@@ -4,9 +4,11 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 import com.google.common.base.Predicates;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.Render3DEvent;
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2;
 import net.ccbluex.liquidbounce.features.module.modules.ghost.Reach;
 import net.ccbluex.liquidbounce.features.module.modules.visual.*;
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
+import net.ccbluex.liquidbounce.utils.Rotation;
+import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -23,17 +25,17 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static org.objectweb.asm.Opcodes.GETFIELD;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Mixin(EntityRenderer.class)
@@ -209,86 +211,85 @@ public abstract class MixinEntityRenderer {
     public float getPrevRotationPitch(Entity entity) {
         return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.prevRotationPitch;
     }
-    @Overwrite
-    public void getMouseOver(float p_getMouseOver_1_) {
-        Entity entity = this.mc.getRenderViewEntity();
-        if (entity != null && this.mc.theWorld != null) {
-            this.mc.mcProfiler.startSection("pick");
-            final Reach reach = CrossSine.moduleManager.getModule(Reach.class);
-            this.mc.pointedEntity = null;
-            double d0 = reach.getState() ?reach.getReachMax().get() : (double) this.mc.playerController.getBlockReachDistance();
-            this.mc.objectMouseOver = entity.rayTrace(CrossSine.moduleManager.getModule(Reach.class).getState() ? 4.5 : d0, p_getMouseOver_1_);
-            double d1 = d0;
+    @Inject(method = "getMouseOver", at = @At("HEAD"), cancellable = true)
+    private void getMouseOver(float p_getMouseOver_1_, CallbackInfo ci) {
+        Entity entity = mc.getRenderViewEntity();
+        if (entity != null && mc.theWorld != null) {
+            mc.mcProfiler.startSection("pick");
+            mc.pointedEntity = null;
+
+            double d0 = mc.playerController.getBlockReachDistance();
             Vec3 vec3 = entity.getPositionEyes(p_getMouseOver_1_);
+            Rotation rotation = new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+            Vec3 vec31 = RotationUtils.getVectorForRotation(RotationUtils.targetRotation != null ? RotationUtils.targetRotation : rotation);
+            Vec3 vec32 = vec3.addVector(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0);
+            mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
+            double d1 = d0;
             boolean flag = false;
-            if (this.mc.playerController.extendedReach()) {
-                d0 = 6.0D;
-                d1 = 6.0D;
-            } else if (d0 > 3.0D) {
+            if (mc.playerController.extendedReach()) {
+                // d0 = 6;
+                d1 = 6;
+            } else if (d0 > 3) {
                 flag = true;
             }
 
-            if (this.mc.objectMouseOver != null) {
-                d1 = this.mc.objectMouseOver.hitVec.distanceTo(vec3);
+            if (mc.objectMouseOver != null) {
+                d1 = mc.objectMouseOver.hitVec.distanceTo(vec3);
             }
 
-            if (CrossSine.moduleManager.getModule(Reach.class).getState()) {
-                d1 = reach.getReach();
-
-                final MovingObjectPosition movingObjectPosition = entity.rayTrace(5.0, p_getMouseOver_1_);
-
-                if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
-            }
-
-            Vec3 vec31 = entity.getLook(p_getMouseOver_1_);
-            Vec3 vec32 = vec3.addVector(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0);
-            this.pointedEntity = null;
+            pointedEntity = null;
             Vec3 vec33 = null;
-            float f = 1.0F;
-            List<Entity> list = this.mc.theWorld.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec31.xCoord * d0, vec31.yCoord * d0, vec31.zCoord * d0).expand(f, f, f), Predicates.and(EntitySelectors.NOT_SPECTATING, Entity::canBeCollidedWith));
+            List<Entity> list = mc.theWorld.getEntities(Entity.class, Predicates.and(EntitySelectors.NOT_SPECTATING, p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
             double d2 = d1;
 
             for (Entity entity1 : list) {
                 float f1 = entity1.getCollisionBorderSize();
-                AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().expand(f1, f1, f1);
-                MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
-                if (axisalignedbb.isVecInside(vec3)) {
-                    if (d2 >= 0.0D) {
-                        this.pointedEntity = entity1;
-                        vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;
-                        d2 = 0.0D;
-                    }
-                } else if (movingobjectposition != null) {
-                    double d3 = vec3.distanceTo(movingobjectposition.hitVec);
-                    if (d3 < d2 || d2 == 0.0D) {
-                        if (entity1 == entity.ridingEntity && !entity.canRiderInteract()) {
-                            if (d2 == 0.0D) {
-                                this.pointedEntity = entity1;
+
+                final ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
+                boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
+
+                for (final AxisAlignedBB axisalignedbb : boxes) {
+                    MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
+                    if (axisalignedbb.isVecInside(vec3)) {
+                        if (d2 >= 0) {
+                            pointedEntity = entity1;
+                            vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;
+                            d2 = 0;
+                        }
+                    } else if (movingobjectposition != null) {
+                        double d3 = vec3.distanceTo(movingobjectposition.hitVec);
+                        if (d3 < d2 || d2 == 0) {
+                            if (entity1 == entity.ridingEntity && !entity.canRiderInteract()) {
+                                if (d2 == 0) {
+                                    pointedEntity = entity1;
+                                    vec33 = movingobjectposition.hitVec;
+                                }
+                            } else {
+                                pointedEntity = entity1;
                                 vec33 = movingobjectposition.hitVec;
+                                d2 = d3;
                             }
-                        } else {
-                            this.pointedEntity = entity1;
-                            vec33 = movingobjectposition.hitVec;
-                            d2 = d3;
                         }
                     }
                 }
-
-                if (this.pointedEntity != null && flag && vec3.distanceTo(vec33) > (CrossSine.moduleManager.getModule(Reach.class).getState() ? reach.getReach() : 3.0D)) {
-                    this.pointedEntity = null;
-                    this.mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS, vec33, null, new BlockPos(vec33));
-                }
-
-                if (this.pointedEntity != null && (d2 < d1 || (this.mc.objectMouseOver == null))) {
-                    this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity, vec33);
-                    if (this.pointedEntity instanceof EntityLivingBase || this.pointedEntity instanceof EntityItemFrame) {
-                        this.mc.pointedEntity = this.pointedEntity;
-                    }
-                }
-
-                this.mc.mcProfiler.endSection();
             }
+
+            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > (KillAura2.INSTANCE.getState() ? KillAura2.INSTANCE.getReach() : Reach.INSTANCE.getState() ? Reach.INSTANCE.getReach() : 3)) {
+                pointedEntity = null;
+                mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
+            }
+
+            if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
+                mc.objectMouseOver = new MovingObjectPosition(pointedEntity, vec33);
+                if (pointedEntity instanceof EntityLivingBase || pointedEntity instanceof EntityItemFrame) {
+                    mc.pointedEntity = pointedEntity;
+                }
+            }
+
+            mc.mcProfiler.endSection();
         }
+
+        ci.cancel();
     }
     private float getNightVisionBrightness(EntityLivingBase p_getNightVisionBrightness_1_, float p_getNightVisionBrightness_2_) {
         int i = p_getNightVisionBrightness_1_.getActivePotionEffect(Potion.nightVision).getDuration();

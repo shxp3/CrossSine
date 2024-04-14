@@ -14,7 +14,9 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.*;
 import org.jetbrains.annotations.NotNull;
+import paulscode.sound.Vector3D;
 
+import javax.vecmath.Vector3d;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -29,13 +31,13 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
     public static Rotation targetRotation;
     public static Rotation serverRotation = new Rotation(0.0F, 0.0F);
-
     public static boolean keepCurrentRotation = false;
 
     private static double x = random.nextDouble();
     private static double y = random.nextDouble();
     private static double z = random.nextDouble();
 
+    private static boolean strafe = false;
     /**
      * Face block
      *
@@ -130,10 +132,10 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         );
 
         if(silent)
-            setTargetRotation(rotation);
+            setTargetRotation(rotation, 0);
         else
             limitAngleChange(new Rotation(player.rotationYaw, player.rotationPitch), rotation,10 +
-                    new Random().nextInt(6)).toPlayer(mc.thePlayer, true);
+                    new Random().nextInt(6)).toPlayer(mc.thePlayer);
     }
 
     /**
@@ -242,7 +244,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         return vec3;
     }
-    public static VecRotation calculateCenter(final String calMode, final Boolean randMode, final double randomRange, final AxisAlignedBB bb, final boolean predict, final boolean throughWalls) {
+    public static VecRotation calculateCenter(final String calMode, final Boolean randMode, final double randomRange, final boolean legitRandom, final AxisAlignedBB bb, final boolean predict, final boolean throughWalls) {
         
         /*if(outborder) {
             final Vec3 vec3 = new Vec3(bb.minX + (bb.maxX - bb.minX) * (x * 0.3 + 1.0), bb.minY + (bb.maxY - bb.minY) * (y * 0.3 + 1.0), bb.minZ + (bb.maxZ - bb.minZ) * (z * 0.3 + 1.0));
@@ -282,7 +284,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 break;
             case "CenterLine":
                 xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
-                yMin = 0.10D; yMax = 0.90D; yDist = 0.1D;
+                yMin = 0.50D; yMax = 0.90D; yDist = 0.1D;
                 zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
                 break;
             case "CenterHead":
@@ -339,11 +341,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         final double yPrecent = minRange * randomRange / yRange;
         final double zPrecent = minRange * randomRange / zRange;
         
-        Vec3 randomVec3 = new Vec3(
-                                 curVec3.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
-                                 curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
-                                 curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
-                                );
+        Vec3 randomVec3 = legitRandom ? new Vec3(curVec3.xCoord, curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2, curVec3.zCoord) : new  Vec3(curVec3.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1, curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2, curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3);
         
         final Rotation randomRotation = toRotation(randomVec3, predict);
         vecRotation =  new VecRotation(randomVec3, randomRotation);
@@ -399,58 +397,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         return new Rotation(
                 currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)),
                 currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
-        ));
+                ));
     }
-    @NotNull
-    public static Rotation Yaw(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
-        final float yawDifference = getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw());
-
-        return new Rotation(currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)), mc.thePlayer.rotationPitch);
-    }
-
-    public static void aim(Entity en, float ps, boolean pc) {
-        if (en != null) {
-            float[] t = getTargetRotations(en);
-            if (t != null) {
-                float y = t[0];
-                float p = t[1] + 4.0F + ps;
-                if (pc) {
-                    mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(y, p, mc.thePlayer.onGround));
-                } else {
-                    mc.thePlayer.rotationYaw = y;
-                    mc.thePlayer.rotationPitch = p;
-                }
-            }
-
-        }
-    }
-    public static float[] getTargetRotations(Entity q) {
-        if (q == null) {
-            return null;
-        } else {
-            double diffX = q.posX - mc.thePlayer.posX;
-            double diffY;
-            if (q instanceof EntityLivingBase) {
-                EntityLivingBase en = (EntityLivingBase)q;
-                diffY = en.posY + (double)en.getEyeHeight() * 0.9D - (mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight());
-            } else {
-                diffY = (q.getEntityBoundingBox().minY + q.getEntityBoundingBox().maxY) / 2.0D - (mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight());
-            }
-
-            double diffZ = q.posZ - mc.thePlayer.posZ;
-            double dist = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ);
-            float yaw = (float)(Math.atan2(diffZ, diffX) * 180.0D / 3.141592653589793D) - 90.0F;
-            float pitch = (float)(-(Math.atan2(diffY, dist) * 180.0D / 3.141592653589793D));
-            return new float[]{mc.thePlayer.rotationYaw + MathHelper.wrapAngleTo180_float(yaw - mc.thePlayer.rotationYaw), mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float(pitch - mc.thePlayer.rotationPitch)};
-        }
-    }
-//    @NotNull
-//    public static Rotation limitAngleChangeHumanizing(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
-//        float yawDiff = ((float) Rotations.INSTANCE.apply(1-(getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw())/180d)))*180f;
-//        final float pitchDifference = getAngleDifference(targetRotation.getPitch(), currentRotation.getPitch());
-//
-//    }
-
     /**
      * Calculate difference between two angle points
      *
@@ -540,15 +488,6 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
             if(packetPlayer.rotating) serverRotation = new Rotation(packetPlayer.yaw, packetPlayer.pitch);
         }
     }
-
-    /**
-     * Set your target rotation
-     *
-     * @param rotation your target rotation
-     */
-    public static void setTargetRotation(final Rotation rotation) {
-        setTargetRotation(rotation, 0);
-    }
     /**
      * Set your target rotation
      *
@@ -629,6 +568,64 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     public static Rotation rotationSmooth(Rotation currentRotation, Rotation targetRotation, float smooth) {
         return new Rotation(currentRotation.getYaw()+((targetRotation.getYaw()-currentRotation.getYaw())/smooth),
                 currentRotation.getPitch()+((targetRotation.getPitch()-currentRotation.getPitch())/smooth));
+    }
+    public static Rotation rotationSmooth2(final Rotation lastRotation, final Rotation targetRotation, final double speed) {
+        float yaw = targetRotation.getYaw();
+        float pitch = targetRotation.getPitch();
+        final float lastYaw = lastRotation.getYaw();
+        final float lastPitch = lastRotation.getPitch();
+
+        if (speed != 0) {
+            final float rotationSpeed = (float) speed;
+
+            final double deltaYaw = MathHelper.wrapAngleTo180_float(targetRotation.getYaw() - lastRotation.getYaw());
+            final double deltaPitch = pitch - lastPitch;
+
+            final double distance = Math.sqrt(deltaYaw * deltaYaw + deltaPitch * deltaPitch);
+            final double distributionYaw = Math.abs(deltaYaw / distance);
+            final double distributionPitch = Math.abs(deltaPitch / distance);
+
+            final double maxYaw = rotationSpeed * distributionYaw;
+            final double maxPitch = rotationSpeed * distributionPitch;
+
+            final float moveYaw = (float) Math.max(Math.min(deltaYaw, maxYaw), -maxYaw);
+            final float movePitch = (float) Math.max(Math.min(deltaPitch, maxPitch), -maxPitch);
+
+            yaw = lastYaw + moveYaw;
+            pitch = lastPitch + movePitch;
+        }
+
+        final boolean randomise = Math.random() > 0.8;
+
+        for (int i = 1; i <= (int) (2 + Math.random() * 2); ++i) {
+
+            if (randomise) {
+                yaw += (float) ((Math.random() - 0.5) / 100000000);
+                pitch -= (float) (Math.random() / 200000000);
+            }
+
+            /*
+             * Fixing GCD
+             */
+            final Rotation rotations = new Rotation(yaw, pitch);
+            final Rotation fixedRotations = applySensitivityPatch(rotations);
+
+            /*
+             * Setting rotations
+             */
+            yaw = fixedRotations.getYaw();
+            pitch = Math.max(-90, Math.min(90, fixedRotations.getPitch()));
+        }
+
+        return new Rotation(yaw, pitch);
+    }
+    public static Rotation applySensitivityPatch(final Rotation rotation) {
+        final Rotation previousRotation = new Rotation(mc.thePlayer.prevRotationYaw, mc.thePlayer.prevRotationPitch);
+        final float mouseSensitivity = (float) (mc.gameSettings.mouseSensitivity * (1 + Math.random() / 10000000) * 0.6F + 0.2F);
+        final double multiplier = mouseSensitivity * mouseSensitivity * mouseSensitivity * 8.0F * 0.15D;
+        final float yaw = previousRotation.getYaw() + (float) (Math.round((rotation.getYaw() - previousRotation.getYaw()) / multiplier) * multiplier);
+        final float pitch = previousRotation.getPitch() + (float) (Math.round((rotation.getPitch() - previousRotation.getPitch()) / multiplier) * multiplier);
+        return new Rotation(yaw, MathHelper.clamp_float(pitch, -90, 90));
     }
     public static Rotation getRotationFromEyeHasPrev(EntityLivingBase target) {
         final double x = (target.prevPosX + (target.posX - target.prevPosX));

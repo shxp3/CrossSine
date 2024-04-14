@@ -13,10 +13,10 @@ import org.lwjgl.opengl.Display;
 
 import java.util.Locale;
 
-@ModuleInfo(name = "FreeLook", spacedName = "Free Look",category = ModuleCategory.VISUAL, triggerType = EnumTriggerType.PRESS, array = false)
+@ModuleInfo(name = "FreeLook",category = ModuleCategory.VISUAL, triggerType = EnumTriggerType.PRESS, array = false)
 public final class FreeLook extends Module {
     private final BoolValue thirdPerson = new BoolValue("ThirdPerson",true);
-    public final BoolValue reverse = new BoolValue("Reverse",true);
+    public final BoolValue reverse = new BoolValue("Reverse",false);
     private static final Minecraft mc = Minecraft.getMinecraft();
     public static boolean perspectiveToggled = false;
     public static float cameraYaw = 0F;

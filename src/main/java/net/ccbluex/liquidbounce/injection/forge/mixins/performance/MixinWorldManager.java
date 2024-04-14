@@ -1,3 +1,4 @@
+
 package net.ccbluex.liquidbounce.injection.forge.mixins.performance;
 
 import net.ccbluex.liquidbounce.injection.access.IMixinWorldAccess;
