@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.extensions.setAlpha
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import java.awt.Color
 
 object ClientTheme {
@@ -69,8 +70,8 @@ object ClientTheme {
             "fire" -> if (type == "START") Color(255, 45, 30, alpha) else Color(255, 123, 15, alpha)
             "aqua" -> if (type == "START") Color(80, 255, 255, alpha) else Color(80, 190, 255, alpha)
             "peony" -> if (type == "START") Color(255, 120, 255, alpha) else Color(255, 190, 255, alpha)
-            "astolfo" -> if (type == "START") ColorUtils.astolfo(0, 20000F / fadespeed.get()) else ColorUtils.astolfo(90, 20000F / fadespeed.get())
-            "rainbow" -> if (type == "START") ColorUtils.rainbow(0, 20000F / fadespeed.get()) else ColorUtils.rainbow(90, 20000F / fadespeed.get())
+            "astolfo" -> if (type == "START") RenderUtils.skyRainbow(0, 0.6f, 1f, 20000F / fadespeed.get()).setAlpha(alpha) else RenderUtils.skyRainbow(90, 0.6f, 1F,20000F / fadespeed.get()).setAlpha(alpha)
+            "rainbow" -> if (type == "START") RenderUtils.skyRainbow(0, 1f, 1f, 20000F / fadespeed.get()).setAlpha(alpha) else RenderUtils.skyRainbow(90, 1f, 1F,20000F / fadespeed.get()).setAlpha(alpha)
             else -> Color(-1)
         }
         return color
@@ -107,8 +108,8 @@ object ClientTheme {
                 "fire" to Pair(Color(255,45,30), Color(255,123,15)),
                 "aqua" to Pair(Color(80,255,255), Color(80,190,255)),
                 "peony" to Pair(Color(255,120,255), Color(255,190,255)),
-                "astolfo" to Pair(ColorUtils.astolfo(0, 20000F / fadespeed.get()), ColorUtils.astolfo(90, 20000F / fadespeed.get())),
-                "rainbow" to Pair(ColorUtils.rainbow(0, 20000F / fadespeed.get()), ColorUtils.rainbow(90, 20000F / fadespeed.get()))
+                "astolfo" to Pair(RenderUtils.skyRainbow(0, 0.6F, 1F, 20000F / fadespeed.get()), RenderUtils.skyRainbow(90, 0.6F, 1F, 20000F / fadespeed.get())),
+                "rainbow" to Pair(RenderUtils.skyRainbow(0, 1F, 1F, 20000F / fadespeed.get()), RenderUtils.skyRainbow(90, 1F, 1F, 20000F / fadespeed.get()))
         )
 
         val colorPair = colorMap[mode]
@@ -140,8 +141,8 @@ object ClientTheme {
                 "mint" to { fadeSpeed -> ColorUtils.mixColors(Color(85, 255, 140), Color(85, 255, 255), fadeSpeed, index) },
                 "cero" to { fadeSpeed -> ColorUtils.mixColors(Color(170, 0, 170), Color(170, 255, 170), fadeSpeed, index) },
                 "azure" to { fadeSpeed -> ColorUtils.mixColors(Color(0, 90, 255), Color(0, 180, 255), fadeSpeed, index) },
-                "rainbow" to { fadeSpeed -> ColorUtils.rainbow(index, speed = 20000F / fadeSpeed.toFloat()) },
-                "astolfo" to { fadeSpeed -> ColorUtils.astolfo(index, 20000F / fadeSpeed.toFloat()) },
+                "rainbow" to { fadeSpeed -> RenderUtils.skyRainbow(0, 1F, 1F, (20000F / fadeSpeed).toFloat()) },
+                "astolfo" to { fadeSpeed -> RenderUtils.skyRainbow(0, 0.6F, 1F, (20000F / fadeSpeed).toFloat()) },
                 "pumpkin" to { fadeSpeed -> ColorUtils.mixColors(Color(255, 216, 169), Color(241, 166, 98), fadeSpeed, index) },
                 "polarized" to { fadeSpeed -> ColorUtils.mixColors(Color(0, 32, 64), Color(173, 239, 209), fadeSpeed, index) },
                 "sundae" to { fadeSpeed -> ColorUtils.mixColors(Color(28, 28, 27), Color(206, 74, 126), fadeSpeed, index) },
@@ -174,8 +175,8 @@ object ClientTheme {
             "mint" -> ColorUtils.mixColors(Color(85, 255, 180), Color(85, 255, 255), fadeSpeed, index).setAlpha(alpha)
             "cero" -> ColorUtils.mixColors(Color(170, 0, 170), Color(170, 255, 170), fadeSpeed, index).setAlpha(alpha)
             "azure" -> ColorUtils.mixColors(Color(0, 90, 255), Color(0, 180, 255), fadeSpeed, index).setAlpha(alpha)
-            "rainbow" -> ColorUtils.rainbow(index, speed = 20000F / fadespeed.get()).setAlpha(alpha)
-            "astolfo" -> ColorUtils.astolfo(index, 20000F / fadespeed.get()).setAlpha(alpha)
+            "rainbow" -> RenderUtils.skyRainbow(0, 1F, 1f, 20000F / fadespeed.get()).setAlpha(alpha)
+            "astolfo" -> RenderUtils.skyRainbow(0, 0.6f, 1f, 20000F / fadespeed.get()).setAlpha(alpha)
             "pumpkin" -> ColorUtils.mixColors(Color(255, 216, 169), Color(241, 166, 98), fadeSpeed, index).setAlpha(alpha)
             "polarized" -> ColorUtils.mixColors(Color(0, 32, 64), Color(173, 239, 209), fadeSpeed, index).setAlpha(alpha)
             "sundae" -> ColorUtils.mixColors(Color(28, 28, 27), Color(206, 74, 126), fadeSpeed, index).setAlpha(alpha)

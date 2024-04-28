@@ -32,7 +32,6 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
-import org.lwjgl.input.Mouse
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min

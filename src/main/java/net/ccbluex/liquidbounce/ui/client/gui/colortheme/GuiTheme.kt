@@ -27,9 +27,9 @@ class GuiTheme : GuiScreen() {
         val wheel = Mouse.getDWheel()
         if (wheel != 0) {
             if (wheel > 0) {
-                scroll += 15f
+                scroll += 30f
             } else {
-                scroll -= 15f
+                scroll -= 30f
             }
         }
         if (scroll < -200F) {
@@ -66,13 +66,17 @@ class GuiTheme : GuiScreen() {
             textX: Double,
             textY: Double
         ) {
-            GlowUtils.drawGlow(x1 - 2F, y1 + 35F + animScroll,108.4f, 40F, 10, Color(20, 20, 20, 100))
-            GlowUtils.drawGlow(x1 - 1F, y1 + animScroll - 2F,62f, 39F, 10, ClientTheme.getColorFromName(mode, 0))
-            GlowUtils.drawGlow(x1 - 4F + 54.2F, y1 + animScroll -2F,56.2f, 39F, 10, ClientTheme.getColorFromName(mode, 90))
             RenderUtils.drawRoundedGradientRectCorner(x1 + 2, y1 + 1.5F + animScroll, x2 - 2, y2 - 2.5F + animScroll, 20F, gradientColors[0], gradientColors[1])
-            RenderUtils.customRounded(x1 + 2, y1 + 35F + animScroll, x2 - 2, y2 - 2.5F + animScroll, 0F, 0F, 10F, 10F, Color(20, 20, 20).rgb)
+            var smoothX1 = 0F
+            var smoothY1 = 0F
+            var smoothX2 = 0F
+            var smoothY2 = 0F
             if (ClientTheme.ClientColorMode.get() == mode) {
-                RenderUtils.drawRoundedOutline(x1, y1 - 0.5F + animScroll, x2, y2 - 1.3F + animScroll, 23.5F, 4F, Color(255, 255, 255).rgb)
+                smoothX1 = AnimationUtils.animate(x1, smoothX1, 0.0075F * RenderUtils.deltaTime)
+                smoothY1 = AnimationUtils.animate(y1, smoothY1, 0.0075F * RenderUtils.deltaTime)
+                smoothX2 = AnimationUtils.animate(x2, smoothX2, 0.0075F * RenderUtils.deltaTime)
+                smoothY2 = AnimationUtils.animate(y2, smoothY2, 0.0075F * RenderUtils.deltaTime)
+                RenderUtils.drawRoundedOutline(smoothX1, smoothY1 - 0.5F + animScroll, smoothX2, smoothY2 - 1.3F + animScroll, 23.5F, 4F, Color(255, 255, 255).rgb)
             }
             FontLoaders.SF20.drawStringWithShadow(text, textX, textY + animScroll, ClientTheme.getColorFromName(mode, 1).rgb)
         }

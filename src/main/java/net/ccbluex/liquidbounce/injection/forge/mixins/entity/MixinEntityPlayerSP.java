@@ -24,6 +24,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
@@ -460,6 +461,15 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.capabilities.isFlying = false;
             this.sendPlayerAbilities();
         }
+    }
+    @Overwrite
+    public void swingItem() {
+        SwingEvent event = new SwingEvent();
+        CrossSine.eventManager.callEvent(event);
+        if (!event.isCancelled()) {
+            super.swingItem();
+        }
+        this.sendQueue.addToSendQueue(new C0APacketAnimation());
     }
     @Override
     public void moveEntity(double x, double y, double z) {

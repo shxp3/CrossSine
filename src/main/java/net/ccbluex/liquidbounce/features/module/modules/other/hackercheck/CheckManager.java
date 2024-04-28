@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.player.NofallACheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.player.PingSpoofCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.rotation.RotationCheck;
-import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.data.PlayerDataSamples;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
@@ -17,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 
 public class CheckManager {
-    private final PlayerDataSamples data = new PlayerDataSamples();
+    private final PlayerData data = new PlayerData();
     private static final Class<?>[] checksClz = {
             KillAuraCheck.class,
             AutoBlockCheck.class,
@@ -59,7 +58,6 @@ public class CheckManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            data.onTick(check.handlePlayer);
         }
         // reduce 0.1 per second
         if (--addedTicks <= 0) totalVL -= totalVL > 0 ? 0.005 : 0;

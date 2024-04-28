@@ -43,9 +43,9 @@ object KillAura2 : Module() {
     private val switchValue = BoolValue("Switch-Target", false)
     private val scaffoldCheck = BoolValue("Scaffold-Check", true)
     private val bedauraCheck = BoolValue("BedAura-Check", true)
-    private val silentRot = BoolValue("Silent-Rotaiton", true)
-    private val moveHelper = BoolValue("Move-Helper", true).displayable { silentRot.get() }
-    private val lowHelper = BoolValue("Less-Helper", false).displayable { moveHelper.get() && silentRot.get() }
+    private val rotationMode = ListValue("Rotation-Mode", arrayOf("Silent", "LockView", "None"), "Silent")
+    private val moveHelper = BoolValue("Move-Helper", true).displayable { rotationMode.equals("Silent") }
+    private val lowHelper = BoolValue("Less-Helper", false).displayable { moveHelper.get() && rotationMode.equals("Silent") }
     private val markValue = BoolValue("Mark", false)
     private val switchDelay = IntegerValue("Switch-Delay", 140, 0, 1000).displayable { switchValue.get() }
     val reachValue: FloatValue = object : FloatValue("Reach", 3F, 1F, 7F) {
@@ -329,7 +329,7 @@ object KillAura2 : Module() {
 
         val rotation =
             RotationUtils.limitAngleChange(RotationUtils.serverRotation, directRotation, calculateSpeed.toFloat())
-        if (silentRot.get()) {
+        if (rotationMode.equals("Silent")) {
             RotationUtils.setTargetRotationReverse(rotation, 2, 2)
         } else {
             rotation.toPlayer(mc.thePlayer)
@@ -366,5 +366,5 @@ object KillAura2 : Module() {
     }
 
     override val tag: String?
-        get() = if (silentRot.get()) "Silent" else ""
+        get() = if (rotationMode.equals("None")) null else rotationMode.get()
 }

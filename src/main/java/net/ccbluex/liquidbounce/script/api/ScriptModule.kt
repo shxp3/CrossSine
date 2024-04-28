@@ -128,7 +128,8 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
     fun onClickWindow(clickWindowEvent: ClickWindowEvent) = callEvent("clickWindow", clickWindowEvent)
     @EventTarget
     fun onStrafe(strafeEvent: StrafeEvent) = callEvent("strafe", strafeEvent)
-
+    @EventTarget
+    fun onSwing(swingEvent: SwingEvent) = callEvent("swing", swingEvent)
     @EventTarget
     fun onSlowDown(slowDownEvent: SlowDownEvent) = callEvent("slowDown", slowDownEvent)
 

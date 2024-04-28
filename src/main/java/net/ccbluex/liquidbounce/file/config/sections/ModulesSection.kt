@@ -8,46 +8,36 @@ import net.ccbluex.liquidbounce.file.config.ConfigSection
 
 class ModulesSection : ConfigSection("modules") {
     override fun load(json: JsonObject) {
-        // set them to default setting
-        CrossSine.moduleManager.modules.forEach {
-            val moduleInfo = it.moduleInfo
-            it.state = moduleInfo.defaultOn
-            it.keyBind = moduleInfo.keyBind
-            it.array = moduleInfo.array
-            it.autoDisable = moduleInfo.autoDisable
-            it.values.forEach { value ->
-                value.setDefault()
-            }
-        }
         // load config
         for (entrySet in json.entrySet()) {
             val module = CrossSine.moduleManager.getModule(entrySet.key) ?: continue
             val data = entrySet.value.asJsonObject
+            if (CrossSine.needConfig || (module.name != "Interface" && module.name != "TargetHUD")) {
+                if (data.has("state")) {
+                    module.state = data.get("state").asBoolean
+                }
 
-            if (data.has("state")) {
-                module.state = data.get("state").asBoolean
-            }
+                if (data.has("keybind")) {
+                    module.keyBind = data.get("keybind").asInt
+                }
 
-            if (data.has("keybind")) {
-                module.keyBind = data.get("keybind").asInt
-            }
+                if (data.has("array")) {
+                    module.array = data.get("array").asBoolean
+                }
 
-            if (data.has("array")) {
-                module.array = data.get("array").asBoolean
-            }
+                if (data.has("trigger")) {
+                    module.triggerType = EnumTriggerType.valueOf(data.get("trigger").asString)
+                }
 
-            if (data.has("trigger")) {
-                module.triggerType = EnumTriggerType.valueOf(data.get("trigger").asString)
-            }
+                if (data.has("autodisable")) {
+                    module.autoDisable = EnumAutoDisableType.valueOf(data.get("autodisable").asString)
+                }
 
-            if (data.has("autodisable")) {
-                module.autoDisable = EnumAutoDisableType.valueOf(data.get("autodisable").asString)
-            }
-
-            val values = data.getAsJsonObject("values")
-            module.values.forEach {
-                if (values.has(it.name)) {
-                    it.fromJson(values.get(it.name))
+                val values = data.getAsJsonObject("values")
+                module.values.forEach {
+                    if (values.has(it.name)) {
+                        it.fromJson(values.get(it.name))
+                    }
                 }
             }
         }

@@ -4,7 +4,6 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.ghost.SafeWalk
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -17,17 +16,18 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MathHelper
 import net.minecraft.util.MovingObjectPosition
-import org.lwjgl.input.Mouse
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.math.roundToInt
 
 @ModuleInfo("Scaffold2", ModuleCategory.PLAYER)
 object Scaffold2 : Module() {
-    private val modeValue = ListValue("Mode", arrayOf("Hypixel", "Normal", "Legit"), "Normal")
+    private val modeValue = ListValue("Mode", arrayOf("Hypixel", "Normal", "Legit", "GodBridge"), "Normal")
+    private val sneak = BoolValue("Sneak", false).displayable { modeValue.equals("GodBridge") }
+    private val rotation2 = BoolValue("Move-Rotation-Pitch", false).displayable { modeValue.equals("GodBridge") }
     private val jumpBoost = BoolValue("JumpBoost", false).displayable { modeValue.equals("Hypixel") }
-    private val rotationGod = BoolValue("Rotation-GodBridge", false)
     private val rotationSpeed = FloatValue("Rotation-Speed", 50F, 1F, 90F)
+    private val resetPlace = BoolValue("Reset-Place", false)
     private val safeWalk = BoolValue("SafeWalk", true)
     private val spoofValue = BoolValue("Spoof", false)
     private val render = BoolValue("Render", true).displayable { spoofValue.get() }
@@ -50,6 +50,9 @@ object Scaffold2 : Module() {
 
     override fun onEnable() {
         prevItem = mc.thePlayer.inventory.currentItem
+        if (modeValue.equals("GodBridge") && sneak.get()) {
+            mc.gameSettings.keyBindSneak.pressed = true
+        }
     }
 
     override fun onDisable() {
@@ -57,6 +60,9 @@ object Scaffold2 : Module() {
         SpoofItemUtils.stopSpoof()
         mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
         mc.gameSettings.keyBindSneak.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
+        if (modeValue.equals("GodBridge") && sneak.get()) {
+            mc.gameSettings.keyBindSneak.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
+        }
     }
     @EventTarget
     fun onJump(event: JumpEvent) {
@@ -70,8 +76,8 @@ object Scaffold2 : Module() {
             RotationUtils.limitAngleChange(
                 RotationUtils.serverRotation,
                 Rotation(
-                    MovementUtils.movingYaw - if (rotationGod.get()) if (mc.thePlayer.moveForward > 0F && mc.thePlayer.moveStrafing == 0F) (if (isLookingDiagonally) 180 else 135) else 180 else 180,
-                    85F
+                    MovementUtils.movingYaw - (if (modeValue.equals("GodBridge")) if (isLookingDiagonally) 180 else 135 else 180),
+                    if (modeValue.equals("GodBridge")) if (rotation2.get()) if (mc.thePlayer.onGround) 75.6F else 74.6F else 75.6F else 83F
                 ),
                 rotationSpeed.get()
             ), 1, 0
@@ -99,20 +105,33 @@ object Scaffold2 : Module() {
     fun onUpdate(event: UpdateEvent) {
         val blockSlot = InventoryUtils.findAutoBlockBlock(false)
         if (blockSlot == -1) return
-        if ((mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(
-                mc.thePlayer.heldItem.item as ItemBlock
-            )))
-        ) {
+        if ((mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && !InventoryUtils.isBlockListBlock(mc.thePlayer.heldItem.item as ItemBlock)))) {
             if (spoofValue.get()) {
                 SpoofItemUtils.startSpoof(prevItem, render.get())
             }
             mc.thePlayer.inventory.currentItem = blockSlot - 36
         }
+        if (modeValue.equals("GodBridge")) {
+            if (mc.theWorld.getCollidingBoundingBoxes(
+                    mc.thePlayer,
+                    mc.thePlayer.entityBoundingBox.offset(mc.thePlayer.motionX / 3.0, -1.0, mc.thePlayer.motionZ / 3.0)
+                ).isEmpty()
+            ) {
+                mc.gameSettings.keyBindJump.pressed = true
+            } else {
+                mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
+            }
+        }
+        if (modeValue.equals("GodBridge") && sneak.get()) {
+            if (mc.thePlayer.isSwingInProgress) {
+                mc.gameSettings.keyBindSneak.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
+            }
+        }
     }
 
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
-        if (modeValue.equals("Legit")) return
+        if (modeValue.equals("Legit") || !resetPlace.get()) return
         if (mc.currentScreen == null) {
             val i = mc.thePlayer.heldItem
             if (i != null && i.item is ItemBlock) {

@@ -19,7 +19,6 @@ public abstract class  Animation {
     protected int duration;
     protected double endPoint;
     protected Direction direction;
-
     public Animation(int ms, double endPoint) {
         this(ms, endPoint, Direction.FORWARDS);
     }

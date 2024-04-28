@@ -36,7 +36,6 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
     private val onlyPlayer = BoolValue("Only player", false)
     private val showinchat = BoolValue("Show When Chat", false)
     private val fadeValue = BoolValue("Fade", false)
-    private val fadeSpeed = FloatValue("Fade Speed", 1F, 0.1F, 2F).displayable { fadeValue.get() }
     private val animationValue = BoolValue("Animation", false)
     private val animationSpeed = FloatValue("Animation Speed", 0.2F, 0.1F, 1F).displayable { fadeValue.get() }
     val globalAnimSpeed = FloatValue("Health Speed", 3F, 0.1F, 5F)
@@ -59,6 +58,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
     }
     var mainTarget: EntityLivingBase? = null
     var animProgress = 0F
+    var animProgress2 = 0F
 
     var bgColor = Color(-1)
 
@@ -75,15 +75,21 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
             targetTimer.reset()
         }
         if (fadeValue.get()) {
-            animProgress += (0.0075F * fadeSpeed.get() * deltaTime * if (actualTarget != null) -1F else 1F)
+            animProgress += (0.0075F * animationSpeed.get() * deltaTime * if (actualTarget != null) -1F else 1F)
         } else {
             animProgress = 0F
         }
+        if (animationValue.get()) {
+            animProgress2 += (0.0075F * animationSpeed.get() * deltaTime * if (actualTarget != null) 1F else -1F)
+        } else {
+            animProgress2 = 1F
+        }
         animProgress = animProgress.coerceIn(0F, 1F)
+        animProgress2 = animProgress2.coerceIn(0F, 1F)
         if (actualTarget != null || (!fadeValue.get() && !animationValue.get())) {
             mainTarget = actualTarget
         }
-        else if (animProgress >= 1F)
+        else if (animProgress >= 1F && animProgress2 <= 0)
             mainTarget = null
 
         val returnBorder = mainStyle.getBorder(mainTarget) ?: return null
@@ -93,7 +99,7 @@ open class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Si
         }
         val convertTarget = mainTarget!!
         if (animationValue.get()) {
-            val percent = EaseUtils.easeOutBack(-animProgress.toDouble())
+            val percent = EaseUtils.easeOutBack(animProgress2.toDouble())
             GL11.glScaled(percent, percent, percent)
             GL11.glTranslated(((border!!.x2 * 0.5f * (1 - percent)) / percent), ((border!!.y2 * 0.5f * (1 - percent)) / percent), 0.0)
         }

@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.macro.MacroManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.visual.Interface
 import net.ccbluex.liquidbounce.features.special.*
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.file.FileManager
@@ -28,6 +29,7 @@ object CrossSine {
     // Client information
     const val CLIENT_NAME = "CrossSine"
     const val CLIENT_CLOUD = "https://crosssine.github.io/cloud"
+    const val CLIENT_WEBSITE = "crosssine.github.io"
     var USER_NAME = ""
     var CUSTOM_DOMAIN = ".customdomain [domain]"
     val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Beta")
@@ -35,8 +37,9 @@ object CrossSine {
     const val CLIENT_CREATOR = "Shape"
     val CLIENT_VERSION = "39"
     var destruced = false
-    @JvmField
-    val CLIENT_LOADING = "Installing CrossSine"
+    var needConfig = false
+
+    const val CLIENT_LOADING = "Installing CrossSine"
 
     @JvmField
     val CLIENT_TITLE = "$CLIENT_NAME B$CLIENT_VERSION" + if (CLIENT_STATUS.equals("Beta")) " (Beta)" else ""
@@ -185,6 +188,7 @@ object CrossSine {
      * Execute if client ui type is selected
      */
     fun startClient() {
+        needConfig = true
         dynamicLaunchOptions.forEach {
             it.start()
         }
@@ -195,7 +199,6 @@ object CrossSine {
         // Set is starting status
         isStarting = false
         isLoadingConfig = false
-
             thread {
                 try {
                     ClientRPC.run()
@@ -205,6 +208,8 @@ object CrossSine {
             }
         Display.setTitle(CLIENT_TITLE)
         ClientUtils.logInfo("$CLIENT_NAME $CLIENT_VERSION started!")
+        needConfig = false
+        Interface.state = true
     }
 
 
@@ -212,6 +217,7 @@ object CrossSine {
      * Execute if client will be stopped
      */
     fun stopClient() {
+        needConfig = true
         if (!isStarting && !isLoadingConfig) {
             ClientUtils.logInfo("Shutting down $CLIENT_NAME $CLIENT_VERSION!")
 

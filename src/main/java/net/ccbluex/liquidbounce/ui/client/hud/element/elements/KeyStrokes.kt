@@ -54,10 +54,7 @@ class KeyStrokes : Element() {
     private fun fadeKey(isKeyDown: Boolean, currentValue: Float, fadeSpeed: Float): Float {
         var currentValue = currentValue
         if (isKeyDown) {
-            currentValue++
-            if (currentValue >= fadeSpeed) {
-                currentValue = fadeSpeed
-            }
+            currentValue = fadeSpeed
         } else {
             currentValue--
             if (currentValue <= 0) {

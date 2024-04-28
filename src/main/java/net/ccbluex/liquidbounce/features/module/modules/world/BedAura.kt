@@ -14,14 +14,11 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimerMS
 import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockBed
-import net.minecraft.block.state.IBlockState
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.multiplayer.WorldClient
+import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -31,10 +28,12 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.glRotatef
+import sun.audio.AudioPlayer.player
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
+
 
 @ModuleInfo(name = "BedAura", category = ModuleCategory.WORLD)
 object BedAura : Module() {
@@ -306,14 +305,18 @@ object BedAura : Module() {
         }
         GlStateManager.resetColor()
         if (showProcess.get()) {
-            GlStateManager.pushMatrix()
-            GlStateManager.enablePolygonOffset()
-            GlStateManager.doPolygonOffset(1.0f, -1500000.0f)
-            GlStateManager.translate(x.toFloat(), y.toFloat(), z.toFloat())
-            glRotatef(-mc.renderManager.playerViewY, 0F, 1F, 0F)
-            glRotatef(mc.renderManager.playerViewX, 1F, 0F, 0F)
-            GlStateManager.scale(-0.025, -0.025, 0.025)
-            GL11.glDepthMask(false)
+            val rotateX = if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 2) -1.0f else 1.0f
+            GL11.glPushMatrix()
+            RenderUtils.startDrawing()
+            GL11.glTranslatef(x.toFloat(), y.toFloat(), z.toFloat())
+            GL11.glNormal3f(0.0f, 1.0f, 0.0f)
+            glRotatef(-Minecraft.getMinecraft().renderManager.playerViewY, 0.0f, 1.0f, 0.0f)
+            glRotatef(Minecraft.getMinecraft().renderManager.playerViewX, rotateX, 0.0f, 0.0f)
+            GL11.glScaled(
+                -0.025,
+                -0.025,
+                0.025
+            )
             val d = DecimalFormat("0", DecimalFormatSymbols(Locale.ENGLISH))
             val string: String =
                 if (fastMineValue.get() && (!onlyBed.get() || pos!!.getBlock() == Blocks.bed)) if (((currentDamage * 100) * (fastMineSpeed.get() + 0.5)) >= 100) "100%" else d.format(
@@ -322,13 +325,14 @@ object BedAura : Module() {
             mc.fontRendererObj.drawStringWithShadow(
                 string,
                 0F,
-                -25F,
+                0F,
                 Color.WHITE.rgb
             )
-            GL11.glColor4f(187.0f, 255.0f, 255.0f, 1.0f)
-            GL11.glDepthMask(true)
-            GlStateManager.doPolygonOffset(1.0f, 1500000.0f)
-            GlStateManager.disablePolygonOffset()
+            GL11.glDisable(3042);
+            GL11.glEnable(3553);
+            GL11.glDisable(2848);
+            GL11.glDisable(3042);
+            GL11.glEnable(2929);
             GlStateManager.resetColor()
             GlStateManager.popMatrix()
         }
@@ -377,7 +381,8 @@ object BedAura : Module() {
         }
 
         if (bestSlot != -1) {
-            if (spoofItem.get()) {
+            if (spoofItem.get() && !SpoofItemUtils.spoofing) {
+                prevItem = mc.thePlayer.inventory.currentItem
                 SpoofItemUtils.startSpoof(prevItem, true)
             }
             mc.thePlayer.inventory.currentItem = bestSlot

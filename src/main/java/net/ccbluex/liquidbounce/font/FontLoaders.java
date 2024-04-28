@@ -26,7 +26,7 @@ public abstract class FontLoaders {
     public static Font getFont(int size) {
         Font font;
         try {
-            font = Font.createFont(0, Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("crosssine/font/regular.ttf")).getInputStream()).deriveFont(Font.PLAIN, (float) size);
+            font = Font.createFont(0, Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("crosssine/font/Urbanist-Medium.ttf")).getInputStream()).deriveFont(Font.PLAIN, (float) size);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("Error loading font");

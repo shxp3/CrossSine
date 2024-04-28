@@ -346,7 +346,7 @@ public abstract class MixinMinecraft {
                 if(j == 0) {
                     TickBase tickBase = CrossSine.moduleManager.getModule(TickBase.class);
 
-                    if(tickBase.getState()) {
+                    if(tickBase.getState() && !tickBase.getStopLag()) {
                         int extraTicks = tickBase.getExtraTicks();
 
                         if(extraTicks == -1) {

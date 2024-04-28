@@ -34,6 +34,7 @@ object Scaffold : Module() {
         arrayOf("Normal", "Back", "45", "Telly", "Spin", "Snap", "None"),
         "Normal"
     )
+    private val rotationFace = ListValue("Rotations-Face", arrayOf("Smooth", "Normal"), "Smooth")
     private val spinSpeedValue = IntegerValue("SpinSpeed", 20, 1, 90).displayable { rotationsValue.equals("Spin") }
     private val staticRotTelly = BoolValue("StaticRotation", false).displayable { rotationsValue.equals("Telly") }
     val towerModeValue = ListValue(
@@ -45,7 +46,7 @@ object Scaffold : Module() {
     )
     private val title1 = TitleValue("Hypixel tower will when you turn on TowerHypixel Module")
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post", "Legit"), "Pre")
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch"), "Switch")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch", "Spam"), "Switch")
     val highBlock = BoolValue("BiggestStack", false)
     private val sprintModeValue = ListValue(
         "Sprint",
@@ -153,7 +154,6 @@ object Scaffold : Module() {
     private var offGroundTicks: Int = 0
     private var GroundTicks: Int = 0
 
-    private var groundTicks: Int = 0
     private var offgroundTicks: Int = 0
 
     // WATCHDOG
@@ -174,7 +174,6 @@ object Scaffold : Module() {
         get() {
             val player = mc.thePlayer ?: return false
 
-            // Round the rotation to the nearest multiple of 45 degrees so that way we check if the player faces diagonally
             val yaw = round(abs(MathHelper.wrapAngleTo180_float(player.rotationYaw)).roundToInt() / 45f) * 45f
 
             return floatArrayOf(
@@ -182,6 +181,8 @@ object Scaffold : Module() {
                 135f
             ).any { yaw == it } && player.movementInput.moveForward != 0f && player.movementInput.moveStrafe == 0f
         }
+    private var shouldGo = false
+    private var hypixelTick = 0
     /**
      * Enable module
      */
@@ -211,6 +212,17 @@ object Scaffold : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (lastGroundY.toDouble() == mc.thePlayer.posY) {
+            shouldGo = false
+        }
+        if (bridgeMode.equals("Hypixel")) {
+            if (!shouldGo && hypixelTick >= 1) {
+                shouldGo = true
+            }
+            if (shouldGo) {
+                hypixelTick = 0
+            }
+        }
         if (lastPlace == 1) {
             delayTimer.reset()
             delay = getDelay
@@ -252,9 +264,14 @@ object Scaffold : Module() {
                 }
             }
             if (bridgeMode.equals("Hypixel")) {
-                canSameY = true
+                canSameY = shouldGo
                 if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
                     mc.thePlayer.jump()
+                }
+                if (!shouldGo) {
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.jump()
+                    }
                 }
             }
             if (bridgeMode.equals("Telly") && (!delayTelly.get() || tellyPlaceTicks > 0)) {
@@ -498,7 +515,7 @@ object Scaffold : Module() {
                 RotationUtils.limitAngleChange(
                     RotationUtils.serverRotation,
                     Rotation(
-                        if (isLookingDiagonally) MovementUtils.movingYaw + 135 else MovementUtils.movingYaw + 180,
+                        if (isLookingDiagonally) MovementUtils.movingYaw + 180 else MovementUtils.movingYaw + 135,
                         if (lockRotation == null) 85F else lockRotation!!.pitch
                     ),
                     rotationSpeed
@@ -610,7 +627,7 @@ object Scaffold : Module() {
                         Math.floor(mc.thePlayer.posY),
                         mc.thePlayer.posZ
                     )
-                    mc.thePlayer.motionY = 0.42
+                    mc.thePlayer.motionY = 0.41
                 } else if (mc.thePlayer.posY % 1 < 0.1 && offGroundTicks != 0) {
                     mc.thePlayer.setPosition(
                         mc.thePlayer.posX,
@@ -653,6 +670,12 @@ object Scaffold : Module() {
             }
         } else if (bridgeMode.equals("UpSideDown") && !towerStatus) {
             BlockPos(mc.thePlayer.posX, mc.thePlayer.posY + 2, mc.thePlayer.posZ)
+        } else if (bridgeMode.equals("Hypixel") && !towerStatus && shouldGo) {
+            if (lastGroundY.toDouble() <= mc.thePlayer.posY + 1.0 && !(lastGroundY >= mc.thePlayer.posY + 1.0)) {
+                BlockPos(mc.thePlayer.posX, lastGroundY - 1.0, mc.thePlayer.posZ)
+            } else {
+                BlockPos(mc.thePlayer.posX, lastGroundY - 1.0, mc.thePlayer.posZ)
+            }
         } else if (bridgeMode.equals("Andromeda") && !towerStatus) {
             if (andromedaPlaceTicks == 0) {
                 BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ).down()
@@ -661,13 +684,7 @@ object Scaffold : Module() {
             }
         } else if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5 && !canSameY) {
             BlockPos(mc.thePlayer)
-        } else if (bridgeMode.equals("Hypixel") && !towerStatus){
-            if (canSameY && lastGroundY < mc.thePlayer.posY) {
-                BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ).down()
-            } else {
-                BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.6, mc.thePlayer.posZ).down()
-            }
-        } else if (canSameY && lastGroundY <= mc.thePlayer.posY) {
+        } else  if (canSameY && lastGroundY <= mc.thePlayer.posY) {
             BlockPos(mc.thePlayer.posX, lastGroundY - 1.0, mc.thePlayer.posZ)
         } else {
             BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ).down()
@@ -703,6 +720,9 @@ object Scaffold : Module() {
      * Place target block
      */
     private fun place() {
+        if (autoBlockValue.equals("Spam")) {
+            prevItem = mc.thePlayer.inventory.currentItem
+        }
         if (!towerStatus && bridgeMode.equals("Telly") && (!delayTelly.get() || tellyPlaceTicks > 0)) {
             if (offGroundTicks < tellyTicks.get()) return
         }
@@ -764,9 +784,13 @@ object Scaffold : Module() {
             tellyPlaceTicks++
             andromedaPlaceTicks++
             lastPlace++
+            hypixelTick++
         }
         // Reset
         targetPlace = null
+        if (autoBlockValue.equals("Spam")) {
+            mc.thePlayer.inventory.currentItem = prevItem
+        }
     }
 
     /**
@@ -808,7 +832,12 @@ object Scaffold : Module() {
     @EventTarget
     fun onMove(event: MoveEvent) {
         if (safeWalkValue.get() && mc.thePlayer.onGround) event.isSafeWalk = true
-        return
+        if(bridgeMode.equals("Hypixel")) {
+            if (!shouldGo) {
+                event.x *= 0.1
+                event.z *= 0.1
+            }
+        }
     }
 
     /**
@@ -849,29 +878,32 @@ object Scaffold : Module() {
                         }
 
                         // face block
-                        val diffX = hitVec.xCoord - eyesPos.xCoord
-                        val diffY = hitVec.yCoord - eyesPos.yCoord
-                        val diffZ = hitVec.zCoord - eyesPos.zCoord
-                        val diffXZ = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ).toDouble()
-                        val rotation = Rotation(
-                            MathHelper.wrapAngleTo180_float(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
-                            MathHelper.wrapAngleTo180_float((-Math.toDegrees(atan2(diffY, diffXZ))).toFloat())
-                        )
-                        val rotationVector = RotationUtils.getVectorForRotation(rotation)
-                        val vector = eyesPos.addVector(
-                            rotationVector.xCoord * 4,
-                            rotationVector.yCoord * 4,
-                            rotationVector.zCoord * 4
-                        )
-                        val obj = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
-                        if (!(obj.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && obj.blockPos == neighbor)) {
-                            zSearch += 0.1
-                            continue
-                        }
-                        if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(
-                                placeRotation.rotation
+                        for (i in 0 until if (rotationFace.get() == "Smooth") 2 else 1) {
+                            val diffX: Double = if (rotationFace.get() == "Smooth" && i == 0) 0.0 else hitVec.xCoord - eyesPos.xCoord
+                            val diffY = hitVec.yCoord - eyesPos.yCoord
+                            val diffZ: Double = if (rotationFace.get() == "Smooth" && i == 1) 0.0 else hitVec.zCoord - eyesPos.zCoord
+                            val diffXZ = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ).toDouble()
+
+                            val rotation = Rotation(
+                                MathHelper.wrapAngleTo180_float(
+                                    Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f
+                                ),
+                                MathHelper.wrapAngleTo180_float(-Math.toDegrees(atan2(diffY, diffXZ)).toFloat())
                             )
-                        ) placeRotation = PlaceRotation(PlaceInfo(neighbor, side.opposite, hitVec), rotation)
+                            lockRotation = rotation
+                            val rotationVector = rotation.let { RotationUtils.getVectorForRotation(it) }
+                            val vector = eyesPos.addVector(
+                                rotationVector.xCoord * 4,
+                                rotationVector.yCoord * 4,
+                                rotationVector.zCoord * 4
+                            )
+                            val obj = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
+                            if (!(obj.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && obj.blockPos == neighbor)) continue
+                            if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(
+                                    placeRotation.rotation
+                                )
+                            ) placeRotation = PlaceRotation(PlaceInfo(neighbor, side.opposite, hitVec), rotation)
+                        }
                         zSearch += 0.1
                     }
                     ySearch += 0.1
@@ -902,7 +934,7 @@ object Scaffold : Module() {
             }
 
             "45" -> {
-                Rotation(MovementUtils.movingYaw - if (isLookingDiagonally) 180 else 135, placeRotation.rotation.pitch)
+                Rotation(MovementUtils.movingYaw + if (isLookingDiagonally && mc.thePlayer.moveStrafing != 0F) 180 else 135, placeRotation.rotation.pitch)
             }
 
             "spin" -> {

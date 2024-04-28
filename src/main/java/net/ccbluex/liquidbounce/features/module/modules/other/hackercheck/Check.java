@@ -1,13 +1,12 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck;
 
-import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.data.PlayerDataSamples;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
 public class Check extends MinecraftInstance {
     public static boolean debug = false;
-    public static PlayerDataSamples data = new PlayerDataSamples();
+    public static PlayerData data = new PlayerData();
     protected EntityOtherPlayerMP handlePlayer = null;
     protected String name = "NONE";
     protected boolean enabled = true;

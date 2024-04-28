@@ -54,11 +54,10 @@ object MovementFix : Module() {
         var factor = strafe * strafe + forward * forward
 
         var angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0).toDouble() / (45.0).toDouble()).toInt()
-        //alert("Diff: " + angleDiff + " friction: " + friction + " factor: " + factor);
         var calcYaw = if(isSilent) { yaw + 45.0f * angleDiff.toFloat() } else yaw
 
         var calcMoveDir = Math.max(Math.abs(strafe), Math.abs(forward)).toFloat()
-        calcMoveDir = calcMoveDir * calcMoveDir
+        calcMoveDir *= calcMoveDir
         var calcMultiplier = MathHelper.sqrt_float(calcMoveDir / Math.min(1.0f, calcMoveDir * 2.0f))
 
         if (isSilent) {

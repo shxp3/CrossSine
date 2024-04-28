@@ -13,8 +13,7 @@ enum class ModuleCategory(val displayName: String, val configName: String) {
     WORLD("World", "World"),
     GHOST("Ghost", "Ghost"),
     OTHER("Other", "Other"),
-    SCRIPT("Script", "Script"),
-    CONFIG("Config", "Config");
+    SCRIPT("Script", "Script");
 
     var namee: String? = null
     var posX = 0

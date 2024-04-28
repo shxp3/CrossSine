@@ -17,6 +17,7 @@ object SpoofItemUtils : MinecraftInstance() {
     var spoofing = false
     private var animProgress = 0F
     var render = false
+    private var lastItem = 0
     fun startSpoof(slot: Int, render: Boolean) {
         if (!spoofing) {
             spoofSlot = slot
@@ -26,12 +27,15 @@ object SpoofItemUtils : MinecraftInstance() {
     }
 
     fun stopSpoof() {
+        if (spoofing) {
+            lastItem = mc.thePlayer.inventory.currentItem
+        }
         for (i in 0..8) {
             if (i == spoofSlot) {
+                spoofing = false
                 mc.thePlayer.inventory.currentItem = i
             }
         }
-        spoofing = false
     }
 
     fun getSlot(): Int {
@@ -47,7 +51,7 @@ object SpoofItemUtils : MinecraftInstance() {
     }
 
     fun renderRect() {
-        val itemStack = mc.thePlayer.inventory.getCurrentItem()
+        val itemStack = if (spoofing) mc.thePlayer.inventory.getCurrentItem() else mc.thePlayer.inventory.getStackInSlot(lastItem)
         animProgress += (0.0075F * 0.25F * deltaTime * if (spoofing) 1F else -1F)
         animProgress = animProgress.coerceIn(0F, 1F)
         val percent = EaseUtils.easeOutBack(animProgress.toDouble())
@@ -88,7 +92,7 @@ object SpoofItemUtils : MinecraftInstance() {
     fun renderItem() {
         val width = ScaledResolution(mc).scaledWidth
         val height = ScaledResolution(mc).scaledHeight + 3F
-        val itemStack = mc.thePlayer.inventory.getCurrentItem()
+        val itemStack = if (spoofing) mc.thePlayer.inventory.getCurrentItem() else mc.thePlayer.inventory.getStackInSlot(lastItem)
         val percent = EaseUtils.easeOutBack(animProgress.toDouble())
         if (itemStack != null && render && animProgress >= 0F) {
             if (itemStack.item is ItemBlock) {

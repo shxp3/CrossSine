@@ -47,6 +47,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     protected abstract float getJumpUpwardsMotion();
 
     @Shadow
+    public void swingItem() {
+    }
+
+    @Shadow
     public abstract PotionEffect getActivePotionEffect(Potion potionIn);
 
     @Shadow
@@ -184,14 +188,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         if (Objects.requireNonNull(CrossSine.moduleManager.getModule(ViaVersionFix.class)).getState())
             return 0.003D;
         return 0.005D;
-    }
-
-    @Inject(method = "isPotionActive(Lnet/minecraft/potion/Potion;)Z", at = @At("HEAD"), cancellable = true)
-    private void isPotionActive(Potion p_isPotionActive_1_, final CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        final NoRender NoRender = CrossSine.moduleManager.getModule(NoRender.class);
-
-        if ((p_isPotionActive_1_ == Potion.confusion || p_isPotionActive_1_ == Potion.blindness) && NoRender.getState() && NoRender.getConfusionEffect().get())
-            callbackInfoReturnable.setReturnValue(false);
     }
 
     /**

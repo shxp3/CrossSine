@@ -84,21 +84,19 @@ object InventoryUtils : Listenable {
     }
     fun findAutoBlockBlock(biggest: Boolean): Int {
         if (biggest) {
-            var bestSlot = -1
-            var bestSlotStackSize = 0
-
+            var a = -1
+            var aa = 0
             for (i in 36..44) {
-                val stack: ItemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                val itemBlock = stack.item as ItemBlock
-                val block = itemBlock.getBlock()
-                if (stack.item is ItemBlock && canPlaceBlock(block)) {
-                    if (stack.stackSize > bestSlotStackSize) {
-                        bestSlot = i
-                        bestSlotStackSize = stack.stackSize
+                if (mc.thePlayer.inventoryContainer.getSlot(i).hasStack) {
+                    val aaa = mc.thePlayer.inventoryContainer.getSlot(i).stack.item
+                    var aaaa = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                    if (aaa is ItemBlock && aaaa.stackSize > aa) {
+                        aa = aaaa.stackSize
+                        a = i
                     }
                 }
             }
-            return bestSlot
+            return a
         } else {
             for (i in 36..44) {
                 val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack

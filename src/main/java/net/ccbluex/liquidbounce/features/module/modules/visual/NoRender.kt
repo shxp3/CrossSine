@@ -10,10 +10,7 @@ import net.minecraft.network.play.server.S45PacketTitle
 
 @ModuleInfo(name = "NoRender",  category = ModuleCategory.VISUAL, array = false)
 object NoRender : Module() {
-    val confusionEffect = BoolValue("Confusion", true)
-    val pumpkinEffect = BoolValue("Pumpkin", true)
     val fireEffect = BoolValue("Fire", true)
-    val scoreBoard = BoolValue("Scoreboard", false)
     val bossHealth = BoolValue("Boss-Health", false)
     private val titleValue = BoolValue("Title", false)
 

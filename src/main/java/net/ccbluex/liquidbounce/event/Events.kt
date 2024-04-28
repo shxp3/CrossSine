@@ -121,7 +121,10 @@ class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
  */
 class StrafeEvent(val strafe: Float, val forward: Float, val friction: Float) : CancellableEvent()
 
-
+/**
+ * Called when player swing hand
+ */
+class SwingEvent() : CancellableEvent()
 
 /**
  * Called when an other entity moves

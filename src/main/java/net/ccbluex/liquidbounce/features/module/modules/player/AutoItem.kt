@@ -43,7 +43,7 @@ object AutoItem : Module() {
                 if (!mining) {
                     prevItem = mc.thePlayer.inventory.currentItem
                     if (spoof.get())
-                           SpoofItemUtils.startSpoof(prevItem, render.get())
+                        SpoofItemUtils.startSpoof(prevItem, render.get())
                 }
 
                 val block = mc.theWorld.getBlockState(mc.objectMouseOver.blockPos).block
@@ -66,7 +66,11 @@ object AutoItem : Module() {
                 mining = true
             } else {
                 if (mining) {
-                    SpoofItemUtils.stopSpoof()
+                    if (spoof.get()) {
+                        SpoofItemUtils.stopSpoof()
+                    } else {
+                        mc.thePlayer.inventory.currentItem = prevItem
+                    }
                     mining = false
                 } else {
                     prevItem = mc.thePlayer.inventory.currentItem
@@ -104,7 +108,7 @@ object AutoItem : Module() {
                 if (!SpoofItemUtils.spoofing) {
                     prevItemWeapon = mc.thePlayer.inventory.currentItem
                     if (spoof.get())
-                         SpoofItemUtils.startSpoof(prevItemWeapon, render.get())
+                        SpoofItemUtils.startSpoof(prevItemWeapon, render.get())
                 }
                 spoofTick = 15
                 mc.thePlayer.inventory.currentItem = slot
@@ -117,12 +121,13 @@ object AutoItem : Module() {
             }
         }
     }
+
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (autoWeapon.get()) {
             if (spoofTick > 0) {
                 if (spoofTick == 1) {
-                    mc.thePlayer.inventory.currentItem
+                    mc.thePlayer.inventory.currentItem = prevItemWeapon
                     SpoofItemUtils.stopSpoof()
                 }
                 spoofTick--
