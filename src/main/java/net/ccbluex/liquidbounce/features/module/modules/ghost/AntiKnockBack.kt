@@ -16,6 +16,7 @@ object AntiKnockBack : Module() {
     private val y = IntegerValue("Y", 0, 0, 100)
     private val onlyGround = BoolValue("OnlyGround", false)
     private val onlyAir = BoolValue("OnlyAir", false)
+    private val showV = BoolValue("Show-Vertical", false)
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
@@ -46,5 +47,5 @@ object AntiKnockBack : Module() {
     }
 
     override val tag: String?
-        get() = xz.get().toString() + "H"
+        get() = xz.get().toString() + "H" + (if (showV.get()) xz.get().toString() + "V" else "")
 }
