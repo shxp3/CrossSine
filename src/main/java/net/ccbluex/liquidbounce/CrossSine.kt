@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.macro.MacroManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.features.module.modules.visual.Interface
 import net.ccbluex.liquidbounce.features.special.*
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.file.FileManager
@@ -29,19 +28,16 @@ object CrossSine {
     // Client information
     const val CLIENT_NAME = "CrossSine"
     const val CLIENT_CLOUD = "https://crosssine.github.io/cloud"
-    const val CLIENT_WEBSITE = "crosssine.github.io"
     var USER_NAME = ""
     var CUSTOM_DOMAIN = ".customdomain [domain]"
-    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Beta")
+    val CLIENT_STATUS = ListValue("ClientVersion", arrayOf("Release", "Beta"), "Release")
     const val COLORED_NAME = "§CC§FrossSine"
     const val CLIENT_CREATOR = "Shape"
-    val CLIENT_VERSION = "39"
-    var destruced = false
-
-    const val CLIENT_LOADING = "Installing CrossSine"
-
+    val CLIENT_VERSION = "Last Build" + if (CLIENT_STATUS.equals("Beta")) " Beta" else " B36"
     @JvmField
-    val CLIENT_TITLE = "$CLIENT_NAME B$CLIENT_VERSION" + if (CLIENT_STATUS.equals("Beta")) " (Beta)" else ""
+    val CLIENT_LOADING = "Installing CrossSine"
+    @JvmField
+    val CLIENT_TITLE = "$CLIENT_NAME $CLIENT_VERSION"
 
 
     var isStarting = true
@@ -64,8 +60,11 @@ object CrossSine {
     lateinit var hud: HUD
     lateinit var mainMenu: GuiScreen
     lateinit var keyBindManager: KeyBindManager
-    lateinit var ClientRPC: CrossSineRPC
 
+
+
+    // Discord RPC
+    lateinit var clientRichPresence: CrossSineRPC
 
     // Menu Background
     var background: ResourceLocation? = null
@@ -97,7 +96,6 @@ object CrossSine {
     fun initClient() {
         ClientUtils.logInfo("Loading $CLIENT_NAME $CLIENT_VERSION, by $CLIENT_CREATOR")
         ClientUtils.logInfo("Initialzing...")
-        Display.setTitle("Initialzing...")
         val startTime = System.currentTimeMillis()
         // Create file manager
         fileManager = FileManager()
@@ -107,7 +105,6 @@ object CrossSine {
         eventManager = EventManager()
 
         // Register listeners
-        Display.setTitle("Loading event")
         eventManager.registerListener(RotationUtils())
         eventManager.registerListener(ClientFixes)
         eventManager.registerListener(ClientSpoof())
@@ -117,11 +114,15 @@ object CrossSine {
         eventManager.registerListener(SessionUtils())
         eventManager.registerListener(StatisticsUtils())
         eventManager.registerListener(LocationCache())
+
+
+        // Init Discord RPC
+        clientRichPresence = CrossSineRPC
+        clientRichPresence = CrossSineRPC
+
         // Create command manager
         commandManager = CommandManager()
 
-        ClientRPC = CrossSineRPC
-        Display.setTitle("Load config")
         fileManager.loadConfigs(
             fileManager.accountsConfig,
             fileManager.friendsConfig,
@@ -130,14 +131,12 @@ object CrossSine {
             fileManager.subscriptsConfig
         )
         // Load client fonts
-        Display.setTitle("Load Fonts")
         Fonts.loadFonts()
 
         macroManager = MacroManager()
         eventManager.registerListener(macroManager)
 
         // Setup module manager and register modules
-        Display.setTitle("Load Module")
         moduleManager = ModuleManager()
         moduleManager.registerModules()
 
@@ -161,6 +160,7 @@ object CrossSine {
 
         mainMenu = GuiLaunchOptionSelectMenu()
 
+        Display.setTitle(CLIENT_TITLE)
 
         // Set HUD
         hud = HUD.createDefault()
@@ -169,7 +169,6 @@ object CrossSine {
 
 
         ClientUtils.logInfo("Loading Script Subscripts...")
-        Display.setTitle("Loading Script")
         try {
 
             // ScriptManager
@@ -179,6 +178,7 @@ object CrossSine {
         } catch (throwable: Throwable) {
             ClientUtils.logError("Failed to load scripts.", throwable)
         }
+        CLIENT_TITLE
         ClientUtils.logInfo("$CLIENT_NAME $CLIENT_VERSION loaded in ${(System.currentTimeMillis() - startTime)}ms!")
     }
 
@@ -197,16 +197,9 @@ object CrossSine {
         // Set is starting status
         isStarting = false
         isLoadingConfig = false
-            thread {
-                try {
-                    ClientRPC.run()
-                } catch (throwable: Throwable) {
-                    ClientUtils.logError("", throwable)
-                }
-            }
-        Display.setTitle(CLIENT_TITLE)
+
         ClientUtils.logInfo("$CLIENT_NAME $CLIENT_VERSION started!")
-        Interface.state = true
+
     }
 
 
@@ -227,6 +220,5 @@ object CrossSine {
                 it.stop()
             }
         }
-        ClientRPC.stop()
     }
 }

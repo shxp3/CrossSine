@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.utils.MouseUtils.setMouseButtonState
 import net.minecraft.block.BlockLiquid
-import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemBlock
 import net.minecraft.util.BlockPos
@@ -42,8 +41,9 @@ class AutoPlace : Module() {
             PitchMin.set(PitchMax.get())
         }
         if (fakeMouseDown.get()) {
-            if (!GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
-                mc.gameSettings.keyBindUseItem.pressed = (mc.objectMouseOver.blockPos != null && (up.get() && mc.objectMouseOver.sideHit == EnumFacing.UP) && (down.get() && mc.objectMouseOver.sideHit == EnumFacing.DOWN) || (side.get() && (mc.objectMouseOver.sideHit == EnumFacing.NORTH || mc.objectMouseOver.sideHit == EnumFacing.EAST || mc.objectMouseOver.sideHit == EnumFacing.SOUTH || mc.objectMouseOver.sideHit == EnumFacing.WEST)))
+            if (!Mouse.isButtonDown(1)) {
+                mc.gameSettings.keyBindUseItem.pressed =
+                    (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && (up.get() || mc.objectMouseOver.sideHit != EnumFacing.UP) && (down.get() || mc.objectMouseOver.sideHit != EnumFacing.DOWN) || (!side.get() || mc.objectMouseOver.sideHit == EnumFacing.NORTH || mc.objectMouseOver.sideHit == EnumFacing.EAST || mc.objectMouseOver.sideHit == EnumFacing.SOUTH || mc.objectMouseOver.sideHit == EnumFacing.WEST))
             }
         }
         if (mc.currentScreen == null && (!nofly.get() || !mc.thePlayer.capabilities.isFlying)) {
