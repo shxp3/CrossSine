@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.other;
 
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.PacketEvent;
+import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.event.UpdateEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@ModuleInfo(name = "HackerDetector", spacedName = "Hacker Detector", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "HackerDetector",  category = ModuleCategory.OTHER)
 public class HackerDetector extends Module {
     public static final HackerDetector INSTANCE = new HackerDetector();
     public final ConcurrentHashMap<Integer, CheckManager> playersChecks = new ConcurrentHashMap<>();
@@ -41,7 +42,7 @@ public class HackerDetector extends Module {
 
 
     @EventTarget
-    public final void onUpdate(UpdateEvent ignored) {
+    public final void onRender2D(Render2DEvent event) {
         singleThreadExecutor.execute(() -> {
             // process check
             for (CheckManager manager : playersChecks.values()) {
@@ -76,6 +77,9 @@ public class HackerDetector extends Module {
         if (event.isCancelled()) return;
         if (event.getPacket() instanceof S14PacketEntity || event.getPacket() instanceof S18PacketEntityTeleport) {
             singleThreadExecutor.execute(() -> {
+                for (CheckManager manager : playersChecks.values()) {
+                    manager.onPacket(event);
+                }
                 int x, y, z, id;
                 if (event.getPacket() instanceof S14PacketEntity) {
                     S14PacketEntity packet = (S14PacketEntity) event.getPacket();
@@ -116,6 +120,7 @@ public class HackerDetector extends Module {
 
     public void warning(String player, String module, double vl) {
         ClientUtils.INSTANCE.displayChatMessage("§l§7[§l§9HackDetector§l§7]§r " + completeMessage(player, module,  vl,"%player% detected for §C%module% §F(§7%vl%§F)"));
+        mc.thePlayer.playSound("note.pling", 1.0f, 1.0f);
     }
 
     public boolean shouldWarning() {

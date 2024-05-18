@@ -18,13 +18,13 @@ import net.minecraft.client.settings.KeyBinding
 import net.minecraft.init.Blocks
 import net.minecraft.item.EnumAction
 import net.minecraft.item.ItemSword
+import net.minecraft.util.MovingObjectPosition
 import org.lwjgl.input.Mouse
 import kotlin.random.Random
 
 
-@ModuleInfo(name = "LeftClicker", spacedName = "Left Clicker", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "LeftClicker",  category = ModuleCategory.GHOST)
 class LeftClicker : Module() {
-    //click code from fdp (Thanks)
     private val modeValue = ListValue("Click-Mode", arrayOf("Normal", "Jitter", "Butterfly"), "Normal")
     private val maxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 8, 1, 40) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -43,26 +43,27 @@ class LeftClicker : Module() {
         }
     }.displayable { modeValue.equals("Normal") } as IntegerValue
     private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false)
+    private val autoBlock = BoolValue("AutoBlock", false)
+    private val abCps = IntegerValue("AutoBlock-CPS", 15,1,20).displayable { autoBlock.get() }
     private var leftDelay = 50L
     private var leftLastSwing = 0L
+    private var abDelay = 50L
+    private var abLastSwing = 0L
     private var cDelay = 0
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (mc.objectMouseOver != null) {
-            val p = mc.objectMouseOver.blockPos
-            if (p != null) {
-                val bl: Block = mc.theWorld.getBlockState(p).block
-                if (bl !== Blocks.air && bl !is BlockLiquid) {
-                    return
-                }
-            }
-        }
         if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - leftLastSwing >= leftDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword)) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
             leftLastSwing = System.currentTimeMillis()
             leftDelay = getDelay().toLong()
+        }
+        if (autoBlock.get() && !mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && System.currentTimeMillis() - abLastSwing >= abDelay && (!leftSwordOnlyValue.get() || mc.thePlayer.heldItem?.item is ItemSword) && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
+
+            abLastSwing = System.currentTimeMillis()
+            abDelay = TimeUtils.randomClickDelay(abCps.get(), abCps.get())
         }
     }
 

@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.TextValue
 import net.minecraft.network.play.client.C01PacketChatMessage
 
-@ModuleInfo(name = "ChatFilter", spacedName = "Chat Filter", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "ChatFilter", category = ModuleCategory.OTHER)
 class ChatFilter : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Null", "RandomChar", "Unicode", "RandomUnicode", "ToPinyin"), "Null")
     private val chanceValue = FloatValue("Chance", 0.2F, 0F, 0.5F).displayable { !modeValue.equals("Unicode") }

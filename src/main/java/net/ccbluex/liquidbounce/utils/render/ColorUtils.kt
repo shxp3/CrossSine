@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
 import net.minecraft.util.ChatAllowedCharacters
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import java.util.*
@@ -10,6 +11,9 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+import org.lwjgl.opengl.GL11.glColor4f
+
+
 
 
 object ColorUtils {
@@ -178,12 +182,13 @@ object ColorUtils {
     }
     @JvmStatic
     fun setColour(colour: Int) {
-        val a = (colour shr 24 and 0xFF) / 255.0f
-        val r = (colour shr 16 and 0xFF) / 255.0f
-        val g = (colour shr 8 and 0xFF) / 255.0f
+        val a = ((colour shr 24) and 0xFF) / 255.0f
+        val r = ((colour shr 16) and 0xFF) / 255.0f
+        val g = ((colour shr 8) and 0xFF) / 255.0f
         val b = (colour and 0xFF) / 255.0f
         glColor4f(r, g, b, a)
     }
+
     @JvmStatic
     fun getColor(n: Int): String? {
         if (n != 1) {
@@ -206,6 +211,10 @@ object ColorUtils {
     @JvmStatic
     fun astolfo(index: Int, speed: Float): Color {
         return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / speed) % 2) - 1) * (0.3F)) + 0.55F, 0.55F, 1F)
+    }
+    @JvmStatic
+    fun rainbow(index: Int, speed: Float): Color {
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / speed) % 2) - 1) * (0.3F)) + 0.55F, 1F, 1F)
     }
 
     fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double? {
@@ -275,9 +284,6 @@ object ColorUtils {
         return Color.getHSBColor(if ((360.0.also { v1 %= it } / 360.0) <0.5) { -(v1 / 360.0).toFloat() } else { (v1 / 360.0).toFloat() }, st, bright)
     }
 
-
-
-
     @JvmStatic
     fun fade(color: Color, index: Int, count: Int): Color {
         val hsb = FloatArray(3)
@@ -305,6 +311,6 @@ object ColorUtils {
     }
     @JvmStatic
     fun hslRainbow(index: Int, speed: Float): Color {
-        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / speed) % 2) - 1) * (0.3F)) + 0.55F, 0.8F, 1F)
+        return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() - index * 200) / speed) % 2) - 1)), 1F, 1F)
     }
 }

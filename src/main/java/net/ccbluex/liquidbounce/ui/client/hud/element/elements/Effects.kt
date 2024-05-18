@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.minecraft.client.resources.I18n
 import net.minecraft.potion.Potion
 
@@ -71,8 +72,8 @@ class Effects(x: Double = 2.0, y: Double = 10.0, scale: Float = 1F,
                         }
 
                         when (side.horizontal) {
-                                Side.Horizontal.RIGHT -> fontRenderer.drawString(name, -stringWidth, y + if (side.vertical == Side.Vertical.UP) -fontRenderer.FONT_HEIGHT.toFloat() else 0F, potion.liquidColor, shadow.get())
-                                Side.Horizontal.LEFT, Side.Horizontal.MIDDLE -> fontRenderer.drawString(name, 0F, y + if (side.vertical == Side.Vertical.UP) -fontRenderer.FONT_HEIGHT.toFloat() else 0F, potion.liquidColor, shadow.get())
+                                Side.Horizontal.RIGHT -> fontRenderer.drawString(name, -stringWidth, y + if (side.vertical == Side.Vertical.UP) -fontRenderer.FONT_HEIGHT.toFloat() else 0F, ClientTheme.getColor().rgb, shadow.get())
+                                Side.Horizontal.LEFT, Side.Horizontal.MIDDLE -> fontRenderer.drawString(name, 0F, y + if (side.vertical == Side.Vertical.UP) -fontRenderer.FONT_HEIGHT.toFloat() else 0F, ClientTheme.getColor().rgb, shadow.get())
                         }
 
                         if (side.vertical == Side.Vertical.UP)

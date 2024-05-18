@@ -49,7 +49,7 @@ public class ClickGUIModule extends Module {
     @Override
     public void onEnable() {
         if (styleValue.get().equalsIgnoreCase("Astolfo")) {
-            mc.displayGuiScreen(new AstolfoClickGui());
+            mc.displayGuiScreen(AstolfoClickGui.Companion.getInstance());
         } else if (styleValue.get().equalsIgnoreCase("LB+")) {
             mc.displayGuiScreen(NewUi.Companion.getInstance());
             this.setState(false);

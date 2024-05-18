@@ -1,20 +1,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.flights.ncp;
 
 import net.ccbluex.liquidbounce.event.EventTarget;
-import net.ccbluex.liquidbounce.event.MoveEvent;
 import net.ccbluex.liquidbounce.event.UpdateEvent;
-import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlyMode;
+import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
 import net.ccbluex.liquidbounce.utils.*;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
 
-public class LatestNCP extends FlyMode{
+public class LatestNCP extends FlightMode {
     final BoolValue teleportValue = new BoolValue("Teleport", false);
     final BoolValue timerValue = new BoolValue("Timer", true);
     final FloatValue addValue = new FloatValue("AddSpeed", 0.0F, 0.0F, 1.5F);

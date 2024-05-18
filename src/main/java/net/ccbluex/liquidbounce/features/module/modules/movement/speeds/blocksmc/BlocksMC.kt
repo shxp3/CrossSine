@@ -1,45 +1,37 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.blocksmc
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
-import net.ccbluex.liquidbounce.utils.MovementUtils.setMotion
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.minecraft.potion.Potion
 
 
 class BlocksMC : SpeedMode("BlocksMC") {
 
-    private val DamageBoostValue = BoolValue("DamageBoost", true)
-    private val GroundBoost = BoolValue("GroundBoost", true)
-    private val lowHop = BoolValue("LowHop", false)
-    private var offGroundTicks = 0
-    private var onGroundTicks = 0
+    private val damageBoostValue = BoolValue("Damage-Boost", true)
+    private val damageCustomValue = BoolValue("Custom-Boost", false)
+    private val damageValue =  FloatValue("Boost-Value", 0.65F, 0.1F, 2F)
+    private val groundBoost = BoolValue("GroundBoost", true)
+    private val lowHopValue = BoolValue("LowHop", false)
     override fun onUpdate() {
-        if (mc.thePlayer.onGround) {
-            onGroundTicks++
-            offGroundTicks = 0
-        } else {
-            offGroundTicks++
-            onGroundTicks = 0
-        }
-        if (lowHop.get()) {
             if (isMoving()) {
-                if (mc.thePlayer.onGround) {
-                    strafe(0.356767f)
-                    setMotion(0.410)
+                if (lowHopValue.get() && mc.thePlayer.hurtTime > 0 && CrossSine.combatManager.inCombat) {
+                    strafe(0.45995554f)
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.jump()
+                        mc.thePlayer.motionY = 0.22
+                    } else if (mc.thePlayer.fallDistance < -0.20) {
+                        mc.thePlayer.motionY = -0.10
+                    }
+                } else if (mc.thePlayer.onGround) {
                     mc.thePlayer.jump()
-                } else mc.thePlayer.posY -= 0.1
-                // MovementUtils.strafe(0.376767);
-            }
-            setMotion(0.350)
-        } else {
-            if (isMoving()) {
-                if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
-                    if (GroundBoost.get()) {
+                    if (groundBoost.get()) {
                         if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                             strafe(0.5F)
                         } else {
@@ -50,12 +42,11 @@ class BlocksMC : SpeedMode("BlocksMC") {
                 if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                    strafe(MovementUtils.getSpeed())
                 } else strafe(0.375)
-                if (DamageBoostValue.get() && mc.thePlayer.hurtTime > 6 && CrossSine.combatManager.inCombat) {
-                    strafe(0.45995554f)
+                if (damageBoostValue.get() && mc.thePlayer.hurtTime > 6 && ((KillAura.state && KillAura.currentTarget != null) || (KillAura2.state && KillAura2.target != null))) {
+                    strafe(if (damageCustomValue.get()) damageValue.get() else 0.455F)
                 }
             } else {
                 MovementUtils.resetMotion(false)
             }
-        }
     }
 }

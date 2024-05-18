@@ -2,6 +2,8 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.elem
 
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
+import net.ccbluex.liquidbounce.utils.extensions.setAlpha
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import java.awt.Color
 
@@ -11,10 +13,9 @@ class Slider {
 
     fun onDraw(x: Float, y: Float, width: Float, accentColor: Color) {
         smooth = smooth.animSmooth(value, 0.5F)
-        ShaderUtil.drawRoundedRect(x - 1F, y - 1F, x + width + 1F, y + 1F, 1F, ColorManager.unusedSlider)
-        ShaderUtil.drawRoundedRect(x - 1F, y - 1F, x + width * (smooth / 100F) + 1F, y + 1F, 1F, accentColor)
-        ShaderUtil.drawFilledCircle(x + width * (smooth / 100F), y, 5F, Color.white)
-        ShaderUtil.drawFilledCircle(x + width * (smooth / 100F), y, 3F, ColorManager.background)
+        RenderUtils.drawRoundedRect(x - 1F, y - 1.5F, x + width + 1F, y + 1.5F, 1F, ColorManager.unusedSlider.rgb)
+        RenderUtils.drawRoundedRect(x - 1F, y - 1.5F, x + width * (smooth / 100F) + 1F, y + 1.5F, 1.4F, accentColor.setAlpha(100).rgb)
+        RenderUtils.drawFilledCircle(x + width * (smooth / 100F), y, 3F, accentColor)
     }
 
     fun setValue(desired: Float, min: Float, max: Float) {

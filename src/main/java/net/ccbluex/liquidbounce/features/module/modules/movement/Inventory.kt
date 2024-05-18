@@ -23,7 +23,7 @@ import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "Inventory", "Inventory", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "Inventory",  category = ModuleCategory.MOVEMENT)
 class  Inventory : Module() {
 
     private val noDetectableValue = BoolValue("NoDetectable", false)

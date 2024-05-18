@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
-@ModuleInfo(name = "AntiKnockback", spacedName = "AntiKnockback", category = ModuleCategory.GHOST)
-class AntiKnockBack : Module() {
+@ModuleInfo(name = "AntiKnockback",category = ModuleCategory.GHOST)
+object AntiKnockBack : Module() {
     private val xz = IntegerValue("X-Z", 0, 0, 100)
     private val y = IntegerValue("Y", 0, 0, 100)
     private val onlyGround = BoolValue("OnlyGround", false)
@@ -23,7 +23,7 @@ class AntiKnockBack : Module() {
         if (onlyAir.get() && mc.thePlayer.onGround) return
         val e = event.packet
         if (e is S12PacketEntityVelocity) {
-            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(e.entityID) ?: return) != mc.thePlayer) {
+            if (mc.thePlayer == null || e.entityID != mc.thePlayer.entityId) {
                 return
             }
             if (xz.get() == 0 && y.get() == 0) {
@@ -44,4 +44,7 @@ class AntiKnockBack : Module() {
                 e.motionZ = (e.getMotionZ() * xz.get() / 100)
         }
     }
+
+    override val tag: String?
+        get() = xz.get().toString() + "H"
 }

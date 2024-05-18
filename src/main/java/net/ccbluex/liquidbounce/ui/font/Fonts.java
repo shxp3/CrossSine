@@ -16,28 +16,21 @@ import java.util.List;
 
 public class Fonts {
 
-    @FontDetails(fontName = "Light", fontSize = 32, fileName = "regular.ttf")
+    @FontDetails(fontName = "Urbanist", fontSize = 18)
+    public static GameFontRenderer font18;
+    @FontDetails(fontName = "Urbanist", fontSize = 20)
+    public static GameFontRenderer font20;
+    @FontDetails(fontName = "Urbanist", fontSize = 24)
+    public static GameFontRenderer font24;
+    @FontDetails(fontName = "Urbanist", fontSize = 30)
+    public static GameFontRenderer font30;
+    @FontDetails(fontName = "Urbanist", fontSize = 32)
     public static GameFontRenderer font32;
-    public static TTFFontRenderer fontVerdana;
-
-    @FontDetails(fontName = "Roboto Medium", fontSize = 35)
+    @FontDetails(fontName = "Urbanist", fontSize = 35)
     public static GameFontRenderer font35;
-
-    @FontDetails(fontName = "Roboto Medium", fontSize = 40)
+    @FontDetails(fontName = "Urbanist", fontSize = 40)
     public static GameFontRenderer font40;
 
-    @FontDetails(fontName = "Roboto Medium", fontSize = 50)
-    public static GameFontRenderer font50;
-
-
-    @FontDetails(fontName = "Roboto Medium", fontSize = 30)
-    public static GameFontRenderer fontSmall;
-
-    @FontDetails(fontName = "Roboto Medium", fontSize = 24)
-    public static GameFontRenderer fontTiny;
-
-    @FontDetails(fontName = "Roboto Medium", fontSize = 52)
-    public static GameFontRenderer fontLarge;
 
     @FontDetails(fontName = "SF", fontSize = 35)
     public static GameFontRenderer fontSFUI35;
@@ -112,6 +105,16 @@ public class Fonts {
     @FontDetails(fontName = "SFApple50", fontSize = 50)
     public static GameFontRenderer SFApple50;
 
+    @FontDetails(fontName = "Nova24", fontSize = 24)
+    public static GameFontRenderer Nova24;
+    @FontDetails(fontName = "Nova30", fontSize = 30)
+    public static GameFontRenderer Nova30;
+    @FontDetails(fontName = "Nova35", fontSize = 35)
+    public static GameFontRenderer Nova35;
+    @FontDetails(fontName = "Nova40", fontSize = 40)
+    public static GameFontRenderer Nova40;
+    @FontDetails(fontName = "Nova50", fontSize = 50)
+    public static GameFontRenderer Nova50;
 
 
     private static final List<GameFontRenderer> CUSTOM_FONT_RENDERERS = new ArrayList<>();
@@ -121,26 +124,18 @@ public class Fonts {
 
         ClientUtils.INSTANCE.logInfo("Loading Fonts.");
 
-        font35 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 35));
-        font40 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 40));
-        font50 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 50));
-        fontSmall = new GameFontRenderer(getFont("Roboto-Medium.ttf", 30));
-        fontTiny = new GameFontRenderer(getFont("Roboto-Medium.ttf", 24));
-        fontLarge = new GameFontRenderer(getFont("Roboto-Medium.ttf", 60));
         fontSFUI35 = new GameFontRenderer(getFont("SF.ttf", 35));
         fontSFUI40 = new GameFontRenderer(getFont("SF.ttf", 40));
         SFUI35 = new GameFontRenderer(getFont("SF.ttf", 18));
         fontSFUI35 = new GameFontRenderer(getFont("SF.ttf", 35));
         fontSFUI40 = new GameFontRenderer(getFont("SF.ttf", 40));
         fontTahomaSmall = new TTFFontRenderer(getFont("Tahoma.ttf", 11));
-        fontVerdana = new TTFFontRenderer(getFont("Verdana.ttf", 7));
-        // fonts above here may not work as this is a test
         fontBangers = new GameFontRenderer(getFontcustom(45, "Bangers"));
         fontTenacity35 = new GameFontRenderer(getFontcustom(35, "tenacity"));
         fontTenacityBold35 = new GameFontRenderer(getFontcustom(35, "tenacity-bold"));
         fontTenacityIcon30 = new GameFontRenderer(getFontcustom(30, "Tenacityicon"));
-        fontTenacity40 = new GameFontRenderer(getFontcustom(40,"tenacity"));
-        fontTenacityBold40 = new GameFontRenderer(getFontcustom(40,"tenacity-bold"));
+        fontTenacity40 = new GameFontRenderer(getFontcustom(40, "tenacity"));
+        fontTenacityBold40 = new GameFontRenderer(getFontcustom(40, "tenacity-bold"));
         fontComfortaa35 = new GameFontRenderer(getFontcustom(35, "Comfortaa"));
         fontComfortaa40 = new GameFontRenderer(getFontcustom(40, "Comfortaa"));
         fontRockoFLF35 = new GameFontRenderer(getFontcustom(35, "RockoFLF-Bold"));
@@ -156,22 +151,34 @@ public class Fonts {
         SFApple35 = new GameFontRenderer(getFontcustom(35, "SFApple"));
         SFApple50 = new GameFontRenderer(getFontcustom(50, "SFApple"));
         SFApple24 = new GameFontRenderer(getFontcustom(24, "SFApple"));
+        Nova40 = new GameFontRenderer(getFontcustom(40, "ProximaNovaLight"));
+        Nova30 = new GameFontRenderer(getFontcustom(30, "ProximaNovaLight"));
+        Nova35 = new GameFontRenderer(getFontcustom(35, "ProximaNovaLight"));
+        Nova50 = new GameFontRenderer(getFontcustom(50, "ProximaNovaLight"));
+        Nova24 = new GameFontRenderer(getFontcustom(24, "ProximaNovaLight"));
 
+        font18 = new GameFontRenderer(getFontcustom(18, "Urbanist-Medium"));
+        font20 = new GameFontRenderer(getFontcustom(20, "Urbanist-Medium"));
+        font24 = new GameFontRenderer(getFontcustom(24, "Urbanist-Medium"));
+        font30 = new GameFontRenderer(getFontcustom(30, "Urbanist-Medium"));
+        font32 = new GameFontRenderer(getFontcustom(32, "Urbanist-Medium"));
+        font35 = new GameFontRenderer(getFontcustom(35, "Urbanist-Medium"));
+        font40 = new GameFontRenderer(getFontcustom(40, "Urbanist-Medium"));
 
         getCustomFonts();
 
         initFonts();
 
-        for(final Field field : Fonts.class.getDeclaredFields()) {
+        for (final Field field : Fonts.class.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
                 final FontDetails fontDetails = field.getAnnotation(FontDetails.class);
 
-                if(fontDetails!=null) {
-                    if(!fontDetails.fileName().isEmpty())
-                        field.set(null,new GameFontRenderer(getFont(fontDetails.fileName(), fontDetails.fontSize())));
+                if (fontDetails != null) {
+                    if (!fontDetails.fileName().isEmpty())
+                        field.set(null, new GameFontRenderer(getFont(fontDetails.fileName(), fontDetails.fontSize())));
                 }
-            }catch(final IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -181,30 +188,28 @@ public class Fonts {
 
             final File fontsFile = new File(CrossSine.fileManager.getFontsDir(), "fonts.json");
 
-            if(fontsFile.exists()) {
+            if (fontsFile.exists()) {
                 final JsonElement jsonElement = new JsonParser().parse(new BufferedReader(new FileReader(fontsFile)));
 
-                if(jsonElement instanceof JsonNull)
-                    return;
+                if (jsonElement instanceof JsonNull) return;
 
                 final JsonArray jsonArray = (JsonArray) jsonElement;
 
-                for(final JsonElement element : jsonArray) {
-                    if(element instanceof JsonNull)
-                        return;
+                for (final JsonElement element : jsonArray) {
+                    if (element instanceof JsonNull) return;
 
                     final JsonObject fontObject = (JsonObject) element;
 
                     CUSTOM_FONT_RENDERERS.add(new GameFontRenderer(getFont(fontObject.get("fontFile").getAsString(), fontObject.get("fontSize").getAsInt())));
                 }
-            }else{
+            } else {
                 fontsFile.createNewFile();
 
                 final PrintWriter printWriter = new PrintWriter(new FileWriter(fontsFile));
                 printWriter.println(new GsonBuilder().setPrettyPrinting().create().toJson(new JsonArray()));
                 printWriter.close();
             }
-        }catch(final Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
@@ -213,101 +218,29 @@ public class Fonts {
 
     private static void initFonts() {
         try {
-            initSingleFont("regular.ttf", "assets/minecraft/crosssine/font/regular.ttf");
-        }catch(IOException e) {
+            initSingleFont("Urbanist-Light.ttf", "assets/minecraft/crosssine/font/Urbanist-Light.ttf");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static Font getFontcustom(int size,String fontname) {
+    private static Font getFontcustom(int size, String fontname) {
         Font font;
         try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager()
-                    .getResource(new ResourceLocation("crosssine/font/"+fontname+".ttf")).getInputStream();
+            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("crosssine/font/" + fontname + ".ttf")).getInputStream();
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("Error loading font");
             font = new Font("default", 0, size);
-        }
-        return font;
-    }
-    private static Font getFont1(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager()
-                    .getResource(new ResourceLocation("crosssine/font/icon.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("default", 0, size);
-        }
-        return font;
-    }
-    private static Font getFont2(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager()
-                    .getResource(new ResourceLocation("crosssine/font/regular.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("defualt", 0, size);
-        }
-        return font;
-    }
-    private static Font getFont3(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager()
-                    .getResource(new ResourceLocation("crosssine/font/SFBOLD.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("SFBold", 0, size);
-        }
-        return font;
-    }
-    private static Font getFont4(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager()
-                    .getResource(new ResourceLocation("crosssine/font/tenacity.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("SFBold", 0, size);
-        }
-        return font;
-    }
-    private static Font getFont5(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager()
-                    .getResource(new ResourceLocation("crosssine/font/tenacity-bold.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("SFBold", 0, size);
         }
         return font;
     }
 
     private static void initSingleFont(String name, String resourcePath) throws IOException {
-        File file=new File(CrossSine.fileManager.getFontsDir(), name);
-        if(!file.exists())
-            FileUtils.INSTANCE.unpackFile(file, resourcePath);
+        File file = new File(CrossSine.fileManager.getFontsDir(), name);
+        if (!file.exists()) FileUtils.INSTANCE.unpackFile(file, resourcePath);
     }
 
     public static FontRenderer getFontRenderer(final String name, final int size) {
@@ -320,8 +253,7 @@ public class Fonts {
                 if (o instanceof FontRenderer) {
                     final FontDetails fontDetails = field.getAnnotation(FontDetails.class);
 
-                    if (fontDetails.fontName().equals(name) && fontDetails.fontSize() == size)
-                        return (FontRenderer) o;
+                    if (fontDetails.fontName().equals(name) && fontDetails.fontSize() == size) return (FontRenderer) o;
                 }
             } catch (final IllegalAccessException e) {
                 e.printStackTrace();
@@ -331,8 +263,7 @@ public class Fonts {
         for (final GameFontRenderer liquidFontRenderer : CUSTOM_FONT_RENDERERS) {
             final Font font = liquidFontRenderer.getDefaultFont().getFont();
 
-            if (font.getName().equals(name) && font.getSize() == size)
-                return liquidFontRenderer;
+            if (font.getName().equals(name) && font.getSize() == size) return liquidFontRenderer;
         }
 
         return minecraftFont;
@@ -348,7 +279,7 @@ public class Fonts {
                 if (o.equals(fontRenderer)) {
                     final FontDetails fontDetails = field.getAnnotation(FontDetails.class);
 
-                    return new Object[] {fontDetails.fontName(), fontDetails.fontSize()};
+                    return new Object[]{fontDetails.fontName(), fontDetails.fontSize()};
                 }
             } catch (final IllegalAccessException e) {
                 e.printStackTrace();
@@ -358,7 +289,7 @@ public class Fonts {
         if (fontRenderer instanceof GameFontRenderer) {
             final Font font = ((GameFontRenderer) fontRenderer).getDefaultFont().getFont();
 
-            return new Object[] {font.getName(), font.getSize()};
+            return new Object[]{font.getName(), font.getSize()};
         }
 
         return null;
@@ -367,14 +298,14 @@ public class Fonts {
     public static List<FontRenderer> getFonts() {
         final List<FontRenderer> fonts = new ArrayList<>();
 
-        for(final Field fontField : Fonts.class.getDeclaredFields()) {
+        for (final Field fontField : Fonts.class.getDeclaredFields()) {
             try {
                 fontField.setAccessible(true);
 
                 final Object fontObj = fontField.get(null);
 
-                if(fontObj instanceof FontRenderer) fonts.add((FontRenderer) fontObj);
-            }catch(final IllegalAccessException e) {
+                if (fontObj instanceof FontRenderer) fonts.add((FontRenderer) fontObj);
+            } catch (final IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -387,14 +318,14 @@ public class Fonts {
     public static List<GameFontRenderer> getCustomFonts() {
         final List<GameFontRenderer> fonts = new ArrayList<>();
 
-        for(final Field fontField : Fonts.class.getDeclaredFields()) {
+        for (final Field fontField : Fonts.class.getDeclaredFields()) {
             try {
                 fontField.setAccessible(true);
 
                 final Object fontObj = fontField.get(null);
 
-                if(fontObj instanceof GameFontRenderer) fonts.add((GameFontRenderer) fontObj);
-            }catch(final IllegalAccessException e) {
+                if (fontObj instanceof GameFontRenderer) fonts.add((GameFontRenderer) fontObj);
+            } catch (final IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -411,7 +342,7 @@ public class Fonts {
             awtClientFont = awtClientFont.deriveFont(Font.PLAIN, size);
             inputStream.close();
             return awtClientFont;
-        }catch(final Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
 
             return new Font("default", Font.PLAIN, size);

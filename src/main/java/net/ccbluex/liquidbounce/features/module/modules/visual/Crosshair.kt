@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-@ModuleInfo(name = "Crosshair", spacedName = "Crosshair", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Crosshair",  category = ModuleCategory.VISUAL)
 object Crosshair : Module() {
 
     // Size, width, hitmarker

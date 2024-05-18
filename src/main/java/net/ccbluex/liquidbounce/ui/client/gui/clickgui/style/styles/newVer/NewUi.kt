@@ -2,26 +2,24 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.CategoryElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.GuiTheme
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
 import net.ccbluex.liquidbounce.utils.MouseUtils.mouseWithinBounds
-import net.ccbluex.liquidbounce.utils.extensions.setAlpha
 import net.ccbluex.liquidbounce.utils.geom.Rectangle
-import net.ccbluex.liquidbounce.utils.render.GlowUtils
+import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.MathHelper
 import org.apache.commons.lang3.tuple.MutablePair
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.io.IOException
 import java.util.function.Consumer
@@ -31,7 +29,7 @@ import kotlin.math.abs
  * @author inf (original java code)
  * @author pie (refactored)
  */
-class NewUi private constructor() : GuiScreen() {
+class NewUi : GuiScreen() {
     private val categoryElements: MutableList<CategoryElement> = ArrayList()
     private var startYAnim = height / 2f
     private var endYAnim = height / 2f
@@ -39,7 +37,6 @@ class NewUi private constructor() : GuiScreen() {
 
     private val backgroundColor = Color(16, 16, 16, 255)
     private val backgroundColor2 = Color(40, 40, 40, 255)
-    // 30
 
     var windowXStart = 30f
     var windowYStart = 30f
@@ -80,16 +77,15 @@ class NewUi private constructor() : GuiScreen() {
     private var y2 = 0f
     private var xHoldOffset = 0f
     private var yHoldOffset = 0f
-//    private var xAnimDelta = 0f
-//    private var yAnimDelta = 0f
-//    private var lastMouseX = 0f
-//    private var lastMouseY = 0f
 
     private val moveAera
         get() = Rectangle(windowXStart, windowYStart, windowWidth - 20f, 20f)
     private val splitArea
         get() = Rectangle(windowXStart + sideWidth - 5, windowYStart, 10f, windowHeight)
 
+    private var closed = false
+    var cant = false
+    private var animProgress = 0F
 
     init {
         ModuleCategory.values().forEach { categoryElements.add(CategoryElement(it)) }
@@ -126,7 +122,7 @@ class NewUi private constructor() : GuiScreen() {
         return result.toPair()
     }
 
-    private fun handleMove(mouseX: Int, mouseY: Int) { // handling move here? yeah prob
+    private fun handleMove(mouseX: Int, mouseY: Int) {
         if (moveDragging) {
             val w = windowWidth
             val h = windowHeight
@@ -208,24 +204,35 @@ class NewUi private constructor() : GuiScreen() {
         moveDragging = false
         resizeDragging = false
         splitDragging = false
+        closed = false
+        animProgress = 0F
         Keyboard.enableRepeatEvents(false)
         CrossSine.fileManager.saveConfigs()
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        animProgress += (0.0075F * 0.25F * RenderUtils.deltaTime * if (closed) -1F else 1F)
+        animProgress = animProgress.coerceIn(0F, 1F)
+        if (closed && animProgress == 0F) {
+            mc.displayGuiScreen(null)
+        }
+        val percent = EaseUtils.easeOutBack(animProgress.toDouble()).toFloat()
+        GL11.glPushMatrix()
+        GL11.glScalef(percent, percent, percent)
+        GL11.glTranslatef(((windowXEnd * 0.5f * (1 - percent)) / percent), ((windowYEnd * 0.5f * (1 - percent)) / percent), 0.0F)
         handleMisc()
         handleMove(mouseX, mouseY)
         handleResize(mouseX, mouseY)
         handleSplit(mouseX)
         drawFullSized(mouseX, mouseY, partialTicks, ClientTheme.getColor(1))
+        GL11.glPopMatrix()
     }
 
     private fun drawFullSized(mouseX: Int, mouseY: Int, partialTicks: Float, accentColor: Color, xOffset: Float = 0f, yOffset: Float = 0f) {
         val windowRadius = 4f
-        ShaderUtil.drawRoundedRect((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYEnd + yOffset), windowRadius, backgroundColor)
+        RenderUtils.drawRoundedRect((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYEnd + yOffset), windowRadius, backgroundColor.rgb)
         RenderUtils.customRounded((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYStart + yOffset) + 20f, windowRadius, windowRadius, 0f, 0f, backgroundColor2.rgb)
 
-        // something to make it look more like windoze - inf, 2022
         if (mouseX.toFloat() in (windowXEnd - 20F)..(windowXEnd) && mouseY.toFloat() in (windowYStart)..(windowYStart + 20F))
             RenderUtils.customRounded((windowXEnd + xOffset) - 20f, (windowYStart + yOffset), (windowXEnd + xOffset), (windowYStart + yOffset) + 20f, 0f, windowRadius, 0f, 0f, xButtonColor.rgb)
         GlStateManager.disableAlpha()
@@ -234,12 +241,10 @@ class NewUi private constructor() : GuiScreen() {
         RenderUtils.drawImage(IconManager.paint, (windowXStart + xOffset).toInt() + 6, (windowYEnd + yOffset).toInt() - 60, 24,24)
         GlStateManager.enableAlpha()
 
-        // reset search pos
         searchElement!!.xPos = (windowXStart + xOffset) + searchXOffset
         searchElement!!.yPos = (windowYStart + yOffset) + searchYOffset
         searchElement!!.width = searchWidth
 
-        // taken from searchBox's constructor
         searchElement!!.searchBox.width = searchWidth.toInt() - 4
         searchElement!!.searchBox.xPosition = ((windowXStart + xOffset) + searchXOffset + 2).toInt()
         searchElement!!.searchBox.yPosition = ((windowYStart + yOffset) + searchYOffset + 2).toInt()
@@ -274,26 +279,24 @@ class NewUi private constructor() : GuiScreen() {
                                     (if (endYAnim - (startY + elementHeight - 5f) < 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
                                 )
                 ce.drawPanel(mouseX, mouseY, (windowXStart + xOffset) + categoryXOffset, (windowYStart + yOffset) + categoriesTopMargin, windowWidth - categoryXOffset, windowHeight - categoriesBottommargin, Mouse.getDWheel(), accentColor)
-                Fonts.SFApple40.drawString(ce.name, (windowXStart + xOffset) + 7, (windowYStart + yOffset) + 7, -1)
+                Fonts.SFApple40.drawStringWithShadow(ce.name, (windowXStart + xOffset) + 7, (windowYStart + yOffset) + 7, -1)
             }
             startY += elementHeight
         }
         val offset = 8f
         val drawYStart = if (resizeDragging || moveDragging) lastFastYStart else startYAnim
         val drawYEnd = if (resizeDragging || moveDragging) lastFastYEnd else endYAnim
-        ShaderUtil.drawRoundedRect((windowXStart + xOffset) + 2f + offset, drawYStart, (windowXStart + xOffset) + 4f + offset, drawYEnd, 1f, accentColor)
+        RenderUtils.drawRoundedRect((windowXStart + xOffset) + 2f + offset, drawYStart, (windowXStart + xOffset) + 4f + offset, drawYEnd, 1f, accentColor.rgb)
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
     @Throws(IOException::class)
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        // search back button
         if (searchElement!!.isTyping() && Rectangle(windowXStart, windowYStart, 60f, 24f).contains(mouseX, mouseY)) {
             searchElement!!.searchBox.text = ""
             return
         }
 
-        // window move
         if (moveAera.contains(mouseX, mouseY) && !moveDragging) {
             moveDragging = true
             x2 = windowXStart - mouseX
@@ -301,7 +304,6 @@ class NewUi private constructor() : GuiScreen() {
             return
         }
 
-        // close button
         if (Rectangle(windowXEnd - 20, windowYStart, 20f, 20f).contains(mouseX, mouseY)) {
             mc.displayGuiScreen(null)
             return
@@ -310,13 +312,16 @@ class NewUi private constructor() : GuiScreen() {
             mc.displayGuiScreen(GuiHudDesigner())
             return
         }
+        if (Rectangle(windowXStart, windowYEnd - 80, 40f, 40f).contains(mouseX, mouseY)) {
+            mc.displayGuiScreen(GuiTheme())
+            return
+        }
 
         if (splitArea.contains(mouseX, mouseY)) {
             splitDragging = true
             return
         }
 
-        // window resize
         val quad2 = determineQuadrant(mouseX, mouseY)
         if (quad2.first != 0 && quad2.second != 0) {
             quad = quad2
@@ -365,10 +370,13 @@ class NewUi private constructor() : GuiScreen() {
 
     @Throws(IOException::class)
     override fun keyTyped(typedChar: Char, keyCode: Int) {
+        if (keyCode == 1 && !cant) {
+            closed = true
+            return
+        }
         categoryElements.filter { it.focused }.forEach { cat ->
             if (cat.handleKeyTyped(typedChar, keyCode)) return
         }
-
         if (searchElement!!.handleTyping(typedChar, keyCode, windowXStart + categoryXOffset, windowYStart + categoriesTopMargin, windowWidth - categoryXOffset, windowHeight - categoriesBottommargin, categoryElements))
             return
         super.keyTyped(typedChar, keyCode)

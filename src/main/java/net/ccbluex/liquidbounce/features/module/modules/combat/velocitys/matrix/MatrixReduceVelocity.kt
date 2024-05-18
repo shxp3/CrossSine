@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
 
 class MatrixReduceVelocity : VelocityMode("MatrixReduce") {
-    override fun onVelocity(event: UpdateEvent) {
+    override fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.hurtTime > 0) {
             if (mc.thePlayer.onGround) {
                 if (mc.thePlayer.hurtTime <= 6) {

@@ -14,7 +14,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-@ModuleInfo(name = "Strafe", spacedName = "Strafe", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "Strafe",  category = ModuleCategory.MOVEMENT)
 class Strafe : Module() {
 
     private var strengthValue= FloatValue("Strength", 0.5F, 0F, 1F)

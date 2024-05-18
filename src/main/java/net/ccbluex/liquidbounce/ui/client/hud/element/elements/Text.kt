@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.input.Keyboard
@@ -107,7 +108,7 @@ class Text(
             "deaths" -> StatisticsUtils.getDeaths().toString()
             "username" -> mc.getSession().username
             "clientName" -> CrossSine.CLIENT_NAME
-            "clientVersion" -> CrossSine.CLIENT_VERSION
+            "clientVersion" -> "B" + CrossSine.CLIENT_VERSION
             "clientCreator" -> CrossSine.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())

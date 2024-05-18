@@ -101,7 +101,7 @@ class RavenB4TH(inst: TargetHUD) : TargetStyle("RavenB4", inst, true) {
             RenderUtils.drawRoundedGradientRectCorner(
                 5F,
                 25F,
-                8F + (entity.health / 20) * (length + hplength + 10F),
+                8F + (easingHealth / 20) * (length + hplength + 10F),
                 29.5F,
                 4F,
                 ClientTheme.setColor("START", fadeAlpha(255)).rgb,

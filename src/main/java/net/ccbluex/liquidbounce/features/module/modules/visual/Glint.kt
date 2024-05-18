@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import java.awt.Color
 
-@ModuleInfo(name = "Glint", spacedName = "Glint", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Glint", category = ModuleCategory.VISUAL)
 class Glint : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Theme", "AnotherRainbow", "Custom"), "Custom")

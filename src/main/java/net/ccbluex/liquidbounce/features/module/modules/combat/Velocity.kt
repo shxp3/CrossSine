@@ -18,8 +18,8 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
 
-@ModuleInfo(name = "Velocity", "Velocity",category = ModuleCategory.COMBAT)
-class Velocity : Module() {
+@ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
+object Velocity : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
         .map { it.newInstance() as VelocityMode }
         .sortedBy { it.modeName }
@@ -39,7 +39,7 @@ class Velocity : Module() {
     val h = FloatValue("Horizontal", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
     val v = FloatValue("Vertical", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
     val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") }
-    private val m = BoolValue("StandardTag", false).displayable { modeValue.equals("Standard") }
+    private val m = ListValue("StandardTag", arrayOf("Text", "Percent"),"Text").displayable { modeValue.equals("Standard") }
     private val og = BoolValue("OnlyGround", false)
     private val oc = BoolValue("OnlyCombat", false)
     private val om = BoolValue("OnlyMove", false)
@@ -91,17 +91,6 @@ class Velocity : Module() {
             return
         }
         if (noFireValue.get() && mc.thePlayer.isBurning) return
-        mode.onVelocity(event)
-    }
-
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        mode.onMotion(event)
-    }
-
-    @EventTarget
-    fun onStrafe(event: StrafeEvent){
-        mode.onStrafe(event)
     }
 
     @EventTarget
@@ -126,40 +115,14 @@ class Velocity : Module() {
 
     }
 
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
-        mode.onWorld(event)
-    }
-
-    @EventTarget
-    fun onMove(event: MoveEvent) {
-        mode.onMove(event)
-    }
-
-    @EventTarget
-    fun onBlockBB(event: BlockBBEvent) {
-        mode.onBlockBB(event)
-    }
-
-    @EventTarget
-    fun onJump(event: JumpEvent) {
-        mode.onJump(event)
-    }
-
-    @EventTarget
-    fun onStep(event: StepEvent) {
-        mode.onStep(event)
-    }
     override val tag: String
         get() = if (modeValue.get() == "Standard") {
-            if (m.get()) {
-                modeValue.get()
-            } else {
-                "${DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(v.get())}% ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(h.get())}%"
+            when (m.get()) {
+                "Text" -> "Standard"
+                "Percent" ->  "${DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(v.get())}% ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(h.get())}%"
+                else -> ""
             }
-        }
-            else
-            modeValue.get()
+        } else modeValue.get()
 
     /**
      * 读取mode中的value并和本体中的value合并

@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.Velocit
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 class AAC4ReduceVelocity : VelocityMode("AAC4Reduce") {
-    override fun onVelocity(event: UpdateEvent) {
+    override fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.hurtTime> 0 && !mc.thePlayer.onGround && velocity.velocityInput && velocity.velocityTimer.hasTimePassed(80L)) {
             mc.thePlayer.motionX *= 0.62
             mc.thePlayer.motionZ *= 0.62

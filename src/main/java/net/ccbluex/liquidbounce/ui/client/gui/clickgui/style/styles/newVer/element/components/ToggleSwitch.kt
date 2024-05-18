@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.elem
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animLinear
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import java.awt.Color
 
 class ToggleSwitch {
@@ -16,8 +15,8 @@ class ToggleSwitch {
         val mainColor = BlendUtils.blendColors(floatArrayOf(0F, 1F), arrayOf(bgColor, accentColor), smooth)
         val switchColor = BlendUtils.blendColors(floatArrayOf(0F, 1F), arrayOf(Color(160, 160, 160), bgColor), smooth)
 
-        ShaderUtil.drawRoundedRect(x - 0.5F, y - 0.5F, x + width + 0.5F, y + height + 0.5F, (height + 1F) / 2F, borderColor)
-        ShaderUtil.drawRoundedRect(x, y, x + width, y + height, height / 2F, mainColor)
-        ShaderUtil.drawFilledCircle(x + (1F - smooth) * (2F + (height - 4F) / 2F) + smooth * (width - 2F - (height - 4F) / 2F), y + 2F + (height - 4F) / 2F, (height - 4F) / 2F, switchColor)
+        RenderUtils.drawRoundedRect(x - 0.5F, y - 0.5F, x + width + 0.5F, y + height + 0.5F, (height + 1F) / 2F, borderColor.rgb)
+        RenderUtils.drawRoundedRect(x, y, x + width, y + height, height / 2F, mainColor.rgb)
+        RenderUtils.drawFilledCircle(x + (1F - smooth) * (2F + (height - 4F) / 2F) + smooth * (width - 2F - (height - 4F) / 2F), y + 2F + (height - 4F) / 2F, (height - 4F) / 2F, switchColor)
     }
 }

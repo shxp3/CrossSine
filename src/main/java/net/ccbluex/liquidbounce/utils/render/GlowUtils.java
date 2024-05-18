@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.utils.render;
 
+import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import org.lwjgl.opengl.GL11;
@@ -15,6 +16,7 @@ public class GlowUtils {
     private static HashMap<Integer, Integer> shadowCache = new HashMap<Integer, Integer>();
 
     public static void drawGlow(float x, float y, float width, float height, int blurRadius, Color color) {
+        if (!Interface.INSTANCE.getShaders().get()) return;
         glPushMatrix();
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.01f);
 

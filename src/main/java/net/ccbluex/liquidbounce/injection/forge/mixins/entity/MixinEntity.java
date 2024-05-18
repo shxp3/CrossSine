@@ -84,8 +84,7 @@ public abstract class MixinEntity {
     public World worldObj;
 
     @Shadow
-    public void moveEntity(double x, double y, double z) {
-    }
+    public void moveEntity(double x, double y, double z) {}
 
     @Shadow
     public boolean isInWeb;
@@ -189,9 +188,8 @@ public abstract class MixinEntity {
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
         final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
-        //alert("Strafe: " + strafe + " Forward: " + forward + " Factor: " + friction + " DoFix: " + strafeFix.getDoFix());
         CrossSine.eventManager.callEvent(strafeEvent);
-        if (movementFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
+        if (movementFix.getDoFix()) {
             movementFix.runStrafeFixLoop(movementFix.getSilentFix(), strafeEvent);
         }
 

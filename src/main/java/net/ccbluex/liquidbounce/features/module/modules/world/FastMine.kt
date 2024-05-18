@@ -13,7 +13,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
-@ModuleInfo(name = "FastMine", spacedName = "Fast Mine", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "FastMine", category = ModuleCategory.WORLD)
 class FastMine : Module() {
     private val speedValue = FloatValue("Speed", 1.5f, 1f, 3f)
     private var facing: EnumFacing? = null

@@ -16,10 +16,10 @@ import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.C03PacketPlayer
 
-@ModuleInfo(name = "FastUse", spacedName = "Fast Use", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "FastUse", category = ModuleCategory.PLAYER)
 class FastUse : Module() {
 
-    private val modeValue = ListValue("Mode", arrayOf("NCP","Instant", "Timer", "CustomDelay", "DelayedInstant", "MinemoraTest", "AAC", "NewAAC","Medusa","Matrix","Fast"), "DelayedInstant")
+    private val modeValue = ListValue("Mode", arrayOf("NCP","Instant", "Timer", "CustomDelay", "DelayedInstant", "MinemoraTest", "AAC", "NewAAC","Medusa","Matrix","Fast", "BlocksMC"), "DelayedInstant")
     private val timerValue = FloatValue("Timer", 1.22F, 0.1F, 2.0F).displayable { modeValue.equals("Timer") }
     private val durationValue = IntegerValue("InstantDelay", 14, 0, 35).displayable { modeValue.equals("DelayedInstant") }
     private val delayValue = IntegerValue("CustomDelay", 0, 0, 300).displayable { modeValue.equals("CustomDelay") }
@@ -92,7 +92,20 @@ class FastUse : Module() {
                         send(5)
                     }
                 }
-                
+                "blocksmc" -> {
+                    for (i in 0 until 2) {
+                        mc.netHandler.addToSendQueue(
+                            C03PacketPlayer.C06PacketPlayerPosLook(
+                                mc.thePlayer.posX,
+                                mc.thePlayer.posY,
+                                mc.thePlayer.posZ,
+                                mc.thePlayer.rotationYaw,
+                                mc.thePlayer.rotationPitch,
+                                mc.thePlayer.onGround
+                            )
+                        )
+                    }
+                }
                 "medusa" -> {
                     if (mc.thePlayer.itemInUseDuration > 5 || !msTimer.hasTimePassed(360L))
                         return
@@ -160,17 +173,6 @@ class FastUse : Module() {
             }
         }
     }
-
-    // @EventTarget
-    // fun onMove(event: MoveEvent?) {
-    //     if (event == null) return
-
-    //     if (!mc.thePlayer.isUsingItem || !modeValue.get().lowercase()=="aac") return
-    //     val usingItem1 = mc.thePlayer.itemInUse.item
-    //     if ((usingItem1 is ItemFood || usingItem1 is ItemBucketMilk || usingItem1 is ItemPotion))
-    //         event.zero()
-    // }
-
     override fun onDisable() {
         if (usedTimer) {
             mc.timer.timerSpeed = 1F

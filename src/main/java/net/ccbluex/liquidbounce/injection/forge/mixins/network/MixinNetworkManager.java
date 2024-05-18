@@ -9,7 +9,6 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.special.ProxyManager;
 import net.ccbluex.liquidbounce.utils.BlinkUtils;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
@@ -40,29 +39,14 @@ public abstract class MixinNetworkManager {
     /**
      * show player head in tab bar
      */
-    @Inject(method = "getIsencrypted", at = @At("HEAD"), cancellable = true)
-    private void getIsencrypted(CallbackInfoReturnable<Boolean> cir) {
-        if(Animations.INSTANCE.getFlagRenderTabOverlay()) {
-            cir.setReturnValue(true);
-        }
-    }
-
     @Overwrite
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception {
-        final PacketEvent event = new PacketEvent(p_channelRead0_2_, PacketEvent.Type.RECEIVE);
-        if (FakeLag.INSTANCE.shouldPacketBeSpoofed(p_channelRead0_2_)) {
-            try {
-              FakeLag.INSTANCE.spoofPacket(p_channelRead0_2_);
-            } catch (Exception ignored) {}
-        } else {
-            if (FakeLag.INSTANCE.getState()) {
+        PacketEvent event = new PacketEvent(p_channelRead0_2_, PacketEvent.Type.RECEIVE);
+            if (FakeLag.INSTANCE.getState() && (FakeLag.INSTANCE.getModeValue().equals("Automatic") || FakeLag.INSTANCE.getModeValue().equals("Manual"))) {
                 try {
-                    FakeLag.INSTANCE.onPacket(event);
-                } catch (Exception e) {
-                    //Minecraft.logger.error("Exception caught in BackTrack", e);
-                }
+                    FakeLag.INSTANCE.fakeLagPacket(event);
+                } catch (Exception ignored) {}
             }
-        }
         CrossSine.eventManager.callEvent(event);
 
         if(event.isCancelled())
@@ -70,10 +54,8 @@ public abstract class MixinNetworkManager {
         if (this.channel.isOpen()) {
             try {
                 p_channelRead0_2_.processPacket(this.packetListener);
-            } catch (ThreadQuickExitException var4) {
-            }
+            } catch (ThreadQuickExitException var4) {}
         }
-
     }
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)

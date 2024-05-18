@@ -8,12 +8,9 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.minecraft.network.play.server.S45PacketTitle
 
-@ModuleInfo(name = "NoRender", spacedName = "No Render", category = ModuleCategory.VISUAL, array = false)
+@ModuleInfo(name = "NoRender",  category = ModuleCategory.VISUAL, array = false)
 object NoRender : Module() {
-    val confusionEffect = BoolValue("Confusion", true)
-    val pumpkinEffect = BoolValue("Pumpkin", true)
     val fireEffect = BoolValue("Fire", true)
-    val scoreBoard = BoolValue("Scoreboard", false)
     val bossHealth = BoolValue("Boss-Health", false)
     private val titleValue = BoolValue("Title", false)
 

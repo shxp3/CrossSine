@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 
-@ModuleInfo(name = "ViaVersionFix", spacedName = "ViaVersion Fix", category = ModuleCategory.OTHER)
+@ModuleInfo(name = "ViaVersionFix",  category = ModuleCategory.OTHER)
 class ViaVersionFix : Module() {
     override fun onEnable() {
         CrossSine.hud.addNotification(

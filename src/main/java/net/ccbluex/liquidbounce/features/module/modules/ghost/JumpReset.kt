@@ -8,12 +8,12 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 
-@ModuleInfo(name = "JumpReset", "JumpReset", category = ModuleCategory.GHOST)
+@ModuleInfo(name = "JumpReset",  category = ModuleCategory.GHOST)
 class JumpReset : Module() {
     private val onMouse = BoolValue("onMouseDown", false)
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer.hurtTime > 8 && mc.thePlayer.onGround && combatManager.inCombat && !mc.thePlayer.isBurning) {
+        if (mc.thePlayer.hurtTime >= 9 && mc.thePlayer.onGround && combatManager.inCombat && !mc.thePlayer.isBurning) {
             if (!onMouse.get() || mc.gameSettings.keyBindAttack.isKeyDown){ mc.thePlayer.jump() }
         }
     }

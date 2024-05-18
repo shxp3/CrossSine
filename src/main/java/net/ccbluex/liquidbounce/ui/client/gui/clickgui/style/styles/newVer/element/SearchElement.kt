@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.exten
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.ccbluex.liquidbounce.utils.render.Stencil
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
@@ -27,7 +26,7 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
     fun drawBox(mouseX: Int, mouseY: Int, accentColor: Color): Boolean {
 //        RoundedRectShader.draw(xPos - 0.5F, yPos - 0.5F, xPos + width + 0.5F, yPos + height + 0.5F, 4F, ColorManager.buttonOutline)
         Stencil.write(true)
-        ShaderUtil.drawRoundedRect(xPos, yPos, xPos + width, yPos + height, 4F, ColorManager.textBox)
+        RenderUtils.drawRoundedRect(xPos, yPos, xPos + width, yPos + height, 4F, ColorManager.textBox.rgb)
         Stencil.erase(true)
         if (searchBox.isFocused) {
             RenderUtils.newDrawRect(xPos, yPos + height - 1F, xPos + width, yPos + height, accentColor.rgb)
@@ -74,7 +73,7 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
         drawScroll(x, y + startYY, w, h)
 
 
-        Fonts.SFApple30.drawString("Search", NewUi.getInstance().windowXStart + 20f, y - 12F, -1)
+        Fonts.SFApple30.drawStringWithShadow("Search", NewUi.getInstance().windowXStart + 20f, y - 12F, -1)
         RenderUtils.drawImage2(IconManager.back, NewUi.getInstance().windowXStart + 4f, y - 15F, 10, 10)
 
         var startY = y + startYY

@@ -1,13 +1,13 @@
 [
   {
     "modid": "crosssine",
-    "name": "CrossSine",
+    "name": "GamingTable",
     "description": "Minecraft 1.8 Utility mod",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "https://crosssine.github.io",
     "updateUrl": "",
-    "authorList": ["CCBlueX", "Zywl", "SkidderMC"],
+    "authorList": ["shxp3"],
     "credits": "",
     "logoFile": "",
     "screenshots": [],

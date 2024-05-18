@@ -34,8 +34,7 @@ public class MixinModelBiped {
         if(heldItemRight == 3 && OldAnimations.INSTANCE.getState() && OldAnimations.INSTANCE.getBlockAnimation().get())
             this.bipedRightArm.rotateAngleY = 0F;
 
-        if (RenderRotation.INSTANCE.getState() && RotationUtils.serverRotation != null && p_setRotationAngles_7_ instanceof EntityPlayer
-                && p_setRotationAngles_7_.equals(Minecraft.getMinecraft().thePlayer)) {
+        if (RotationUtils.serverRotation != null && p_setRotationAngles_7_ instanceof EntityPlayer && p_setRotationAngles_7_.equals(Minecraft.getMinecraft().thePlayer)) {
             this.bipedHead.rotateAngleX = (float) Math.toRadians(RenderRotation.INSTANCE.lerp(Minecraft.getMinecraft().timer.renderPartialTicks, RenderRotation.INSTANCE.getPrevHeadPitch(), RenderRotation.INSTANCE.getHeadPitch()));
         }
     }

@@ -3,11 +3,10 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
-import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
-import net.ccbluex.liquidbounce.utils.CooldownHelper;
+import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.minecraft.block.Block;
@@ -25,16 +24,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -118,46 +114,45 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Shadow
     protected abstract boolean isCurrentViewEntity();
     private boolean debug_AttemptSprint = false;
-
+    @Unique
+    private boolean lastOnGround;
     /**
      * @author CCBlueX, liulihaocai
      *
      * use inject to make sure this works with ViaForge mod
      */
-    @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
-    public void onUpdateWalkingPlayer(CallbackInfo ci) {
+    @Overwrite
+    public void onUpdateWalkingPlayer() {
         try {
-            final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
-            movementFix.updateOverwrite();
-            
-            CrossSine.eventManager.callEvent(new MotionEvent(EventState.PRE, onGround));
+            MotionEvent event = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
+            CrossSine.eventManager.callEvent(event);
 
-            boolean flag = this.isSprinting();
-            //alert("Attempt: " + debug_AttemptSprint + " Actual: " + this.isSprinting() + " Server: " + this.serverSprintState);
-            if (flag != this.serverSprintState) {
-                if (flag) {
+            ActionEvent actionEvent = new ActionEvent(this.isSprinting(), this.isSneaking());
+
+            boolean sprinting = actionEvent.getSprinting();
+            boolean sneaking = actionEvent.getSneaking();
+
+            if (sprinting != this.serverSprintState) {
+                if (sprinting)
                     this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.START_SPRINTING));
-                } else {
+                else
                     this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SPRINTING));
-                }
 
-                this.serverSprintState = flag;
+                this.serverSprintState = sprinting;
             }
 
-            boolean flag1 = this.isSneaking();
-            if (flag1 != this.serverSneakState) {
-                if (flag1) {
+            if (sneaking != this.serverSneakState) {
+                if (sneaking)
                     this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.START_SNEAKING));
-                } else {
+                else
                     this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SNEAKING));
-                }
 
-                this.serverSneakState = flag1;
+                this.serverSneakState = sneaking;
             }
 
             if (this.isCurrentViewEntity()) {
-                float yaw = rotationYaw;
-                float pitch = rotationPitch;
+                float yaw = event.getYaw();
+                float pitch = event.getPitch();
                 float lastReportedYaw = RotationUtils.serverRotation.getYaw();
                 float lastReportedPitch = RotationUtils.serverRotation.getPitch();
 
@@ -166,54 +161,54 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                     pitch = RotationUtils.targetRotation.getPitch();
                 }
 
-                double xDiff = this.posX - this.lastReportedPosX;
-                double yDiff = this.getEntityBoundingBox().minY - this.lastReportedPosY;
-                double zDiff = this.posZ - this.lastReportedPosZ;
+                final NoZeroZeroThree antiDesync = CrossSine.moduleManager.getModule(NoZeroZeroThree.class);
+                double xDiff = event.getX() - this.lastReportedPosX;
+                double yDiff = event.getY() - this.lastReportedPosY;
+                double zDiff = event.getZ() - this.lastReportedPosZ;
                 double yawDiff = yaw - lastReportedYaw;
                 double pitchDiff = pitch - lastReportedPitch;
-                
-                final Flight flight = CrossSine.moduleManager.getModule(Flight.class);
-                final Criticals criticals = CrossSine.moduleManager.getModule(Criticals.class);
-                final NoZeroZeroThree antiDesync = CrossSine.moduleManager.getModule(NoZeroZeroThree.class);
-                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 9.0E-4D || this.positionUpdateTicks >= 20 || (flight.getState() && flight.getAntiDesync()) || (criticals.getState() && criticals.getAntiDesync()) || (antiDesync.getState() && xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 0.0D);
+                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (antiDesync.getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20;
                 boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
 
                 if (this.ridingEntity == null) {
                     if (moved && rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.posX, this.getEntityBoundingBox().minY, this.posZ, yaw, pitch, this.onGround));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(event.getX(), event.getY(), event.getZ(), yaw, pitch, event.getOnGround()));
                     } else if (moved) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.onGround));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(event.getX(), event.getY(), event.getZ(), event.getOnGround()));
                     } else if (rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, this.onGround));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, event.getOnGround()));
                     } else {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer(this.onGround));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer(event.getOnGround()));
                     }
                 } else {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, this.onGround));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, event.getOnGround()));
                     moved = false;
                 }
 
                 ++this.positionUpdateTicks;
 
                 if (moved) {
-                    this.lastReportedPosX = this.posX;
-                    this.lastReportedPosY = this.getEntityBoundingBox().minY;
-                    this.lastReportedPosZ = this.posZ;
+                    this.lastReportedPosX = event.getX();
+                    this.lastReportedPosY = event.getY();
+                    this.lastReportedPosZ = event.getZ();
                     this.positionUpdateTicks = 0;
                 }
 
                 if (rotated) {
-                    this.lastReportedYaw = this.rotationYaw;
-                    this.lastReportedPitch = this.rotationPitch;
+                    this.lastReportedYaw = yaw;
+                    this.lastReportedPitch = pitch;
                 }
             }
 
-            CrossSine.eventManager.callEvent(new MotionEvent(EventState.POST, onGround));
+            if (this.isCurrentViewEntity())
+                lastOnGround = event.getOnGround();
+
+            event.setEventState(EventState.POST);
+
+            CrossSine.eventManager.callEvent(event);
         } catch (final Exception e) {
             e.printStackTrace();
         }
-
-        ci.cancel();
     }
 
     @Inject(method = "pushOutOfBlocks", at = @At("HEAD"), cancellable = true)
@@ -258,6 +253,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
         final Inventory inventoryMove = CrossSine.moduleManager.getModule(Inventory.class);
         final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
+        final Scaffold2 scaffold2 = CrossSine.moduleManager.getModule(Scaffold2.class);
         final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
@@ -291,7 +287,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
         boolean baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
         boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
-        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
+        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus()))) && !this.isRiding();
 
         baseSprintState = baseSprintState && !(inventoryMove.getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
         
@@ -303,7 +299,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
         }
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState()) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldNoSlow()) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);
@@ -388,7 +384,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         
         //Don't check current Sprint state cuz it's not updated in real time :bruh:
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && (!noSlow.getOnlyKa().get() || killAura.getState())) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldNoSlow()) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);
@@ -396,6 +392,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (scaffold.getState()) {
             this.setSprinting(scaffold.getSprintActive());
+        }
+        if (scaffold2.getState()) {
+            this.setSprinting(scaffold2.getSprintState());
         }
         debug_AttemptSprint = this.isSprinting();
 
@@ -462,6 +461,17 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.capabilities.isFlying = false;
             this.sendPlayerAbilities();
         }
+    }
+    @Overwrite
+    public void swingItem() {
+        SwingEvent event = new SwingEvent();
+        CrossSine.eventManager.callEvent(event);
+        if (!event.isCancelled()) {
+            super.swingItem();
+        } else {
+            mc.thePlayer.isSwingInProgress = false;
+        }
+        this.sendQueue.addToSendQueue(new C0APacketAnimation());
     }
     @Override
     public void moveEntity(double x, double y, double z) {

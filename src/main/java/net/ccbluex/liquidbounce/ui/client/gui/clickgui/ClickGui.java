@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.Element;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ModuleElement;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.Style;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.LiquidBounceStyle;
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.GuiTheme;
 import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +41,12 @@ public class ClickGui extends GuiScreen {
     private double slide, progress = 0;
 
     public ClickGui() {
+
         final int width = 100;
         final int height = 18;
-
         int yPos = 5;
         for (final ModuleCategory category : ModuleCategory.values()) {
             panels.add(new Panel(category.getDisplayName(), category, 100, yPos, width, height, false) {
-
                 @Override
                 public void setupItems() {
                     for (Module module : CrossSine.moduleManager.getModules())
@@ -57,10 +58,11 @@ public class ClickGui extends GuiScreen {
             yPos += 20;
         }
     }
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         float trueCguiScale;
-            trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
+        trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
         final double scale = trueCguiScale;
         if (progress < 1) progress += 0.1 * (1 - partialTicks);
         else progress = 1;
@@ -82,6 +84,8 @@ public class ClickGui extends GuiScreen {
 
         if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= height - 5 && mouseY >= height - 50)
             mc.displayGuiScreen(new GuiHudDesigner());
+        if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= height - 52 && mouseY >= height - 90)
+            mc.displayGuiScreen(new GuiTheme());
 
         // Enable DisplayList optimization
         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
@@ -94,7 +98,7 @@ public class ClickGui extends GuiScreen {
 
         drawDefaultBackground();
         drawImage(new ResourceLocation("crosssine/custom_hud_icon.png"), 9, height - 41, 32, 32);
-        drawImage(new ResourceLocation("crosssine/thisishud.png"), 9, height - 150, 95,(int) 106.6666666666667);
+        drawImage(new ResourceLocation("crosssine/theme.png"), 9, height - 79, 32, 32);
         GlStateManager.resetColor();
         int defaultHeight1 = (this.height);
         int defaultWidth1 = (this.width);
@@ -132,7 +136,8 @@ public class ClickGui extends GuiScreen {
                 if (element instanceof ModuleElement) {
                     final ModuleElement moduleElement = (ModuleElement) element;
 
-                    if (mouseX != 0 && mouseY != 0 && moduleElement.isHovering(mouseX, mouseY) && moduleElement.isVisible() && element.getY() <= panel.getY() + panel.getFade());
+                    if (mouseX != 0 && mouseY != 0 && moduleElement.isHovering(mouseX, mouseY) && moduleElement.isVisible() && element.getY() <= panel.getY() + panel.getFade())
+                        ;
                 }
             }
         }
@@ -178,7 +183,7 @@ public class ClickGui extends GuiScreen {
         if (wheel == 0)
             return;
 
-        for(final Panel panel : panels)
+        for (final Panel panel : panels)
             panel.setY(panel.getY() + wheel);
     }
 
@@ -187,7 +192,7 @@ public class ClickGui extends GuiScreen {
         float trueCguiScale;
         if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
             trueCguiScale = 1;
-        } else if(CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
+        } else if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
             trueCguiScale = 1;
         } else {
             trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();
@@ -223,7 +228,7 @@ public class ClickGui extends GuiScreen {
         float trueCguiScale;
         if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Jello")) {
             trueCguiScale = 1;
-        } else if(CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
+        } else if (CrossSine.moduleManager.getModule(ClickGUIModule.class).styleValue.get().equals("Glow")) {
             trueCguiScale = 1;
         } else {
             trueCguiScale = CrossSine.moduleManager.getModule(ClickGUIModule.class).scaleValue.get();

@@ -8,5 +8,9 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
-@ModuleInfo(name = "ItemPhysics", spacedName = "Item Physics", category = ModuleCategory.VISUAL)
-object ItemPhysics : Module()
+@ModuleInfo(name = "ItemPhysics", category = ModuleCategory.VISUAL)
+object ItemPhysics : Module() {
+    val rotationSpeed = FloatValue("RotationSpeed", 1.0F, 0.01F,3F)
+    override val tag: String?
+        get() = rotationSpeed.get().toString()
+}

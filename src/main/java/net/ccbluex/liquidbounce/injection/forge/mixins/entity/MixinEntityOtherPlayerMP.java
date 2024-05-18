@@ -1,5 +1,4 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
-
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

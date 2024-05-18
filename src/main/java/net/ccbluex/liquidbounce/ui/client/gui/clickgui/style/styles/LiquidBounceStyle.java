@@ -2,6 +2,8 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EventTarget;
+import net.ccbluex.liquidbounce.event.KeyBindEvent;
+import net.ccbluex.liquidbounce.event.KeyEvent;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
@@ -30,6 +33,7 @@ public class LiquidBounceStyle extends Style {
 
     private boolean mouseDown;
     private boolean rightMouseDown;
+    private int keyCode;
 
     @Override
     public void drawPanel(int mouseX, int mouseY, Panel panel) {
@@ -281,7 +285,12 @@ public class LiquidBounceStyle extends Style {
             }
         }
     }
-
+    @EventTarget
+    public void onKey(KeyBindEvent event) {
+        if (event.getCode() != Keyboard.KEY_RETURN && event.getCode() != Keyboard.KEY_UP && event.getCode() != Keyboard.KEY_DOWN && event.getCode() != Keyboard.KEY_LEFT && event.getCode() != Keyboard.KEY_RIGHT) {
+            keyCode = event.getCode();
+        }
+    }
     private BigDecimal round(final float f) {
         BigDecimal bd = new BigDecimal(Float.toString(f));
         bd = bd.setScale(2, 4);

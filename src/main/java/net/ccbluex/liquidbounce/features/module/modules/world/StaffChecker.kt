@@ -23,7 +23,7 @@ import net.minecraft.network.play.server.*
 import javax.net.ssl.HttpsURLConnection
 import kotlin.concurrent.thread
 
-@ModuleInfo(name = "StaffChecker", spacedName = "StaffChecker", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "StaffChecker", category = ModuleCategory.WORLD)
 class StaffChecker : Module() {
     private val antiV = BoolValue("AntiVanish", false)
     private val chat = BoolValue("AlertChat", true)
@@ -77,9 +77,9 @@ class StaffChecker : Module() {
 
     private fun isStaff(entity: Entity): Boolean {
         if (Custom) {
-            return entity.name in csstaffs || entity.displayName.unformattedText in csstaffs || entity.name.contains(csstaffs.toString())
+            return entity.name in csstaffs || entity.displayName.unformattedText in csstaffs || entity.name.contains(csstaffs.toString()) || entity.name.lowercase() in csstaffs.toString().lowercase() || entity.displayName.unformattedText.lowercase() in csstaffs.toString().lowercase() || entity.name.lowercase().contains(csstaffs.toString().lowercase())
         } else if (onBMC) {
-            return entity.name in staffs || entity.displayName.unformattedText in staffs || entity.name.contains(staffs.toString())
+            return entity.name in staffs || entity.displayName.unformattedText in staffs || entity.name.contains(staffs.toString()) || entity.name.lowercase() in staffs.toString().lowercase() || entity.displayName.unformattedText.lowercase() in staffs.toString().lowercase() || entity.name.lowercase().contains(staffs.toString().lowercase())
         }
 
         return false

@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.generateColor
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.AstolfoCategoryPanel
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
 import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
@@ -95,7 +96,12 @@ class AstolfoClickGui : GuiScreen() {
       }
     }
   }
-
+  companion object {
+    private var instance: NewUi? = null
+    fun getInstance(): NewUi {
+      return if (instance == null) NewUi().also { instance = it } else instance!!
+    }
+  }
   @Throws(IOException::class)
   override fun mouseClicked(mouseXIn: Int, mouseYIn: Int, mouseButton: Int) {
     mouseAction(mouseXIn, mouseYIn, mouseButton, true)

@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
-@ModuleInfo(name = "AntiStuck", "Anti Stuck",category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "AntiStuck",category = ModuleCategory.MOVEMENT)
 class AntiStuck : Module() {
     private val flagsValue = IntegerValue("Flags", 5, 1, 10)
 

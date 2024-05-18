@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.util.ResourceLocation
 
-@ModuleInfo(name = "MotionBlur", spacedName = "Motion Blur", category = ModuleCategory.VISUAL, array = false)
+@ModuleInfo(name = "MotionBlur",  category = ModuleCategory.VISUAL, array = false)
 class MotionBlur : Module() {
     private val blurAmount = IntegerValue("Amount", 7, 1, 10)
 

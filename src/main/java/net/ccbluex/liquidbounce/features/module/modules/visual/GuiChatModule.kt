@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FontValue
 import net.ccbluex.liquidbounce.ui.font.Fonts
 
-@ModuleInfo(name = "ChatManager", spacedName = "Chat Manager", category = ModuleCategory.VISUAL, array = false, defaultOn = true)
+@ModuleInfo(name = "ChatManager", category = ModuleCategory.VISUAL, array = false, defaultOn = true)
 class GuiChatModule : Module() {
     val fontChatValue = BoolValue("FontChat", false)
     val fontType = FontValue("Font", Fonts.Nunito40).displayable { fontChatValue.get() }

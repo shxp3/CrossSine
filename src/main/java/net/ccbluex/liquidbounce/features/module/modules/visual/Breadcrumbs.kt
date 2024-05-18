@@ -21,14 +21,10 @@ import org.lwjgl.util.glu.GLU
 import org.lwjgl.util.glu.Sphere
 import java.awt.Color
 
-@ModuleInfo(name = "Breadcrumbs", spacedName = "Breadcrumbs", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Breadcrumbs",category = ModuleCategory.VISUAL)
 class Breadcrumbs : Module() {
     private val typeValue = ListValue("Type", arrayOf("Line", "Rect", "Sphere", "Rise"), "Line")
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { !colorRainbowValue.get() }
     private val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255)
-    private val colorRainbowValue = BoolValue("Rainbow", false)
     private val fadeValue = BoolValue("Fade", true)
     private val drawThePlayerValue = BoolValue("DrawThePlayer", true)
     private val drawTargetsValue = BoolValue("DrawTargets", true)

@@ -17,14 +17,13 @@ import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import java.awt.Color
 
-@ModuleInfo(name = "Sprint", spacedName = "Sprint", category = ModuleCategory.MOVEMENT, defaultOn = true, array = false)
-class Sprint : Module() {
+@ModuleInfo(name = "Sprint",  category = ModuleCategory.MOVEMENT, defaultOn = true, array = false)
+object Sprint : Module() {
     private val textValue = BoolValue("ShowText", false)
     private val downValue = BoolValue("Down", false)
     val hungryValue = BoolValue("Hungry", true)
     val sneakValue = BoolValue("Sneak", false)
     val collideValue = BoolValue("Collide", false)
-    val jumpDirectionsValue = BoolValue("JumpDirections", false)
     val allDirectionsValue = BoolValue("AllDirections", false)
     private val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "LimitSpeed", "None"), "None").displayable { allDirectionsValue.get() }
     private var switchStat = false
@@ -33,7 +32,7 @@ class Sprint : Module() {
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         if (textValue.get()) {
-            mc.fontRendererObj.drawStringWithShadow(if (mc.thePlayer.isSneaking)"[Sneaking (vanilla)]" else "[Sprinting (toggled)]", 2F, if (downValue.get()) StaticStorage.scaledResolution.scaledHeight + -9F else 2F, Color.WHITE.rgb)
+            mc.fontRendererObj.drawStringWithShadow(if (mc.thePlayer.isSneaking)"[Sneaking (vanilla)]" else if (mc.thePlayer.isSprinting) "[Sprinting (toggled)]" else "", 2F, if (downValue.get()) StaticStorage.scaledResolution.scaledHeight + -9F else 2F, Color.WHITE.rgb)
         }
     }
     @EventTarget
@@ -58,7 +57,7 @@ class Sprint : Module() {
                     "RotateSpoof" -> {
                         switchStat = !switchStat
                         if (switchStat) {
-                            RotationUtils.setTargetRotation(Rotation(MovementUtils.movingYaw, mc.thePlayer.rotationPitch))
+                            RotationUtils.setTargetRotation(Rotation(MovementUtils.movingYaw, mc.thePlayer.rotationPitch), 0)
                         }
                     }
                     "Toggle" -> {

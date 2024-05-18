@@ -19,7 +19,6 @@ class KeyStrokes : Element() {
     private val showMouse = BoolValue("Show Mouse", false)
     private val roundValue = FloatValue("Rounded", 0F, 0F, 5F)
     private val fadeSpeed = FloatValue("FadeSpeed", 15F, 15F, 30F)
-    private val glowValue = BoolValue("Glow", false)
     private var wPressed = 0F
     private var aPressed = 0F
     private var sPressed = 0F
@@ -28,13 +27,13 @@ class KeyStrokes : Element() {
     private var lmbPressed = 0F
     private var rmbPressed = 0F
     override fun drawElement(partialTicks: Float): Border? {
-        wPressed = fadeKey(mc.gameSettings.keyBindForward.isKeyDown, wPressed, fadeSpeed.get())
-        sPressed = fadeKey(mc.gameSettings.keyBindBack.isKeyDown, sPressed, fadeSpeed.get())
-        dPressed = fadeKey(mc.gameSettings.keyBindRight.isKeyDown, dPressed, fadeSpeed.get())
-        aPressed = fadeKey(mc.gameSettings.keyBindLeft.isKeyDown, aPressed, fadeSpeed.get())
-        specPressed = fadeKey(mc.gameSettings.keyBindJump.isKeyDown, specPressed, fadeSpeed.get())
-        lmbPressed = fadeKey(mc.gameSettings.keyBindAttack.isKeyDown, lmbPressed, fadeSpeed.get())
-        rmbPressed = fadeKey(mc.gameSettings.keyBindUseItem.isKeyDown, rmbPressed, fadeSpeed.get())
+        wPressed = fadeKey(mc.gameSettings.keyBindForward.isKeyDown)
+        sPressed = fadeKey(mc.gameSettings.keyBindBack.isKeyDown)
+        dPressed = fadeKey(mc.gameSettings.keyBindRight.isKeyDown)
+        aPressed = fadeKey(mc.gameSettings.keyBindLeft.isKeyDown)
+        specPressed = fadeKey(mc.gameSettings.keyBindJump.isKeyDown)
+        lmbPressed = fadeKey(mc.gameSettings.keyBindAttack.isKeyDown)
+        rmbPressed = fadeKey(mc.gameSettings.keyBindUseItem.isKeyDown)
         renderKey("W", 16.5f, 13f,33F, 0F, 65F, 32F, wPressed, 90, roundValue.get())
         renderKey("A", 16.5f, 13f,0F, 33F, 32F, 65F, aPressed, 0,roundValue.get())
         renderKey("S",16.5f, 13f, 33F, 33F, 65F, 65F, sPressed, 90,roundValue.get())
@@ -49,24 +48,19 @@ class KeyStrokes : Element() {
     private fun renderKey(keyString: String, textPosX: Float, textPosY: Float, posX: Float, posY: Float, size: Float, size2: Float, keyTick: Float, index: Int,round: Float) {
         val font = Fonts.SFApple50
         RenderUtils.drawRoundedRect(posX, posY, size, size2, round, Color(0,0,0,90 + (120 * (keyTick / fadeSpeed.get())).toInt()).rgb)
-        if (glowValue.get()) {
-            GlowUtils.drawGlow(posX, posY, size - posX, size2 - posY, 8, Color(0,0,0,90 + (120 * (keyTick / fadeSpeed.get())).toInt()))
-        }
+        GlowUtils.drawGlow(posX, posY, size - posX, size2 - posY, 8, Color(0,0,0,90 + (120 * (keyTick / fadeSpeed.get())).toInt()))
         font.drawCenteredString(keyString, posX + textPosX, posY + textPosY, if (keyColor.get()) ClientTheme.getColor(index).rgb else Color(255,255,255).rgb, true)
     }
-    private fun fadeKey(isKeyDown: Boolean, currentValue: Float, fadeSpeed: Float): Float {
-        var currentValue = currentValue
+    private fun fadeKey(isKeyDown: Boolean): Float {
+        var current = 0F
         if (isKeyDown) {
-            currentValue++
-            if (currentValue >= fadeSpeed) {
-                currentValue = fadeSpeed
-            }
+            current = this.fadeSpeed.get()
         } else {
-            currentValue--
-            if (currentValue <= 0) {
-                currentValue = 0f
+            current--
+            if (current <= 0) {
+                current = 0f
             }
         }
-        return currentValue
+        return current
     }
 }

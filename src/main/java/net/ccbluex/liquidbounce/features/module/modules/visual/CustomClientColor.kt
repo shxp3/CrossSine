@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import java.awt.Color
 
-@ModuleInfo(name = "CustomClientColor", spacedName = "Custom Client Color", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "CustomClientColor", category = ModuleCategory.VISUAL)
 object CustomClientColor : Module() {
     private val redValue = IntegerValue("Red", 255,0,255)
     private val greenValue = IntegerValue("Green", 255,0,255)

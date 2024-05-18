@@ -14,6 +14,7 @@ abstract class ValueElement<T>(val value: Value<T>) : MinecraftInstance() {
     open fun onRelease(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float) {}
 
     open fun onKeyPress(typed: Char, keyCode: Int): Boolean = false
+    open fun onTyped(typed: Char, keyCode: Int) {}
 
     fun isDisplayable(): Boolean = value.displayable
 }

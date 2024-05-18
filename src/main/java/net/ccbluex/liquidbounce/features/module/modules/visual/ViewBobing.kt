@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 
-@ModuleInfo(name = "ViewBobing", spacedName = "View Bobing", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "ViewBobing",  category = ModuleCategory.VISUAL)
 class ViewBobing : Module() {
     val miniViewBobing = BoolValue("MiniViewBobing", false)
     private val BobChangerValue =

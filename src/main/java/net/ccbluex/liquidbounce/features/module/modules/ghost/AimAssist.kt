@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.ghost
 
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -16,9 +17,9 @@ import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks
 import java.util.concurrent.ThreadLocalRandom
 
-@ModuleInfo(name = "AimAssist", "AimAssist",category = ModuleCategory.GHOST)
+@ModuleInfo(name = "AimAssist", category = ModuleCategory.GHOST)
 class AimAssist : Module() {
-    private val rangeValue = FloatValue("Range", 50F, 1F, 10F)
+    private val rangeValue = FloatValue("Range", 5f, 1F, 10F)
     private val norspeed = FloatValue("Speed", 1F, 1F, 60F)
     private val comSpeed = FloatValue("CompliSpeed", 1F, 1F, 50F)
     private val fovValue = FloatValue("FOV", 180F, 1F, 180F )
@@ -28,7 +29,7 @@ class AimAssist : Module() {
     private val clickTimer = MSTimer()
 
     @EventTarget
-    fun onStrafe(event: StrafeEvent) {
+    fun onMotion(event: MotionEvent) {
         if (breakBlocks.get() && mc.objectMouseOver != null) {
             val p = mc.objectMouseOver.blockPos
             if (p != null) {

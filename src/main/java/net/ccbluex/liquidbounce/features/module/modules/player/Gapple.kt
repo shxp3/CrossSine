@@ -24,7 +24,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.MathHelper
 import java.util.*
 
-@ModuleInfo(name = "Gapple", spacedName = "Gapple", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Gapple",  category = ModuleCategory.PLAYER)
 class Gapple : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Auto", "LegitAuto", "Legit", "Head"), "Auto")

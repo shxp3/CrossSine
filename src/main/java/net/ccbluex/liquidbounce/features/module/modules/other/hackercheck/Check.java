@@ -1,12 +1,13 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck;
 
-
+import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
 public class Check extends MinecraftInstance {
     public static boolean debug = false;
+    public static PlayerData data = new PlayerData();
     protected EntityOtherPlayerMP handlePlayer = null;
     protected String name = "NONE";
     protected boolean enabled = true;
@@ -21,6 +22,7 @@ public class Check extends MinecraftInstance {
     public void positionUpdate(double x, double y, double z) {}
 
     public void onLivingUpdate() {}
+    public void onPacket(PacketEvent event) {}
 
     public boolean isEnabled() {
         return enabled;
@@ -41,14 +43,6 @@ public class Check extends MinecraftInstance {
 
     public void shrinkVL(double t) {
         violationLevel *= t;
-    }
-
-    public int getCalculationVL() {
-        return (int) (violationLevel / vlStep);
-    }
-
-    public double getVL() {
-        return violationLevel;
     }
 
     public boolean wasFailed() {

@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo(name = "Speed", spacedName = "Speed", category = ModuleCategory.MOVEMENT, keyBind = Keyboard.KEY_V)
+@ModuleInfo(name = "Speed",  category = ModuleCategory.MOVEMENT)
 object Speed : Module() {
     val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.speeds", SpeedMode::class.java)
         .map { it.newInstance() as SpeedMode }

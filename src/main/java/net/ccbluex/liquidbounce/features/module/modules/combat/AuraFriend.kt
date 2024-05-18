@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.entity.player.EntityPlayer
 
-@ModuleInfo(name = "AuraFirend", spacedName = "Aura Friend", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "AuraFirend", category = ModuleCategory.COMBAT)
 class AuraFriend: Module() {
     private val rangeValue = FloatValue("Range", 3.5F, 0.0F, 6F)
     private val autoClear = BoolValue("AutoClear", false)

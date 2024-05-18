@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 
-@ModuleInfo(name = "HitColor", spacedName = "HitColor", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "HitColor",category = ModuleCategory.VISUAL)
 class HitColor : Module() {
     val hitColorTheme = BoolValue("ColorTheme", false)
     val hitColorRValue = IntegerValue("HitRed", 255, 0, 255).displayable { !hitColorTheme.get() }

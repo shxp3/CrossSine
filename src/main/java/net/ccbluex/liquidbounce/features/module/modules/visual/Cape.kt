@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.util.ResourceLocation
 import java.util.*
 
-@ModuleInfo(name = "Cape", spacedName = "Cape", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "Cape", category = ModuleCategory.VISUAL)
 class Cape : Module() {
 
     val styleValue = ListValue(
@@ -40,7 +40,7 @@ class Cape : Module() {
                 capeCache[value.uppercase(Locale.getDefault())] =
                     CapeStyle.valueOf(value.uppercase(Locale.getDefault()))
             } catch (e: Exception) {
-                capeCache[value.uppercase(Locale.getDefault())] = CapeStyle.NONE
+                capeCache[value.uppercase(Locale.getDefault())] = CapeStyle.CROSSSINE
             }
         }
         return capeCache[value.uppercase(Locale.getDefault())]!!.location
@@ -60,7 +60,6 @@ class Cape : Module() {
         NONECLIENT(ResourceLocation("crosssine/cape/noneclient.png")),
         SEXYBANANA(ResourceLocation("crosssine/cape/sexybanana.png")),
         NIGHTX(ResourceLocation("crosssine/cape/nightx.png")),
-        NONE(ResourceLocation(""))
     }
 
     override val tag: String

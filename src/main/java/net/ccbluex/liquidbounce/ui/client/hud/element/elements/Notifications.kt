@@ -27,7 +27,7 @@ class Notifications(
     /**
      * Example notification for CustomHUD designer
      */
-    private val exampleNotification = Notification("Notification", "This is an example notification.", NotifyType.INFO)
+    private val exampleNotification = Notification("Notification", "This is an example notification. test test test test testt testteststestetsetstest", NotifyType.INFO)
 
     /**
      * Draw element
@@ -53,9 +53,8 @@ class Notifications(
 
             exampleNotification.fadeState = FadeState.STAY
             exampleNotification.displayTime = System.currentTimeMillis()
-//            exampleNotification.x = exampleNotification.textLength + 8F
 
-            return Border(-150F, -30F, 0F, 0F)
+            return Border(-150F, -20F, 0F, 0F)
         }
         return null
     }
@@ -88,9 +87,8 @@ class Notification(
     fun drawNotification(index: Int): Boolean {
         val nowTime = System.currentTimeMillis()
         val realY = -(index + 1) * height
-        var pct = (nowTime - animeXTime) / animeTime.toDouble()
-        val image = ResourceLocation("liquidbounce+/ui/" + type.name + ".png")
-        //Y-Axis Animation
+        var transY = nowY.toDouble()
+        // Y-Axis Animation
         if (nowY != realY) {
             var pct = (nowTime - animeYTime) / animeTime.toDouble()
             if (pct > 1) {
@@ -99,13 +97,13 @@ class Notification(
             } else {
                 pct = EaseUtils.easeOutExpo(pct)
             }
-            GL11.glTranslated(0.0, (realY - nowY) * pct, 0.0)
+            transY += (realY - nowY) * pct
         } else {
             animeYTime = nowTime
         }
-        GL11.glTranslated(0.0, nowY.toDouble(), 0.0)
 
-        //X-Axis Animation
+        // X-Axis Animation
+        var pct = (nowTime - animeXTime) / animeTime.toDouble()
         when (fadeState) {
             FadeState.IN -> {
                 if (pct > 1) {
@@ -137,52 +135,17 @@ class Notification(
                 return true
             }
         }
-        GL11.glTranslated(width - (width * pct), 0.0, 0.0)
-        GL11.glTranslatef(-width.toFloat(), 0F, 0F)
-        RenderUtils.customRounded(0F, 10F, 130F, 30F, 4.5F, 4.5F, 0F, 0F, Color(0, 0, 0, 200).rgb)
-        RenderUtils.drawRect(0F, 28.5f, max(width - width * ((nowTime - displayTime) / (animeTime * 2F + time)), 0F), 30F, Color(255, 255, 255))
-        Fonts.SFApple35.drawString(content, 15F, 17F, Color(255, 255, 255).rgb, true)
-        when (type) {
-            NotifyType.ERROR -> {
-                RenderUtils.drawImage(
-                        ResourceLocation("crosssine/ui/notifications/icons/crosssine/cross.png"),
-                        1,
-                        (12.3).toInt(),
-                        12,
-                        12
-                )
-            }
-
-            NotifyType.SUCCESS -> {
-                RenderUtils.drawImage(
-                        ResourceLocation("crosssine/ui/notifications/icons/crosssine/tick.png"),
-                        1,
-                        (12.3).toInt(),
-                        12,
-                        12
-                )
-            }
-
-            NotifyType.WARNING -> {
-                RenderUtils.drawImage(
-                        ResourceLocation("crosssine/ui/notifications/icons/crosssine/warning.png"),
-                        1,
-                        (12.3).toInt(),
-                        12,
-                        12
-                )
-            }
-
-            NotifyType.INFO -> {
-                RenderUtils.drawImage(
-                        ResourceLocation("crosssine/ui/notifications/icons/crosssine/info.png"),
-                        1,
-                        (12.3).toInt(),
-                        12,
-                        12
-                )
-            }
-        }
+        val transX = width - (width * pct) - width
+        GL11.glTranslated(transX, transY, 0.0)
+        RenderUtils.drawRect(0F, 10F, 80F + Fonts.SFApple35.getStringWidth(content), 30F, Color(0, 0, 0, 200).rgb)
+        Fonts.SFApple35.drawString(content, 24F, 17F, Color(255, 255, 255).rgb, true)
+        RenderUtils.drawImage(
+                ResourceLocation("crosssine/ui/notifications/icons/crosssine/" + type.name + ".png"),
+                -3,
+                7,
+                26,
+                26
+        )
         GlStateManager.resetColor()
         return false
     }

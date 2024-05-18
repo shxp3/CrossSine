@@ -35,11 +35,12 @@ import net.minecraft.util.Vec3
 import kotlin.concurrent.schedule
 import kotlin.random.Random
 
-@ModuleInfo(name = "Stealer", spacedName = "Stealer", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "Stealer", category = ModuleCategory.WORLD)
 object Stealer : Module() {
     /**
      * OPTIONS
      */
+    private val instantValue = BoolValue("Instant", false)
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 200, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minDelayValue.get()
@@ -49,7 +50,7 @@ object Stealer : Module() {
 
             nextDelay = TimeUtils.randomDelay(minDelayValue.get(), get())
         }
-    }
+    }.displayable { !instantValue.get() } as IntegerValue
     private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 150, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = maxDelayValue.get()
@@ -60,15 +61,16 @@ object Stealer : Module() {
 
             nextDelay = TimeUtils.randomDelay(get(), maxDelayValue.get())
         }
-    }
+    }.displayable { !instantValue.get() } as IntegerValue
     private val chestValue = IntegerValue("ChestOpenDelay", 300, 0, 1000)
     private val takeRandomizedValue = BoolValue("TakeRandomized", false)
+    private val alwayTake = BoolValue("AlwayTakeItem", false).displayable { InvManager.state }
     private val onlyItemsValue = BoolValue("OnlyItems", false)
     private val noCompassValue = BoolValue("NoCompass", false)
     private val autoCloseValue = BoolValue("AutoClose", true)
     val freelookValue = BoolValue("FreeLook", false).displayable { !silentValue.get() }
     val silentValue = BoolValue("Silent", true)
-    val silentTitleValue = BoolValue("Title", true).displayable { silentValue.get()}
+    val silentTitleValue = BoolValue("Title", true).displayable { silentValue.get() }
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = autoCloseMinDelayValue.get()
@@ -90,14 +92,19 @@ object Stealer : Module() {
 
     //Chest Aura
     private val Aura = BoolValue("Aura", false)
-    private val AuraShowTag = BoolValue("ThroughWalls", true).displayable { Aura.get() }
     private val AurarangeValue = FloatValue("Range", 5F, 1F, 6F).displayable { Aura.get() }
     private val AuradelayValue = IntegerValue("Delay", 100, 50, 500).displayable { Aura.get() }
     private val AurathroughWallsValue = BoolValue("ThroughWalls", true).displayable { Aura.get() }
-    private val AuraswingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal").displayable { Aura.get() }
+    private val AuraswingValue =
+        ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal").displayable { Aura.get() }
     private val AurarotationsValue = BoolValue("Rotations", true).displayable { Aura.get() }
     private val AuradiscoverDelayEnabledValue = BoolValue("DiscoverDelay", false).displayable { Aura.get() }
-    private val AuradiscoverDelayValue = IntegerValue("DiscoverDelayValue", 200, 50, 300).displayable { AuradiscoverDelayEnabledValue.get() && Aura.get()}
+    private val AuradiscoverDelayValue = IntegerValue(
+        "DiscoverDelayValue",
+        200,
+        50,
+        300
+    ).displayable { AuradiscoverDelayEnabledValue.get() && Aura.get() }
     private val AuraonlyOnGroundValue = BoolValue("OnlyOnGround", true).displayable { Aura.get() }
     private val AuranotOpenedValue = BoolValue("NotOpened", false).displayable { Aura.get() }
     private val AuranoCombatingValue = BoolValue("NoCombating", true).displayable { Aura.get() }
@@ -113,14 +120,10 @@ object Stealer : Module() {
     private val delayTimer = MSTimer()
     private val chestTimer = MSTimer()
     private var nextDelay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
-
     private val autoCloseTimer = MSTimer()
     private var nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
 
-    public var contentReceived = 0
-
-    public var once = false
-    val StealerShadowValue = false
+    var contentReceived = 0
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
@@ -141,7 +144,10 @@ object Stealer : Module() {
         }
 
         // Chest title
-        if (chestTitleValue.get() && (screen.lowerChestInventory == null || !screen.lowerChestInventory.name.contains(ItemStack(Item.itemRegistry.getObject(ResourceLocation("minecraft:chest"))).displayName))) {
+        if (chestTitleValue.get() && (screen.lowerChestInventory == null || !screen.lowerChestInventory.name.contains(
+                ItemStack(Item.itemRegistry.getObject(ResourceLocation("minecraft:chest"))).displayName
+            ))
+        ) {
             return
         }
 
@@ -160,7 +166,11 @@ object Stealer : Module() {
                     for (slotIndex in 0 until screen.inventoryRows * 9) {
                         val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
-                        if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(slot.stack, -1))) {
+                        if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || alwayTake.get() || invManager.isUseful(
+                                slot.stack,
+                                -1
+                            ))
+                        ) {
                             items.add(slot)
                         }
                     }
@@ -169,7 +179,7 @@ object Stealer : Module() {
                     val slot = items[randomSlot]
 
                     move(screen, slot)
-                } while (delayTimer.hasTimePassed(nextDelay) && items.isNotEmpty())
+                } while (instantValue.get() || delayTimer.hasTimePassed(nextDelay) && items.isNotEmpty())
                 return
             }
 
@@ -177,12 +187,21 @@ object Stealer : Module() {
             for (slotIndex in 0 until screen.inventoryRows * 9) {
                 val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
-                if (delayTimer.hasTimePassed(nextDelay) && slot.stack != null &&
-                        (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(slot.stack, -1))) {
+                if (instantValue.get() || delayTimer.hasTimePassed(nextDelay) && slot.stack != null &&
+                    (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(
+                        slot.stack,
+                        -1
+                    ))
+                ) {
                     move(screen, slot)
                 }
             }
-        } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(nextCloseDelay)) {
+        } else if (instantValue.get()) {
+            mc.thePlayer.closeScreen()
+        } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(
+                nextCloseDelay
+            )
+        ) {
             mc.thePlayer.closeScreen()
             nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
         }
@@ -272,7 +291,7 @@ object Stealer : Module() {
                 if (AurarotationsValue.get()) {
                     RotationUtils.setTargetRotation(
                         (RotationUtils.faceBlock(AuracurrentBlock ?: return)
-                            ?: return).rotation
+                            ?: return).rotation ,0
                     )
                 }
             } else if (AuracurrentBlock != null && InventoryUtils.INV_TIMER.hasTimePassed(

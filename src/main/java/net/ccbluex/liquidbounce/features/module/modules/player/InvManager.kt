@@ -28,26 +28,26 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
-@ModuleInfo(name = "InvManager", spacedName = "Inv Manager", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "InvManager", category = ModuleCategory.PLAYER)
 object InvManager : Module() {
 
     /**
      * OPTIONS
      */
-
+    private val instantValue = BoolValue("Instant", false)
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 600, 0, 1000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val minCPS = minDelayValue.get()
             if (minCPS > newValue) set(minCPS)
         }
-    }
+    }.displayable { !instantValue.get() } as IntegerValue
 
     private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 400, 0, 1000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val maxDelay = maxDelayValue.get()
             if (maxDelay < newValue) set(maxDelay)
         }
-    }
+    }.displayable { !instantValue.get() } as IntegerValue
 
     private val invOpenValue = BoolValue("InvOpen", false)
     private val simulateInventory = BoolValue("InvSpoof", true)
@@ -128,7 +128,7 @@ object InvManager : Module() {
             return
         }
 
-        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || (mc.currentScreen !is GuiInventory && invOpenValue.get())) {
+        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) && !instantValue.get() || (mc.currentScreen !is GuiInventory && invOpenValue.get())) {
             return
         }
 

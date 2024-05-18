@@ -11,8 +11,6 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
 
 class GrimVelocity : VelocityMode("Grim") {
-    var cancelPacket = 6
-    var resetPersec = 10
     var grimTCancel = 0
     var updates = 0
 
@@ -24,7 +22,7 @@ class GrimVelocity : VelocityMode("Grim") {
         val packet = event.packet
             if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
                 event.cancelEvent()
-                grimTCancel = cancelPacket
+                grimTCancel = 6
             }
             if (packet is S32PacketConfirmTransaction && grimTCancel > 0) {
                 event.cancelEvent()
@@ -34,14 +32,11 @@ class GrimVelocity : VelocityMode("Grim") {
 
     override fun onUpdate(event: UpdateEvent) {
         updates++
-
-        if (resetPersec > 0) {
-            if (updates >= 0 || updates >= resetPersec) {
+            if (updates >= 10) {
                 updates = 0
                 if (grimTCancel > 0){
                     grimTCancel--
                 }
-            }
         }
     }
 }

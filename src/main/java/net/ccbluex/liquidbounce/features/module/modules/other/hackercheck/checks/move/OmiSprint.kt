@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.check
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.Check
 import net.minecraft.client.entity.EntityOtherPlayerMP
 
-class OmiSprint(val playerMP: EntityOtherPlayerMP) : Check(playerMP){
+class OmiSprint(playerMP: EntityOtherPlayerMP) : Check(playerMP){
     private var sprintBuffer = 0
     init {
         name = "OmiSprint"
@@ -15,13 +15,7 @@ class OmiSprint(val playerMP: EntityOtherPlayerMP) : Check(playerMP){
             if(++sprintBuffer > 5) {
                 flag("Moving back but sprint", 5.0)
             }
+            return;
         }
-        if (!handlePlayer.isSprinting) {
-            sprintBuffer = 0
-        }
-    }
-
-    override fun reset() {
-        sprintBuffer = 0
     }
 }

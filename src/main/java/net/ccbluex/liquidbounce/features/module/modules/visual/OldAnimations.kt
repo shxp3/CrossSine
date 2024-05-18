@@ -7,9 +7,10 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.PlayerUtils
+import net.minecraft.util.MovingObjectPosition
 import org.lwjgl.input.Mouse
 
-@ModuleInfo(name = "OldAnimations", spacedName = "Old Animations", category = ModuleCategory.VISUAL, array = false)
+@ModuleInfo(name = "OldAnimations",  category = ModuleCategory.VISUAL, array = false)
 object OldAnimations:  Module() {
     val oldSneak = BoolValue("Old Sneak", false)
     val BlockAnimation = BoolValue("Block Animation", false)
@@ -22,7 +23,9 @@ object OldAnimations:  Module() {
             }
         }
         if (BlockAnimation.get()) {
-            PlayerUtils.swing()
+            if (mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && net.ccbluex.liquidbounce.utils.mc.objectMouseOver != null && net.ccbluex.liquidbounce.utils.mc.objectMouseOver.typeOfHit === MovingObjectPosition.MovingObjectType.BLOCK) {
+                PlayerUtils.swing()
+            }
         }
     }
 }

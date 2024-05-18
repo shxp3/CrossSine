@@ -32,7 +32,7 @@ import org.lwjgl.util.vector.Vector3f
 import java.awt.Color
 import java.text.DecimalFormat
 
-@ModuleInfo(name = "ESP", spacedName = "ESP", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "ESP", category = ModuleCategory.VISUAL)
 class ESP : Module() {
     val modeValue = ListValue(
             "Mode",

@@ -9,6 +9,8 @@ import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RoundedUtil
+import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
 import java.awt.Color
@@ -18,7 +20,7 @@ class SimpleTH(inst: TargetHUD) : TargetStyle("Simple", inst, true) {
         val fonts = Fonts.minecraftFont
         val leagth = fonts.getStringWidth(entity.name)
         updateAnim(entity.health)
-        RenderUtils.drawRect(0F, 0F, 40F + leagth, 24F, Color(0,0,0,fadeAlpha(180)))
+        RoundedUtil.drawRound(0F, 0F, 40F + leagth, 24F, 2F, Color(0,0,0,fadeAlpha(180)))
         RenderUtils.drawRect(28F, 20F,  28F + ((leagth + 6F) * (easingHealth / entity.maxHealth)), 21F, ColorUtils.reAlpha(BlendUtils.getHealthColor(entity.health, entity.maxHealth), fadeAlpha(255)).rgb)
         GlStateManager.enableBlend()
         fonts.drawString(entity.name, 31F, 5F, Color(255,255,255,fadeAlpha(255)).rgb, true)

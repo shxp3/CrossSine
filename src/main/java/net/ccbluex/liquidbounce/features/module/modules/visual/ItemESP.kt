@@ -25,7 +25,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.roundToInt
 
-@ModuleInfo(name = "ItemESP", spacedName = "Item ESP", category = ModuleCategory.VISUAL)
+@ModuleInfo(name = "ItemESP", category = ModuleCategory.VISUAL)
 class ItemESP : Module() {
     private val entityConvertedPointsMap: MutableMap<EntityItem, DoubleArray> = HashMap()
     private val nameTags = BoolValue("NameTag", false)

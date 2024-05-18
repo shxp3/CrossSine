@@ -1,17 +1,16 @@
 package net.ccbluex.liquidbounce.event
 
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
 class EventManager : MinecraftInstance() {
 
     private val registry = HashMap<Class<out Event>, MutableList<EventHook>>()
-
-//    private val counter = HashMap<Class<out Event>, Int>()
-//    private var lastSyncTime = System.currentTimeMillis()
     /**
      * Register [listener]
      */
     fun registerListener(listener: Listenable) {
+        if (CrossSine.destruced) return
         for (method in listener.javaClass.declaredMethods) {
             if (method.isAnnotationPresent(EventTarget::class.java) && method.parameterTypes.size == 1) {
                 try {
@@ -44,32 +43,13 @@ class EventManager : MinecraftInstance() {
             registry[key] = targets
         }
     }
-
-//    private fun printProfiler() {
-//        println("--- Event Profiler(${Date()}) ---")
-//
-//        var total = 0
-//        for((key, value) in counter.toList().sortedBy { it.second }) {
-//            println("${key.simpleName}: $value")
-//            total += value
-//        }
-//        println("total: $total")
-//
-//        counter.clear()
-//    }
-
     /**
      * Call event to listeners
      *
      * @param event to call
      */
     fun callEvent(event: Event) {
-//        if(System.currentTimeMillis() - lastSyncTime > 1000) {
-//            printProfiler()
-//            lastSyncTime = System.currentTimeMillis()
-//        }
-//        counter[event.javaClass] = counter.getOrDefault(event.javaClass, 0) + 1
-
+        if (CrossSine.destruced) return
         val targets = registry[event.javaClass] ?: return
         try {
             for (invokableEventTarget in targets) {

@@ -4,5 +4,5 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 
-@ModuleInfo("NoFriends", "No Friends",ModuleCategory.COMBAT)
+@ModuleInfo("NoFriends", ModuleCategory.COMBAT)
 object NoFriends : Module()

@@ -32,7 +32,7 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
 import kotlin.concurrent.thread
 
-@ModuleInfo(name = "InfiniteAura", "InfinitrAura",category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "InfiniteAura", category = ModuleCategory.COMBAT)
 object InfiniteAura : Module() {
     private val packetValue = ListValue("PacketMode", arrayOf("PacketPosition", "PacketPosLook"), "PacketPosition")
     private val packetBack = BoolValue("DoTeleportBackPacket", false)

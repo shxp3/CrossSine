@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.visual.Breadcrumbs
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.BlinkUtils
@@ -24,7 +25,8 @@ import java.util.*
 
 @ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
 object Blink : Module() {
-    val renderPlayer = BoolValue("Render", false)
+    private val modeValue = ListValue("Blink-Mode", arrayOf("All", "Movement"), "All")
+    private val renderPlayer = BoolValue("Render", false)
     private val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 100, 5000).displayable { pulseValue.get() }
 
@@ -36,7 +38,11 @@ object Blink : Module() {
 
     override fun onEnable() {
         if (mc.thePlayer == null) return
-        BlinkUtils.setBlinkState(all = true)
+        if (modeValue.equals("All")) {
+            BlinkUtils.setBlinkState(all = true)
+        } else {
+            BlinkUtils.setBlinkState(packetMoving = true)
+        }
         if (renderPlayer.get()) {
             if (!pulseValue.get()) {
                 fakePlayer = EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.gameProfile)

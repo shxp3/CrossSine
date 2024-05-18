@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.player.AutoTool
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
@@ -30,7 +29,7 @@ import net.minecraft.util.Vec3
 import java.awt.Color
 import kotlin.math.roundToInt
 
-@ModuleInfo(name = "Nuker", spacedName = "Nuker", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "Nuker",  category = ModuleCategory.WORLD)
 class Nuker : Module() {
 
     private val radiusValue = FloatValue("Radius", 5.2F, 1F, 6F)
@@ -118,7 +117,7 @@ class Nuker : Module() {
                 // Change head rotations to next block
                 if (rotationsValue.get()) {
                     val rotation = RotationUtils.faceBlock(blockPos) ?: return // In case of a mistake. Prevent flag.
-                    RotationUtils.setTargetRotation(rotation.rotation)
+                    RotationUtils.setTargetRotation(rotation.rotation, 0)
                 }
 
                 // Set next target block

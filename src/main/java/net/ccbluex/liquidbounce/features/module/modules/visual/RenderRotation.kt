@@ -12,7 +12,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 @ModuleInfo(name = "Rotation", category = ModuleCategory.VISUAL, array = false, defaultOn = true)
 object RenderRotation : Module() {
-    val rotationMode = ListValue("RotationMode", arrayOf("Lock", "Smooth"), "Smooth")
     var playerYaw: Float? = null
     var prevHeadPitch = 0f
     var headPitch = 0f

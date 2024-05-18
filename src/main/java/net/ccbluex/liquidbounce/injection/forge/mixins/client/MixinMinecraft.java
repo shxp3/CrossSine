@@ -2,39 +2,56 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
-import net.ccbluex.liquidbounce.features.module.modules.ghost.HitDelayFix;
-import net.ccbluex.liquidbounce.features.module.modules.visual.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.combat.TickBase;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
-import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
+import net.ccbluex.liquidbounce.features.module.modules.world.FPSBoost;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
+import net.ccbluex.liquidbounce.utils.SpoofItemUtils;
 import net.ccbluex.liquidbounce.utils.render.ImageUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.MusicTicker;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.achievement.GuiAchievement;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.client.stream.IStream;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Timer;
-import net.minecraft.util.Util;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.profiler.PlayerUsageSnooper;
+import net.minecraft.profiler.Profiler;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.*;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,7 +61,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Queue;
+import java.util.concurrent.FutureTask;
 
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 
@@ -55,11 +75,15 @@ public abstract class MixinMinecraft {
     public GuiScreen currentScreen;
 
     @Shadow
-    public boolean skipRenderWorld;
-
-    @Shadow
     private Entity renderViewEntity;
 
+    @Shadow
+    private boolean fullscreen;
+
+    @Shadow
+    public boolean skipRenderWorld;
+    @Shadow
+    protected abstract void runTick();
     @Shadow
     private int leftClickCounter;
 
@@ -75,25 +99,164 @@ public abstract class MixinMinecraft {
     @Shadow
     public EffectRenderer effectRenderer;
 
-    @Shadow
-    public PlayerControllerMP playerController;
+    @Shadow public EntityRenderer entityRenderer;
 
     @Shadow
-    public GameSettings gameSettings;
+    public PlayerControllerMP playerController;
 
     @Shadow
     public int displayWidth;
 
     @Shadow
     public int displayHeight;
-    @Shadow
-    private boolean fullscreen;
 
     @Shadow
-    public static int debugFPS;
+    public int rightClickDelayTimer;
+
+    @Shadow
+    public GameSettings gameSettings;
+
+    @Shadow
+    private Profiler mcProfiler;
+
+    @Shadow
+    private boolean isGamePaused;
+
+    @Shadow
+    @Final
+    public Timer timer;
+
+    @Shadow
+    private void rightClickMouse() {}
+
+    @Shadow
+    private void clickMouse() {}
+
+    @Shadow
+    private void middleClickMouse() {}
+
+    @Shadow
+    public long startNanoTime;
+
+    @Shadow
+    public boolean inGameHasFocus;
+
+    @Shadow
+    public abstract IResourceManager getResourceManager();
+
+    @Shadow
+    private PlayerUsageSnooper usageSnooper;
+
+    @Shadow
+    private Queue<FutureTask<?>> scheduledTasks;
+
+    @Shadow
+    public abstract void shutdown();
+
+    @Shadow
+    public GuiAchievement guiAchievement;
 
     @Shadow
     public int fpsCounter;
+
+    @Shadow
+    public long prevFrameTime;
+
+    @Shadow
+    private Framebuffer framebufferMc;
+
+    @Shadow
+    public abstract void checkGLError(String message);
+
+    @Shadow
+    public long debugUpdateTime;
+
+    @Shadow
+    private IStream stream;
+
+    @Shadow
+    @Final
+    public FrameTimer frameTimer;
+
+    @Shadow
+    public String debug;
+
+    @Shadow
+    private IntegratedServer theIntegratedServer;
+
+    @Shadow
+    public abstract boolean isFramerateLimitBelowMax();
+
+    @Shadow
+    private static int debugFPS;
+
+    @Shadow
+    public abstract void updateDisplay();
+
+    @Shadow
+    public abstract boolean isSingleplayer();
+
+    @Shadow
+    @Final
+    private static Logger logger;
+
+    @Shadow
+    private void displayDebugInfo(long elapsedTicksTime) {}
+
+    @Shadow
+    private long debugCrashKeyPressTime;
+
+    @Shadow
+    public GuiIngame ingameGUI;
+
+    @Shadow
+    public TextureManager renderEngine;
+
+    @Shadow
+    public abstract void refreshResources();
+
+    @Shadow
+    private int joinPlayerCounter;
+
+    @Shadow
+    public abstract void dispatchKeypresses();
+
+    @Shadow
+    public RenderGlobal renderGlobal;
+
+    @Shadow
+    private RenderManager renderManager;
+
+    @Shadow
+    private NetworkManager myNetworkManager;
+
+    @Shadow
+    public long systemTime;
+
+    @Shadow
+    public abstract Entity getRenderViewEntity();
+
+    @Shadow
+    private SoundHandler mcSoundHandler;
+
+    @Shadow
+    private MusicTicker mcMusicTicker;
+
+    @Shadow
+    public abstract NetHandlerPlayClient getNetHandler();
+
+    @Shadow
+    public abstract void setIngameFocus();
+
+    @Shadow
+    private void updateDebugProfilerName(int p_updateDebugProfilerName_1_) {}
+
+    @Shadow
+    public abstract void displayInGameMenu();
+
+    @Shadow
+    public void displayGuiScreen(GuiScreen p_displayGuiScreen_1_) {}
+
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
         if (displayWidth < 1067)
@@ -115,29 +278,191 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))
     private void displayGuiScreen(CallbackInfo callbackInfo) {
-        if (currentScreen instanceof net.minecraft.client.gui.GuiMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
-            currentScreen = CrossSine.mainMenu;
+        if (!CrossSine.INSTANCE.getDestruced()) {
+            if (currentScreen instanceof net.minecraft.client.gui.GuiMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
+                currentScreen = CrossSine.mainMenu;
 
-            ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-            currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
-            skipRenderWorld = false;
+                ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+                currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
+                skipRenderWorld = false;
+            }
+
+            CrossSine.eventManager.callEvent(new ScreenEvent(currentScreen));
         }
-
-        CrossSine.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
-
+    public long getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+    }
     private long lastFrame = getTime();
 
-    @Inject(method = "runGameLoop", at = @At("HEAD"))
-    private void runGameLoop(final CallbackInfo callbackInfo) {
+    @Overwrite
+    private void runGameLoop() throws IOException {
         final long currentTime = getTime();
         final int deltaTime = (int) (currentTime - lastFrame);
         lastFrame = currentTime;
 
         RenderUtils.deltaTime = deltaTime;
 
-    }
+        long i = System.nanoTime();
+        this.mcProfiler.startSection("root");
 
+        if (Display.isCreated() && Display.isCloseRequested())
+        {
+            this.shutdown();
+        }
+
+        if (this.isGamePaused && this.theWorld != null)
+        {
+            float f = this.timer.renderPartialTicks;
+            this.timer.updateTimer();
+            this.timer.renderPartialTicks = f;
+        }
+        else
+        {
+            this.timer.updateTimer();
+        }
+
+        this.mcProfiler.startSection("scheduledExecutables");
+
+        synchronized (this.scheduledTasks)
+        {
+            while (!this.scheduledTasks.isEmpty())
+            {
+                Util.runTask((FutureTask)this.scheduledTasks.poll(), logger);
+            }
+        }
+
+        this.mcProfiler.endSection();
+        long l = System.nanoTime();
+        this.mcProfiler.startSection("tick");
+
+        for (int j = 0; j < this.timer.elapsedTicks; ++j)
+        {
+            if(Minecraft.getMinecraft().thePlayer != null) {
+                boolean skip = false;
+
+                if(j == 0) {
+                    TickBase tickBase = CrossSine.moduleManager.getModule(TickBase.class);
+
+                    if(tickBase.getState()) {
+                        int extraTicks = tickBase.getExtraTicks();
+
+                        if(extraTicks == -1) {
+                            skip = true;
+                        } else {
+                            if(extraTicks > 0) {
+                                for(int aa = 0; aa < extraTicks; aa++) {
+                                    this.runTick();
+                                }
+
+                                tickBase.setFreezing(true);
+                            }
+                        }
+                    }
+                }
+
+                if(!skip) {
+                    this.runTick();
+                }
+            } else {
+                this.runTick();
+            }
+        }
+
+        this.mcProfiler.endStartSection("preRenderErrors");
+        long i1 = System.nanoTime() - l;
+        this.checkGLError("Pre render");
+        this.mcProfiler.endStartSection("sound");
+        this.mcSoundHandler.setListener(this.thePlayer, this.timer.renderPartialTicks);
+        this.mcProfiler.endSection();
+        this.mcProfiler.startSection("render");
+        GlStateManager.pushMatrix();
+        GlStateManager.clear(16640);
+        this.framebufferMc.bindFramebuffer(true);
+        this.mcProfiler.startSection("display");
+        GlStateManager.enableTexture2D();
+
+        if (this.thePlayer != null && this.thePlayer.isEntityInsideOpaqueBlock())
+        {
+            this.gameSettings.thirdPersonView = 0;
+        }
+
+        this.mcProfiler.endSection();
+
+        if (!this.skipRenderWorld)
+        {
+            this.mcProfiler.endStartSection("gameRenderer");
+            this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
+            this.mcProfiler.endSection();
+            FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
+        }
+
+        this.mcProfiler.endSection();
+
+        if (this.gameSettings.showDebugInfo && this.gameSettings.showDebugProfilerChart && !this.gameSettings.hideGUI)
+        {
+            if (!this.mcProfiler.profilingEnabled)
+            {
+                this.mcProfiler.clearProfiling();
+            }
+
+            this.mcProfiler.profilingEnabled = true;
+            this.displayDebugInfo(i1);
+        }
+        else
+        {
+            this.mcProfiler.profilingEnabled = false;
+            this.prevFrameTime = System.nanoTime();
+        }
+
+        this.guiAchievement.updateAchievementWindow();
+        this.framebufferMc.unbindFramebuffer();
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
+        GlStateManager.popMatrix();
+        this.mcProfiler.startSection("root");
+        this.updateDisplay();
+        Thread.yield();
+        this.mcProfiler.startSection("stream");
+        this.mcProfiler.startSection("update");
+        this.mcProfiler.endStartSection("submit");
+        this.mcProfiler.endSection();
+        this.mcProfiler.endSection();
+        this.checkGLError("Post render");
+        ++this.fpsCounter;
+        this.isGamePaused = this.isSingleplayer() && this.currentScreen != null && this.currentScreen.doesGuiPauseGame() && !this.theIntegratedServer.getPublic();
+        long k = System.nanoTime();
+        this.frameTimer.addFrame(k - this.startNanoTime);
+        this.startNanoTime = k;
+
+        while (Minecraft.getSystemTime() >= this.debugUpdateTime + 1000L)
+        {
+            this.debugFPS = this.fpsCounter;
+            this.debug = String.format("%d fps (%d chunk update%s) T: %s%s%s%s%s", new Object[] {Integer.valueOf(debugFPS), Integer.valueOf(RenderChunk.renderChunksUpdated), RenderChunk.renderChunksUpdated != 1 ? "s" : "", (float)this.gameSettings.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate), this.gameSettings.enableVsync ? " vsync" : "", this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? "" : (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), OpenGlHelper.useVbo() ? " vbo" : ""});
+            RenderChunk.renderChunksUpdated = 0;
+            this.debugUpdateTime += 1000L;
+            this.fpsCounter = 0;
+            this.usageSnooper.addMemoryStatsToSnooper();
+
+            if (!this.usageSnooper.isSnooperRunning())
+            {
+                this.usageSnooper.startSnooper();
+            }
+        }
+
+        if (this.isFramerateLimitBelowMax())
+        {
+            this.mcProfiler.startSection("fpslimit_wait");
+            Display.sync(this.getLimitFramerate());
+            this.mcProfiler.endSection();
+        }
+
+        this.mcProfiler.endSection();
+    }
     @Inject(method = "runTick", at = @At("HEAD"))
     private void runTick(final CallbackInfo callbackInfo) {
         StaticStorage.scaledResolution = new ScaledResolution((Minecraft) (Object) this);
@@ -151,9 +476,22 @@ public abstract class MixinMinecraft {
             gameSettings.thirdPersonView = value;
         }
     }
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/settings/KeyBinding;isPressed()Z", ordinal = 0))
+    private void changeItem(CallbackInfo info) {
 
-    public long getTime() {
-        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+        for(int k = 0; k < 9; ++k) {
+            if (this.gameSettings.keyBindsHotbar[k].isPressed()) {
+                if (this.thePlayer.isSpectator()) {
+                    this.ingameGUI.getSpectatorGui().func_175260_a(k);
+                } else {
+                    if(SpoofItemUtils.INSTANCE.getSpoofing()) {
+                        SpoofItemUtils.INSTANCE.setSlot(k);
+                    } else {
+                        this.thePlayer.inventory.currentItem = k;
+                    }
+                }
+            }
+        }
     }
 
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", shift = At.Shift.BEFORE))
@@ -164,25 +502,26 @@ public abstract class MixinMinecraft {
     private static final String TARGET = "Lnet/minecraft/client/settings/KeyBinding;setKeyBindState(IZ)V";
     @Redirect(method="runTick", at=@At(value="INVOKE", target=TARGET))
     public void runTick_setKeyBindState(int keybind, boolean state) {
-        if(CrossSine.moduleManager.getModule(HitDelayFix.class).getState()) {
-            leftClickCounter = 0;
-        }
+        leftClickCounter = 0;
 
         KeyBinding.setKeyBindState(keybind, state);
     }
     @Inject(method = "dispatchKeypresses", at = @At(value = "HEAD"))
     private void onKey(CallbackInfo callbackInfo) {
+        final KeyBindEvent event = new KeyBindEvent();
         try {
             if (Keyboard.getEventKeyState() && (currentScreen == null))
                 CrossSine.eventManager.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
         } catch (Exception e) {
             //e.printStackTrace();
         }
-    }
-    @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MovingObjectPosition;getBlockPos()Lnet/minecraft/util/BlockPos;"))
-    private void onClickBlock(CallbackInfo callbackInfo) {
-        if (this.leftClickCounter == 0 && theWorld.getBlockState(objectMouseOver.getBlockPos()).getBlock().getMaterial() != Material.air) {
-            CrossSine.eventManager.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), this.objectMouseOver.sideHit));
+        try {
+            if (Keyboard.getEventKeyState()) {
+                event.setKey(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey());
+                CrossSine.eventManager.callEvent(event);
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
         }
     }
 
@@ -195,7 +534,7 @@ public abstract class MixinMinecraft {
     private void clickMouse(CallbackInfo callbackInfo) {
         CrossSine.eventManager.callEvent(new ClickEvent());
         CPSCounter.registerClick(CPSCounter.MouseButton.LEFT);
-            leftClickCounter = 0;
+        leftClickCounter = 0;
     }
     @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;rightClickDelayTimer:I", shift = At.Shift.AFTER))
     private void rightClickMouse(final CallbackInfo callbackInfo) {
@@ -210,26 +549,6 @@ public abstract class MixinMinecraft {
     @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
     private void loadWorld(WorldClient p_loadWorld_1_, String p_loadWorld_2_, final CallbackInfo callbackInfo) {
         CrossSine.eventManager.callEvent(new WorldEvent(p_loadWorld_1_));
-    }
-
-    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;theWorld:Lnet/minecraft/client/multiplayer/WorldClient;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
-    private void clearRenderCache(CallbackInfo ci) {
-        MinecraftForgeClient.getRenderPass();
-        MinecraftForgeClientAccessor.getRegionCache().invalidateAll();
-        MinecraftForgeClientAccessor.getRegionCache().cleanUp();
-    }
-    @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
-    public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir) {
-        if (RotationUtils.targetRotation != null && thePlayer != null) {
-            final RenderRotation renderRotation = CrossSine.moduleManager.getModule(RenderRotation.class);
-                final float yaw = RotationUtils.targetRotation.getYaw();
-                if (renderRotation.getRotationMode().equals("Lock")) {
-                    thePlayer.rotationYawHead = yaw;
-                }
-                if (renderRotation.getRotationMode().equals("Lock")) {
-                    thePlayer.renderYawOffset = yaw;
-                }
-        }
     }
     /**
      * @author CCBlueX
@@ -252,17 +571,6 @@ public abstract class MixinMinecraft {
             e.printStackTrace();
         }
     }
-    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/LoadingScreenRenderer;resetProgressAndMessage(Ljava/lang/String;)V"))
-    public void loadWorld(LoadingScreenRenderer loadingScreenRenderer, String string) {
-    }
-
-    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V"))
-    public void loadWorld1(LoadingScreenRenderer loadingScreenRenderer, String string) {
-    }
-
-    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Ljava/lang/System;gc()V", remap = false))
-    public void loadWorld2() {
-    }
 
     @Inject(method = "toggleFullscreen()V", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;setFullscreen(Z)V", shift = At.Shift.AFTER, remap = false), require = 1, allow = 1)
     private void toggleFullscreen(CallbackInfo callbackInfo) {
@@ -272,8 +580,8 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @ModifyConstant(method = "getLimitFramerate", constant = @Constant(intValue = 30))
-    public int getLimitFramerate(int constant) {
-        return 1000;
+    @Overwrite
+    public int getLimitFramerate() {
+        return this.theWorld == null && this.currentScreen != null && FPSBoost.INSTANCE.getCpuFix().get() ? 5 : this.gameSettings.limitFramerate;
     }
 }

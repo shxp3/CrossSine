@@ -23,7 +23,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
-@ModuleInfo("AutoBot", "Auto Bot",ModuleCategory.COMBAT)
+@ModuleInfo("AutoBot",ModuleCategory.COMBAT)
 class AutoBot : Module() {
     private val autoSoupValue = BoolValue("AutoSoup", true)
     private val autoPotValue = BoolValue("AutoPot", true)
@@ -206,7 +206,7 @@ class AutoBot : Module() {
 
             if (autoPotThrowing) {
                 autoPotThrowTime++
-                RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw, autoPotThrowAngle))
+                RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw, autoPotThrowAngle), 0)
                 if (autoPotThrowTime == autoPotThrowTickValue.get()) {
                     mc.netHandler.addToSendQueue(C09PacketHeldItemChange(autoPotPot - 36))
                     mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
@@ -233,7 +233,7 @@ class AutoBot : Module() {
             }
 
             if (potion != -1) {
-                RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw, autoPotThrowAngle))
+                RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw, autoPotThrowAngle), 0)
                 autoPotPot = potion
                 autoPotThrowing = true
                 InventoryUtils.INV_TIMER.reset()

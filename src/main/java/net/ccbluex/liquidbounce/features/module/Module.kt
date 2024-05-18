@@ -18,11 +18,10 @@ open class Module : MinecraftInstance(), Listenable {
     val translate = Translate(0F,0F)
     val animation: AnimationHelper
     var name: String
-    var spacedName: String
     var update: Boolean = false
     private var suffix: String? = null
     private val properties: List<Value<*>> = ArrayList()
-    var toggled = false
+    private var toggled = false
     var localizedName = ""
         get() = field.ifEmpty { name }
     var category: ModuleCategory
@@ -47,13 +46,11 @@ open class Module : MinecraftInstance(), Listenable {
     var triggerType: EnumTriggerType
     val moduleCommand: Boolean
     val moduleInfo = javaClass.getAnnotation(ModuleInfo::class.java)!!
-
     var slideStep = 0F
 
 
     init {
         name = moduleInfo.name
-        spacedName = if (moduleInfo.spacedName == "") name else moduleInfo.spacedName
         animation = AnimationHelper(this)
         category = moduleInfo.category
         keyBind = moduleInfo.keyBind
@@ -77,7 +74,7 @@ open class Module : MinecraftInstance(), Listenable {
             onToggle(value)
 
             // Play sound and add notification
-            if (!CrossSine.isStarting) {
+            if (!CrossSine.isStarting && moduleInfo.array) {
                 if (value) {
                     CrossSine.hud.addNotification(Notification("Module", "Enabled $localizedName", NotifyType.SUCCESS))
                 } else {
@@ -110,45 +107,11 @@ open class Module : MinecraftInstance(), Listenable {
     open val tag: String?
         get() = null
 
-    val tagName: String
-        get() = "$name${if (tag == null) "" else " §7$tag"}"
-
-    val colorlessTagName: String
-        get() = "$name${if (tag == null) "" else " " + stripColor(tag!!)}"
-
-    var width = 10
-
     /**
      * Toggle module
      */
     fun toggle() {
         state = !state
-    }
-    open fun getSuffix(): String? {
-        return suffix
-    }
-
-    open fun setSuffix(suffix: String?) {
-        this.suffix = suffix
-    }
-
-    open fun getProperties(): List<Value<*>?>? {
-        return properties
-    }
-
-    open fun hasMode(): Boolean {
-        return suffix != null
-    }
-    open fun isToggled(): Boolean {
-        return toggled
-    }
-    open fun toggleSilent() {
-        this.toggled = !this.toggled
-        if (this.toggled) {
-            onEnable()
-        } else {
-            onDisable()
-        }
     }
 
     /**

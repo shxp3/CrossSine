@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.TextValue
 import net.minecraft.client.gui.GuiChat
 
-@ModuleInfo(name = "Spammer", spacedName = "Spammer", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Spammer",  category = ModuleCategory.PLAYER)
 class Spammer : Module() {
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0, 5000) {
         override fun onChanged(oldValue: Int, newValue: Int) {

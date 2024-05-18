@@ -1,6 +1,7 @@
 
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.utils.GameButtonUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -57,13 +58,15 @@ public abstract class MixinGuiButton extends Gui {
      */
     @Inject(method = "drawButton", at = @At("HEAD"), cancellable = true)
     public void drawButton(Minecraft mc, int mouseX, int mouseY, CallbackInfo ci) {
-        if (!visible) {
-            return;
+        if (!CrossSine.INSTANCE.getDestruced()){
+            if (!visible) {
+                return;
+            }
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            this.mouseDragged(mc, mouseX, mouseY);
+            buttonRenderer.render(mouseX, mouseY, mc);
+            buttonRenderer.drawButtonText(mc);
+            ci.cancel();
         }
-        this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-        this.mouseDragged(mc, mouseX, mouseY);
-        buttonRenderer.render(mouseX, mouseY, mc);
-        buttonRenderer.drawButtonText(mc);
-        ci.cancel();
     }
 }

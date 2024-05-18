@@ -19,7 +19,7 @@ class MinemenVelo : VelocityMode("Minemen") {
         if (ticks > 23) {
             canCancel = true
         }
-        if (ticks >= 2 && ticks <= 4 && !lastCancel) {
+        if (ticks in 2..4 && !lastCancel) {
             mc.thePlayer.motionX *= 0.99
             mc.thePlayer.motionZ *= 0.99
         } else if (ticks == 5 && !lastCancel) {
