@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.matrix
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.client.settings.GameSettings
-import net.ccbluex.liquidbounce.features.value.BoolValue
 
 class Matrix692 : SpeedMode("Matrix6.9.2") {
     private var wasTimer = false
@@ -25,7 +24,7 @@ class Matrix692 : SpeedMode("Matrix6.9.2") {
             mc.gameSettings.keyBindJump.pressed = false
             mc.timer.timerSpeed = 1.35f
             wasTimer = true
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             MovementUtils.strafe()
         }else if (MovementUtils.getSpeed() < 0.215) {
             MovementUtils.strafe(0.215f)

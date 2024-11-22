@@ -7,10 +7,8 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.skin
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RoundedUtil
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
 import java.awt.Color

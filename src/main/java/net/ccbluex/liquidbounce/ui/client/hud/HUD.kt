@@ -4,11 +4,13 @@ package net.ccbluex.liquidbounce.ui.client.hud
 import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Armor
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.opengl.GL11
 import kotlin.math.max

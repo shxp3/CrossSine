@@ -4,13 +4,11 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.Element;
-import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +73,7 @@ public abstract class Panel extends MinecraftInstance {
         if(this.scrollbar != scrollbar)
             this.scrollbar = scrollbar;
 
-        modernuiLaunchOption.clickGui.style.drawPanel(mouseX, mouseY, this);
+        CrossSine.clickGui.style.drawPanel(mouseX, mouseY, this);
 
         int y = this.y + height - 2;
         int count = 0;

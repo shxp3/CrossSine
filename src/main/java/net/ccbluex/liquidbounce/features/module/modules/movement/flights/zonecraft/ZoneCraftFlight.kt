@@ -11,7 +11,7 @@ class ZoneCraftFlight : FlightMode("ZoneCraft") {
     override fun onMove(event: MoveEvent) {
         mc.timer.timerSpeed = 1f
         if(mc.thePlayer.onGround) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
             event.y = 0.42
         } else {
             mc.thePlayer.motionY = 0.0;

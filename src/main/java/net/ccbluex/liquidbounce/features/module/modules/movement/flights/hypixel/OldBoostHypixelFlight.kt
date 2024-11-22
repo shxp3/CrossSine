@@ -4,6 +4,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flights.hypixe
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
 import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.timer.tickTimer
@@ -44,7 +45,7 @@ class OldBoostHypixelFlight : FlightMode("OldBoostHypixel") {
         }
         mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
 
-        mc.thePlayer.jump()
+        MovementUtils.jump(true)
         mc.thePlayer.posY += 0.42 // Visual
 
         boostState = 1

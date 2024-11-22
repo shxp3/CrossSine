@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.other
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.potion.Potion
 
@@ -12,7 +11,7 @@ class PikaSpeed : SpeedMode("Pika") {
         if (MovementUtils.isMoving()) {
             MovementUtils.strafe(0.275555551F)
             if(mc.thePlayer.onGround) {
-                mc.thePlayer.jump()
+                MovementUtils.jump(false)
             }
         }
 

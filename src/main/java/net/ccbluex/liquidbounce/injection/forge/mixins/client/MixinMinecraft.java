@@ -4,16 +4,11 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.TickBase;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
-import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
-import net.ccbluex.liquidbounce.features.module.modules.world.FPSBoost;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
-import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
-import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.SpoofItemUtils;
 import net.ccbluex.liquidbounce.utils.render.ImageUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.client.audio.SoundHandler;
@@ -43,21 +38,23 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.profiler.PlayerUsageSnooper;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.*;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.util.FrameTimer;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Timer;
+import net.minecraft.util.Util;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -494,7 +491,7 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", shift = At.Shift.BEFORE))
+    @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", ordinal = 0))
     private void onTick(final CallbackInfo callbackInfo) {
         CrossSine.eventManager.callEvent(new TickEvent());
     }
@@ -582,6 +579,6 @@ public abstract class MixinMinecraft {
 
     @Overwrite
     public int getLimitFramerate() {
-        return this.theWorld == null && this.currentScreen != null && FPSBoost.INSTANCE.getCpuFix().get() ? 5 : this.gameSettings.limitFramerate;
+        return this.gameSettings.limitFramerate;
     }
 }

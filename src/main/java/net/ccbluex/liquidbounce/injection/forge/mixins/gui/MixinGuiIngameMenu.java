@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
-
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.login.LoginUtils;
 import net.minecraft.client.gui.GuiButton;

@@ -2,28 +2,22 @@
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.Colors
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.OutlineShader
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.projectile.EntityArrow
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import kotlin.math.roundToInt
 
 @ModuleInfo(name = "ItemESP", category = ModuleCategory.VISUAL)
 class ItemESP : Module() {

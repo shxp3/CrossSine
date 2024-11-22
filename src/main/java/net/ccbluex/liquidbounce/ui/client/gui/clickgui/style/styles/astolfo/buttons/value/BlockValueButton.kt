@@ -1,14 +1,14 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.value
 
+import net.ccbluex.liquidbounce.features.value.BlockValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.BACKGROUND_VALUE
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.FONT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.SELECTED_FORMAT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
-import net.ccbluex.liquidbounce.utils.geom.Rectangle
-import net.ccbluex.liquidbounce.utils.MouseButtons
+import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
+import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.features.value.BlockValue
 import java.awt.Color
 
 
@@ -48,13 +48,13 @@ class BlockValueButton(x: Float, y: Float, width: Float, height: Float, var sett
   override fun mouseAction(mouseX: Int, mouseY: Int, click: Boolean, button: Int) {
     if (click) {
       when (button) {
-        MouseButtons.LEFT.ordinal -> {
+        MouseButton.LEFT.ordinal -> {
           for (t in listEntryBoxTriples) {
             if (t.rect.contains(mouseX, mouseY)) setting.set(t.id)
           }
         }
 
-        MouseButtons.RIGHT.ordinal -> {
+        MouseButton.RIGHT.ordinal -> {
           if (baseRect.contains(mouseX, mouseY)) setting.openList = !setting.openList
         }
       }

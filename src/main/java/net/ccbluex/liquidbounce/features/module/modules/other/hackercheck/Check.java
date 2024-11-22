@@ -22,7 +22,6 @@ public class Check extends MinecraftInstance {
     public void positionUpdate(double x, double y, double z) {}
 
     public void onLivingUpdate() {}
-    public void onPacket(PacketEvent event) {}
 
     public boolean isEnabled() {
         return enabled;

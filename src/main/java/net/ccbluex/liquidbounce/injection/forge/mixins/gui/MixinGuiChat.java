@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.visual.GuiChatModule;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;

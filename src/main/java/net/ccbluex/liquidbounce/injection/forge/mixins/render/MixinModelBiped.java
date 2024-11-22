@@ -2,8 +2,8 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimations;
-import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -12,9 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ModelBiped.class)
@@ -35,7 +33,7 @@ public class MixinModelBiped {
             this.bipedRightArm.rotateAngleY = 0F;
 
         if (RotationUtils.serverRotation != null && p_setRotationAngles_7_ instanceof EntityPlayer && p_setRotationAngles_7_.equals(Minecraft.getMinecraft().thePlayer)) {
-            this.bipedHead.rotateAngleX = (float) Math.toRadians(RenderRotation.INSTANCE.lerp(Minecraft.getMinecraft().timer.renderPartialTicks, RenderRotation.INSTANCE.getPrevHeadPitch(), RenderRotation.INSTANCE.getHeadPitch()));
+            this.bipedHead.rotateAngleX = (float) Math.toRadians(RenderUtils.interpolate(RotationUtils.headPitch, RotationUtils.prevHeadPitch, Minecraft.getMinecraft().timer.renderPartialTicks));
         }
     }
 }

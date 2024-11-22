@@ -7,14 +7,17 @@ import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.timer.TimerMS
 
 @ModuleInfo("TickBase", ModuleCategory.COMBAT)
 class TickBase : Module(){
     private var counter = -1
     var freezing = false
-
+    private val timer = TimerMS()
     private val ticks = IntegerValue("Ticks", 3, 1, 10)
+    private val delayTimer = IntegerValue("CoolDown", 0, 0, 5000)
 
     override fun onEnable() {
         counter = -1
@@ -26,11 +29,10 @@ class TickBase : Module(){
             return -1
         freezing = false
 
-        val isInRange = if(KillAura.state) KillAura.currentTarget != null && mc.thePlayer.getDistanceToEntity(KillAura.currentTarget) < KillAura.rangeValue.get()
-        else false
 
-        if (isInRange && mc.thePlayer.hurtTime <= 2) {
+        if (!Scaffold.state && timer.hasTimePassed(delayTimer.get().toLong()) && (KillAura.state && KillAura.currentTarget != null && mc.thePlayer.getDistanceToEntity(KillAura.currentTarget) > KillAura.rangeValue.get() || KillAura2.state && KillAura2.target != null && mc.thePlayer.getDistanceToEntity(KillAura2.target) > KillAura2.reachValue.get()) && mc.thePlayer.hurtTime <= 2) {
             counter = ticks.get()
+            timer.reset()
             return counter
         }
 

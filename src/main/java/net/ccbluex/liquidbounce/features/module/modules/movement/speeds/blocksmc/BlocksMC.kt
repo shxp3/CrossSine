@@ -24,13 +24,13 @@ class BlocksMC : SpeedMode("BlocksMC") {
                 if (lowHopValue.get() && mc.thePlayer.hurtTime > 0 && CrossSine.combatManager.inCombat) {
                     strafe(0.45995554f)
                     if (mc.thePlayer.onGround) {
-                        mc.thePlayer.jump()
+                        MovementUtils.jump(false)
                         mc.thePlayer.motionY = 0.22
                     } else if (mc.thePlayer.fallDistance < -0.20) {
                         mc.thePlayer.motionY = -0.10
                     }
                 } else if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(false)
                     if (groundBoost.get()) {
                         if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                             strafe(0.5F)

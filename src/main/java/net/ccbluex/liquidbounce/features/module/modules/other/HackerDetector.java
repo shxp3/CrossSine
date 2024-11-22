@@ -3,14 +3,13 @@ package net.ccbluex.liquidbounce.features.module.modules.other;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
-import net.ccbluex.liquidbounce.event.UpdateEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
-import net.ccbluex.liquidbounce.features.value.BoolValue;
-import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.Check;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.CheckManager;
+import net.ccbluex.liquidbounce.features.value.BoolValue;
+import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
@@ -38,6 +37,14 @@ public class HackerDetector extends Module {
             Check.debug = newValue;
         }
     };
+    public final BoolValue autoBlockValue = new BoolValue("AutoBlock", true);
+    public final BoolValue reachValue = new BoolValue("Reach", true);
+    public final BoolValue velocityValue = new BoolValue("Velocity", true);
+    public final BoolValue noSlowValue = new BoolValue("NoSlow", true);
+    public final BoolValue scaffoldValue = new BoolValue("Scaffold", true);
+    public final BoolValue noFallValue = new BoolValue("NoFall", true);
+    public final BoolValue pingSpoofValue = new BoolValue("PingSpoof", true);
+    public final BoolValue rotationValue = new BoolValue("Rotation", true);
     private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
 
 
@@ -77,9 +84,6 @@ public class HackerDetector extends Module {
         if (event.isCancelled()) return;
         if (event.getPacket() instanceof S14PacketEntity || event.getPacket() instanceof S18PacketEntityTeleport) {
             singleThreadExecutor.execute(() -> {
-                for (CheckManager manager : playersChecks.values()) {
-                    manager.onPacket(event);
-                }
                 int x, y, z, id;
                 if (event.getPacket() instanceof S14PacketEntity) {
                     S14PacketEntity packet = (S14PacketEntity) event.getPacket();

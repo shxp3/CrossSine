@@ -46,7 +46,7 @@ class NoWeb : Module() {
                 }
 
                 if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }
             }
             "aac4" -> {
@@ -54,7 +54,7 @@ class NoWeb : Module() {
                 mc.thePlayer.jumpMovementFactor = 0.02958f
                 mc.thePlayer.motionY -= 0.00775
                 if (mc.thePlayer.onGround) {
-                    // mc.thePlayer.jump()
+                    // MovementUtils.jump(true)
                     mc.thePlayer.motionY = 0.4050
                     mc.timer.timerSpeed = 1.35F
                 }
@@ -92,7 +92,7 @@ class NoWeb : Module() {
                 mc.thePlayer.jumpMovementFactor = 0.42f
 
                 if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }
             }
             "test" -> {
@@ -110,7 +110,7 @@ class NoWeb : Module() {
                 mc.thePlayer.jumpMovementFactor = 0.42f
 
                 if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }
             }
         }

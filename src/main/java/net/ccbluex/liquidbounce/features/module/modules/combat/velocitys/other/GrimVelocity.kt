@@ -1,12 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other
 
-import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
 

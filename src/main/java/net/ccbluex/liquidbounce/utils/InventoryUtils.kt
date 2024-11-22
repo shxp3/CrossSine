@@ -108,8 +108,8 @@ object InventoryUtils : Listenable {
                     }
                 }
             }
-            return -1
         }
+        return -1
     }
 
     fun canPlaceBlock(block: Block): Boolean {

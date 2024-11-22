@@ -16,18 +16,6 @@ object LoginUtils : MinecraftInstance() {
     }
 
     fun randomCracked() {
-        var name = GuiAltManager.randomAltField.text
-
-        while (name.contains("%n") || name.contains("%s")) {
-            if (name.contains("%n")) {
-                name = name.replaceFirst("%n", RandomUtils.nextInt(0, 9).toString())
-            }
-
-            if (name.contains("%s")) {
-                name = name.replaceFirst("%s", RandomUtils.randomString(1))
-            }
-        }
-
-        loginCracked(name)
+        loginCracked(RandomUtils.randomUsername())
     }
 }

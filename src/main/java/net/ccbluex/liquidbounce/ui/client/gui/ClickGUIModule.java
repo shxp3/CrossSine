@@ -1,21 +1,21 @@
 package net.ccbluex.liquidbounce.ui.client.gui;
 
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor;
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.ClickGui;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.*;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoClickGui;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi;
-import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.features.value.ListValue;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.ClickGui;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.LiquidBounceStyle;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoClickGui;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi;
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S2EPacketCloseWindow;
 import org.lwjgl.input.Keyboard;
@@ -42,7 +42,7 @@ public class ClickGUIModule extends Module {
         if (CustomClientColor.INSTANCE.getState()) {
             return CustomClientColor.INSTANCE.getColor();
         } else {
-            return ClientTheme.INSTANCE.getColor(1);
+            return ClientTheme.INSTANCE.getColor(1 ,true);
         }
     }
 
@@ -55,13 +55,13 @@ public class ClickGUIModule extends Module {
             this.setState(false);
         }  else {
             updateStyle();
-            mc.displayGuiScreen(modernuiLaunchOption.clickGui);
+            mc.displayGuiScreen(CrossSine.clickGui);
         }
 
     }
 
     private void updateStyle() {
-        modernuiLaunchOption.clickGui.style = new LiquidBounceStyle();
+        CrossSine.clickGui.style = new LiquidBounceStyle();
     }
 
     @EventTarget(ignoreCondition = true)

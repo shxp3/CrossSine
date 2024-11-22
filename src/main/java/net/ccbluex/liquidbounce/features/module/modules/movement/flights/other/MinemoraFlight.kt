@@ -76,7 +76,7 @@ class MinemoraFlight : FlightMode("Minemora") {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.42f, mc.thePlayer.posZ, false))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
         } else {
             if (MovementUtils.isMoving()) {
                 MovementUtils.strafe(1.7f)

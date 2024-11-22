@@ -3,10 +3,10 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flights.verus
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -120,14 +120,14 @@ class VerusBoostFlight : FlightMode("VerusBoost") {
                     )
                 )
                 mc.timer.timerSpeed = 0.15f
-                mc.thePlayer.jump()
+                MovementUtils.jump(true)
                 mc.thePlayer.onGround = true
             } else if (ticks2 == 2) {
                 mc.timer.timerSpeed = 1f
             }
 
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.jump()
+                MovementUtils.jump(true)
             }
 
             if (mc.thePlayer.fallDistance > 1) {
@@ -135,7 +135,7 @@ class VerusBoostFlight : FlightMode("VerusBoost") {
             }
 
             if (mc.thePlayer.motionY == 0.0) {
-                mc.thePlayer.jump()
+                MovementUtils.jump(true)
 
                 mc.thePlayer.onGround = true
                 mc.thePlayer.fallDistance = 0f
@@ -180,7 +180,7 @@ class VerusBoostFlight : FlightMode("VerusBoost") {
                     PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX,mc.thePlayer.posY,mc.thePlayer.posZ,false))
                     PacketUtils.sendPacketNoEvent(C03PacketPlayer(true))
                     mc.timer.timerSpeed = 0.4f
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }else {
                     if(ticks == 4) mc.thePlayer.motionY += 0.3
                 }

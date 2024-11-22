@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import me.liuli.elixir.account.MinecraftAccount;
 import net.ccbluex.liquidbounce.CrossSine;
-import net.ccbluex.liquidbounce.features.special.AntiForge;
 import net.ccbluex.liquidbounce.features.special.AutoReconnect;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
@@ -83,11 +82,6 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
             case 4:
                 LoginUtils.INSTANCE.randomCracked();
                 ServerUtils.connectToLastServer();
-                break;
-            case 5:
-                AntiForge.INSTANCE.setEnabled(!AntiForge.INSTANCE.getEnabled());
-                forgeBypassButton.displayString = "%ui.antiForge%: " + (AntiForge.INSTANCE.getEnabled() ? "On" : "Off");
-                CrossSine.fileManager.saveConfig(CrossSine.fileManager.getSpecialConfig());
                 break;
         }
     }

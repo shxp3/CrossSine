@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.other
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -15,7 +16,11 @@ import net.minecraft.potion.Potion
 
 @ModuleInfo("BedWarsHelper", ModuleCategory.OTHER)
 class BedWarsHelper : Module() {
-    private val itemChecker = BoolValue("Item-Checker", true)
+    private val itemChecker: BoolValue = object: BoolValue("Item-Checker", true) {
+        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+            clear()
+        }
+    }
     private val stoneSword = BoolValue("Stone-Sword", false).displayable { itemChecker.get() }
     private val ironSword = BoolValue("Iron-Sword", true).displayable { itemChecker.get() }
     private val diamondSword = BoolValue("Diamond-Sword", true).displayable { itemChecker.get() }
@@ -36,79 +41,72 @@ class BedWarsHelper : Module() {
     private val invisibilityPotionList = ArrayList<String>()
 
     @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        if (mc.thePlayer.ticksExisted < 5) {
-            stoneSwordList.clear()
-            ironSwordList.clear()
-            diamondSwordList.clear()
-            fireBallList.clear()
-            enderpearlList.clear()
-            tntList.clear()
-            obsidianList.clear()
-            diamondArmorList.clear()
-            invisibilityPotionList.clear()
-        }
+    fun onUpdate(event: UpdateEvent) {
         for (entity in mc.theWorld.playerEntities) {
-            if (entity.heldItem.item == Items.stone_sword && stoneSword.get() && !stoneSwordList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§8Stone Sword")
-                stoneSwordList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.heldItem.item == Items.iron_sword && ironSword.get() && !ironSwordList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§FIron Sword")
-                ironSwordList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.heldItem.item == Items.diamond_sword && diamondSword.get() && !diamondSwordList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§bDiamond Sword")
-                diamondSwordList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.heldItem.item == Items.fire_charge && fireBallSword.get() && !fireBallList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§6FireBall")
-                fireBallList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.heldItem.item == Items.ender_pearl && enderPearl.get() && !enderpearlList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§9Ender Pearl")
-                enderpearlList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.heldItem.item == ItemBlock.getItemById(46) && tnt.get() && !tntList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§4TNT Block")
-                tntList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.heldItem.item == ItemBlock.getItemById(49) && obsidian.get() && !obsidianList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§0Obsidian Block")
-                obsidianList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
+            if (itemChecker.get()) {
+                if (entity.heldItem.item == Items.stone_sword && stoneSword.get() && !stoneSwordList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§8Stone Sword", stoneSwordList)
+                }
+                if (entity.heldItem.item == Items.iron_sword && ironSword.get() && !ironSwordList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§FIron Sword", ironSwordList)
+                }
+                if (entity.heldItem.item == Items.diamond_sword && diamondSword.get() && !diamondSwordList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§bDiamond Sword", diamondSwordList)
+                }
+                if (entity.heldItem.item == Items.fire_charge && fireBallSword.get() && !fireBallList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§6FireBall", fireBallList)
+                }
+                if (entity.heldItem.item == Items.ender_pearl && enderPearl.get() && !enderpearlList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§9Ender Pearl", enderpearlList)
+                }
+                if (entity.heldItem.item == ItemBlock.getItemById(46) && tnt.get() && !tntList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§4TNT Block", tntList)
+                }
+                if (entity.heldItem.item == ItemBlock.getItemById(49) && obsidian.get() && !obsidianList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§0Obsidian Block", obsidianList)
+                }
+                if (entity.heldItem.item == Potion.invisibility && invisibilityPotion.get() && !invisibilityPotionList.contains(entity.name)) {
+                    alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§5Invisibility Potion", invisibilityPotionList)
+                }
             }
             if (isWearingDiamondArmor(entity) && diamondArmor.get() && !diamondArmorList.contains(entity.name)) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§bDiamond Armor")
-                diamondArmorList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
+                alert(entity, "§F[§dBWH§F] ${entity.displayName.formattedText} has §l§bDiamond Armor", diamondArmorList)
             }
-            if (entity.heldItem.item == Potion.invisibility && invisibilityPotion.get() && !invisibilityPotionList.contains(
-                    entity.name
-                )
-            ) {
-                ClientUtils.displayChatMessage("§F[§dBWH§F] ${entity.displayName.formattedText} has §l§5Invisibility Potion")
-                invisibilityPotionList.add(entity.name)
-                mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
-            }
-            if (entity.isDead) {
-                stoneSwordList.remove(entity.name)
-                ironSwordList.remove(entity.name)
-                diamondSwordList.remove(entity.name)
-                fireBallList.remove(entity.name)
-                enderpearlList.remove(entity.name)
-                tntList.remove(entity.name)
-                obsidianList.remove(entity.name)
-                diamondArmorList.remove(entity.name)
-                invisibilityPotionList.remove(entity.name)
+            if (entity.isDead || entity.isSpectator) {
+               reset(entity)
             }
         }
+    }
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        clear()
+    }
+    private fun reset(entity: EntityPlayer) {
+        stoneSwordList.remove(entity.name)
+        ironSwordList.remove(entity.name)
+        diamondSwordList.remove(entity.name)
+        fireBallList.remove(entity.name)
+        enderpearlList.remove(entity.name)
+        tntList.remove(entity.name)
+        obsidianList.remove(entity.name)
+        diamondArmorList.remove(entity.name)
+        invisibilityPotionList.remove(entity.name)
+    }
+    private fun clear() {
+        stoneSwordList.clear()
+        ironSwordList.clear()
+        diamondSwordList.clear()
+        fireBallList.clear()
+        enderpearlList.clear()
+        tntList.clear()
+        obsidianList.clear()
+        diamondArmorList.clear()
+        invisibilityPotionList.clear()
+    }
+    private fun alert(entity: EntityPlayer, string: String, list: ArrayList<String>) {
+        ClientUtils.displayChatMessage(string)
+        list.add(entity.name)
+        mc.thePlayer.playSound("note.pling", 1.0f, 1.0f)
     }
     private fun isWearingDiamondArmor(player: EntityPlayer): Boolean {
         val armorInventory = player.inventory.armorInventory
@@ -120,5 +118,9 @@ class BedWarsHelper : Module() {
         }
 
         return false
+    }
+
+    override fun onDisable() {
+        clear()
     }
 }

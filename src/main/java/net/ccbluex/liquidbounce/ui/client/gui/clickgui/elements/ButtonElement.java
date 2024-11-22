@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements;
 
-import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
+
+import net.ccbluex.liquidbounce.CrossSine;
 
 public class ButtonElement extends Element {
 
@@ -19,7 +20,7 @@ public class ButtonElement extends Element {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float button) {
-        modernuiLaunchOption.clickGui.style.drawButtonElement(mouseX, mouseY, this);
+        CrossSine.clickGui.style.drawButtonElement(mouseX, mouseY, this);
         super.drawScreen(mouseX, mouseY, button);
     }
 

@@ -26,7 +26,7 @@ class VulcanHop : SpeedMode("VulcanHop") {
         }
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
             mc.gameSettings.keyBindJump.pressed = false
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             if (!mc.thePlayer.isAirBorne) {
                 return //Prevent flag with Fly
             }

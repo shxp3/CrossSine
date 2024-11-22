@@ -2,11 +2,11 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.CategoryElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement
-import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.GuiTheme
+import net.ccbluex.liquidbounce.ui.client.gui.GuiClientSettings
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
@@ -96,6 +96,7 @@ class NewUi : GuiScreen() {
     private fun reload() {
         categoryElements.clear()
         ModuleCategory.values().forEach { categoryElements.add(CategoryElement(it)) }
+
         categoryElements[0].focused = true
     }
 
@@ -218,8 +219,14 @@ class NewUi : GuiScreen() {
         }
         val percent = EaseUtils.easeOutBack(animProgress.toDouble()).toFloat()
         GL11.glPushMatrix()
-        GL11.glScalef(percent, percent, percent)
-        GL11.glTranslatef(((windowXEnd * 0.5f * (1 - percent)) / percent), ((windowYEnd * 0.5f * (1 - percent)) / percent), 0.0F)
+        if (!ClickGUIModule.fastRenderValue.get()) {
+            GL11.glScalef(percent, percent, percent)
+            GL11.glTranslatef(
+                ((windowXEnd * 0.5f * (1 - percent)) / percent),
+                ((windowYEnd * 0.5f * (1 - percent)) / percent),
+                0.0F
+            )
+        }
         handleMisc()
         handleMove(mouseX, mouseY)
         handleResize(mouseX, mouseY)
@@ -238,7 +245,7 @@ class NewUi : GuiScreen() {
         GlStateManager.disableAlpha()
         RenderUtils.drawImage(IconManager.removeIcon, (windowXEnd + xOffset).toInt() - 15, (windowYStart + yOffset).toInt() + 5, 10, 10)
         RenderUtils.drawImage(IconManager.brush, (windowXStart + xOffset).toInt() + 6, (windowYEnd + yOffset).toInt() - 30, 24,24)
-        RenderUtils.drawImage(IconManager.paint, (windowXStart + xOffset).toInt() + 6, (windowYEnd + yOffset).toInt() - 60, 24,24)
+        RenderUtils.drawImage(IconManager.settings, (windowXStart + xOffset).toInt() + 6, (windowYEnd + yOffset).toInt() - 60, 24,24)
         GlStateManager.enableAlpha()
 
         searchElement!!.xPos = (windowXStart + xOffset) + searchXOffset
@@ -312,8 +319,8 @@ class NewUi : GuiScreen() {
             mc.displayGuiScreen(GuiHudDesigner())
             return
         }
-        if (Rectangle(windowXStart, windowYEnd - 80, 40f, 40f).contains(mouseX, mouseY)) {
-            mc.displayGuiScreen(GuiTheme())
+        if (Rectangle(windowXStart, windowYEnd - 70, 30F, 30F).contains(mouseX, mouseY)) {
+            mc.displayGuiScreen(GuiClientSettings(this))
             return
         }
 
@@ -372,6 +379,7 @@ class NewUi : GuiScreen() {
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (keyCode == 1 && !cant) {
             closed = true
+            if (ClickGUIModule.fastRenderValue.get())   mc.displayGuiScreen(null)
             return
         }
         categoryElements.filter { it.focused }.forEach { cat ->

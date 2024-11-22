@@ -3,10 +3,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofalls.matrix
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.nofalls.NoFallMode
-import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.minecraft.network.play.client.C03PacketPlayer
-
 import kotlin.math.abs
 
 class Matrix663Nofall : NoFallMode("Matrix6.6.3") {

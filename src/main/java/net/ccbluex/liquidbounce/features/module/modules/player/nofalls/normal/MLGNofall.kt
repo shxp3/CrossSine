@@ -4,12 +4,11 @@ import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.nofalls.NoFallMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.VecRotation
 import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.timer.tickTimer
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items

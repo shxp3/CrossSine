@@ -6,10 +6,10 @@ import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.BlockAir
 import net.minecraft.client.settings.GameSettings
@@ -42,7 +42,7 @@ class VerusJumpFlight : FlightMode("VerusJump") {
                 times++
                 timer.reset()
                 if (times <5) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                     MovementUtils.strafe(0.48F)
                 }
             }
@@ -58,7 +58,7 @@ class VerusJumpFlight : FlightMode("VerusJump") {
             mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
             if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
                 mc.gameSettings.keyBindJump.pressed = false
-                mc.thePlayer.jump()
+                MovementUtils.jump(true)
                 MovementUtils.strafe(0.48F)
             } else if(airStrafeValue.get()) {
                 MovementUtils.strafe()

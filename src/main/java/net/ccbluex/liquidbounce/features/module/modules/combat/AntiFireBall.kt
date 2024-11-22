@@ -8,22 +8,20 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.projectile.EntityFireball
-import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.util.ResourceLocation
 import kotlin.math.atan2
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 @ModuleInfo(name = "AntiFireBall", category = ModuleCategory.COMBAT)
 class AntiFireBall : Module() {

@@ -1,6 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.verus
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.MoveEvent
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.LongJumpMode
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
@@ -31,7 +33,7 @@ class DamageLongJump: LongJumpMode("DamageVerus") {
 
     override fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.onGround && verjump < 4) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
             verjump += 1
         }
         if (mc.thePlayer.hurtTime == 9) {

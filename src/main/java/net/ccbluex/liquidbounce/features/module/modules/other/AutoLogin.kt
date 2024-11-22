@@ -13,7 +13,6 @@ import net.ccbluex.liquidbounce.features.value.TextValue
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S45PacketTitle
 import java.util.*
-import java.util.Timer
 import kotlin.concurrent.schedule
 
 @ModuleInfo(name = "AutoLogin",  category = ModuleCategory.OTHER)

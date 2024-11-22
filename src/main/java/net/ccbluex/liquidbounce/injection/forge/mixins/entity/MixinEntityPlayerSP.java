@@ -7,8 +7,9 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2;
-import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
+import net.ccbluex.liquidbounce.utils.PlayerUtils;
+import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -31,6 +32,7 @@ import net.minecraft.util.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -46,7 +48,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
     @Shadow
     public abstract void playSound(String name, float volume, float pitch);
-
     @Shadow
     public int sprintingTicksLeft;
 
@@ -124,13 +125,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Overwrite
     public void onUpdateWalkingPlayer() {
         try {
-            MotionEvent event = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
+            MotionEvent event = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround, this.isSprinting(), this.isSneaking());
             CrossSine.eventManager.callEvent(event);
 
-            ActionEvent actionEvent = new ActionEvent(this.isSprinting(), this.isSneaking());
-
-            boolean sprinting = actionEvent.getSprinting();
-            boolean sneaking = actionEvent.getSneaking();
+            boolean sprinting = event.getSprint();
+            boolean sneaking = event.getSneak();
 
             if (sprinting != this.serverSprintState) {
                 if (sprinting)
@@ -149,7 +148,13 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
                 this.serverSneakState = sneaking;
             }
-
+            if (event.getOnGround()) {
+                PlayerUtils.setGroundTicks(PlayerUtils.getGroundTicks() + 1);
+                PlayerUtils.setOffGroundTicks(0);
+            } else {
+                PlayerUtils.setOffGroundTicks(PlayerUtils.getOffGroundTicks() + 1);
+                PlayerUtils.setGroundTicks(0);
+            }
             if (this.isCurrentViewEntity()) {
                 float yaw = event.getYaw();
                 float pitch = event.getPitch();
@@ -210,7 +215,14 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             e.printStackTrace();
         }
     }
-
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
+    private void preTickEvent(CallbackInfo ci) {
+        final PreUpdateEvent preUpdateEvent = new PreUpdateEvent();
+        CrossSine.eventManager.callEvent(preUpdateEvent);
+        if (preUpdateEvent.isCancelled()) {
+            ci.cancel();
+        }
+    }
     @Inject(method = "pushOutOfBlocks", at = @At("HEAD"), cancellable = true)
     private void onPushOutOfBlocks(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         PushOutEvent event = new PushOutEvent();
@@ -220,7 +232,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if (event.isCancelled())
             callbackInfoReturnable.setReturnValue(false);
     }
-
     /**
      * @author CCBlueX
      * @author CoDynamic
@@ -287,7 +298,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
         boolean baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
         boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
-        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus()))) && !this.isRiding();
+        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || killAura.getInteractSlowDown().get() && killAura.getNoEventBlocking()))) && !this.isRiding();
 
         baseSprintState = baseSprintState && !(inventoryMove.getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
         
@@ -299,7 +310,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
         }
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldNoSlow()) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldSprint()) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);
@@ -359,7 +370,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
         noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
         
-        isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding();
+        isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || killAura.getNoEventBlocking() && killAura.getInteractSlowDown().get()))) && !this.isRiding();
 
         if (isCurrentUsingItem) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
@@ -384,7 +395,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         
         //Don't check current Sprint state cuz it's not updated in real time :bruh:
         
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldNoSlow()) && attemptToggle) {
+        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldSprint()) && attemptToggle) {
             this.setSprinting(true);
         } else {
             this.setSprinting(false);

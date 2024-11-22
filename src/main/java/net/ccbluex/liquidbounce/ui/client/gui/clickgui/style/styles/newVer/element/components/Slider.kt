@@ -4,7 +4,6 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.Color
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.utils.extensions.setAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.ShaderUtil
 import java.awt.Color
 
 class Slider {

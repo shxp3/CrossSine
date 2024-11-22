@@ -1,11 +1,19 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.event.MoveEvent
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.minecraft.block.Block
+import net.minecraft.block.BlockAir
+import net.minecraft.block.BlockSign
 import net.minecraft.client.Minecraft
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
 import kotlin.math.*
 
 
@@ -15,6 +23,33 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionX = 0.0
         mc.thePlayer.motionZ = 0.0
         if (y) mc.thePlayer.motionY = 0.0
+    }
+    fun predictedMotion(motion: Double): Double {
+        return (motion - 0.08) * 0.98f
+    }
+    fun getFallDistance(entity: Entity): Double {
+        var fallDist = -1.0
+        val pos: Vec3 = Vec3(entity.posX, entity.posY, entity.posZ)
+        var y = floor(pos.yCoord).toInt()
+        if ((pos.yCoord % 1).toInt() == 0) y--
+        for (i in y downTo -1 + 1) {
+            val block: Block? = getBlock(BlockPos(floor(pos.xCoord).toInt() , i, floor(pos.zCoord).toInt()))
+            if (block !is BlockAir && block !is BlockSign) {
+                fallDist = (y - i).toDouble()
+                break
+            }
+        }
+        return fallDist
+    }
+    fun predictedMotion(motion: Double, ticks: Int): Double {
+        if (ticks == 0) return motion
+        var predicted = motion
+
+        for (i in 0 until ticks) {
+            predicted = (predicted - 0.08) * 0.98f
+        }
+
+        return predicted
     }
 
     fun getSpeed(): Float {
@@ -34,6 +69,15 @@ object MovementUtils : MinecraftInstance() {
         if (mc.gameSettings.keyBindSneak.isKeyDown) mc.thePlayer.motionY -= speed
 
         strafe(speed)
+    }
+    fun jump(checkSpeed: Boolean, motion: Boolean = false, motionY: Double = 0.42) {
+        if (!mc.gameSettings.keyBindJump.isKeyDown && (!checkSpeed || !Speed.state)) {
+            if (motion) {
+                mc.thePlayer.motionY = motionY
+            } else {
+                mc.thePlayer.jump()
+            }
+        }
     }
     fun jump(event: MoveEvent) {
         var jumpY = mc.thePlayer.jumpMovementFactor.toDouble()

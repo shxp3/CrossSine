@@ -20,7 +20,6 @@ public class CFontRenderer extends CFont {
     protected final CFont.CharData[] italicChars = new CFont.CharData[256];
     protected final CFont.CharData[] boldItalicChars = new CFont.CharData[256];
     private final int[] colorCode = new int[32];
-    private final String colorcodeIdentifiers = "0123456789abcdefklmnor";
     protected DynamicTexture texBold;
     protected DynamicTexture texItalic;
     protected DynamicTexture texItalicBold;

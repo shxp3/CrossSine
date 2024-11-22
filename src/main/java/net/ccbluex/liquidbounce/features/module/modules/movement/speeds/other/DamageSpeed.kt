@@ -13,7 +13,7 @@ class DamageSpeed : SpeedMode("Damage") {
 
     override fun onUpdate() {
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
         }
         if (mc.thePlayer.hurtTime > hurtTimeValue.get() && CustomStrafeValue.get()) {
             MovementUtils.strafe(strafeSpeed.get())

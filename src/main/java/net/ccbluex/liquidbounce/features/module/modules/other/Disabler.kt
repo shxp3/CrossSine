@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import java.util.LinkedList
 
-@ModuleInfo(name = "Disabler",category = ModuleCategory.OTHER)
+@ModuleInfo(name = "Disabler" ,category = ModuleCategory.OTHER)
 class Disabler : Module() {
     private val debugValue = BoolValue("Debug", false)
     private val mode = LinkedList<BoolValue>()
@@ -68,7 +68,14 @@ class Disabler : Module() {
             }
         }
     }
-
+    @EventTarget
+    fun onRender2D(event : Render2DEvent) {
+        modes.forEach {
+            if(getValue(it.modeName)?.value == true) {
+                it.onRender2D(event)
+            }
+        }
+    }
     @EventTarget
     fun onMotion(event: MotionEvent) {
         modes.forEach {

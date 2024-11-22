@@ -5,8 +5,6 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.features.module.modules.ghost.KeepSprint
 import net.ccbluex.liquidbounce.features.module.modules.movement.Flight
 import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix
 import net.ccbluex.liquidbounce.features.module.modules.movement.TargetStrafe
@@ -20,22 +18,29 @@ import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.ccbluex.liquidbounce.utils.extensions.rayTraceWithServerSideRotation
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
+import net.minecraft.client.settings.GameSettings
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityArmorStand
+import net.minecraft.item.ItemAxe
+import net.minecraft.item.ItemPickaxe
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
-import net.minecraft.util.*
+import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
+import org.lwjgl.opengl.GL11.*
 import kotlin.math.cos
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sin
 
 
@@ -52,23 +57,21 @@ object KillAura : Module() {
             if (i < newValue) set(i)
         }
     }
-    private val throughWallsValue = BoolValue("NoWall", false)
-
-    private val swingRangeValue = object : FloatValue("SwingRange", 5f, 0f, 8f) {
+    private val swingRangeValue = object : FloatValue("Swing-Range", 5f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = discoverRangeValue.get()
             if (i < newValue) set(i)
             if (maxRange > newValue) set(maxRange)
         }
     }
-    private val discoverRangeValue = FloatValue("DiscoverRange", 6f, 0f, 8f)
+    private val discoverRangeValue = FloatValue("Discover-Range", 6f, 0f, 8f)
     private val fovValue = BoolValue("Fov", false)
     private val fovDisValue = FloatValue("FOV-Disttance", 180f, 0f, 180f).displayable { fovValue.get() }
 
     // CPS
     private val text3 = TitleValue("CPS")
-    private val nineCombat = BoolValue("1.9CombatCheck", false)
-    private val CpsReduceValue = BoolValue("CPSReduce", false).displayable { !nineCombat.get() }
+    private val nineCombat = BoolValue("1.9-Combat-Check", false)
+    private val CpsReduceValue = BoolValue("CPS-Reduce", false).displayable { !nineCombat.get() }
     private val addCps = IntegerValue("Add-CPS", 1, 1, 20).displayable { CpsReduceValue.get() && !nineCombat.get() }
     private val maxCpsValue: IntegerValue = object : IntegerValue("MaxCPS", 12, 1, 20) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -89,7 +92,7 @@ object KillAura : Module() {
     }.displayable { !nineCombat.get() } as IntegerValue
 
     // Modes
-    private val text5 = TitleValue("TargetMode")
+    private val text5 = TitleValue("Target-Mode")
     private val priorityValue = ListValue(
         "Priority", arrayOf(
             "Health",
@@ -103,48 +106,47 @@ object KillAura : Module() {
             "RegenAmplifier"
         ), "Distance"
     )
-    private val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
+    private val targetModeValue = ListValue("Target-Mode", arrayOf("Single", "Switch", "Multi"), "Switch")
     private val switchDelayValue =
-        IntegerValue("SwitchDelay", 15, 1, 2000).displayable { targetModeValue.equals("Switch") }
+        IntegerValue("Switch-Delay", 15, 1, 2000).displayable { targetModeValue.equals("Switch") }
     private val limitedMultiTargetsValue =
-        IntegerValue("LimitedMultiTargets", 0, 0, 50).displayable { targetModeValue.equals("Multi") }
-    private val text7 = TitleValue("LimitUse")
-    private val blinkCheck = BoolValue("BlinkCheck", true)
-    private val noScaffValue = BoolValue("NoScaffold", true)
-    private val noFlyValue = BoolValue("NoFly", false)
-    private val onSwording = BoolValue("OnSwording", false)
+        IntegerValue("Limited-Multi-Targets", 0, 0, 50).displayable { targetModeValue.equals("Multi") }
+    private val text7 = TitleValue("Limit-Use")
+    private val blinkCheck = BoolValue("Blink-Check", true)
+    private val noScaffValue = BoolValue("No-Scaffold", true)
+    private val noFlyValue = BoolValue("No-Fly", false)
+    private val onWeapon = BoolValue("On-Weapon", false)
 
     // Bypass
     private val text9 = TitleValue("Bypass")
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
-    private val attackTimingValue = ListValue("AttackTiming", arrayOf("All", "Pre", "Post"), "All")
     private val rotationStrafeValue = ListValue(
-        "FixMovement",
+        "Fix-Movement",
         arrayOf("Off", "FullStrafe", "LessStrafe"),
-        "Silent"
+        "Off"
     ).displayable { silentRotationValue.get() && !rotationModeValue.equals("None") }
-    private val hitAbleValue = BoolValue("AlwaysAttack", true)
+    private val hitAbleValue = BoolValue("Always-Attack", true)
 
     // AutoBlock
     private val text11 = TitleValue("AutoBlock")
-    val autoBlockValue =
-        ListValue("AutoBlock", arrayOf("Vanilla", "Damage", "Hypixel", "Fake", "None"), "None")
-    private val cancelAttack = BoolValue(
-        "CancelAttackWhenClickBlock",
+    private val autoBlockValue: ListValue = object :
+        ListValue("Auto-Block", arrayOf("Vanilla", "WatchDogBlink", "WatchDogBlinkLess", "Fake", "None"), "None") {
+        override fun onChanged(oldValue: String, newValue: String) {
+            BlinkUtils.setBlinkState(off = true, release = true)
+            blinking = false
+            blinkLag = false
+        }
+    }
+    val interactSlowDown = BoolValue(
+        "WatchDog-Slow-Down",
         false
-    ).displayable { autoBlockValue.equals("None") }
-    private val damageTicksValue =
-        IntegerValue("DamageTicks", 10, 10, 50).displayable { autoBlockValue.equals("Damage") }
+    ).displayable { autoBlockValue.equals("WatchDogBlinkLess") || autoBlockValue.equals("WatchDogBlink") }
     private val autoBlockRangeValue = object : FloatValue("AutoBlockRange", 5f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = discoverRangeValue.get()
             if (i < newValue) set(i)
         }
     }.displayable { !autoBlockValue.equals("Fake") || !autoBlockValue.equals("None") }
-    private val interactAutoBlockValue = BoolValue(
-        "InteractAutoBlock",
-        false
-    ).displayable { !autoBlockValue.equals("Fake") || !autoBlockValue.equals("None") }
 
     // Rotations
     private val text13 = TitleValue("Rotation")
@@ -221,8 +223,6 @@ object KillAura : Module() {
 
     // Target
     var currentTarget: EntityLivingBase? = null
-    private var wastarget = false
-    private var should_block = false
     private var hitable = false
     private val prevTargetEntities = mutableListOf<Int>()
     private val discoveredTargets = mutableListOf<EntityLivingBase>()
@@ -236,23 +236,26 @@ object KillAura : Module() {
     private val rotationTimer = MSTimer()
     private var attackDelay = 0L
     private var clicks = 0
+    private var blinkLag = false
+    private var blinking = false
+    private var blinkTicks = 0
+
 
     // Swing
     private var canSwing = false
+
     // Last Tick Can Be Seen
     private var lastCanBeSeen = false
-    private var lag = false
-    private var blinking = false
-    private var attack = false
+
     // Fake block status
     var blockingStatus = false
+    var noEventBlocking = false
 
     //Damage
-    private var damage = false
-    private var damageTicks = 0
-    private var damageBlocking = false
     val displayBlocking: Boolean
-        get() = blockingStatus || ((autoBlockValue.equals("Fake") || autoBlockValue.equals("Hypixel")) && canFakeBlock)
+        get() = (blockingStatus || ((autoBlockValue.equals("Fake") || autoBlockValue.equals("WatchDogBlinkLess") || autoBlockValue.equals(
+            "WatchDogBlink"
+        )) && canFakeBlock)) && canBlock
 
     //Legit Attack
     private var predictAmount = 1.0f
@@ -272,10 +275,7 @@ object KillAura : Module() {
         )
         aabb
     }
-    var unb2 = false
-    var delay = 0
-    var started = false
-    var stage = 0
+
     /**
      * Enable kill aura module
      */
@@ -283,9 +283,6 @@ object KillAura : Module() {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         lastCanBeSeen = false
-        attack = true
-        damage = false
-        damageTicks = 0
         updateTarget()
     }
 
@@ -293,23 +290,22 @@ object KillAura : Module() {
      * Disable kill aura module
      */
     override fun onDisable() {
-        attack = false
         CrossSine.moduleManager[TargetStrafe::class.java]!!.doStrafe = false
         currentTarget = null
         hitable = false
+        if (blinking) {
+            BlinkUtils.setBlinkState(off = true, release = true)
+            blinking = false
+        }
+        blinkLag = false
         prevTargetEntities.clear()
         discoveredTargets.clear()
         inRangeDiscoveredTargets.clear()
         attackTimer.reset()
         clicks = 0
         canSwing = false
-        if (autoBlockValue.equals("Damage")) {
-            mc.gameSettings.keyBindUseItem.pressed = false
-            damage = false
-            damageTicks = 0
-            damageBlocking = false
-        }
         stopBlocking()
+        stopBlockingNoEvent()
         RotationUtils.setTargetRotationReverse(
             RotationUtils.serverRotation,
             if (keepDirectionValue.get()) {
@@ -323,97 +319,90 @@ object KillAura : Module() {
                 0
             }
         )
-        started = false
-        unb2 = false
-        delay = 0
-        stage = 0
         hitable = false
     }
 
-    /**
-     * Motion event
-     */
     @EventTarget
-    fun onMotion(event: MotionEvent) {
+    fun onPreUpdate(event: PreUpdateEvent) {
         updateHitable()
-        if (attackTimingValue.equals("All") ||
-            (attackTimingValue.equals("Pre") && event.eventState == EventState.PRE) ||
-            (attackTimingValue.equals("Post") && event.eventState == EventState.POST)
-        ) {
-            runAttackLoop()
-        }
-        if (event.eventState == EventState.POST) {
-            if (currentTarget != null && canBlock && should_block) {
-                mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
-                should_block = false
+        if (!cancelRun && currentTarget != null && mc.thePlayer.getDistanceToEntity(currentTarget!!) <= autoBlockRangeValue.get()) {
+            when (autoBlockValue.get().lowercase()) {
+                "vanilla" -> {
+                    startBlocking()
+                    runAttackLoop(false)
+                }
+
+                "watchdogblinkless" -> {
+                    if (blinkLag) {
+                        blinking = true
+                        BlinkUtils.setBlinkState(all = true)
+                        stopBlockingNoEvent()
+                        blinkLag = false
+                    } else {
+                        runAttackLoop(true)
+                        blinking = false
+                        BlinkUtils.setBlinkState(off = true, release = true)
+                        startBlockingNoEvent()
+                        blinkLag = true
+                    }
+                }
+
+                "watchdogblink" -> {
+                    when (++blinkTicks) {
+                        1 -> {
+                            runAttackLoop(true)
+                            startBlockingNoEvent()
+                        }
+
+                        2 -> {
+                            BlinkUtils.setBlinkState(all = true)
+                            blinking = true
+                        }
+
+                        5 -> {
+                            if (blinking) {
+                                BlinkUtils.setBlinkState(off = true, release = true)
+                                stopBlockingNoEvent()
+                                blinking = false
+                            }
+                            blinkTicks = 0
+                        }
+                    }
+                }
+            }
+        } else {
+            if (autoBlockValue.equals("WatchDogBlinkLess") || autoBlockValue.equals("WatchDogBlink")) {
+                if (blinking) {
+                    blinking = false
+                    BlinkUtils.setBlinkState(off = true, release = true)
+                }
+                stopBlockingNoEvent()
             }
         }
+        if (autoBlockValue.equals("None") || autoBlockValue.equals("Fake")) {
+            runAttackLoop(false)
+        }
     }
-    /**
-     * Packet Event
-     */
+
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
+        if (packet is C09PacketHeldItemChange) {
+            stopBlocking()
+            stopBlockingNoEvent()
+        }
     }
+
     /**
      * Update event
      */
     @EventTarget
     fun onUpdate(ignoredEvent: UpdateEvent) {
-        if (autoBlockValue.equals("Damage")) {
-            if (mc.thePlayer.heldItem?.item is ItemSword) {
-                if (currentTarget != null) {
-                    mc.gameSettings.keyBindUseItem.pressed = damageBlocking
-                    if (mc.thePlayer.hurtTime > 0) {
-                        damageTicks = 0
-                        damage = true
-                    }
-                    if (damage) {
-                        damageTicks++
-                    }
-                    if (damageTicks > 0) {
-                        damageBlocking = true
-                    }
-                    if (damageTicks >= damageTicksValue.get()) {
-                        damageBlocking = false
-                        damage = false
-                        damageTicks = 0
-                    }
-                } else {
-                    damageBlocking = false
-                    damage = false
-                    damageTicks = 0
-                    mc.gameSettings.keyBindUseItem.pressed = false
-                }
-            }
-        }
-        if (autoBlockValue.equals("WatchDog") && !cancelRun && canBlock) {
-            blockingStatus = true
-            if (lag) {
-                blinking = true
-               stopBlocking()
-                lag = false
-            } else {
-                if (currentTarget != null && attack) {
-                    attack = false
-                    mc.thePlayer.sendQueue.addToSendQueue(
-                        C02PacketUseEntity(
-                            currentTarget,
-                            C02PacketUseEntity.Action.INTERACT
-                        )
-                    )
-                }
-                mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
-                attack = true
-                lag = true
-            }
-            return
-        }
         if (cancelRun) {
             currentTarget = null
             hitable = false
             stopBlocking()
+            stopBlockingNoEvent()
             discoveredTargets.clear()
             inRangeDiscoveredTargets.clear()
             return
@@ -422,9 +411,11 @@ object KillAura : Module() {
         updateTarget()
         if (currentTarget == null) {
             stopBlocking()
+            stopBlockingNoEvent()
         }
         if (discoveredTargets.isEmpty()) {
             stopBlocking()
+            stopBlockingNoEvent()
             return
         }
 
@@ -438,7 +429,7 @@ object KillAura : Module() {
 
     }
 
-    private fun runAttackLoop() {
+    private fun runAttackLoop(interact: Boolean) {
         if (nineCombat.get() && CooldownHelper.getAttackCooldownProgress() < 1.0f) {
             return
         }
@@ -451,23 +442,18 @@ object KillAura : Module() {
         }
         try {
             while (clicks > 0) {
-                runAttack()
+                runAttack(interact)
                 clicks--
             }
         } catch (e: java.lang.IllegalStateException) {
             return
         }
     }
-    @EventTarget
-    fun onAttack(event: AttackEvent) {
-        if (cancelAttack.get() && mc.thePlayer.isBlocking || !attack) {
-            event.cancelEvent()
-        }
-    }
+
     /**
      * Attack enemy
      */
-    private fun runAttack() {
+    private fun runAttack(interact: Boolean) {
         if (cancelRun) return
         currentTarget ?: return
         if (hitable) {
@@ -480,11 +466,11 @@ object KillAura : Module() {
                     } ?: currentTarget!!) as EntityLivingBase
                 } else {
                     currentTarget!!
-                })
+                }, interact)
             } else {
                 inRangeDiscoveredTargets.forEachIndexed { index, entity ->
                     if (limitedMultiTargetsValue.get() == 0 || index < limitedMultiTargetsValue.get()) {
-                        attackEntity(entity)
+                        attackEntity(entity, interact)
                     }
                 }
             }
@@ -497,8 +483,6 @@ object KillAura : Module() {
             } else {
                 prevTargetEntities.add(currentTarget!!.entityId)
             }
-
-            // Open inventory
         }
     }
 
@@ -596,7 +580,7 @@ object KillAura : Module() {
      * Attack [entity]
      * @throws IllegalStateException when bad packets protection
      */
-    private fun attackEntity(entity: EntityLivingBase) {
+    private fun attackEntity(entity: EntityLivingBase, interact: Boolean) {
 
         // Call attack event
         val event = AttackEvent(entity)
@@ -605,15 +589,7 @@ object KillAura : Module() {
         // Attack target
         runSwing()
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
-        if (mc.thePlayer.getDistanceToEntity(currentTarget) <= autoBlockRangeValue.get()) {
-            startBlocking(
-                entity,
-                interactAutoBlockValue.get() && (mc.thePlayer.getDistanceToEntityBox(entity) < maxRange)
-            )
-
-        } else {
-            stopBlocking()
-        }
+        if (interact) mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.INTERACT))
         if (!KeepSprint.state) {
             if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
@@ -770,41 +746,10 @@ object KillAura : Module() {
     /**
      * Start blocking
      */
-    private fun startBlocking(interactEntity: Entity, interact: Boolean) {
-        when (autoBlockValue.get().lowercase()) {
-            "vanilla" -> {
-                mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
-                blockingStatus = true
-            }
-        }
-        if (interact) {
-            val positionEye = mc.renderViewEntity?.getPositionEyes(1F)
-
-            val boundingBox = interactEntity.hitBox
-
-            val (yaw, pitch) = RotationUtils.targetRotation ?: Rotation(
-                mc.thePlayer!!.rotationYaw,
-                mc.thePlayer!!.rotationPitch
-            )
-            val yawCos = cos(-yaw * 0.017453292F - Math.PI.toFloat())
-            val yawSin = sin(-yaw * 0.017453292F - Math.PI.toFloat())
-            val pitchCos = -cos(-pitch * 0.017453292F)
-            val pitchSin = sin(-pitch * 0.017453292F)
-            val range = min(maxRange.toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
-            val lookAt = positionEye!!.addVector(yawSin * pitchCos * range, pitchSin * range, yawCos * pitchCos * range)
-
-            val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return
-            val hitVec = movingObject.hitVec
-
-            mc.netHandler.addToSendQueue(
-                C02PacketUseEntity(
-                    interactEntity, Vec3(
-                        hitVec.xCoord - interactEntity.posX,
-                        hitVec.yCoord - interactEntity.posY,
-                        hitVec.zCoord - interactEntity.posZ
-                    )
-                )
-            )
+    private fun startBlocking() {
+        if (!blockingStatus) {
+            mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+            blockingStatus = true
         }
     }
 
@@ -821,6 +766,32 @@ object KillAura : Module() {
                 )
             )
             blockingStatus = false
+        }
+    }
+
+    /**
+     * Start blocking
+     */
+    private fun startBlockingNoEvent() {
+        if (!noEventBlocking) {
+            mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+            noEventBlocking = true
+        }
+    }
+
+    /**
+     * Stop blocking
+     */
+    private fun stopBlockingNoEvent() {
+        if (noEventBlocking) {
+            mc.netHandler.addToSendQueue(
+                C07PacketPlayerDigging(
+                    C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                    BlockPos.ORIGIN,
+                    EnumFacing.DOWN
+                )
+            )
+            noEventBlocking = false
         }
     }
 
@@ -843,17 +814,12 @@ object KillAura : Module() {
         if (currentTarget != null && attackTimer.hasTimePassed(attackDelay)) {
             clicks++
             attackTimer.reset()
+            MouseUtils.leftClicked = true
             attackDelay = getAttackDelay(minCpsValue.get(), maxCpsValue.get())
-        }
+        } else MouseUtils.leftClicked = false
         if (currentTarget != null) {
             if (markValue.get()) {
-                RenderUtils.drawEntityBox(
-                    currentTarget,
-                    ClientTheme.getColorWithAlpha(1, 70),
-                    false,
-                    true,
-                    0f
-                )
+                draw(currentTarget!!, event)
             }
         }
     }
@@ -874,7 +840,74 @@ object KillAura : Module() {
                 || CrossSine.moduleManager[FreeCam::class.java]!!.state
                 || (noScaffValue.get() && CrossSine.moduleManager[Scaffold::class.java]!!.state)
                 || (noFlyValue.get() && CrossSine.moduleManager[Flight::class.java]!!.state)
-                || (onSwording.get() && mc.thePlayer.heldItem?.item !is ItemSword)
+                || (onWeapon.get() && (mc.thePlayer.heldItem == null || mc.thePlayer.heldItem.item !is ItemSword && mc.thePlayer.heldItem.item !is ItemPickaxe && mc.thePlayer.heldItem.item !is ItemAxe))
+
+    fun draw(entity: EntityLivingBase, event: Render3DEvent) {
+        val everyTime = 3000
+        val drawTime = (System.currentTimeMillis() % everyTime).toInt()
+        val drawMode = drawTime > (everyTime / 2)
+        var drawPercent = drawTime / (everyTime / 2.0)
+
+        if (!drawMode) {
+            drawPercent = 1 - drawPercent
+        } else {
+            drawPercent -= 1
+        }
+        drawPercent = EaseUtils.easeInOutQuad(drawPercent)
+        mc.entityRenderer.disableLightmap()
+        glPushMatrix()
+        glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glEnable(GL_BLEND)
+        glDisable(GL_DEPTH_TEST)
+        glDisable(GL_CULL_FACE)
+        glShadeModel(7425)
+        mc.entityRenderer.disableLightmap()
+
+        val bb = entity.entityBoundingBox
+        val radius = ((bb.maxX - bb.minX) + (bb.maxZ - bb.minZ)) * 0.5f
+        val height = bb.maxY - bb.minY
+        val x =
+            entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * event.partialTicks - mc.renderManager.viewerPosX
+        val y =
+            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * event.partialTicks - mc.renderManager.viewerPosY) + height * drawPercent
+        val z =
+            entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * event.partialTicks - mc.renderManager.viewerPosZ
+        val eased = (height / 3) * (if (drawPercent > 0.5) {
+            1 - drawPercent
+        } else {
+            drawPercent
+        }) * (if (drawMode) {
+            -1
+        } else {
+            1
+        })
+
+        for (i in 5..360 step 5) {
+            val x1 = x - sin(i * Math.PI / 180F) * radius
+            val z1 = z + cos(i * Math.PI / 180F) * radius
+            val x2 = x - sin((i - 5) * Math.PI / 180F) * radius
+            val z2 = z + cos((i - 5) * Math.PI / 180F) * radius
+            glBegin(GL_QUADS)
+            RenderUtils.glColor(ClientTheme.getColorWithAlpha(0, 0, true))
+            glVertex3d(x1, y + eased, z1)
+            glVertex3d(x2, y + eased, z2)
+            RenderUtils.glColor(ClientTheme.getColorWithAlpha(0, 150, true))
+            glVertex3d(x2, y, z2)
+            glVertex3d(x1, y, z1)
+            glEnd()
+        }
+
+        glEnable(GL_CULL_FACE)
+        glShadeModel(7424)
+        glColor4f(1f, 1f, 1f, 1f)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glPopMatrix()
+    }
 
 
     /**
@@ -892,7 +925,7 @@ object KillAura : Module() {
      * Range
      */
     private val maxRange: Float
-        get() = max(rangeValue.get(), if (!throughWallsValue.get()) rangeValue.get() else 0.0f)
+        get() = max(rangeValue.get(), rangeValue.get())
 
     /**
      * HUD Tag

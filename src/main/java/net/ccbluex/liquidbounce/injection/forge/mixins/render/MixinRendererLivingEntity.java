@@ -99,7 +99,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             if (flag1) {
                 assert hitColor != null;
                 if (hitColor.getState()) {
-                        int color = hitColor.getHitColorTheme().get() ? ClientTheme.INSTANCE.getColorWithAlpha(1, hitColor.getHitColorAlphaValue().get()).getRGB() : new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
+                        int color = hitColor.getHitColorTheme().get() ? ClientTheme.INSTANCE.getColorWithAlpha(1, hitColor.getHitColorAlphaValue().get(), true).getRGB() : new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
                         float red = (float) (color >> 16 & 0xFF) / 255.0f;
                         float green = (float) (color >> 8 & 0xFF) / 255.0f;
                         float blue = (float) (color & 0xFF) / 255.0f;

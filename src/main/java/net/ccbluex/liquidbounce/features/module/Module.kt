@@ -9,19 +9,12 @@ import net.ccbluex.liquidbounce.utils.AnimationHelper
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
-import net.ccbluex.liquidbounce.utils.render.Translate
 import org.lwjgl.input.Keyboard
 
 open class Module : MinecraftInstance(), Listenable {
     // Module information
-    val translate = Translate(0F,0F)
-    val animation: AnimationHelper
     var name: String
     var update: Boolean = false
-    private var suffix: String? = null
-    private val properties: List<Value<*>> = ArrayList()
-    private var toggled = false
     var localizedName = ""
         get() = field.ifEmpty { name }
     var category: ModuleCategory
@@ -47,11 +40,13 @@ open class Module : MinecraftInstance(), Listenable {
     val moduleCommand: Boolean
     val moduleInfo = javaClass.getAnnotation(ModuleInfo::class.java)!!
     var slideStep = 0F
+    var module: String? = null
+    var boolean1 = false
+    var boolean2 = false
 
 
     init {
         name = moduleInfo.name
-        animation = AnimationHelper(this)
         category = moduleInfo.category
         keyBind = moduleInfo.keyBind
         array = moduleInfo.array
@@ -59,6 +54,9 @@ open class Module : MinecraftInstance(), Listenable {
         autoDisable = moduleInfo.autoDisable
         moduleCommand = moduleInfo.moduleCommand
         triggerType = moduleInfo.triggerType
+        module = moduleInfo.module
+        boolean1 = moduleInfo.boolean1
+        boolean2 = moduleInfo.boolean2
     }
 
     open fun onLoad() {

@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.rotation;
 
+import net.ccbluex.liquidbounce.features.module.modules.other.HackerDetector;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.Check;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
@@ -12,8 +13,10 @@ public class RotationCheck extends Check {
 
     @Override
     public void onLivingUpdate() {
-        if (handlePlayer.rotationPitch > 90 || handlePlayer.rotationPitch < -90) {
-            flag("Invalid Rotation pitch" ,5);
+        if (HackerDetector.INSTANCE.rotationValue.get()) {
+            if (handlePlayer.rotationPitch > 90 || handlePlayer.rotationPitch < -90) {
+                flag("Invalid Rotation pitch", 5);
+            }
         }
     }
 }

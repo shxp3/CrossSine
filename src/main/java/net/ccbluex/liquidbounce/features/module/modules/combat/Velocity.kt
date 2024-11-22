@@ -1,16 +1,18 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.network.play.server.S12PacketEntityVelocity
@@ -38,7 +40,7 @@ object Velocity : Module() {
     }
     val h = FloatValue("Horizontal", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
     val v = FloatValue("Vertical", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
-    val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") }
+    val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") || modeValue.equals("JumpReset") }
     private val m = ListValue("StandardTag", arrayOf("Text", "Percent"),"Text").displayable { modeValue.equals("Standard") }
     private val og = BoolValue("OnlyGround", false)
     private val oc = BoolValue("OnlyCombat", false)
@@ -74,7 +76,6 @@ object Velocity : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        mode.onUpdate(event)
         if (wasTimer) {
             mc.timer.timerSpeed = 1f
             wasTimer = false
@@ -91,14 +92,15 @@ object Velocity : Module() {
             return
         }
         if (noFireValue.get() && mc.thePlayer.isBurning) return
+        mode.onUpdate(event)
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
         if ((og.get() && !mc.thePlayer.onGround) || (oc.get() && !CrossSine.combatManager.inCombat) || (om.get() && !MovementUtils.isMoving())) {
             return
         }
+        mode.onPacket(event)
 
         val packet = event.packet
         if (packet is S12PacketEntityVelocity) {

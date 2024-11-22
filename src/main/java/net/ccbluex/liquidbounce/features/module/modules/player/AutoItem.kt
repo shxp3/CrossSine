@@ -8,14 +8,10 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.SpoofItemUtils
 import net.ccbluex.liquidbounce.utils.item.ItemUtils
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.init.Items
-import net.minecraft.item.ItemAxe
-import net.minecraft.item.ItemPickaxe
 import net.minecraft.item.ItemShears
 import net.minecraft.item.ItemSword
 import net.minecraft.item.ItemTool
 import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.status.server.S01PacketPong
 import net.minecraft.util.MovingObjectPosition
 
 
@@ -43,7 +39,7 @@ object AutoItem : Module() {
                 if (!mining) {
                     prevItem = mc.thePlayer.inventory.currentItem
                     if (spoof.get())
-                        SpoofItemUtils.startSpoof(prevItem, bestSlot, render.get())
+                        SpoofItemUtils.startSpoof(prevItem, render.get())
                 }
 
                 val block = mc.theWorld.getBlockState(mc.objectMouseOver.blockPos).block
@@ -108,7 +104,7 @@ object AutoItem : Module() {
                 if (!SpoofItemUtils.spoofing) {
                     prevItemWeapon = mc.thePlayer.inventory.currentItem
                     if (spoof.get())
-                        SpoofItemUtils.startSpoof(prevItemWeapon, slot, render.get())
+                        SpoofItemUtils.startSpoof(prevItemWeapon, render.get())
                 }
                 spoofTick = 15
                 mc.thePlayer.inventory.currentItem = slot

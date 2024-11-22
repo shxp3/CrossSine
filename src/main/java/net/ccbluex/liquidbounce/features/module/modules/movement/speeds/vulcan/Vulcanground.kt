@@ -37,11 +37,11 @@ class Vulcanground : SpeedMode("VulcanGround") {
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
             if (mc.thePlayer.isCollidedHorizontally || mc.gameSettings.keyBindJump.pressed) {
                 if (!mc.gameSettings.keyBindJump.pressed) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(false)
                 }
                 return
             }
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             mc.thePlayer.motionY = 0.0
             yMotion = 0.1 + Math.random() * 0.03
             MovementUtils.strafe(0.48f + jumpCount * 0.001f)

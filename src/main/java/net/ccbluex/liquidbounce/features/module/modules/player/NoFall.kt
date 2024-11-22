@@ -8,10 +8,10 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.player.nofalls.NoFallMode
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
-import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB
 
@@ -98,11 +98,13 @@ object NoFall : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
+        if (checkVoid() && noVoid.get()) return
         mode.onMotion(event)
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
+        if (checkVoid() && noVoid.get()) return
         mode.onPacket(event)
     }
     @EventTarget
@@ -111,24 +113,16 @@ object NoFall : Module() {
     }
     @EventTarget
     fun onMove(event: MoveEvent) {
+        if (checkVoid() && noVoid.get()) return
         mode.onMove(event)
     }
 
     @EventTarget
-    fun onBlockBB(event: BlockBBEvent) {
-        mode.onBlockBB(event)
-    }
-
-    @EventTarget
     fun onJump(event: JumpEvent) {
+        if (checkVoid() && noVoid.get()) return
         mode.onJump(event)
     }
 
-    @EventTarget
-    fun onStep(event: StepEvent) {
-        mode.onStep(event)
-    }
-        
     private fun checkVoid(): Boolean {
         var i = (-(mc.thePlayer.posY-1.4857625)).toInt()
         var dangerous = true

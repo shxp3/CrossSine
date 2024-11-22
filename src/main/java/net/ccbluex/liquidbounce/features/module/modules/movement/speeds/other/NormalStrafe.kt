@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.other
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 
@@ -14,7 +13,7 @@ class NormalStrafe: SpeedMode("Normal") {
 
         if (MovementUtils.isMoving()) {
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.jump()
+                MovementUtils.jump(false)
                 mc.thePlayer.motionY = Ymotion.get().toDouble()
             }
             MovementUtils.strafe(SpeedValue.get())

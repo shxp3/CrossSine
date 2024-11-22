@@ -3,8 +3,11 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
 import net.ccbluex.liquidbounce.utils.particles.ParticleUtils;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -12,15 +15,18 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,7 +59,6 @@ public abstract class MixinGuiScreen {
 
     @Shadow
     protected abstract void actionPerformed(GuiButton p_actionPerformed_1_);
-
     @Inject(method = "drawWorldBackground", at = @At("HEAD"), cancellable = true)
     private void drawWorldBackground(final CallbackInfo callbackInfo) {
         try {
@@ -78,7 +83,6 @@ public abstract class MixinGuiScreen {
             e.printStackTrace();
         }
     }
-
     @ModifyVariable(method = "sendChatMessage(Ljava/lang/String;)V", at = @At("HEAD"))
     private String sendChatMessage(String p_sendChatMessage_1_){
         if(p_sendChatMessage_1_.length()>100){
@@ -86,14 +90,12 @@ public abstract class MixinGuiScreen {
         }
         return p_sendChatMessage_1_;
     }
-
     @Inject(method = "drawDefaultBackground", at = @At("HEAD"), cancellable = true)
     private void drawDefaultBackground(final CallbackInfo callbackInfo){
         if(mc.currentScreen instanceof GuiContainer){
             callbackInfo.cancel();
         }
     }
-
     /**
      * @author CCBlueX
      */

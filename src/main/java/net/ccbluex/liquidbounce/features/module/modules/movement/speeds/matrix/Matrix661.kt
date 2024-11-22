@@ -2,8 +2,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.matrix
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import kotlin.math.sqrt
@@ -35,7 +35,7 @@ class Matrix661 : SpeedMode("Matrix6.6.1") {
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
             mc.gameSettings.keyBindJump.pressed = false
             timer(1.03f)
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             if (mc.thePlayer.movementInput.moveStrafe <= 0.01 && mc.thePlayer.movementInput.moveStrafe >= -0.01) {
                 MovementUtils.strafe((MovementUtils.getSpeed() * 1.0071).toFloat())
             }
@@ -66,7 +66,7 @@ class Matrix661 : SpeedMode("Matrix6.6.1") {
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
             mc.gameSettings.keyBindJump.pressed = false
             timer(1.03f)
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             if (mc.thePlayer.movementInput.moveStrafe <= 0.01 && mc.thePlayer.movementInput.moveStrafe >= -0.01) {
                 MovementUtils.strafe((MovementUtils.getSpeed() * 1.0071).toFloat())
             }

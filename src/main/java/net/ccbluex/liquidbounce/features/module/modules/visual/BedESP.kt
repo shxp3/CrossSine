@@ -6,9 +6,10 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
-import net.ccbluex.liquidbounce.utils.render.Render
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
@@ -25,7 +26,7 @@ class BedESP :  Module() {
     private val footPosList: MutableList<BlockPos> = ArrayList()
     private var color = Color.CYAN
     private fun findBlocks(type: BlockBed.EnumPartType, resultList: MutableList<BlockPos>) {
-        val radius = 5
+        val radius = 15
         val selectedBlock = Block.getBlockById(26)
         if (selectedBlock == null || selectedBlock === Blocks.air) return
         for (x in -radius..radius) {

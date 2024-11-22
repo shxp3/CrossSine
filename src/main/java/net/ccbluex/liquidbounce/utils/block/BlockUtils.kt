@@ -5,15 +5,81 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
+import net.minecraft.enchantment.Enchantment
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.init.Blocks
+import net.minecraft.item.ItemStack
+import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import kotlin.math.floor
 
-object BlockUtils : MinecraftInstance() {
 
+object BlockUtils : MinecraftInstance() {
+    fun blockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block {
+        return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
+    }
+    fun getBlockHardness(block: Block, itemStack: ItemStack?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
+        val getBlockHardness = block.getBlockHardness(mc.theWorld, null)
+        if (getBlockHardness < 0.0f) {
+            return 0.0f
+        }
+        return if ((block.material.isToolNotRequired || (itemStack != null && itemStack.canHarvestBlock(block)))) (getToolDigEfficiency(
+            itemStack,
+            block,
+            ignoreSlow,
+            ignoreGround
+        ) / getBlockHardness / 30.0f) else (getToolDigEfficiency(
+            itemStack,
+            block,
+            ignoreSlow,
+            ignoreGround
+        ) / getBlockHardness / 100.0f)
+    }
+
+    private fun getToolDigEfficiency(itemStack: ItemStack?, block: Block?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
+        var n = if ((itemStack == null)) 1.0f else itemStack.item.getStrVsBlock(itemStack, block)
+        if (n > 1.0f) {
+            val getEnchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, itemStack)
+            if (getEnchantmentLevel > 0 && itemStack != null) {
+                n += (getEnchantmentLevel * getEnchantmentLevel + 1).toFloat()
+            }
+        }
+        if (mc.thePlayer.isPotionActive(Potion.digSpeed)) {
+            n *= 1.0f + (mc.thePlayer.getActivePotionEffect(Potion.digSpeed).amplifier + 1) * 0.2f
+        }
+        if (!ignoreSlow) {
+            if (mc.thePlayer.isPotionActive(Potion.digSlowdown)) {
+                val n2 = when (mc.thePlayer.getActivePotionEffect(Potion.digSlowdown).amplifier) {
+                    0 -> {
+                        0.3f
+                    }
+
+                    1 -> {
+                        0.09f
+                    }
+
+                    2 -> {
+                        0.0027f
+                    }
+
+                    else -> {
+                        8.1E-4f
+                    }
+                }
+                n *= n2
+            }
+            if (mc.thePlayer.isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityModifier(mc.thePlayer)) {
+                n /= 5.0f
+            }
+            if (!mc.thePlayer.onGround && !ignoreGround) {
+                n /= 5.0f
+            }
+        }
+        return n
+    }
     /**
      * Get block from [blockPos]
      */

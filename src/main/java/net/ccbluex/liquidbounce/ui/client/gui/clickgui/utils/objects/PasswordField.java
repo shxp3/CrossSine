@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.objects;
 
 import com.google.common.base.Predicate;
-
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.api.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiPageButtonList;

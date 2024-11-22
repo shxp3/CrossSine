@@ -2,9 +2,10 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flights.matrix
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
-import net.ccbluex.liquidbounce.utils.ClientUtils
-import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.block.BlockAir
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
@@ -88,7 +89,7 @@ class Matrix117Flight : FlightMode("Matrix1.17") {
             } else {
                 yChanged = false
             }
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
             if(yChanged) {
                 mc.thePlayer.motionX = 0.0
                 mc.thePlayer.motionZ = 0.0

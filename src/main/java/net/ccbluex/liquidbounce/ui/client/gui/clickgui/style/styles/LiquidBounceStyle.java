@@ -3,8 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.KeyBindEvent;
-import net.ccbluex.liquidbounce.event.KeyEvent;
-import net.ccbluex.liquidbounce.event.Render2DEvent;
+import net.ccbluex.liquidbounce.features.value.*;
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ButtonElement;
@@ -13,9 +12,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.Style;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
-import net.ccbluex.liquidbounce.utils.render.Render;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.ccbluex.liquidbounce.features.value.*;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,7 +30,6 @@ public class LiquidBounceStyle extends Style {
 
     private boolean mouseDown;
     private boolean rightMouseDown;
-    private int keyCode;
 
     @Override
     public void drawPanel(int mouseX, int mouseY, Panel panel) {
@@ -45,15 +41,6 @@ public class LiquidBounceStyle extends Style {
             RenderUtils.drawRect(panel.getX() - 2, panel.getY() + 21, panel.getX(), panel.getY() + 16 + panel.getFade(), Integer.MAX_VALUE);
             RenderUtils.drawRect(panel.getX() - 2, panel.getY() + 30 + (panel.getFade() - 24F) / (panel.getElements().size() - CrossSine.moduleManager.getModule(ClickGUIModule.class).maxElementsValue.get()) * panel.getDragged() - 10.0f, panel.getX(), panel.getY() + 40 + (panel.getFade() - 24.0f) / (panel.getElements().size() - CrossSine.moduleManager.getModule(ClickGUIModule.class).maxElementsValue.get()) * panel.getDragged(), Integer.MIN_VALUE);
         }
-    }
-
-    @Override
-    public void drawDescription(int mouseX, int mouseY, String text) {
-        int textWidth = Fonts.Nunito35.getStringWidth(text);
-
-        RenderUtils.drawBorderedRect(mouseX + 9, mouseY, mouseX + textWidth + 14, mouseY + Fonts.Nunito35.FONT_HEIGHT + 3, 1, new Color(255, 255, 255, 90).getRGB(), Integer.MIN_VALUE);
-        GlStateManager.resetColor();
-        Fonts.Nunito35.drawString(text, mouseX + 12, mouseY + (Fonts.Nunito35.FONT_HEIGHT) / 2, Integer.MAX_VALUE);
     }
 
     @Override
@@ -283,12 +270,6 @@ public class LiquidBounceStyle extends Style {
                 if(moduleElement.getSettingsWidth() > 0F && yPos > moduleElement.getY() + 4)
                     RenderUtils.drawBorderedRect(moduleElement.getX() + moduleElement.getWidth() + 4, moduleElement.getY() + 6, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 2, 1F, Integer.MIN_VALUE, 0);
             }
-        }
-    }
-    @EventTarget
-    public void onKey(KeyBindEvent event) {
-        if (event.getCode() != Keyboard.KEY_RETURN && event.getCode() != Keyboard.KEY_UP && event.getCode() != Keyboard.KEY_DOWN && event.getCode() != Keyboard.KEY_LEFT && event.getCode() != Keyboard.KEY_RIGHT) {
-            keyCode = event.getCode();
         }
     }
     private BigDecimal round(final float f) {

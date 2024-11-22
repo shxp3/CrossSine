@@ -1,12 +1,12 @@
 package net.ccbluex.liquidbounce.utils.render;
 
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
-import net.ccbluex.liquidbounce.utils.geom.Rectangle;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MathUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
+import net.ccbluex.liquidbounce.utils.geom.Rectangle;
 import net.ccbluex.liquidbounce.utils.particles.Particle;
 import net.ccbluex.liquidbounce.utils.particles.Vec3;
 import net.ccbluex.liquidbounce.utils.render.glu.DirectTessCallback;
@@ -29,8 +29,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.item.*;
-import net.minecraft.util.*;
 import net.minecraft.util.Timer;
+import net.minecraft.util.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -517,10 +517,11 @@ public final class RenderUtils extends MinecraftInstance {
         return Color.getHSBColor( ((float) ((v1 %= 360.0) / 360.0)) < 0.5 ? -((float) (v1 / 360.0)) : (float) (v1 / 360.0), st, bright).getRGB();
     }
 
-    public static Color skyRainbow(int var2, float st, float bright, float speed) {
-        double v1 = Math.ceil(System.currentTimeMillis() + (long) (var2 * 109 * speed)) / 5;
+    public static Color skyRainbow(int index, float st, float bright, float speed) {
+        double v1 = Math.ceil(System.currentTimeMillis() + (long) (index * 109 * speed)) / 5;
         return Color.getHSBColor(((float) ((v1 %= 360.0) / 360.0)) < 0.5 ? -((float) (v1 / 360.0)) : (float) (v1 / 360.0), st, bright);
     }
+
 
     public static void drawCircle(float x, float y, float radius, int color) {
         glColor(color);
@@ -2202,7 +2203,7 @@ public final class RenderUtils extends MinecraftInstance {
         final double z = blockPos.getZ() - renderManager.renderPosZ;
 
         AxisAlignedBB axisAlignedBB = new AxisAlignedBB(x, y, z, x + 1.0, y + 1, z + 1.0);
-        AxisAlignedBB axisAlignedBB2 = new AxisAlignedBB(x, y, z, x + 1.0, y + 1, z + 1.0);
+        AxisAlignedBB axisAlignedBB2;
         final Block block = BlockUtils.getBlock(blockPos);
 
         if (block != null) {
@@ -3217,7 +3218,6 @@ public final class RenderUtils extends MinecraftInstance {
         worldRenderer.pos(aa.minX, aa.maxY, aa.maxZ).endVertex();
         tessellator.draw();
     }
-
     public static void drawBoundingBox(AxisAlignedBB aa) {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
@@ -4483,7 +4483,8 @@ public final class RenderUtils extends MinecraftInstance {
 
     public static void drawBoundingBlock(final AxisAlignedBB aa) {
 
-        glBegin(GL_TRIANGLE_STRIP);
+
+        glBegin(GL_QUADS);
         glVertex3D(getRenderPos(aa.minX, aa.minY, aa.minZ));
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.minZ));
         glVertex3D(getRenderPos(aa.maxX, aa.minY, aa.minZ));
@@ -4494,7 +4495,7 @@ public final class RenderUtils extends MinecraftInstance {
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.maxZ));
         end();
 
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_QUADS);
         glVertex3D(getRenderPos(aa.maxX, aa.maxY, aa.minZ));
         glVertex3D(getRenderPos(aa.maxX, aa.minY, aa.minZ));
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.minZ));
@@ -4505,7 +4506,7 @@ public final class RenderUtils extends MinecraftInstance {
         glVertex3D(getRenderPos(aa.maxX, aa.minY, aa.maxZ));
         end();
 
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_QUADS);
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.minZ));
         glVertex3D(getRenderPos(aa.maxX, aa.maxY, aa.minZ));
         glVertex3D(getRenderPos(aa.maxX, aa.maxY, aa.maxZ));
@@ -4516,7 +4517,7 @@ public final class RenderUtils extends MinecraftInstance {
         glVertex3D(getRenderPos(aa.maxX, aa.maxY, aa.minZ));
         end();
 
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_QUADS);
         glVertex3D(getRenderPos(aa.minX, aa.minY, aa.minZ));
         glVertex3D(getRenderPos(aa.maxX, aa.minY, aa.minZ));
         glVertex3D(getRenderPos(aa.maxX, aa.minY, aa.maxZ));
@@ -4527,7 +4528,7 @@ public final class RenderUtils extends MinecraftInstance {
         glVertex3D(getRenderPos(aa.maxX, aa.minY, aa.minZ));
         end();
 
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_QUADS);
         glVertex3D(getRenderPos(aa.minX, aa.minY, aa.minZ));
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.minZ));
         glVertex3D(getRenderPos(aa.minX, aa.minY, aa.maxZ));
@@ -4538,7 +4539,7 @@ public final class RenderUtils extends MinecraftInstance {
         glVertex3D(getRenderPos(aa.maxX, aa.maxY, aa.minZ));
         end();
 
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_QUADS);
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.maxZ));
         glVertex3D(getRenderPos(aa.minX, aa.minY, aa.maxZ));
         glVertex3D(getRenderPos(aa.minX, aa.maxY, aa.minZ));

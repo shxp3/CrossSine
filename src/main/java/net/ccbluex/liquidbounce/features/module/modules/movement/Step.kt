@@ -57,8 +57,6 @@ class Step : Module() {
     private var lastOnGround = false
     private var canStep = false
 
-    //IDK
-    private var offGroundTicks: Int = 0
 
     private val timer = MSTimer()
 
@@ -70,12 +68,6 @@ class Step : Module() {
         if (wasTimer) mc.timer.timerSpeed = 1.0F
         wasTimer = false
         lastOnGround = mc.thePlayer.onGround
-    }
-    @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (mc.thePlayer.onGround) {
-            offGroundTicks = 0
-        } else offGroundTicks++
     }
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
@@ -153,7 +145,7 @@ class Step : Module() {
                 if (mc.thePlayer.onGround && couldStep()) {
                     mc.thePlayer.motionX *= 1.12
                     mc.thePlayer.motionZ *= 1.12
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                     isAACStep = true
                 }
 
@@ -173,7 +165,7 @@ class Step : Module() {
                 if (mc.thePlayer.onGround && couldStep()) {
                     mc.thePlayer.motionX *= 1.26
                     mc.thePlayer.motionZ *= 1.26
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                     isAACStep = true
                 }
 

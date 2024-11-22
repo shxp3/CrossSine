@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements;
 
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.Module;
-import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
@@ -26,7 +26,7 @@ public class ModuleElement extends ButtonElement {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float button) {
-        modernuiLaunchOption.clickGui.style.drawModuleElement(mouseX, mouseY, this);
+        CrossSine.clickGui.style.drawModuleElement(mouseX, mouseY, this);
     }
 
     @Override

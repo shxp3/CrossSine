@@ -1,6 +1,9 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -9,11 +12,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.drawCenteredString
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.shadowRenderUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FontValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper

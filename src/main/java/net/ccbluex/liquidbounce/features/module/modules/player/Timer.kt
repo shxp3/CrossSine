@@ -7,9 +7,9 @@ import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 
 @ModuleInfo(name = "Timer", category = ModuleCategory.PLAYER, autoDisable = EnumAutoDisableType.RESPAWN)
 class Timer : Module() {

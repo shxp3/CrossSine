@@ -7,21 +7,30 @@ import net.ccbluex.liquidbounce.ui.client.altmanager.sub.GuiAdd
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.GuiDirectLogin
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.MicrosoftLogin
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.cookie.CookieUtil
 import net.ccbluex.liquidbounce.utils.login.LoginUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiSlot
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.util.EnumChatFormatting
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Session
+import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.util.*
+import javax.swing.JFileChooser
+import javax.swing.UIManager
+import javax.swing.filechooser.FileNameExtensionFilter
 
 class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
-    var status = "§7Idle"
+    var status: String = "§7Idle"
     private lateinit var altsList: GuiList
-
+    private lateinit var altsSlider: GuiSlider
+    private lateinit var stylisedAltsButton: GuiButton
+    private lateinit var unformattedAltsButton: GuiButton
     override fun initGui() {
         altsList = GuiList(this)
         altsList.registerScrollButtons(7, 8)
@@ -35,25 +44,21 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
         buttonList.add(GuiButton(6, 5, j + 24 * 2, 90, 20, "DirectLogin"))
         buttonList.add(GuiButton(4, 5, j + 24 * 3, 90, 20, "RandomAlt"))
         buttonList.add(GuiButton(92, 5, j + 24 * 4, 90, 20, "Microsoft"))
-        buttonList.add(GuiButton(89, 5, j + 24 * 5, 90, 20, "RandomCrack"))
-        randomAltField.xPosition = 5
-        randomAltField.yPosition = j + 24 * 6
-        randomAltField.width = 90
-        randomAltField.height = 20
+        buttonList.add(GuiButton(93, 5, j + 24 * 5, 90, 20, "CookiesLogin"))
+        buttonList.add(GuiButton(89, 5, j + 24 * 6, 90, 20, "RandomCrack"))
+        buttonList.add(GuiButton(81, 5, j + 24 * 7, 90, 20, if (stylisedAlts) "Stylised" else "Legecy").also { stylisedAltsButton = it })
+        buttonList.add(GuiButton(82, 5, j + 24 * 8, 90, 20, if (unformattedAlts) "UNFORMATTEDALTS" else "FORMATTEDALTS").also { unformattedAltsButton = it })
+        buttonList.add(GuiSlider(-1, 5, j + 24 * 9, 90, 20, "length (", ")", 6.0, 16.0 ,altsLength.toDouble(), false, true) { altsLength = it.valueInt }.also { altsSlider = it })
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        drawBackground(0)
+        RenderUtils.drawImage(ResourceLocation("crosssine/background.png"), 0, 0, width, height)
         altsList.drawScreen(mouseX, mouseY, partialTicks)
         Fonts.fontTenacityBold35.drawCenteredString("AltManager", (width / 2).toFloat(), 6f, 0xffffff)
         Fonts.fontTenacityBold35.drawCenteredString("Alts", (width / 2).toFloat(), 18f, 0xffffff)
         Fonts.fontTenacityBold35.drawCenteredString(status, (width / 2).toFloat(), 32f, 0xffffff)
         Fonts.fontTenacityBold35.drawStringWithShadow("UserName : " + mc.getSession().username, 6f, 6f, 0xffffff)
         Fonts.fontTenacityBold35.drawStringWithShadow(if (mc.getSession().token.length >= 32) "Premuim" else "Cracked", 6f, 15f, 0xffffff)
-        randomAltField.drawTextBox()
-        if (randomAltField.text.isEmpty() && !randomAltField.isFocused) {
-            drawCenteredString(Fonts.fontTenacityBold35, "§7Random", width / 2 - 55, 66, 0xffffff)
-        }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -95,16 +100,56 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
             6 -> mc.displayGuiScreen(GuiDirectLogin(this))
             89 -> Thread { LoginUtils.randomCracked() }.start()
             92 -> mc.displayGuiScreen(MicrosoftLogin(this))
+            82 -> {
+                unformattedAlts = !unformattedAlts
+                unformattedAltsButton.displayString = if (unformattedAlts) "UNFORMATTEDALTS" else "FORMATTEDALTS"
+            }
+            81 -> {
+                stylisedAlts = !stylisedAlts
+                stylisedAltsButton.displayString = if (stylisedAlts) "Stylised" else "Legecy"
+            }
+            93 -> {
+                Thread {
+                    status = "${EnumChatFormatting.YELLOW}Waiting for login..."
+
+                    try {
+                        UIManager.setLookAndFeel(UIManager.getLookAndFeel())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        return@Thread
+                    }
+
+                    val chooser = JFileChooser()
+                    val filter = FileNameExtensionFilter("Text Files", "txt")
+                    chooser.fileFilter = filter
+
+                    val returnVal = chooser.showOpenDialog(null)
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            status = "${EnumChatFormatting.YELLOW}Logging in..."
+                            val loginData = CookieUtil.INSTANCE.loginWithCookie(chooser.selectedFile)
+
+                            if (loginData == null) {
+                                status = "${EnumChatFormatting.RED}Failed to login with cookie!"
+                                return@Thread
+                            }
+
+                            status = "${EnumChatFormatting.GREEN}Logged in to ${loginData.username}"
+                            mc.session = Session(loginData.username, loginData.uuid, loginData.mcToken, "legacy")
+                        } catch (e: Exception) {
+                            throw RuntimeException(e)
+                        }
+                    }
+                }.start()
+            }
         }
     }
 
     override fun updateScreen() {
-        randomAltField.updateCursorCounter()
         super.updateScreen()
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        randomAltField.mouseClicked(mouseX, mouseY, mouseButton)
         super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
@@ -136,7 +181,6 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 return
             }
         }
-        if (randomAltField.isFocused) randomAltField.textboxKeyTyped(typedChar, keyCode)
         super.keyTyped(typedChar, keyCode)
     }
 
@@ -188,13 +232,9 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
     }
 
     companion object {
-        var randomAltField = GuiTextField(2, Minecraft.getMinecraft().fontRendererObj, 0, 0, 0, 0)
-
-        init {
-            randomAltField.text = "Cro%s%sSine_%n%s%s%s%n"
-            randomAltField.maxStringLength = Int.MAX_VALUE
-        }
-
+        var altsLength = 16
+        var unformattedAlts = false
+        var stylisedAlts = false
         fun login(account: MinecraftAccount): String {
             return try {
                 val mc = Minecraft.getMinecraft()

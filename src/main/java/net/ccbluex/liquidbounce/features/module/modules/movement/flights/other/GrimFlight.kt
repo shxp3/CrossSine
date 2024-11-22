@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.flights.other
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
 import net.minecraft.network.play.server.S27PacketExplosion
 

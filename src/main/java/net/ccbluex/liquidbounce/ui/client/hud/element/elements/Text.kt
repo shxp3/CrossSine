@@ -1,6 +1,10 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.features.value.TextValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -11,8 +15,6 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.input.Keyboard

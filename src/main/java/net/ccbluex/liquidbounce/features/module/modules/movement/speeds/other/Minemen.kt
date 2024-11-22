@@ -14,7 +14,7 @@ class Minemen: SpeedMode("Minemen") {
                 MovementUtils.strafe()
             }
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.jump()
+                MovementUtils.jump(false)
                 MovementUtils.strafe()
             }
         } else {

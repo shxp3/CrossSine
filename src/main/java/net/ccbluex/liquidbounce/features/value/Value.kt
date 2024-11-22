@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.value
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import java.awt.Color

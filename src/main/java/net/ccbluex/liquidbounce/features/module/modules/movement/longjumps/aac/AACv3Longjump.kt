@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.aac
 
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.LongJumpMode
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.minecraft.util.EnumFacing
 
 class AACv3Longjump : LongJumpMode("AACv3") {

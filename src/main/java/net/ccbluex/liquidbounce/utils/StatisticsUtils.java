@@ -7,7 +7,6 @@ import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S45PacketTitle;
-import scala.tools.nsc.doc.base.comment.Title;
 
 public class StatisticsUtils implements Listenable {
     private static int kills;

@@ -2,8 +2,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flights.other
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
-import net.ccbluex.liquidbounce.utils.timer.tickTimer
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.timer.tickTimer
 import net.minecraft.block.BlockAir
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB

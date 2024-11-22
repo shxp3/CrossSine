@@ -3,9 +3,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofalls
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall
+import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.features.value.Value
 
 abstract class NoFallMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
@@ -25,7 +25,5 @@ abstract class NoFallMode(val modeName: String) : MinecraftInstance() {
     open fun onPacket(event: PacketEvent) {}
     open fun onRender2D(event: Render2DEvent) {}
     open fun onMove(event: MoveEvent) {}
-    open fun onBlockBB(event: BlockBBEvent) {}
     open fun onJump(event: JumpEvent) {}
-    open fun onStep(event: StepEvent) {}
 }

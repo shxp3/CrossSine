@@ -6,17 +6,14 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.PacketUtils
-import net.ccbluex.liquidbounce.utils.timer.TimeUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.S12PacketEntityVelocity
 import java.util.*
-import java.util.Timer
 import kotlin.concurrent.schedule
 
 @ModuleInfo(name = "PingSpoof", category = ModuleCategory.OTHER)

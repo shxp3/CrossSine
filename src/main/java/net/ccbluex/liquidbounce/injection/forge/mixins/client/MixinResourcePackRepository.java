@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 

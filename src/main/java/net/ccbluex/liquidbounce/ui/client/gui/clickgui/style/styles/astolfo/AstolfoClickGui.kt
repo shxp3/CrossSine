@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
-import java.awt.Color
 import java.io.IOException
 import kotlin.math.roundToInt
 
@@ -97,9 +96,9 @@ class AstolfoClickGui : GuiScreen() {
     }
   }
   companion object {
-    private var instance: NewUi? = null
-    fun getInstance(): NewUi {
-      return if (instance == null) NewUi().also { instance = it } else instance!!
+    private var instance: AstolfoClickGui? = null
+    fun getInstance(): AstolfoClickGui {
+      return if (instance == null) AstolfoClickGui().also { instance = it } else instance!!
     }
   }
   @Throws(IOException::class)

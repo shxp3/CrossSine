@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -54,7 +55,7 @@ class VulcanFlight : FlightMode("Vulcan") {
             mc.thePlayer.setPosition(packet.x, packet.y, packet.z)
             mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
             event.cancelEvent()
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
             clip(0.127318f, 0f)
             clip(3.425559f, 3.7f)
             clip(3.14285f, 3.54f)

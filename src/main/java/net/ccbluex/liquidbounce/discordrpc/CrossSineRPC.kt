@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.ServerUtils
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.minecraft.client.gui.GuiMultiplayer
 import org.json.JSONObject
 import java.time.OffsetDateTime

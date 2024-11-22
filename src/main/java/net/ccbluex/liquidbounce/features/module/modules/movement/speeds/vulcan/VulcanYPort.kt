@@ -27,7 +27,7 @@ class VulcanYPort : SpeedMode("VulcanYPort") {
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
             ticks = 0
             mc.gameSettings.keyBindJump.pressed = false
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             if (!mc.thePlayer.isAirBorne) {
                 return //Prevent flag with Fly
             }

@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move;
 
+import net.ccbluex.liquidbounce.features.module.modules.other.HackerDetector;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.Check;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
@@ -7,6 +8,7 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 // It will not false anytime, I don't know.
 public class NoSlowCheck extends Check {
     short sprintBuffer = 0, motionBuffer = 0;
+
     public NoSlowCheck(EntityOtherPlayerMP playerMP) {
         super(playerMP);
         name = "NoSlow";
@@ -15,6 +17,7 @@ public class NoSlowCheck extends Check {
 
     @Override
     public void onLivingUpdate() {
+        if (HackerDetector.INSTANCE.noSlowValue.get()) {
         if (handlePlayer.isUsingItem() || handlePlayer.isBlocking()) {
             if (handlePlayer.isSprinting()) {
                 if (++sprintBuffer > 5) {
@@ -38,7 +41,7 @@ public class NoSlowCheck extends Check {
             }
         }
     }
-
+    }
     @Override
     public String description() {
         return "using item and moving suspiciously";

@@ -3,12 +3,9 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.JumpEvent;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.movement.*;
+import net.ccbluex.liquidbounce.features.module.modules.movement.Jesus;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
-import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
-import net.ccbluex.liquidbounce.features.module.modules.visual.RenderRotation;
-import net.ccbluex.liquidbounce.utils.MovementUtils;
+import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -19,7 +16,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,6 +40,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     public float rotationYawHead;
     @Shadow
     public float prevRotationYawHead;
+
     @Shadow
     protected abstract float getJumpUpwardsMotion();
 
@@ -60,6 +58,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     public void onLivingUpdate() {
     }
 
+    @Shadow
+    public float moveStrafing;
+    @Shadow
+    public float moveForward;
     @Shadow
     private EntityLivingBase lastAttacker;
     @Shadow
@@ -82,39 +84,41 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     protected abstract void updateAITick();
 
 
+    @Shadow
+    public float prevCameraPitch;
+
     @Overwrite
     protected float updateDistance(float p_110146_1_, float p_110146_2_) {
-            float rotationYaw = this.rotationYaw;
-            if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
-                if (RenderRotation.INSTANCE.INSTANCE.getPlayerYaw() != null) {
-                    if (this.swingProgress > 0F) {
-                        p_110146_1_ = RenderRotation.INSTANCE.getPlayerYaw();
-                    }
-                    rotationYaw = RenderRotation.INSTANCE.getPlayerYaw();
+        float rotationYaw = this.rotationYaw;
+        if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
+            if (RotationUtils.playerYaw != null) {
+                if (this.swingProgress > 0F) {
+                    p_110146_1_ = RotationUtils.playerYaw;
                 }
+                rotationYaw = RotationUtils.playerYaw;
             }
-            float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
-            this.renderYawOffset += f * 0.3F;
-            float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
-            boolean flag = f1 < -90.0F || f1 >= 90.0F;
-            if (f1 < -75.0F) {
-                f1 = -75.0F;
-            }
+        }
+        float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
+        this.renderYawOffset += f * 0.3F;
+        float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
+        boolean flag = f1 < -90.0F || f1 >= 90.0F;
+        if (f1 < -75.0F) {
+            f1 = -75.0F;
+        }
 
-            if (f1 >= 75.0F) {
-                f1 = 75.0F;
-            }
+        if (f1 >= 75.0F) {
+            f1 = 75.0F;
+        }
+        this.renderYawOffset = rotationYaw - f1;
+        if (f1 * f1 > 2500.0F) {
+            this.renderYawOffset += f1 * 0.2F;
+        }
 
-            this.renderYawOffset = rotationYaw - f1;
-            if (f1 * f1 > 2500.0F) {
-                this.renderYawOffset += f1 * 0.2F;
-            }
+        if (flag) {
+            p_110146_2_ *= -1.0F;
+        }
 
-            if (flag) {
-                p_110146_2_ *= -1.0F;
-            }
-
-            return p_110146_2_;
+        return p_110146_2_;
     }
 
     /**
@@ -125,25 +129,25 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
      */
     @Overwrite
     protected void jump() {
-        if (this.equals(Minecraft.getMinecraft().thePlayer)) {
-            final JumpEvent eventJump = new JumpEvent((float) this.motionY, this.rotationYaw);
-            CrossSine.eventManager.callEvent(eventJump);
-            if (eventJump.isCancelled()) return;
+        if (((EntityLivingBase) (Object) this).equals(Minecraft.getMinecraft().thePlayer)) {
+            final JumpEvent event = new JumpEvent((float) this.motionY, this.isSprinting());
+            CrossSine.eventManager.callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
             this.motionY = this.getJumpUpwardsMotion();
             if (this.isPotionActive(Potion.jump)) {
-                this.motionY += (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1f;
-            } else {
-                this.motionY = this.getJumpUpwardsMotion();
-                if (this.isPotionActive(Potion.jump)) {
-                    this.motionY += (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1f;
-                }
-                if (this.isSprinting() || eventJump.getBoosting()) {
-                    final float f2 = eventJump.getMovementYaw() * 0.017453292f;
-                    this.motionX -= MathHelper.sin(f2) * 0.2f;
-                    this.motionZ += MathHelper.cos(f2) * 0.2f;
-                }
+                this.motionY += ((float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
             }
+
+            if (this.isSprinting() || event.getBoosting()) {
+                float f = this.rotationYaw * 0.017453292F;
+                this.motionX -= (MathHelper.sin(f) * 0.2F);
+                this.motionZ += (MathHelper.cos(f) * 0.2F);
+            }
+
             this.isAirBorne = true;
+            ForgeHooks.onLivingJump((EntityLivingBase) (Object) this);
         }
     }
 

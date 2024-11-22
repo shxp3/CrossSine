@@ -1,34 +1,27 @@
 
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
-import io.netty.buffer.Unpooled;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.EntityDamageEvent;
 import net.ccbluex.liquidbounce.event.EntityMovementEvent;
-import net.ccbluex.liquidbounce.event.PacketEvent;
+import net.ccbluex.liquidbounce.event.TeleportEvent;
+import net.ccbluex.liquidbounce.features.module.modules.other.AntiExploit;
 import net.ccbluex.liquidbounce.features.module.modules.other.NoRotate;
-import net.ccbluex.liquidbounce.features.module.modules.other.Teleport;
-import net.ccbluex.liquidbounce.features.special.ClientFixes;
+import net.ccbluex.liquidbounce.script.api.global.Chat;
 import net.ccbluex.liquidbounce.utils.TransferUtils;
-import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.client.C17PacketCustomPayload;
-import net.minecraft.network.play.client.C19PacketResourcePackStatus;
 import net.minecraft.network.play.server.*;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.WorldSettings;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
+import net.minecraft.util.MathHelper;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -36,14 +29,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import static net.ccbluex.liquidbounce.script.api.global.Chat.alert;
+import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 
 @Mixin(NetHandlerPlayClient.class)
 public abstract class MixinNetHandlerPlayClient {
@@ -63,53 +53,11 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Shadow
     public abstract void handleEntityVelocity(S12PacketEntityVelocity packetIn);
-    
+
     @Shadow
     private boolean doneLoadingTerrain;
 
     public boolean silentConfirm = false;
-
-    @Inject(method = "handleResourcePack", at = @At("HEAD"), cancellable = true)
-    private void handleResourcePack(final S48PacketResourcePackSend p_handleResourcePack_1_, final CallbackInfo callbackInfo) {
-        final String url = p_handleResourcePack_1_.getURL();
-        final String hash = p_handleResourcePack_1_.getHash();
-
-
-            if (ClientFixes.blockResourcePackExploit) {
-                try {
-                    final String scheme = new URI(url).getScheme();
-                    final boolean isLevelProtocol = "level".equals(scheme);
-
-                    if(!"http".equals(scheme) && !"https".equals(scheme) && !isLevelProtocol)
-                        throw new URISyntaxException(url, "Wrong protocol");
-
-            if(isLevelProtocol && (url.contains("..") || !url.endsWith(".zip"))) {
-                String s2 = url.substring("level://".length());
-                File file1 = new File(this.gameController.mcDataDir, "saves");
-                File file2 = new File(file1, s2);
-
-                if (file2.isFile() && !url.toLowerCase().contains("crosssine")) {
-                    netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.ACCEPTED));
-                    netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.SUCCESSFULLY_LOADED));
-                } else {
-                    netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
-                }
-
-                    callbackInfo.cancel(); // despite not having it enabled we still prevents anything from illegally checking files in your computer.
-
-
-            }
-        } catch (final URISyntaxException e) {
-            alert("Failed to handle resource pack");
-            netManager.sendPacket(new C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD));
-            callbackInfo.cancel();
-        } catch (final IllegalStateException e) {
-            alert("Failed to handle resource pack");
-            callbackInfo.cancel();
-        }
-        }
-    }
-
 
     @Inject(method = "handleEntityStatus", at = @At("HEAD"))
     public void handleDamagePacket(S19PacketEntityStatus packetIn, CallbackInfo callbackInfo) {
@@ -122,53 +70,71 @@ public abstract class MixinNetHandlerPlayClient {
             }
         }
     }
+    @Redirect(method = "handleExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S27PacketExplosion;getStrength()F"))
+    private float onExplosionVelocity(S27PacketExplosion packetExplosion) {
+        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitExplosionStrength().get()) {
+            float strength = packetExplosion.getStrength();
+            float fixedStrength = MathHelper.clamp_float(strength, -1000.0f, 1000.0f);
 
-    @Inject(method = "handleJoinGame", at = @At("HEAD"), cancellable = true)
-    private void handleJoinGameWithAntiForge(S01PacketJoinGame packetIn, final CallbackInfo callbackInfo) {
-        if (!ClientFixes.INSTANCE.getEnabled() || !ClientFixes.INSTANCE.getBlockFML() || Minecraft.getMinecraft().isIntegratedServerRunning())
-            return;
-
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
-        this.gameController.playerController = new PlayerControllerMP(this.gameController, (NetHandlerPlayClient) (Object) this);
-        this.clientWorldController = new WorldClient((NetHandlerPlayClient) (Object) this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), this.gameController.mcProfiler);
-        this.gameController.gameSettings.difficulty = packetIn.getDifficulty();
-        this.gameController.loadWorld(this.clientWorldController);
-        this.gameController.thePlayer.dimension = packetIn.getDimension();
-        this.gameController.displayGuiScreen(null);
-        this.gameController.thePlayer.setEntityId(packetIn.getEntityId());
-        this.currentServerMaxPlayers = packetIn.getMaxPlayers();
-        this.gameController.thePlayer.setReducedDebug(packetIn.isReducedDebugInfo());
-        this.gameController.playerController.setGameType(packetIn.getGameType());
-        this.gameController.gameSettings.sendSettingsToServer();
-        this.netManager.sendPacket(new C17PacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
-        callbackInfo.cancel();
-    }
-
-    /**
-     * @author liulihaocai
-     * Fixed by Co Dynamic
-     * @reason Convert Explosion to Velocity
-     */
-    @Overwrite
-    public void handleExplosion(S27PacketExplosion packetIn) {
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
-        Explosion explosion = new Explosion(this.gameController.theWorld, null, packetIn.getX(), packetIn.getY(), packetIn.getZ(), packetIn.getStrength(), packetIn.getAffectedBlockPositions());
-        explosion.doExplosionB(true);
-        // convert it to velocity packet
-        // ONLY when it's a valid explosion (in affected range)
-        if (!(Math.abs(packetIn.func_149149_c() * 8000.0) < 0.0001 && Math.abs(packetIn.func_149144_d() * 8000.0) < 0.0001 && Math.abs(packetIn.func_149147_e() * 8000.0) < 0.0001)) {
-            S12PacketEntityVelocity packet = new S12PacketEntityVelocity(this.gameController.thePlayer.getEntityId(),
-                (this.gameController.thePlayer.motionX + packetIn.func_149149_c()) * 8000.0,
-                (this.gameController.thePlayer.motionY + packetIn.func_149144_d()) * 8000.0,
-                (this.gameController.thePlayer.motionZ + packetIn.func_149147_e()) * 8000.0);
-            PacketEvent packetEvent = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
-            CrossSine.eventManager.callEvent(packetEvent);
-            if (!packetEvent.isCancelled()) {
-                handleEntityVelocity(packet);
+            if (fixedStrength != strength) {
+                Chat.print("Limited too strong explosion");
+                return fixedStrength;
             }
         }
+        return packetExplosion.getStrength();
     }
 
+    @Redirect(method = "handleExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S27PacketExplosion;func_149149_c()F"))
+    private float onExplosionWorld(S27PacketExplosion packetExplosion) {
+        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitExplosionRange().get()) {
+            float originalRadius = packetExplosion.func_149149_c();
+            float radius = MathHelper.clamp_float(originalRadius, -1000.0f, 1000.0f);
+
+            if (radius != originalRadius) {
+                Chat.print("Limited too big TNT explosion radius");
+                return radius;
+            }
+        }
+        return packetExplosion.func_149149_c();
+    }
+    @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2APacketParticles;getParticleCount()I", ordinal = 1))
+    private int onParticleAmount(S2APacketParticles packetParticles) {
+        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitParticlesAmount().get() && packetParticles.getParticleCount() >= 500) {
+            Chat.print("Limited too many particles");
+            return 100;
+        }
+        return packetParticles.getParticleCount();
+    }
+
+    @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2APacketParticles;getParticleSpeed()F"))
+    private float onParticleSpeed(S2APacketParticles packetParticles) {
+        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitParticlesSpeed().get() && packetParticles.getParticleSpeed() >= 10f) {
+            Chat.print("Limited too fast particles speed");
+            return 5f;
+        }
+        return packetParticles.getParticleSpeed();
+    }
+
+    @Redirect(method = "handleSpawnObject", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S0EPacketSpawnObject;getType()I"))
+    private int onSpawnObjectType(S0EPacketSpawnObject packet) {
+        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitedArrowsSpawned() .get() && packet.getType() == 60) {
+            int arrows = AntiExploit.INSTANCE.getArrowMax();
+
+            if (++arrows >= AntiExploit.INSTANCE.getMaxArrowsSpawned().get()) {
+                return -1; // Cancel arrows spawn
+            }
+        }
+        return packet.getType();
+    }
+
+    @Redirect(method = "handleChangeGameState", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2BPacketChangeGameState;getGameState()I"))
+    private int onChangeGameState(S2BPacketChangeGameState packet) {
+        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getCancelDemo().get() && mc.isDemo()) {
+            return -1; // Cancel demo
+        }
+
+        return packet.getGameState();
+    }
     @ModifyArg(method={"handleJoinGame", "handleRespawn"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/Minecraft;displayGuiScreen(Lnet/minecraft/client/gui/GuiScreen;)V"))
     private GuiScreen handleJoinGame(GuiScreen guiScreen) {
         return null;
@@ -235,46 +201,40 @@ public abstract class MixinNetHandlerPlayClient {
     private void handleTimeUpdate(S03PacketTimeUpdate s03PacketTimeUpdate, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.gameController.theWorld, callbackInfo);
     }
-    
+
     /**
      * @author Co Dynamic
      * @reason NoRotateSet / S08 Silent Confirm
      */
     @Overwrite
     public void handlePlayerPosLook(S08PacketPlayerPosLook packetIn) {
-        final NoRotate noRotateSet = CrossSine.moduleManager.getModule(NoRotate.class);
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
         EntityPlayer entityplayer = this.gameController.thePlayer;
-        double d0 = packetIn.getX();
-        double d1 = packetIn.getY();
-        double d2 = packetIn.getZ();
-        float f = packetIn.getYaw();
-        float f1 = packetIn.getPitch();
+        final TeleportEvent event = new TeleportEvent(new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false), packetIn.x, packetIn.y, packetIn.z, packetIn.yaw, packetIn.pitch);
+        CrossSine.eventManager.callEvent(event);
+        if (event.isCancelled()) return;
+        double d0 = event.getX();
+        double d1 = event.getY();
+        double d2 = event.getZ();
+        float f = event.getYaw();
+        float f1 = event.getPitch();
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X)) {
             d0 += entityplayer.posX;
         } else {
-            if (!TransferUtils.INSTANCE.getNoMotionSet()) {
-                entityplayer.motionX = 0.0D;
-            }
+            entityplayer.motionX = 0.0;
         }
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Y)) {
             d1 += entityplayer.posY;
         } else {
-            if (!TransferUtils.INSTANCE.getNoMotionSet()) {
-                entityplayer.motionY = 0.0D;
-            }
+            entityplayer.motionY = 0.0;
         }
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Z)) {
             d2 += entityplayer.posZ;
         } else {
-            if (!TransferUtils.INSTANCE.getNoMotionSet()) {
-                entityplayer.motionZ = 0.0D;
-            }
+            entityplayer.motionZ = 0.0;
         }
-
-        TransferUtils.INSTANCE.setNoMotionSet(false);
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X_ROT)) {
             f1 += entityplayer.rotationPitch;
@@ -284,44 +244,16 @@ public abstract class MixinNetHandlerPlayClient {
             f += entityplayer.rotationYaw;
         }
 
-        float overwriteYaw = f;
-        float overwritePitch = f1;
-
-        boolean flag = false;
-
-        if (TransferUtils.INSTANCE.getSilentConfirm()) {
-            this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(d0, d1, d2, f, f1, false));
-            TransferUtils.INSTANCE.setSilentConfirm(false);
-        } else {
-            if (noRotateSet.getState()) {
-                if (!noRotateSet.getNoLoadingValue().get() || this.doneLoadingTerrain) {
-                    flag = true;
-                    if (!noRotateSet.getOverwriteTeleportValue().get()) {
-                        overwriteYaw = entityplayer.rotationYaw;
-                        overwritePitch = entityplayer.rotationPitch;
-                    }
-                }
-            }
-            if (flag) {
-                if (noRotateSet.getRotateValue().get()) {
-                    entityplayer.setPositionAndRotation(d0, d1, d2, entityplayer.rotationYaw, entityplayer.rotationPitch);
-                } else {
-                    entityplayer.setPosition(d0, d1, d2);
-                }
-            } else {
-                entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
-            }
-            this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, overwriteYaw, overwritePitch, false));
-        }
-
-        if (!this.doneLoadingTerrain)
-        {
+        entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
+        this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false));
+        if (!this.doneLoadingTerrain) {
             this.gameController.thePlayer.prevPosX = this.gameController.thePlayer.posX;
             this.gameController.thePlayer.prevPosY = this.gameController.thePlayer.posY;
             this.gameController.thePlayer.prevPosZ = this.gameController.thePlayer.posZ;
             this.doneLoadingTerrain = true;
             this.gameController.displayGuiScreen(null);
         }
+
     }
 
     private <T> void cancelIfNull(T t, CallbackInfo callbackInfo) {

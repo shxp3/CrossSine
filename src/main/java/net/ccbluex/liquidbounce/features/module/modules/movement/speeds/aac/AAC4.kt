@@ -10,7 +10,7 @@ class AAC4 : SpeedMode("AAC4") {
             return
         }
         if (mc.thePlayer.onGround) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             mc.timer.timerSpeed = 1.00f
         }
         if (mc.thePlayer.fallDistance > 0.7 && mc.thePlayer.fallDistance < 1.3) {

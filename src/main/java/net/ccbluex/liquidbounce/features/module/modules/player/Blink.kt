@@ -2,9 +2,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -12,22 +12,23 @@ import net.ccbluex.liquidbounce.features.module.modules.visual.Breadcrumbs
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.BlinkUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
-import java.util.concurrent.LinkedBlockingQueue
 import org.lwjgl.opengl.GL11
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
 
 @ModuleInfo(name = "Blink", category = ModuleCategory.PLAYER)
 object Blink : Module() {
     private val modeValue = ListValue("Blink-Mode", arrayOf("All", "Movement"), "All")
     private val renderPlayer = BoolValue("Render", false)
     private val pulseValue = BoolValue("Pulse", false)
+    private val serverPacket = BoolValue("Server-Packet", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 100, 5000).displayable { pulseValue.get() }
 
     private val pulseTimer = MSTimer()
@@ -102,10 +103,12 @@ object Blink : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) {
-            if (mc.thePlayer.ticksExisted < 20) return
-            event.cancelEvent()
-            packets.add(packet as Packet<INetHandlerPlayClient>)
+        if (serverPacket.get()) {
+            if (packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) {
+                if (mc.thePlayer.ticksExisted < 20) return
+                event.cancelEvent()
+                packets.add(packet as Packet<INetHandlerPlayClient>)
+            }
         }
     }
 

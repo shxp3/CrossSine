@@ -1,141 +1,76 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.disablers.server
 
-import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.event.WorldEvent
+import com.sun.javaws.progress.Progress
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.other.disablers.DisablerMode
-import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.BarProgress
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.minecraft.network.Packet
-import net.minecraft.network.play.INetHandlerPlayServer
-import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.S02PacketChat
-import java.util.concurrent.LinkedBlockingQueue
+import net.ccbluex.liquidbounce.utils.PlayerUtils
+import net.ccbluex.liquidbounce.utils.animation.Animation
+import net.ccbluex.liquidbounce.utils.animation.Easing
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.utils.timer.TimerMS
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
 class HypixelDisabler : DisablerMode("Hypixel") {
-    private val banWarning = BoolValue("${valuePrefix}BanWarning", true)
-    private val noC03 = BoolValue("${valuePrefix}NoC03Packet", true)
-    private val timerA = BoolValue("${valuePrefix}Timer1", true)
-    private val timerB = BoolValue("${valuePrefix}Timer2", false)
-    private var counter = 0
-    private var x = 0.0
-    private var y = 0.0
-    private var z = 0.0
-
-    private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayServer>>()
-    private val timerCancelDelay = MSTimer()
-    private val timerCancelTimer = MSTimer()
-    private var timerShouldCancel = true
-    private var inCage = true
-
-
-    private var canBlink = true
+    private var flagged = 0
+    private var done: Boolean = false
+    private var animation: Animation? = null
+    private var dotCount = 0
+    private var timer = TimerMS()
+    override fun onMotion(event: MotionEvent) {
+        if (event.isPre()) {
+            if (done || mc.thePlayer == null || mc.thePlayer.ticksExisted < 20) return
+            if (mc.thePlayer.onGround) {
+                if (mc.thePlayer.onGround) MovementUtils.jump(true)
+            } else if (PlayerUtils.offGroundTicks >= 9) {
+                if (PlayerUtils.offGroundTicks % 2 == 0) {
+                    event.z += RandomUtils.nextFloat(0.09F, 0.12F)
+                }
+                MovementUtils.resetMotion(true)
+            }
+        }
+    }
+    override fun onPacket(event: PacketEvent) {
+        if (event.packet is S08PacketPlayerPosLook && !done) {
+            flagged++
+            if (this.flagged == 20) {
+                done = true
+                flagged = 0
+                done = true
+            }
+        }
+    }
 
     override fun onWorld(event: WorldEvent) {
-        counter = 0
-        inCage = true
+        done = false
+        flagged = 0
+        animation!!.value = 0.0
+    }
+    override fun onDisable() {
+        done = false
+        BarProgress.boolean = false
     }
 
+    override fun onRender2D(event: Render2DEvent) {
+        if (animation == null) {
+            animation = Animation(Easing.LINEAR, 250)
+            animation!!.value = flagged.toDouble()
+        }
+        animation!!.run(flagged.toDouble())
+        BarProgress.value = (animation!!.value / 20).toFloat()
+        BarProgress.boolean = !done
+        BarProgress.string = "Loading" + ".".repeat(dotCount)
+        if (timer.hasTimePassed(2500)) {
+            dotCount++
+        }
+        if (dotCount >= 4 && timer.hasTimePassed(2500)) {
+            dotCount = 0
+        }
+    }
     override fun onEnable() {
-        counter = 0
-        inCage = true
-        x = 0.0
-        y = 0.0
-        z = 0.0
-        timerCancelDelay.reset()
-        timerCancelTimer.reset()
-    }
-
-    override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-        canBlink = true
-
-        //ban warning
-        if (banWarning.get() && packet is S02PacketChat && packet.chatComponent.unformattedText.contains("Cages opened!", true)) {
-            CrossSine.hud.addNotification(Notification("Disabler", "Speed is bannable until this notification disappears.", NotifyType.ERROR, 20000))
-            inCage = false
-        }
-
-        if (mc.thePlayer.ticksExisted > 200f)
-            inCage = false
-
-
-        //timerA
-        if (timerA.get() && inCage == false) {
-            if (packet is C02PacketUseEntity || packet is C03PacketPlayer || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement ||
-                packet is C0APacketAnimation || packet is C0BPacketEntityAction || packet is C0FPacketConfirmTransaction || packet is C00PacketKeepAlive ) {
-                if (timerShouldCancel) {
-                    if (!timerCancelTimer.hasTimePassed(270)) {
-                        packets.add(packet as Packet<INetHandlerPlayServer>)
-                        event.cancelEvent()
-                        canBlink = false
-                    } else {
-                        disabler.debugMessage("Timer 1 release packets")
-                        disabler.debugMessage("Size " + packets.size.toString())
-                        timerShouldCancel = false
-                        while (!packets.isEmpty()) {
-                            PacketUtils.sendPacketNoEvent(packets.take())
-                        }
-                    }
-                }
-            }
-        }
-
-        //timerB
-        if (timerB.get() && inCage == false) {
-            if (packet is C02PacketUseEntity || packet is C03PacketPlayer || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement ||
-                packet is C0APacketAnimation || packet is C0BPacketEntityAction || packet is C0FPacketConfirmTransaction || packet is C00PacketKeepAlive) {
-                if (timerShouldCancel) {
-                    if (!timerCancelTimer.hasTimePassed(250)) {
-                        packets.add(packet as Packet<INetHandlerPlayServer>)
-                        event.cancelEvent()
-                        canBlink = false
-                    } else {
-                        disabler.debugMessage("Timer 2 release packets")
-                        disabler.debugMessage("Size " + packets.size.toString())
-                        timerShouldCancel = false
-                        while (!packets.isEmpty()) {
-                            PacketUtils.sendPacketNoEvent(packets.take())
-                        }
-                    }
-                }
-            }
-        }
-
-
-        // noC03
-        if (packet is C03PacketPlayer && !MovementUtils.isMoving() && noC03.get() && !inCage) {
-            event.cancelEvent()
-            canBlink = false
-        }
-
-    }
-
-    override fun onUpdate(event: UpdateEvent) {
-
-
-        // timer1
-        if (timerA.get()) {
-            if (timerCancelDelay.hasTimePassed(3410)) {
-                timerShouldCancel = true
-                timerCancelTimer.reset()
-                timerCancelDelay.reset()
-            }
-        }
-
-        // timer2
-        if (timerB.get()) {
-            if (timerCancelDelay.hasTimePassed(2000)) {
-                timerShouldCancel = true
-                timerCancelTimer.reset()
-                timerCancelDelay.reset()
-            }
-        }
-
+        done = false
+        flagged = 0
     }
 }

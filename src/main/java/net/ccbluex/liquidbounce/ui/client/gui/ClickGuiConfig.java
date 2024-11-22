@@ -4,12 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.file.FileConfig;
 import net.ccbluex.liquidbounce.file.FileManager;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.Element;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ModuleElement;
-import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class ClickGuiConfig extends FileConfig {
 
         final JsonObject jsonObject = (JsonObject) jsonElement;
 
-        for (final Panel panel : modernuiLaunchOption.clickGui.panels) {
+        for (final Panel panel : CrossSine.clickGui.panels) {
             if (!jsonObject.has(panel.getCategory().getConfigName()))
                 continue;
 
@@ -68,7 +68,7 @@ public class ClickGuiConfig extends FileConfig {
     public String saveConfig() {
         final JsonObject jsonObject = new JsonObject();
 
-        for (final Panel panel : modernuiLaunchOption.clickGui.panels) {
+        for (final Panel panel : CrossSine.clickGui.panels) {
             final JsonObject panelObject = new JsonObject();
 
             panelObject.addProperty("open", panel.getOpen());

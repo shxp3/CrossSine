@@ -9,7 +9,7 @@ class AAC5 : SpeedMode("AAC5") {
             return
         }
         if (mc.thePlayer.onGround) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             mc.thePlayer.speedInAir = 0.0201F
             mc.timer.timerSpeed = 0.94F
         }

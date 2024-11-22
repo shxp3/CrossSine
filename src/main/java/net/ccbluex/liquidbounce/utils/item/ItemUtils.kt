@@ -3,13 +3,8 @@ package net.ccbluex.liquidbounce.utils.item
 
 import net.ccbluex.liquidbounce.utils.RegexUtils
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.item.Item
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.JsonToNBT
-import net.minecraft.util.ResourceLocation
-import java.util.*
-import java.util.regex.Pattern
 
 /**
  * @author MCModding4K

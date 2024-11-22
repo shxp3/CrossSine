@@ -1,7 +1,6 @@
 
 package net.ccbluex.liquidbounce.utils.render;
 
-import javax.vecmath.Vector2d;
 import java.awt.*;
 
 public enum BlendUtils {

@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -57,7 +56,7 @@ public class MixinLayerHeldItem {
             final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
             Item item = itemstack.getItem();
 
-            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && (killAura.getDisplayBlocking() && killAura.getCurrentTarget() != null || KillAura2.INSTANCE.getCanBlock() &&  KillAura2.INSTANCE.getTarget() != null)&& CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
+            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && ((killAura.getDisplayBlocking() && killAura.getCurrentTarget() != null) || (KillAura2.INSTANCE.getCanBlock() &&  KillAura2.INSTANCE.getTarget() != null))&& CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
                 if(entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped) this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     GlStateManager.translate(-0.58F, 0.3F, -0.2F);

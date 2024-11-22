@@ -5,7 +5,9 @@ import net.ccbluex.liquidbounce.event.UpdateEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
-import net.ccbluex.liquidbounce.utils.*;
+import net.ccbluex.liquidbounce.utils.MovementUtils;
+import net.ccbluex.liquidbounce.utils.PacketUtils;
+import net.ccbluex.liquidbounce.utils.PlayerUtils;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.AxisAlignedBB;
 
@@ -14,16 +16,12 @@ public class LatestNCP extends FlightMode {
     final BoolValue timerValue = new BoolValue("Timer", true);
     final FloatValue addValue = new FloatValue("AddSpeed", 0.0F, 0.0F, 1.5F);
     private boolean started, notUnder, clipped;
-    private int offGroundTicks;
     public LatestNCP() {
         super("LatestNCP");
     }
     @EventTarget
     @Override
     public void onUpdate(UpdateEvent event) {
-        if (mc.thePlayer.onGround) {
-            offGroundTicks = 0;
-        } else offGroundTicks++;
 
         if (timerValue.get()){
             if (!mc.thePlayer.onGround) {
@@ -35,7 +33,7 @@ public class LatestNCP extends FlightMode {
         final AxisAlignedBB bb = mc.thePlayer.getEntityBoundingBox().offset(0, 1, 0);
 
         if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty() || started) {
-            switch (offGroundTicks) {
+            switch (PlayerUtils.INSTANCE.getOffGroundTicks()) {
                 case 0:
                     if (notUnder) {
                         if (clipped) {

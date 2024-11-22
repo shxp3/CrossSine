@@ -1,26 +1,17 @@
 
 package net.ccbluex.liquidbounce.utils;
 
-import net.ccbluex.liquidbounce.event.EventTarget;
-import net.ccbluex.liquidbounce.event.Listenable;
-import net.ccbluex.liquidbounce.event.PacketEvent;
-import net.ccbluex.liquidbounce.event.TickEvent;
+import net.ccbluex.liquidbounce.event.*;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.*;
 import org.jetbrains.annotations.NotNull;
-import paulscode.sound.Vector3D;
 
-import javax.vecmath.Vector3d;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public final class RotationUtils extends MinecraftInstance implements Listenable {
 
@@ -28,7 +19,9 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
     private static int keepLength;
     private static int revTick;
-
+    public static float prevHeadPitch;
+    public static float headPitch;
+    public static Float playerYaw;
     public static Rotation targetRotation;
     public static Rotation serverRotation = new Rotation(0.0F, 0.0F);
     public static boolean keepCurrentRotation = false;
@@ -37,7 +30,6 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     private static double y = random.nextDouble();
     private static double z = random.nextDouble();
 
-    private static boolean strafe = false;
     /**
      * Face block
      *
@@ -134,8 +126,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         if(silent)
             setTargetRotation(rotation, 0);
         else
-            limitAngleChange(new Rotation(player.rotationYaw, player.rotationPitch), rotation,10 +
-                    new Random().nextInt(6)).toPlayer(mc.thePlayer);
+            limitAngleChange(new Rotation(player.rotationYaw, player.rotationPitch), rotation,(float) (10 +
+                    new Random().nextInt(6))).toPlayer(mc.thePlayer);
     }
 
     /**
@@ -388,14 +380,13 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
      * @return limited rotation
      */
     @NotNull
-    public static Rotation limitAngleChange(final Rotation currentRotation, final Rotation targetRotation, final float turnSpeed) {
+    public static Rotation limitAngleChange(final Rotation currentRotation, final Rotation targetRotation, float turnSpeed) {
         final float yawDifference = getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw());
         final float pitchDifference = getAngleDifference(targetRotation.getPitch(), currentRotation.getPitch());
-
         return new Rotation(
-                currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)),
-                currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
-                ));
+                    currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)),
+                    currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
+                    ));
     }
     /**
      * Calculate difference between two angle points
@@ -485,17 +476,41 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
             if(packetPlayer.rotating) serverRotation = new Rotation(packetPlayer.yaw, packetPlayer.pitch);
         }
+        if (packet instanceof C03PacketPlayer.C06PacketPlayerPosLook || packet instanceof C03PacketPlayer.C05PacketPlayerLook) {
+            playerYaw = ((C03PacketPlayer) packet).yaw;
+            mc.thePlayer.rotationYawHead = ((C03PacketPlayer) packet).yaw;
+        } else mc.thePlayer.rotationYawHead = playerYaw;
+    }
+    @EventTarget
+    public void onMotion(MotionEvent event) {
+        prevHeadPitch = headPitch;
+        headPitch = serverRotation.getPitch();
+        mc.thePlayer.rotationYawHead = serverRotation.getYaw();
+    }
+    public static Rotation getDirectionToBlock(double x, double y, double z, EnumFacing enumFacing) {
+        EntityEgg entityEgg = new EntityEgg(mc.theWorld);
+        entityEgg.posX = x + 0.5;
+        entityEgg.posY = y + 0.5;
+        entityEgg.posZ = z + 0.5;
+
+        entityEgg.posX += enumFacing.getDirectionVec().getX() * 0.5;
+        entityEgg.posY += enumFacing.getDirectionVec().getY() * 0.5;
+        entityEgg.posZ += enumFacing.getDirectionVec().getZ() * 0.5;
+
+        return getRotations(entityEgg.posX, entityEgg.posY, entityEgg.posZ);
     }
     /**
      * Set your target rotation
      *
      * @param rotation your target rotation
      */
+
     public static void setTargetRotation(final Rotation rotation, final int keepLength) {
         if(Double.isNaN(rotation.getYaw()) || Double.isNaN(rotation.getPitch())
                 || rotation.getPitch() > 90 || rotation.getPitch() < -90)
             return;
 
+        mc.thePlayer.renderYawOffset = rotation.getYaw();
         rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity);
         targetRotation = rotation;
         RotationUtils.keepLength = keepLength;
@@ -507,6 +522,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 || rotation.getPitch() > 90 || rotation.getPitch() < -90)
             return;
 
+        mc.thePlayer.renderYawOffset = rotation.getYaw();
         rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity);
         targetRotation = rotation;
         RotationUtils.keepLength = keepLength;

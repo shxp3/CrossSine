@@ -5,6 +5,8 @@ import net.ccbluex.liquidbounce.features.macro.Macro
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.other.PopUI
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.animation.Animation
+import net.ccbluex.liquidbounce.utils.animation.Easing
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.input.Keyboard
@@ -18,14 +20,20 @@ import java.awt.Color
 class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
     private var str = ""
     private var modules = CrossSine.moduleManager.modules.toList()
-    private val singleHeight = 4F + Fonts.SFApple35.height
-    private var stroll = 0
+    private val singleHeight = Fonts.SFApple35.height.toFloat()
+    private var scroll = 0
+    private var animationScroll: Animation? = null
     private var maxStroll = modules.size * singleHeight
     private val height = 8F + Fonts.SFApple40.height + Fonts.SFApple35.height + 0.5F
 
     override fun render() {
+        if (animationScroll == null) {
+            animationScroll = Animation(Easing.EASE_OUT_CIRC, 20)
+            animationScroll!!.value = scroll.toDouble()
+        }
+        animationScroll!!.run(scroll.toDouble())
         // modules
-        var yOffset = height - stroll + 5F
+        var yOffset = height - animationScroll!!.value.toFloat() + 5F
         if (str.startsWith(".")) {
             Fonts.SFApple35.drawString("Press ENTER to add macro.", 8F, singleHeight + yOffset, Color.BLACK.rgb, false)
         } else {
@@ -76,10 +84,10 @@ class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
         }
     }
 
-    override fun stroll(mouseX: Float, mouseY: Float, wheel: Int) {
-        val afterStroll = stroll - (wheel / 10)
+    override fun scroll(mouseX: Float, mouseY: Float, wheel: Int) {
+        val afterStroll = scroll - (wheel / 10)
         if (afterStroll> 0 && afterStroll <(maxStroll - 100)) {
-            stroll = afterStroll
+            scroll = afterStroll
         }
     }
 
@@ -88,7 +96,7 @@ class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
                 return
         }
 
-        var yOffset = height - stroll + 2F
+        var yOffset = height - animationScroll!!.value + 2F
         for (module in modules) {
             if (mouseY> yOffset && mouseY <(yOffset + singleHeight)) {
                 apply(module)
@@ -105,7 +113,8 @@ class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
     }
 
     override fun close() {
-        CrossSine.keyBindManager.popUI = null
+        animatingOut = false
+        if (animationProgress >= 1F) CrossSine.keyBindManager.popUI = null
     }
 
     private fun update() {
@@ -115,6 +124,6 @@ class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
             CrossSine.moduleManager.modules.toList()
         }
         maxStroll = modules.size * singleHeight
-        stroll = 0
+        scroll = 0
     }
 }

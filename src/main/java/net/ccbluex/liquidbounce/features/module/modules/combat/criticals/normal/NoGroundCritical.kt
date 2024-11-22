@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.CriticalMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 
 class NoGroundCritical : CriticalMode("NoGround") {
@@ -16,7 +17,7 @@ class NoGroundCritical : CriticalMode("NoGround") {
     private var shouldEdit = false
     override fun onEnable() {
         if (autoJumpValue.get()) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
         }
     }
     override fun onAttack(event: AttackEvent) {

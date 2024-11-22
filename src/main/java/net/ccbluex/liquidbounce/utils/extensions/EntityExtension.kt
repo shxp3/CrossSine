@@ -3,25 +3,27 @@ package net.ccbluex.liquidbounce.utils.extensions
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.utils.ClientUtils.mc
+import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
 import net.ccbluex.liquidbounce.utils.render.GLUtils
+import net.ccbluex.liquidbounce.utils.extensions.toFloatTriple
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.MovingObjectPosition
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.Vec3
+import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemStack
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.util.*
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
+import net.minecraftforge.event.ForgeEventFactory
 import javax.vecmath.Vector3d
 import kotlin.math.*
-
 
 
 /**
@@ -59,6 +61,28 @@ fun Entity.rayTraceWithServerSideRotation(blockReachDistance: Double): MovingObj
 }
 fun Entity.inCombat() : Boolean {
     return CrossSine.combatManager.inCombat
+}
+
+// Modified mc.playerController.sendUseItem() that sends correct stack in its C08
+fun EntityPlayerSP.sendUseItem(stack: ItemStack): Boolean {
+    if (mc.playerController.isSpectator)
+        return false
+
+    PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(stack))
+
+    val prevSize = stack.stackSize
+
+    val newStack = stack.useItemRightClick(worldObj, this)
+
+    return if (newStack != stack || newStack.stackSize != prevSize) {
+        if (newStack.stackSize <= 0) {
+            mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null
+            ForgeEventFactory.onPlayerDestroyItem(mc.thePlayer, newStack)
+        } else
+            mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = newStack
+
+        true
+    } else false
 }
 
 

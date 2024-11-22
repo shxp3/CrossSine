@@ -2,17 +2,17 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.but
 
 import net.ccbluex.liquidbounce.CrossSine.commandManager
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.BACKGROUND_MODULE
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.FONT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.MODULE_HEIGHT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.VALUE_HEIGHT
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.getHeight
+import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton
 import net.ccbluex.liquidbounce.utils.geom.Rectangle
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.value.*
-import net.ccbluex.liquidbounce.utils.MouseButtons
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.features.value.*
 import net.minecraft.util.EnumChatFormatting
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -86,8 +86,8 @@ class AstolfoModuleButton(x: Float, y: Float, width: Float, height: Float, var m
   override fun mouseAction(mouseX: Int, mouseY: Int, click: Boolean, button: Int) {
     if (isHovered(mouseX, mouseY) && click) {
       when (button) {
-        MouseButtons.LEFT.ordinal -> if (shifting) commandManager.executeCommands("${commandManager.prefix}hide ${module.name}") else module.toggle()
-        MouseButtons.RIGHT.ordinal -> if (shifting) return else if (module.values.isNotEmpty()) open = !open
+        MouseButton.LEFT.ordinal -> if (shifting) commandManager.executeCommands("${commandManager.prefix}hide ${module.name}") else module.toggle()
+        MouseButton.RIGHT.ordinal -> if (shifting) return else if (module.values.isNotEmpty()) open = !open
       }
     }
   }

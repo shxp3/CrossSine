@@ -6,8 +6,8 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacketNoEvent
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacketNoEvent
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.util.BlockPos

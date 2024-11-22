@@ -3,9 +3,9 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.criticals
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals
+import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.features.value.Value
 
 abstract class CriticalMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"

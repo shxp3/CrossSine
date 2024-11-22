@@ -1,14 +1,14 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FontValue
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.minecraft.client.resources.I18n
 import net.minecraft.potion.Potion
 

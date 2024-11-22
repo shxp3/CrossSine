@@ -1,12 +1,12 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*

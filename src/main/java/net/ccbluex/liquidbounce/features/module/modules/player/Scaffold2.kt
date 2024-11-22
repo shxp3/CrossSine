@@ -8,26 +8,33 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.*
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.minecraft.block.BlockLiquid
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemBlock
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.MathHelper
 import net.minecraft.util.MovingObjectPosition
-import kotlin.math.abs
-import kotlin.math.round
-import kotlin.math.roundToInt
 
 @ModuleInfo("Scaffold2", ModuleCategory.PLAYER)
 object Scaffold2 : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Hypixel", "Normal", "Legit", "GodBridge"), "Normal")
     private val sneak = BoolValue("Sneak", false).displayable { modeValue.equals("GodBridge") }
-    private val rotation2 = BoolValue("Move-Rotation-Pitch", false).displayable { modeValue.equals("GodBridge") }
     private val jumpBoost = BoolValue("JumpBoost", false).displayable { modeValue.equals("Hypixel") }
     private val sprintValue = BoolValue("Sprint", true).displayable { modeValue.equals("Normal") }
-    private val rotationSpeed = FloatValue("Rotation-Speed", 50F, 1F, 90F)
+    private val rotationValue = BoolValue("RotationSpeed", false)
+    private val rotationMaxSpeed: FloatValue = object: FloatValue("Max-Rotation-Speed", 50F, 1F, 180F) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue < rotationMinSpeed.get()) set(rotationMinSpeed.get())
+        }
+    }
+    private val rotationMinSpeed: FloatValue = object: FloatValue("Min-Rotation-Speed", 50F, 1F, 180F) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue > rotationMaxSpeed.get()) set(rotationMaxSpeed.get())
+        }
+    }
     private val resetPlace = BoolValue("Reset-Place", false)
     private val swingValue = BoolValue("Swing", true)
     private val biggestItem = BoolValue("Find-Biggest-Stack", false)
@@ -39,17 +46,6 @@ object Scaffold2 : Module() {
     private var lm: MovingObjectPosition? = null
     private var lp: BlockPos? = null
     private var prevItem = 0
-    private val isLookingDiagonally: Boolean
-        get() {
-            val player = mc.thePlayer ?: return false
-
-            val yaw = round(abs(MathHelper.wrapAngleTo180_float(player.rotationYaw)).roundToInt() / 45f) * 45f
-
-            return floatArrayOf(
-                45f,
-                135f
-            ).any { yaw == it } && player.movementInput.moveForward != 0f && player.movementInput.moveStrafe == 0f
-        }
 
     override fun onEnable() {
         prevItem = mc.thePlayer.inventory.currentItem
@@ -77,18 +73,9 @@ object Scaffold2 : Module() {
     fun onMotion(event: MotionEvent) {
         val blockSlot = InventoryUtils.findAutoBlockBlock(biggestItem.get())
         if (blockSlot == -1) return
-        RotationUtils.setTargetRotationReverse(
-            RotationUtils.limitAngleChange(
-                RotationUtils.serverRotation,
-                Rotation(
-                    MovementUtils.movingYaw - (if (modeValue.equals("GodBridge")) if (isLookingDiagonally) 180 else 135 else 180),
-                    if (modeValue.equals("GodBridge")) if (rotation2.get()) if (mc.thePlayer.onGround) 75.6F else 74.6F else 75.6F else 83F
-                ),
-                rotationSpeed.get()
-            ), 1, 0
-        )
         mc.gameSettings.keyBindUseItem.pressed = true
         mc.rightClickDelayTimer = 0
+        RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(MovementUtils.movingYaw - 180, 86F), speedRotation).fixedSensitivity(), 1)
         if (modeValue.equals("Legit")) {
             mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
                 BlockPos(
@@ -111,7 +98,7 @@ object Scaffold2 : Module() {
         val blockSlot = InventoryUtils.findAutoBlockBlock(biggestItem.get())
         if (blockSlot == -1) return
             if (spoofValue.get()) {
-                SpoofItemUtils.startSpoof(prevItem, blockSlot - 36,render.get())
+                SpoofItemUtils.startSpoof(prevItem,render.get())
             }
             mc.thePlayer.inventory.currentItem = blockSlot - 36
         if (modeValue.equals("GodBridge")) {
@@ -131,7 +118,8 @@ object Scaffold2 : Module() {
             }
         }
     }
-
+    private val speedRotation : Float
+        get() = if (rotationValue.get()) RandomUtils.nextFloat(rotationMinSpeed.get(), rotationMaxSpeed.get()) else Float.MAX_VALUE
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
         if (modeValue.equals("Legit") || !resetPlace.get()) return

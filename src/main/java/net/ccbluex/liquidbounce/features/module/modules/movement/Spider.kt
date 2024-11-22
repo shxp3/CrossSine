@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
@@ -54,13 +53,13 @@ class Spider : Module() {
         when (modeValue.get().lowercase()) {
             "collide"-> {
                 if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }
             }
 
             "aac4" -> {
                 if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                     wasTimer = true
                     mc.timer.timerSpeed = 0.4f
                 }
@@ -86,14 +85,14 @@ class Spider : Module() {
 
             "checker" -> {
                 if (mc.thePlayer.isCollidedHorizontally && mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }
             }
 
             "vulcan" -> {
                 if (mc.thePlayer.onGround) {
                     ticks = 0
-                    mc.thePlayer.jump()
+                    MovementUtils.jump(true)
                 }
                 if (ticks >= 3) {
                     ticks = 0
@@ -101,7 +100,7 @@ class Spider : Module() {
                 ticks++
                 when (ticks) {
                     2, 3 -> {
-                        mc.thePlayer.jump()
+                        MovementUtils.jump(true)
                         MovementUtils.resetMotion(false)
                     }
                 }

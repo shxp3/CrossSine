@@ -5,9 +5,8 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.ClickGui
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoClickGui
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
 import net.minecraft.client.settings.GameSettings

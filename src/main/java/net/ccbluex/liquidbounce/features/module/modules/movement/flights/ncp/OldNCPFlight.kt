@@ -16,7 +16,7 @@ class OldNCPFlight : FlightMode("OldNCP") {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
         }
 
-        mc.thePlayer.jump()
+        MovementUtils.jump(true)
         mc.thePlayer.swingItem()
     }
 

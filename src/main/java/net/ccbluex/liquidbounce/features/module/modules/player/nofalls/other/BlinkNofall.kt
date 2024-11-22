@@ -2,10 +2,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofalls.other
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
-import net.ccbluex.liquidbounce.features.module.modules.ghost.AntiKnockBack
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
+import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2
 import net.ccbluex.liquidbounce.features.module.modules.player.nofalls.NoFallMode
@@ -27,7 +26,6 @@ class BlinkNofall : NoFallMode("Blink") {
     private var laState = false
     private var bdaState = false
     private var veloState = false
-    private var akbState = false
     override fun onPacket(event: PacketEvent) {
             if (PlayerUtils.isOnEdge() && getBP(1) && getBP(2) && getBP(3) && !start && !Scaffold.state && !Scaffold2.state) {
                 start = true
@@ -42,10 +40,6 @@ class BlinkNofall : NoFallMode("Blink") {
                 if (KillAura2.state) {
                     laState = true
                     KillAura2.state = false
-                }
-                if (AntiKnockBack.state) {
-                    akbState = true
-                    AntiKnockBack.state = false
                 }
                 if (Velocity.state) {
                     veloState = true
@@ -77,10 +71,6 @@ class BlinkNofall : NoFallMode("Blink") {
             if (laState) {
                 KillAura2.state = true
                 laState = false
-            }
-            if (akbState) {
-                AntiKnockBack.state = true
-                akbState = false
             }
             if (veloState) {
                 Velocity.state = true
@@ -116,10 +106,6 @@ class BlinkNofall : NoFallMode("Blink") {
             if (laState) {
                 KillAura2.state = true
                 laState = false
-            }
-            if (akbState) {
-                AntiKnockBack.state = true
-                akbState = false
             }
             if (veloState) {
                 Velocity.state = true

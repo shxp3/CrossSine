@@ -1,8 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value
 
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.features.value.Value
-
+import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import java.awt.Color
 
 abstract class ValueElement<T>(val value: Value<T>) : MinecraftInstance() {

@@ -1,6 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.InfiniteAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -31,7 +33,7 @@ class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side.Ve
     private val showinchat = BoolValue("Show When Chat", false)
     private val fadeValue = BoolValue("Fade", false)
     private val animationValue = BoolValue("Animation", false)
-    private val animationSpeed = FloatValue("Animation Speed", 0.2F, 0.1F, 1F).displayable { animationValue.get() }
+    private val animationSpeed = FloatValue("Animation Speed", 0.2F, 0.1F, 1F).displayable { animationValue.get() || fadeValue.get()}
     val globalAnimSpeed = FloatValue("Health Speed", 3F, 0.1F, 5F)
     private var targetOver: EntityPlayer? = null
     private val targetTimer = TimerMS()
@@ -60,6 +62,8 @@ class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side.Ve
         val mainStyle = getCurrentStyle(styleValue.get()) ?: return null
         val actualTarget = if (InfiniteAura.lastTarget != null && (!onlyPlayer.get() || InfiniteAura.lastTarget is EntityPlayer)) InfiniteAura.lastTarget
         else if ((mc.currentScreen is GuiChat && showinchat.get()) || mc.currentScreen is GuiHudDesigner) mc.thePlayer
+        else if (KillAura.state && KillAura.currentTarget != null) KillAura.currentTarget
+        else if (KillAura2.state && KillAura2.target != null) KillAura2.target
         else targetOver
         if (targetTimer.hasTimePassed(500)) {
             targetOver = null
@@ -68,7 +72,7 @@ class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side.Ve
             targetOver = mc.objectMouseOver.entityHit as EntityPlayer
             targetTimer.reset()
         }
-        if (fadeValue.get()) {
+        if (fadeValue.get() || animationValue.get()) {
             animProgress += (0.0075F * animationSpeed.get() * deltaTime * if (actualTarget != null) -1F else 1F)
         } else {
             animProgress = 0F

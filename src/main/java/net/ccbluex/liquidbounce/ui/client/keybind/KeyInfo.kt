@@ -4,15 +4,12 @@ package net.ccbluex.liquidbounce.ui.client.keybind
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.macro.Macro
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
-import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 

@@ -6,12 +6,12 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BlockValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.getBlockName
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
-import net.ccbluex.liquidbounce.utils.extensions.getBlockName
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos

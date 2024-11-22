@@ -1,22 +1,17 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets
 
+
+import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.TargetHUD
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.client.gui.Gui
-import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.util.ResourceLocation
-import org.lwjgl.opengl.GL11.*
-
-
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.util.Locale
+import java.util.*
 import kotlin.math.pow
 
 abstract class TargetStyle(val name: String, val targetInstance: TargetHUD, val shaderSupport: Boolean): MinecraftInstance() {

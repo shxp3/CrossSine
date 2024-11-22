@@ -10,8 +10,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.Element;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ModuleElement;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.Style;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.LiquidBounceStyle;
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.GuiTheme;
-import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption;
+import net.ccbluex.liquidbounce.ui.client.gui.GuiClientSettings;
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
@@ -22,7 +21,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +83,7 @@ public class ClickGui extends GuiScreen {
         if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= height - 5 && mouseY >= height - 50)
             mc.displayGuiScreen(new GuiHudDesigner());
         if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= height - 52 && mouseY >= height - 90)
-            mc.displayGuiScreen(new GuiTheme());
+            mc.displayGuiScreen(new GuiClientSettings(this));
 
         // Enable DisplayList optimization
         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
@@ -98,10 +96,8 @@ public class ClickGui extends GuiScreen {
 
         drawDefaultBackground();
         drawImage(new ResourceLocation("crosssine/custom_hud_icon.png"), 9, height - 41, 32, 32);
-        drawImage(new ResourceLocation("crosssine/theme.png"), 9, height - 79, 32, 32);
+        drawImage(new ResourceLocation("crosssine/ui/misc/setting.png"), 9, height - 79, 32, 32);
         GlStateManager.resetColor();
-        int defaultHeight1 = (this.height);
-        int defaultWidth1 = (this.width);
 
         switch (Objects.requireNonNull(CrossSine.moduleManager.getModule(ClickGUIModule.class)).animationValue.get().toLowerCase()) {
             case "bread":
@@ -278,7 +274,7 @@ public class ClickGui extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        CrossSine.fileManager.saveConfig(modernuiLaunchOption.getClickGuiConfig());
+        CrossSine.fileManager.saveConfig(CrossSine.clickGuiConfig);
         slide = 0;
         progress = 0;
     }

@@ -13,8 +13,6 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import java.math.BigDecimal
-import kotlin.math.max
 
 /**
  * CustomHUD Notification element

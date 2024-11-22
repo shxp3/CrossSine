@@ -1,9 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.vanilla
 
-import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 

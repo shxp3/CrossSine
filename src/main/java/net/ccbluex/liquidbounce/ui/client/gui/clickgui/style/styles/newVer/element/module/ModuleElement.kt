@@ -1,7 +1,9 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module
 
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components.ToggleSwitch
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.*
@@ -12,9 +14,6 @@ import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.Stencil
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.TitleElement
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard

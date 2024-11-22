@@ -1,35 +1,28 @@
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
-import net.minecraft.block.Block
-import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockSlime
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityItemFrame
-import net.minecraft.item.*
+import net.minecraft.item.ItemBlock
 import net.minecraft.potion.Potion
-import net.minecraft.util.*
+import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.MovingObjectPosition
+import net.minecraft.util.Vec3
 
 
 object PlayerUtils {
+    @JvmStatic
+    var offGroundTicks = 0
+    @JvmStatic
+    var groundTicks = 0
 
-    private fun isBlockUnder(height: Double): Boolean {
-            var offset = 0
-            while (offset < height) {
-                val bb = mc.thePlayer.entityBoundingBox.offset(0.0, (-offset).toDouble(), 0.0)
-                if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty()) {
-                    return true
-                }
-                offset += 2
-            }
-        return false
-    }
-    fun isBlockUnder(): Boolean {
-        return isBlockUnder(mc.thePlayer.posY + mc.thePlayer.getEyeHeight())
-    }
     fun findSlimeBlock(): Int? {
         for (i in 0..8) {
             val itemStack = mc.thePlayer.inventory.getStackInSlot(i)
@@ -48,19 +41,11 @@ object PlayerUtils {
             player.isSwingInProgress = true
         }
     }
+
     fun isOnEdge() : Boolean {
         return mc.thePlayer.onGround && !mc.thePlayer.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty()
     }
-    fun voidCheck(): Boolean {
-            var i = (-(mc.thePlayer.posY-1.4857625)).toInt()
-            var dangerous = true
-            while (i <= 0) {
-                dangerous = mc.theWorld.getCollisionBoxes(mc.thePlayer.entityBoundingBox.offset(mc.thePlayer.motionX * 0.5, i.toDouble(), mc.thePlayer.motionZ * 0.5)).isEmpty()
-                i++
-                if (!dangerous) break
-            }
-            return dangerous
-    }
+
     fun getEntity(distance: Double, expand: Double): Array<Any?>? {
         val var2 = mc.renderViewEntity
         var entity: Entity? = null
@@ -120,4 +105,6 @@ object PlayerUtils {
         }
         return null
     }
+
 }
+

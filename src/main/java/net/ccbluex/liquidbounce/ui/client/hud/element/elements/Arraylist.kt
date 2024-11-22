@@ -3,8 +3,8 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -25,7 +25,7 @@ class Arraylist(
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
     private val nameBreak = BoolValue("SpaceName", false)
-    private val OrderValue = ListValue("Order", arrayOf("ABC", "Distance"), "Distance")
+    private val orderValue = ListValue("Order", arrayOf("ABC", "Distance"), "Distance")
     private val animationValue = BoolValue("Animation", false)
     private val tagsStyleValue =
         ListValue("TagsStyle", arrayOf("-", "|", "()", "[]", "<>", "->", "▶", "Space", "None"), "Space")
@@ -78,7 +78,7 @@ class Arraylist(
                     }
                 } else {
                     module.slide = if (module.state) width.toFloat() else 0f
-                    module.slideStep += (if (module.state) delta else -delta).toFloat()
+                    module.slideStep = 1F
                 }
 
                 module.slide = module.slide.coerceIn(0F, width.toFloat())
@@ -256,12 +256,12 @@ class Arraylist(
     }
 
     override fun updateElement() {
-        modules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules
+        modules = if (orderValue.equals("ABC")) CrossSine.moduleManager.modules
             .filter { it.array && !shouldExpect(it) && it.slide > 0 }
         else CrossSine.moduleManager.modules
             .filter { it.array && !shouldExpect(it) && it.slide > 0 }
             .sortedBy { -fontValue.get().getStringWidth(getModName(it)) }
-        sortedModules = if (OrderValue.equals("ABC")) CrossSine.moduleManager.modules.toList()
+        sortedModules = if (orderValue.equals("ABC")) CrossSine.moduleManager.modules.toList()
         else CrossSine.moduleManager.modules.sortedBy { -fontValue.get().getStringWidth(getModName(it)) }.toList()
     }
 

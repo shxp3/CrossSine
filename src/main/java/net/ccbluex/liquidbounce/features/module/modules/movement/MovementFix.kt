@@ -9,11 +9,12 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.minecraft.util.MathHelper
+import kotlin.math.abs
 
 @ModuleInfo(name = "MovementFix", category = ModuleCategory.MOVEMENT)
 object MovementFix : Module() {
 
-    val silentFixVaule = BoolValue("Silent", true)
+    private val silentFixValue = BoolValue("Silent", true)
 
     /**
      * Strafe Fix
@@ -23,12 +24,12 @@ object MovementFix : Module() {
 
     var silentFix = false
     var doFix = false
-    var isOverwrited = false
+    private var isOverwrite = false
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (!isOverwrited) {
-            silentFix = silentFixVaule.get()
+        if (!isOverwrite) {
+            silentFix = silentFixValue.get()
             doFix = true
         }
     }
@@ -40,7 +41,7 @@ object MovementFix : Module() {
     fun applyForceStrafe(isSilent: Boolean, runStrafeFix: Boolean) {
         silentFix = isSilent
         doFix = runStrafeFix
-        isOverwrited = true
+        isOverwrite = true
     }
 
     fun runStrafeFixLoop(isSilent: Boolean, event: StrafeEvent) {
@@ -53,20 +54,20 @@ object MovementFix : Module() {
         var friction = event.friction
         var factor = strafe * strafe + forward * forward
 
-        var angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0).toDouble() / (45.0).toDouble()).toInt()
-        var calcYaw = if(isSilent) { yaw + 45.0f * angleDiff.toFloat() } else yaw
+        val angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0) / (45.0).toDouble()).toInt()
+        val calcYaw = if(isSilent) { yaw + 45.0f * angleDiff.toFloat() } else yaw
 
-        var calcMoveDir = Math.max(Math.abs(strafe), Math.abs(forward)).toFloat()
+        var calcMoveDir = abs(strafe).coerceAtLeast(abs(forward))
         calcMoveDir *= calcMoveDir
-        var calcMultiplier = MathHelper.sqrt_float(calcMoveDir / Math.min(1.0f, calcMoveDir * 2.0f))
+        val calcMultiplier = MathHelper.sqrt_float(calcMoveDir / 1.0f.coerceAtMost(calcMoveDir * 2.0f))
 
         if (isSilent) {
             when (angleDiff) {
                 1, 3, 5, 7, 9 -> {
-                    if ((Math.abs(forward) > 0.005 || Math.abs(strafe) > 0.005) && !(Math.abs(forward) > 0.005 && Math.abs(strafe) > 0.005)) {
-                        friction = friction / calcMultiplier
-                    } else if (Math.abs(forward) > 0.005 && Math.abs(strafe) > 0.005) {
-                        friction = friction * calcMultiplier
+                    if ((abs(forward) > 0.005 || abs(strafe) > 0.005) && !(abs(forward) > 0.005 && abs(strafe) > 0.005)) {
+                        friction /= calcMultiplier
+                    } else if (abs(forward) > 0.005 && abs(strafe) > 0.005) {
+                        friction *= calcMultiplier
                     }
                 }
             }

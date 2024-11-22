@@ -8,8 +8,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.minecraft.entity.player.EntityPlayer
 
 @ModuleInfo(name = "AuraFirend", category = ModuleCategory.COMBAT)
 class AuraFriend: Module() {

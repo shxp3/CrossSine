@@ -7,5 +7,5 @@ object IconManager {
     val back = ResourceLocation("crosssine/ui/clickgui/new/back.png")
     val search = ResourceLocation("crosssine/ui/clickgui/new/search.png")
     val brush = ResourceLocation("crosssine/ui/clickgui/new/brush.png")
-    val paint = ResourceLocation("crosssine/ui/clickgui/new/paint.png")
+    val settings = ResourceLocation("crosssine/ui/misc/settings.png")
 }

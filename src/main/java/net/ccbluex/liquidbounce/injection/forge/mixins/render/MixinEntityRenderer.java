@@ -5,7 +5,7 @@ import com.google.common.base.Predicates;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.Render3DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2;
-import net.ccbluex.liquidbounce.features.module.modules.ghost.Reach;
+import net.ccbluex.liquidbounce.features.module.modules.combat.Reach;
 import net.ccbluex.liquidbounce.features.module.modules.visual.*;
 import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -25,17 +25,18 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Redirect;
-
-import static org.objectweb.asm.Opcodes.GETFIELD;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static org.objectweb.asm.Opcodes.GETFIELD;
 
 
 @Mixin(EntityRenderer.class)

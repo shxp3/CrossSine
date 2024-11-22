@@ -1,10 +1,10 @@
 package net.ccbluex.liquidbounce.utils.render;
 
+import com.jhlabs.image.GaussianFilter;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import org.lwjgl.opengl.GL11;
-import com.jhlabs.image.GaussianFilter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

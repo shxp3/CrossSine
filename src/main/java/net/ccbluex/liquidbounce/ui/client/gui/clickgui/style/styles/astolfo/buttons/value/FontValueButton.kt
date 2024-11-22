@@ -1,14 +1,14 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.value
 
+import net.ccbluex.liquidbounce.features.value.FontValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.BACKGROUND_VALUE
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.FONT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.SELECTED_FORMAT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
-import net.ccbluex.liquidbounce.utils.geom.Rectangle
+import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton
 import net.ccbluex.liquidbounce.utils.FontUtils
-import net.ccbluex.liquidbounce.utils.MouseButtons
+import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.features.value.FontValue
 import java.awt.Color
 
 class FontValueButton(x: Float, y: Float, width: Float, height: Float, var setting: FontValue, var color: Color) : BaseValueButton(x, y, width, height, setting) {
@@ -45,14 +45,14 @@ class FontValueButton(x: Float, y: Float, width: Float, height: Float, var setti
   override fun mouseAction(mouseX: Int, mouseY: Int, click: Boolean, button: Int) {
     if (click) {
       when (button) {
-        MouseButtons.LEFT.ordinal -> { //					if (baseRect.contains(mouseX, mouseY)) // clicked on the button with value name
+        MouseButton.LEFT.ordinal -> { //					if (baseRect.contains(mouseX, mouseY)) // clicked on the button with value name
           //						setting.nextValue()
           for (pair in listEntryBoxPairs) {
             if (pair.first.contains(mouseX, mouseY)) setting.set(FontUtils.getAllFontDetails().filter { it.first == pair.second }[0].second)
           }
         }
 
-        MouseButtons.RIGHT.ordinal -> {
+        MouseButton.RIGHT.ordinal -> {
           if (baseRect.contains(mouseX, mouseY)) setting.openList = !setting.openList
         }
       }

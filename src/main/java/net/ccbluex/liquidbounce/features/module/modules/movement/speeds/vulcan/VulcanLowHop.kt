@@ -11,7 +11,7 @@ class VulcanLowHop : SpeedMode("VulcanLowHop") {
         ticks++
         mc.thePlayer.jumpMovementFactor = 0.0245f
         if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(false)
             ticks = 0
             MovementUtils.strafe()
             if (MovementUtils.getSpeed() < 0.5f) {

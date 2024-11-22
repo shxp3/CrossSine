@@ -1,12 +1,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck;
 
-import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.other.HackerDetector;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.AutoBlockCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.VelocityCheck;
-import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move.*;
-import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.player.NofallACheck;
-import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.player.PingSpoofCheck;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move.NoSlowCheck;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move.ScaffoldCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.rotation.RotationCheck;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
@@ -21,10 +19,6 @@ public class CheckManager {
             NoSlowCheck.class,
             ScaffoldCheck.class,
             RotationCheck.class,
-            LegitScaffoldCheck.class,
-            NofallACheck.class,
-            PingSpoofCheck.class,
-            OmiSprint.class,
             VelocityCheck.class
     };
     private final LinkedList<Check> checks = new LinkedList<>();
@@ -60,11 +54,6 @@ public class CheckManager {
         }
         // reduce 0.1 per second
         if (--addedTicks <= 0) totalVL -= totalVL > 0 ? 0.005 : 0;
-    }
-    public void onPacket(PacketEvent event) {
-        for (Check check : checks) {
-            check.onPacket(event);
-        }
     }
     public void positionUpdate(double x, double y, double z) {
         for (Check check : checks) {

@@ -8,7 +8,10 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
@@ -16,10 +19,6 @@ import net.ccbluex.liquidbounce.utils.PathUtils
 import net.ccbluex.liquidbounce.utils.RaycastUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.PlayerCapabilities
 import net.minecraft.network.play.client.C03PacketPlayer

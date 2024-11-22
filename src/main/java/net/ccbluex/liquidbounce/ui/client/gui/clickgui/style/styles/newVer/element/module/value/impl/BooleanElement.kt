@@ -1,11 +1,10 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components.Checkbox
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
-
 import java.awt.Color
 
 class BooleanElement(value: BoolValue): ValueElement<Boolean>(value) {

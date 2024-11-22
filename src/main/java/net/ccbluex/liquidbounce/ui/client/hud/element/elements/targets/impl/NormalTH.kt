@@ -1,8 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.impl
 
-import net.ccbluex.liquidbounce.features.module.modules.visual.CustomClientColor
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.TargetHUD
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.TargetStyle

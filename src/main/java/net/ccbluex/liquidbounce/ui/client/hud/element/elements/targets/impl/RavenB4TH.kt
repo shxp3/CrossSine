@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.impl
 
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.TargetHUD
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.TargetStyle
@@ -102,6 +102,15 @@ class RavenB4TH(inst: TargetHUD) : TargetStyle("RavenB4", inst, true) {
                 5F,
                 25F,
                 8F + (easingHealth / 20) * (length + hplength + 10F),
+                29.5F,
+                4F,
+                ClientTheme.setColor("START", fadeAlpha(100)).rgb,
+                ClientTheme.setColor("END", fadeAlpha(100)).rgb
+            )
+            RenderUtils.drawRoundedGradientRectCorner(
+                5F,
+                25F,
+                8F + (entity.health / 20) * (length + hplength + 10F),
                 29.5F,
                 4F,
                 ClientTheme.setColor("START", fadeAlpha(255)).rgb,

@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.font.FontLoaders
-import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils

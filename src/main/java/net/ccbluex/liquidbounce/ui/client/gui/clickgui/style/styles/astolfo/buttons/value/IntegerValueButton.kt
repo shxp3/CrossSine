@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.value
 
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.BACKGROUND_VALUE
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.FONT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.SLIDER_OFFSET
@@ -7,7 +8,6 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.dim
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
 import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.features.value.IntegerValue
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import java.awt.Color

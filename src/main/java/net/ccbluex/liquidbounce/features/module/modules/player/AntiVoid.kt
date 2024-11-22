@@ -9,13 +9,13 @@ import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.block.BlockUtils
-import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
-import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.block.BlockUtils
+import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.minecraft.block.BlockAir
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -24,7 +24,7 @@ import net.minecraft.util.BlockPos
 @ModuleInfo(name = "AntiVoid", category = ModuleCategory.PLAYER)
 class AntiVoid : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Blink", "TPBack", "MotionFlag", "PacketFlag", "GroundSpoof", "OldHypixel", "Jartex", "OldCubecraft", "Packet", "Watchdog", "Vulcan", "Freeze"), "Blink")
-    private val maxFallDistValue = FloatValue("MaxFallDistance", 10F, 5F, 20F)
+    private val maxFallDistValue = FloatValue("MaxFallDistance", 10F, 1F, 20F)
     private val resetMotionValue = BoolValue("ResetMotion", false).displayable { modeValue.equals("Blink") }
     private val startFallDistValue = FloatValue("BlinkStartFallDistance", 2F, 0F, 5F).displayable { modeValue.equals("Blink") }
     private val autoScaffoldValue = BoolValue("BlinkAutoScaffold", true).displayable { modeValue.equals("Blink") }

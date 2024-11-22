@@ -1,9 +1,6 @@
 package net.ccbluex.liquidbounce.file.configs
 
-import net.ccbluex.liquidbounce.CrossSine
-import net.ccbluex.liquidbounce.features.module.modules.combat.AuraFriend
 import net.ccbluex.liquidbounce.file.FileConfig
-import net.ccbluex.liquidbounce.utils.mc
 import java.io.File
 
 class FriendsConfig(file: File) : FileConfig(file) {

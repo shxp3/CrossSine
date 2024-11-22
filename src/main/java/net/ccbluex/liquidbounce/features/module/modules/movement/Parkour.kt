@@ -15,7 +15,7 @@ class Parkour : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (MovementUtils.isMoving() && PlayerUtils.isOnEdge()) {
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
         }
     }
 }

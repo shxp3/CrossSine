@@ -5,19 +5,22 @@ plugins {
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
-    id "com.gorylenko.gradle-git-properties" version "2.4.1" 
+    id "com.gorylenko.gradle-git-properties" version "2.4.0"
+    id "maven-publish"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
+    maven { url = "https://maven.minecraftforge.net/" }
     maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
+    maven { url = "https://repo.viaversion.com" }
     maven { url = "https://jitpack.io/" }
 }
 
-version = "BetaBuild"
-group = "net.shxp3.crosssine"
-archivesBaseName = "CrossSine"
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
 
 sourceCompatibility = targetCompatibility = 1.8
 compileJava.options.encoding = "UTF-8"
@@ -33,16 +36,20 @@ minecraft {
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
-    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.TransformerLoader", "-Xmx1024m -Xms1024m", "-Ddev-mode"]
+    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.TransformerLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
 }
 
 configurations {
     include
     implementation.extendsFrom(include)
+
+    external
+    compile.extendsFrom(external)
+
+    runtimeOnly.canBeResolved = true
 }
 
 dependencies {
-    implementation 'org.projectlombok:lombok:1.18.26'
     include("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         transitive = false
         exclude module: "guava"
@@ -55,27 +62,18 @@ dependencies {
 
     annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    include("me.friwi:jcefmaven:$jcef_version") {
-        exclude module: "commons-compress" // minecraft have a old version of this library
-        exclude module: "jogl-all" // we use lwjgl
-        exclude module: "gluegen-rt" // this is the library for joal
+
+    include("com.jagrosh:DiscordIPC:0.4") {
+        exclude module: "log4j"
     }
-    include("com.jagrosh:DiscordIPC:0.4")
-    include("com.github.SkidderMC:elixir-2:1.2.4") {
+
+    include("com.github.CCBlueX:Elixir:1.2.6") {
         exclude module: "kotlin-stdlib"
         exclude module: "authlib"
     }
 
-    include("com.github.zh79325:open-gif:1.0.4") {
-        exclude module: "slf4j-api"
-        exclude module: "logback-core"
-        exclude module: "logback-classic"
-        exclude module: "junit"
-    } // for read dynamic capes
-
-    include("com.github.UnlegitMC:Astar3d:bec2291cf2") // pathfinding
-
-    include "com.jhlabs:filters:2.0.235"
+    include("com.github.UnlegitMC:Astar3d:bec2291cf2")
+    include 'com.jhlabs:filters:2.0.235'
 
     include fileTree(include: ["*.jar"], dir: "libs")
 }
@@ -85,15 +83,13 @@ shadowJar {
     configurations = [project.configurations.include]
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
-    // Ultralight native files are going to be downloaded from our cloud
-    exclude "native-binaries/**"
-
     exclude "LICENSE.txt"
 
     exclude "META-INF/maven/**"
     exclude "META-INF/versions/**"
 
-    exclude "org/apache/**"
+    exclude "org/apache/log4j/**"
+    exclude "org/apache/commons/**"
     exclude "org/junit/**"
 }
 
@@ -144,5 +140,23 @@ reobf {
         mappingType = "SEARGE"
     }
 }
+jar.dependsOn("shadowJar")
 
+configurations {
+    compileClasspath {
+        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+    }
+    include {
+        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+    }
+}
+
+tasks.reobfShadowJar.mustRunAfter shadowJar
 tasks.reobfJar.dependsOn(shadowJar)
+
+task copyZipInclude(type: Copy) {
+    from 'zip_include/'
+    into 'build/libs/zip'
+}
+
+build.dependsOn copyZipInclude

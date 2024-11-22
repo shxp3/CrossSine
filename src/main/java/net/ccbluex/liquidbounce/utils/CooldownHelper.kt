@@ -1,17 +1,9 @@
 
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Listenable
-import net.minecraft.item.Item
-import net.minecraft.item.ItemAxe
-import net.minecraft.item.ItemHoe
-import net.minecraft.item.ItemPickaxe
-import net.minecraft.item.ItemSpade
-import net.minecraft.item.ItemStack
-import net.minecraft.item.ItemSword
-import net.minecraft.util.MathHelper
+import net.minecraft.item.*
 import net.minecraft.potion.Potion
+import net.minecraft.util.MathHelper
 import kotlin.math.min
 
 /**

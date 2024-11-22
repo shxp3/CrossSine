@@ -2,9 +2,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.ncp
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.script.api.global.Chat.alert
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import kotlin.math.max
 
 class NCP : SpeedMode("NCP") {
@@ -38,7 +37,7 @@ class NCP : SpeedMode("NCP") {
         if (MovementUtils.isMoving()) {
             mc.thePlayer.jumpMovementFactor = 0.02f
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.jump()
+                MovementUtils.jump(false)
             }
             // speed adapts based on speed potion
             MovementUtils.strafe(max(MovementUtils.getSpeed(), MovementUtils.getSpeedWithPotionEffects(0.27).toFloat()))

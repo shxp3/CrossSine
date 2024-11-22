@@ -67,10 +67,10 @@ object EntityUtils : MinecraftInstance() {
 
     fun canRayCast(entity: Entity): Boolean {
         if (entity is EntityLivingBase) {
-            if (entity is EntityPlayer) {
-                return !friendValue.get() || !Target.isInYourTeam(entity)
+            return if (entity is EntityPlayer) {
+                !friendValue.get() || !Target.isInYourTeam(entity)
             } else {
-                return mobValue.get() && isMob(entity) || animalValue.get() && isAnimal(entity)
+                mobValue.get() && isMob(entity) || animalValue.get() && isAnimal(entity)
             }
         }
         return false
@@ -80,15 +80,11 @@ object EntityUtils : MinecraftInstance() {
         return entity is EntityPlayer && entity.getName() != null && CrossSine.fileManager.friendsConfig.isFriend(stripColor(entity.getName()))
     }
 
-    fun isFriend(entity: String): Boolean {
-        return CrossSine.fileManager.friendsConfig.isFriend(entity)
-    }
-
-    fun isAnimal(entity: Entity): Boolean {
+    private fun isAnimal(entity: Entity): Boolean {
         return entity is EntityAnimal || entity is EntitySquid || entity is EntityGolem || entity is EntityVillager || entity is EntityBat
     }
 
-    fun isMob(entity: Entity): Boolean {
+    private fun isMob(entity: Entity): Boolean {
         return entity is EntityMob || entity is EntitySlime || entity is EntityGhast || entity is EntityDragon
     }
     fun getName(networkPlayerInfoIn: NetworkPlayerInfo): String {
@@ -96,8 +92,5 @@ object EntityUtils : MinecraftInstance() {
             networkPlayerInfoIn.playerTeam,
             networkPlayerInfoIn.gameProfile.name
         )
-    }
-    fun isRendered(entityToCheck: Entity?): Boolean {
-        return mc.theWorld != null && mc.theWorld.getLoadedEntityList().contains(entityToCheck)
     }
 }

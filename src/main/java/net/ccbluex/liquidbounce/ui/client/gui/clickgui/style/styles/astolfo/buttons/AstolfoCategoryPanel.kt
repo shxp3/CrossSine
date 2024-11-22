@@ -7,8 +7,8 @@ import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.Asto
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.PANEL_HEIGHT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.PANEL_WIDTH
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
-import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import java.awt.Color

@@ -1,5 +1,9 @@
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.EaseUtils
@@ -9,20 +13,17 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-object SpoofItemUtils : MinecraftInstance() {
+object SpoofItemUtils : Listenable{
     private var spoofSlot = 0
-    private var realSlot = 0
     var spoofing = false
     private var animProgress = 0F
     var render = false
-    fun startSpoof(slot: Int, realSlot: Int, render: Boolean) {
+    fun startSpoof(slot: Int, render: Boolean) {
         if (!spoofing) {
             spoofSlot = slot
             spoofing = true
-            this.realSlot = realSlot
         }
         this.render = render
     }
@@ -50,8 +51,20 @@ object SpoofItemUtils : MinecraftInstance() {
         spoofSlot = slot
     }
 
-    fun renderRect() {
-        val itemStack = mc.thePlayer.inventory.getStackInSlot(realSlot)
+    override fun handleEvents(): Boolean {
+        return true
+    }
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        renderRect()
+        GlStateManager.resetColor()
+        if (mc.thePlayer.inventory.getCurrentItem() != null) {
+            renderItem()
+            GlStateManager.resetColor()
+        }
+    }
+    private fun renderRect() {
+        val itemStack = mc.thePlayer.inventory.getCurrentItem()
         animProgress += (0.0075F * 0.50F * deltaTime * if (spoofing && spoofSlot != mc.thePlayer.inventory.currentItem) 1F else -1F)
         animProgress = animProgress.coerceIn(0F, 1F)
         val percent = EaseUtils.easeOutBack(animProgress.toDouble())
@@ -59,7 +72,7 @@ object SpoofItemUtils : MinecraftInstance() {
         val height = ScaledResolution(mc).scaledHeight + 3F
         if (render && animProgress > 0F) {
             if (itemStack != null && itemStack.item is ItemBlock) {
-                val string: String = "Amount: " + itemStack.stackSize
+                val string: String = "Amount: " + if (Scaffold.state) Scaffold.blockAmount - Scaffold.placeTick else itemStack.stackSize
                 val stringWidth = Fonts.font35.getStringWidth(string) + if (itemStack.stackSize < 10) 3F else 0F
                 RenderUtils.drawRoundedRect(
                     width / 2F + -35F,
@@ -89,10 +102,10 @@ object SpoofItemUtils : MinecraftInstance() {
         }
     }
 
-    fun renderItem() {
+    private fun renderItem() {
         val width = ScaledResolution(mc).scaledWidth
         val height = ScaledResolution(mc).scaledHeight + 3F
-        val itemStack = mc.thePlayer.inventory.getStackInSlot(realSlot)
+        val itemStack = mc.thePlayer.inventory.getCurrentItem()
         val percent = EaseUtils.easeOutBack(animProgress.toDouble())
         if (itemStack != null && render && animProgress >= 0F) {
             if (itemStack.item is ItemBlock) {

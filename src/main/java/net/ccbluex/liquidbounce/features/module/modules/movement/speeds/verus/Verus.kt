@@ -2,10 +2,11 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.verus
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.ccbluex.liquidbounce.features.value.*
+import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 class Verus : SpeedMode("Verus") {
 
@@ -42,7 +43,7 @@ class Verus : SpeedMode("Verus") {
                         if (mc.thePlayer.ticksExisted % 12 == 0) {
                             firstHop = false
                             MovementUtils.strafe(0.69f)
-                            mc.thePlayer.jump()
+                            MovementUtils.jump(false)
                             mc.thePlayer.motionY = 0.0
                             MovementUtils.strafe(0.69f)
                             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.42, mc.thePlayer.posZ, false))
@@ -55,7 +56,7 @@ class Verus : SpeedMode("Verus") {
 
 
                     if (modeValue.equals("Normal") || modeValue.equals("LowHop") || modeValue.equals("FastHop")) {
-                        mc.thePlayer.jump()
+                        MovementUtils.jump(false)
                         MovementUtils.strafe(0.48f)
                         if (modeValue.equals("LowHop")) {
                             mc.thePlayer.motionY = 0.38
@@ -63,17 +64,17 @@ class Verus : SpeedMode("Verus") {
                             mc.thePlayer.motionY = 0.42
                         }
                     } else if (modeValue.equals("VerusHard")) {
-                        mc.thePlayer.jump()
+                        MovementUtils.jump(false)
                         if(mc.thePlayer.isSprinting) {
                             MovementUtils.strafe(MovementUtils.getSpeed() + 0.2F)
                         }
                     } else if (modeValue.equals("Bhop")) {
                         MovementUtils.strafe(0.35f)
-                        mc.thePlayer.jump()
+                        MovementUtils.jump(false)
                     } else if (modeValue.equals("Test")) {
                         if (verusHopStage == 2) {
                             MovementUtils.strafe(0.61f)
-                            mc.thePlayer.jump()
+                            MovementUtils.jump(false)
                             // MovementUtils.strafe(1.708f)
                             verusHopStage = 1
                         } else if (verusHopStage == 1) {

@@ -1,5 +1,7 @@
 package net.ccbluex.liquidbounce.utils
 
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.Vec3
 import kotlin.math.PI
 import kotlin.math.exp
 import kotlin.math.pow
@@ -72,6 +74,14 @@ object MathUtils {
      */
     fun Double.toRadians() = this * DEGREES_TO_RADIANS
 
+    fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
+        val vec3i = direction.directionVec
+        return Vec3(
+            this.xCoord + value * vec3i.x.toDouble(),
+            this.yCoord + value * vec3i.y.toDouble(),
+            this.zCoord + value * vec3i.z.toDouble()
+        )
+    }
     /**
      * Converts double to degrees
      */

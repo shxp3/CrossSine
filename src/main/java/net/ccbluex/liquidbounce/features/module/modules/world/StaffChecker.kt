@@ -102,6 +102,11 @@ class StaffChecker : Module() {
                     if (isStaff(entity))
                         warn(entity.name)
                 }
+                is S12PacketEntityVelocity -> {
+                    val entity = mc.theWorld.getEntityByID(packet.entityID) ?: return
+                    if (isStaff(entity))
+                        warn(entity.name)
+                }
 
                 is S01PacketJoinGame -> {
                     val entity = mc.theWorld.getEntityByID(packet.entityId) ?: return

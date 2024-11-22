@@ -1,7 +1,8 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -9,27 +10,13 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.utils.PlayerUtils
-import net.minecraft.item.EnumAction
-import net.minecraft.util.MovingObjectPosition
-import org.lwjgl.input.Mouse
 
 
 @ModuleInfo(name = "Animations", category = ModuleCategory.VISUAL, canEnable = true, defaultOn = true, array = false)
 object Animations : Module() {
     val blockingModeValue = ListValue(
-        "BlockingMode",
-        arrayOf(
-            "1.8",
-            "1.7",
-            "Slash",
-            "Sigma4",
-            "Spin",
-            "Exhibition",
-            "Jello"
-        ),
-        "1.8"
-    )
+        "BlockingMode", arrayOf("1.7", "Akrien", "Avatar", "ETB", "Exhibition", "Dortware", "Push", "Reverse", "Shield", "SigmaNew", "SigmaOld", "Slide", "SlideDown", "HSlide", "Swong", "VisionFX", "Swank", "Jello", "Rotate", "Liquid", "Fall", "Yeet", "Yeet2", "None"), "1.7")
+
     private val showTag = BoolValue("ShowTag", false)
     private val resetValue = BoolValue("Reset", false)
     val itemPosXValue = FloatValue("ItemPosX", 0F, -1.0F, 1.0F)

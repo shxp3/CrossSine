@@ -1,7 +1,9 @@
 package net.ccbluex.liquidbounce.ui.client.hud.designer
 
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.injection.access.StaticStorage
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.Companion.createDefault
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.Companion.elements
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -11,8 +13,6 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.minecraft.client.gui.Gui
 import net.minecraft.util.MathHelper
 import org.lwjgl.input.Mouse

@@ -2,8 +2,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.matr
 
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.LongJumpMode
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 
 class OldMatrixWaterLongjump : LongJumpMode("OldMatrixWater") {
     private val hValue = FloatValue("${valuePrefix}Horizon", 1.0f, 0.8f, 4.0f)

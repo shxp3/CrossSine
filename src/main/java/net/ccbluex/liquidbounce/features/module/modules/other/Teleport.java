@@ -104,7 +104,7 @@ public class Teleport extends Module {
                 flyTimer.update();
 
                 if(mc.thePlayer.onGround) {
-                    mc.thePlayer.jump();
+                   MovementUtils.INSTANCE.jump(true, false, 0.42);
                 }else{
                     MovementUtils.INSTANCE.forward(zitter ? -0.21D : 0.21D);
                     zitter = !zitter;

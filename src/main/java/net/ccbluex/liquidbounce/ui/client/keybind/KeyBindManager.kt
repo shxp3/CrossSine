@@ -25,7 +25,6 @@ class KeyBindManager : GuiScreen() {
 
     override fun initGui() {
         nowDisplayKey = null
-        popUI = null
         updateAllKeys()
     }
 
@@ -125,7 +124,10 @@ class KeyBindManager : GuiScreen() {
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
             if (popUI != null) {
-                popUI = null
+                popUI!!.animatingOut = false
+                if (popUI!!.animationProgress >= 1F) {
+                    popUI = null
+                }
             } else if (nowDisplayKey != null) {
                 nowDisplayKey = null
             } else {

@@ -1,11 +1,11 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.buttons.value
 
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.BACKGROUND_VALUE
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.AstolfoConstants.FONT
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.astolfo.drawHeightCenteredString
 import net.ccbluex.liquidbounce.utils.geom.Rectangle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import java.awt.Color
 
 class BoolValueButton(x: Float, y: Float, width: Float, height: Float, var setting: BoolValue, var color: Color) : BaseValueButton(x, y, width, height, setting) {

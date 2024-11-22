@@ -6,9 +6,9 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.player.phases.PhaseMode
-import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.ClassUtils
 
 @ModuleInfo(name = "Phase",  category = ModuleCategory.PLAYER)
 class Phase : Module() {

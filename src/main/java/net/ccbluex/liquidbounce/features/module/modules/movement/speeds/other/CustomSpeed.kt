@@ -2,11 +2,12 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.other
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.minecraft.client.settings.GameSettings
 
 @Suppress("UnclearPrecedenceOfBinaryExpression")
@@ -37,10 +38,6 @@ class CustomSpeed : SpeedMode("Custom") {
     private val AirSpaceKepPressed = BoolValue("CustomPressSpaceKeyInAir", false)
     private val usePreMotion = BoolValue("CustomUsePreMotion", true)
 
-    
-
-    private var groundTick = 0
-
 
     override fun onPreMotion() {
         if (!usePreMotion.get()) return
@@ -49,7 +46,7 @@ class CustomSpeed : SpeedMode("Custom") {
 
             when {
                 mc.thePlayer.onGround -> {
-                    if (groundTick >= groundStay.get()) {
+                    if (PlayerUtils.groundTicks >= groundStay.get()) {
                         if (GroundSpaceKeyPressed.get()) {
                             mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
                         }
@@ -58,7 +55,7 @@ class CustomSpeed : SpeedMode("Custom") {
                             MovementUtils.strafe(launchSpeedValue.get())
                         }
                         if (doJump.get()) {
-                            mc.thePlayer.jump()
+                            MovementUtils.jump(false)
                         } else {
                             if (!doCustomYValue.get()) {
                                 mc.thePlayer.motionY = 0.42
@@ -76,11 +73,9 @@ class CustomSpeed : SpeedMode("Custom") {
                         mc.thePlayer.motionX = 0.0
                         mc.thePlayer.motionZ = 0.0
                     }
-                    groundTick++
                 }
                 
                 else -> {
-                    groundTick = 0
                     if (AirSpaceKepPressed.get()) {
                         mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
                     }
@@ -152,7 +147,7 @@ class CustomSpeed : SpeedMode("Custom") {
 
             when {
                 mc.thePlayer.onGround -> {
-                    if (groundTick >= groundStay.get()) {
+                    if (PlayerUtils.groundTicks >= groundStay.get()) {
                         if (GroundSpaceKeyPressed.get()) {
                             mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
                         }
@@ -161,7 +156,7 @@ class CustomSpeed : SpeedMode("Custom") {
                             MovementUtils.strafe(launchSpeedValue.get())
                         }
                         if (doJump.get()) {
-                            mc.thePlayer.jump()
+                            MovementUtils.jump(false)
                         } else {
                             if (!doCustomYValue.get()) {
                                 mc.thePlayer.motionY = 0.42
@@ -179,11 +174,11 @@ class CustomSpeed : SpeedMode("Custom") {
                         mc.thePlayer.motionX = 0.0
                         mc.thePlayer.motionZ = 0.0
                     }
-                    groundTick++
+                    PlayerUtils.groundTicks++
                 }
                 
                 else -> {
-                    groundTick = 0
+                    PlayerUtils.groundTicks = 0
                     if (AirSpaceKepPressed.get()) {
                         mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
                     }

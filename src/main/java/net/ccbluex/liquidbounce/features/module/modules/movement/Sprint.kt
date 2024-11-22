@@ -7,13 +7,12 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import java.awt.Color
 
@@ -32,7 +31,7 @@ object Sprint : Module() {
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         if (textValue.get()) {
-            mc.fontRendererObj.drawStringWithShadow(if (mc.thePlayer.isSneaking)"[Sneaking (vanilla)]" else if (mc.thePlayer.isSprinting) "[Sprinting (toggled)]" else "", 2F, if (downValue.get()) StaticStorage.scaledResolution.scaledHeight + -9F else 2F, Color.WHITE.rgb)
+            mc.fontRendererObj.drawStringWithShadow(if (mc.thePlayer.isSneaking)"[Sneaking (vanilla)]" else "[Sprinting (toggled)]", 2F, if (downValue.get()) StaticStorage.scaledResolution.scaledHeight + -9F else 2F, Color.WHITE.rgb)
         }
     }
     @EventTarget

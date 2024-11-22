@@ -1,10 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.ccbluex.liquidbounce.features.value.TextValue
-import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.features.value.TitleValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
-
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import java.awt.Color
 
 class TextElement(value: TextValue): ValueElement<String>(value) {

@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.minecraft.util.MovingObjectPosition
-import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "OldAnimations",  category = ModuleCategory.VISUAL, array = false)
 object OldAnimations:  Module() {

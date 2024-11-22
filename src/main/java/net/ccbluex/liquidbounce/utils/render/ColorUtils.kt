@@ -2,7 +2,6 @@ package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
 import net.minecraft.util.ChatAllowedCharacters
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import java.util.*
@@ -11,9 +10,6 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
-import org.lwjgl.opengl.GL11.glColor4f
-
-
 
 
 object ColorUtils {
@@ -276,6 +272,11 @@ object ColorUtils {
     fun slowlyRainbow(time: Long, count: Int, qd: Float, sq: Float): Color {
         val color = Color(Color.HSBtoRGB((time.toFloat() + count * -3000000f) / 2 / 1.0E9f, qd, sq))
         return Color(color.red / 255.0f * 1, color.green / 255.0f * 1, color.blue / 255.0f * 1, color.alpha / 255.0f)
+    }
+    @JvmStatic
+    fun rainbow(index: Int, speed: Double, saturation: Float): Color {
+        val hue = ((index * speed) % 360) / 360
+        return Color.getHSBColor(hue.toFloat(), abs(saturation.coerceIn(0f, 1f)), 1f)
     }
 
     @JvmStatic

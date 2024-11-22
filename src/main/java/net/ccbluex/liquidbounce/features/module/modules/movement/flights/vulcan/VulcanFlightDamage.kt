@@ -66,7 +66,7 @@ class VulcanFlightDamage : FlightMode("VulcanDamage") {
             }
             dmgJumpCount++
             MovementUtils.resetMotion(true)
-            mc.thePlayer.jump()
+            MovementUtils.jump(true)
         }
         MovementUtils.resetMotion(false)
         return true

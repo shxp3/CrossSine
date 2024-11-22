@@ -6,6 +6,7 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.BlockPos
 import net.minecraft.util.BlockPos.MutableBlockPos
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
@@ -20,7 +21,8 @@ fun AxisAlignedBB.getLookingTargetRange(thePlayer: EntityPlayerSP, rotation: Rot
     val movingObj = this.calculateIntercept(eyes, (rotation ?: RotationUtils.targetRotation).toDirection().multiply(range).add(eyes)) ?: return Double.MAX_VALUE
     return movingObj.hitVec.distanceTo(eyes)
 }
-
+fun BlockPos.toVec() = Vec3(this)
+fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
 fun AxisAlignedBB.expands(v: Double, modifyYDown: Boolean=true, modifyYUp: Boolean=true): AxisAlignedBB {
     return AxisAlignedBB(this.minX - v, this.minY - (if (modifyYDown) v else 0.0), this.minZ - v, this.maxX + v, this.maxY + (if (modifyYUp) v else 0.0), this.maxZ + v)
 }
