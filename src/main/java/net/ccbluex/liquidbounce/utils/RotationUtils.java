@@ -178,7 +178,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
      * @param throughWalls throughWalls option
      * @return center
      */
-    
+
     //TODO : searchCenter Big Update lol(Better Center calculate method & Jitter Support(Better Random Center)) / Co丶Dynamic : Wait until Mid-Autumn Festival
     public static VecRotation searchCenter(final AxisAlignedBB bb, final boolean outborder, final boolean random, final boolean predict, final boolean throughWalls, final float distance) {
         if(outborder) {
@@ -239,7 +239,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     public static VecRotation calculateCenter(final String calMode, final Boolean randMode, final double randomRange, final boolean legitRandom, final AxisAlignedBB bb, final boolean predict, final boolean throughWalls) {
 
         VecRotation vecRotation = null;
-        
+
         double xMin;
         double yMin;
         double zMin;
@@ -249,11 +249,11 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         double xDist;
         double yDist;
         double zDist;
-        
+
         xMin = 0.15D; xMax = 0.85D; xDist = 0.1D;
         yMin = 0.15D; yMax = 1.00D; yDist = 0.1D;
         zMin = 0.15D; zMax = 0.85D; zDist = 0.1D;
-        
+
         Vec3 curVec3 = null;
 
         switch(calMode) {
@@ -268,9 +268,9 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
                 break;
             case "CenterLine":
-                xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
+                xMin = 0.45D; xMax = 0.451D; xDist = 0.0125D;
                 yMin = 0.50D; yMax = 0.90D; yDist = 0.1D;
-                zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
+                zMin = 0.45D; zMax = 0.451D; zDist = 0.0125D;
                 break;
             case "CenterHead":
                 xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
@@ -299,43 +299,43 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                         final VecRotation currentVec = new VecRotation(vec3, rotation);
 
                         if (vecRotation == null || (getRotationDifference(currentVec.getRotation()) < getRotationDifference(vecRotation.getRotation()))) {
-                            vecRotation = currentVec; 
+                            vecRotation = currentVec;
                             curVec3 = vec3;
                         }
                     }
                 }
             }
         }
-        
+
         if(vecRotation == null || !randMode)
             return vecRotation;
-        
+
         double rand1 = random.nextDouble();
         double rand2 = random.nextDouble();
         double rand3 = random.nextDouble();
-        
+
         final double xRange = bb.maxX - bb.minX;
         final double yRange = bb.maxY - bb.minY;
         final double zRange = bb.maxZ - bb.minZ;
         double minRange = 999999.0D;
-        
+
         if(xRange<=minRange) minRange = xRange;
         if(yRange<=minRange) minRange = yRange;
         if(zRange<=minRange) minRange = zRange;
-        
+
         rand1 = rand1 * minRange * randomRange;
         rand2 = rand2 * minRange * randomRange;
         rand3 = rand3 * minRange * randomRange;
-        
+
         final double xPrecent = minRange * randomRange / xRange;
         final double yPrecent = minRange * randomRange / yRange;
         final double zPrecent = minRange * randomRange / zRange;
-        
+
         Vec3 randomVec3 = legitRandom ? new Vec3(curVec3.xCoord, curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2, curVec3.zCoord) : new  Vec3(curVec3.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1, curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2, curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3);
-        
+
         final Rotation randomRotation = toRotation(randomVec3, predict);
         vecRotation =  new VecRotation(randomVec3, randomRotation);
-        
+
         return vecRotation;
     }
     /**
@@ -384,9 +384,9 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         final float yawDifference = getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw());
         final float pitchDifference = getAngleDifference(targetRotation.getPitch(), currentRotation.getPitch());
         return new Rotation(
-                    currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)),
-                    currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
-                    ));
+                currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)),
+                currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
+                ));
     }
     /**
      * Calculate difference between two angle points
@@ -516,7 +516,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         RotationUtils.keepLength = keepLength;
         RotationUtils.revTick = 0;
     }
-    
+
     public static void setTargetRotationReverse(final Rotation rotation, final int keepLength, final int revTick) {
         if(Double.isNaN(rotation.getYaw()) || Double.isNaN(rotation.getPitch())
                 || rotation.getPitch() > 90 || rotation.getPitch() < -90)
@@ -528,7 +528,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         RotationUtils.keepLength = keepLength;
         RotationUtils.revTick = revTick+1;
     }
-    
+
     /**
      * Reset your target rotation
      */
@@ -536,7 +536,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         keepLength = 0;
         if(revTick>0) {
             targetRotation = new Rotation(targetRotation.getYaw()-getAngleDifference(targetRotation.getYaw(), mc.thePlayer.rotationYaw)/revTick
-                                        , targetRotation.getPitch()-getAngleDifference(targetRotation.getPitch(), mc.thePlayer.rotationPitch)/revTick);
+                    , targetRotation.getPitch()-getAngleDifference(targetRotation.getPitch(), mc.thePlayer.rotationPitch)/revTick);
         }else targetRotation = null;
     }
 

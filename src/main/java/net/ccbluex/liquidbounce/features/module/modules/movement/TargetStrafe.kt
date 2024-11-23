@@ -1,4 +1,4 @@
- 
+
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.CrossSine
@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
+import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -210,9 +210,9 @@ class TargetStrafe : Module() {
             mc.gameSettings.thirdPersonView = 3
         }
     }
-        private fun canStrafe(target: EntityLivingBase?): Boolean {
-            return target != null && (!holdSpaceValue.get() || mc.gameSettings.keyBindJump.isKeyDown) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state) && (!onlyFlightValue.get() || CrossSine.moduleManager[Flight::class.java]!!.state)
-        }
+    private fun canStrafe(target: EntityLivingBase?): Boolean {
+        return target != null && (!holdSpaceValue.get() || mc.gameSettings.keyBindJump.isKeyDown) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state) && (!onlyFlightValue.get() || CrossSine.moduleManager[Flight::class.java]!!.state)
+    }
 
     fun modifyStrafe(event: StrafeEvent):Boolean {
         if(!isEnabled || event.isCancelled) {
@@ -229,7 +229,7 @@ class TargetStrafe : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        targetEntity = if (KillAura.state) KillAura.currentTarget else if (KillAura2.state) KillAura2.target else CrossSine.combatManager.target
+        targetEntity = if (KillAura.state) KillAura.currentTarget else if (SilentAura.state) SilentAura.target else CrossSine.combatManager.target
         if (mc.thePlayer.isCollidedHorizontally) {
             direction = -direction
             direction = if (direction >= 0) {

@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofalls.other
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
+import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2
@@ -27,25 +27,25 @@ class BlinkNofall : NoFallMode("Blink") {
     private var bdaState = false
     private var veloState = false
     override fun onPacket(event: PacketEvent) {
-            if (PlayerUtils.isOnEdge() && getBP(1) && getBP(2) && getBP(3) && !start && !Scaffold.state && !Scaffold2.state) {
-                start = true
-                if (KillAura.state) {
-                    kaState = true
-                    KillAura.state = false
-                }
-                if (BedAura.state) {
-                    bdaState = true
-                    BedAura.state = false
-                }
-                if (KillAura2.state) {
-                    laState = true
-                    KillAura2.state = false
-                }
-                if (Velocity.state) {
-                    veloState = true
-                    Velocity.state = false
-                }
+        if (PlayerUtils.isOnEdge() && getBP(1) && getBP(2) && getBP(3) && !start && !Scaffold.state && !Scaffold2.state) {
+            start = true
+            if (KillAura.state) {
+                kaState = true
+                KillAura.state = false
             }
+            if (BedAura.state) {
+                bdaState = true
+                BedAura.state = false
+            }
+            if (SilentAura.state) {
+                laState = true
+                SilentAura.state = false
+            }
+            if (Velocity.state) {
+                veloState = true
+                Velocity.state = false
+            }
+        }
         if (start) {
             BlinkUtils.setBlinkState(all = true)
             if (event.packet is C03PacketPlayer) {
@@ -69,7 +69,7 @@ class BlinkNofall : NoFallMode("Blink") {
                 bdaState = false
             }
             if (laState) {
-                KillAura2.state = true
+                SilentAura.state = true
                 laState = false
             }
             if (veloState) {
@@ -104,7 +104,7 @@ class BlinkNofall : NoFallMode("Blink") {
                 bdaState = false
             }
             if (laState) {
-                KillAura2.state = true
+                SilentAura.state = true
                 laState = false
             }
             if (veloState) {

@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.BlockHit
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
+import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.LeftClicker
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -86,7 +86,7 @@ class KeyStrokes : Element() {
         keyStates[key] = keyStates[key]!!.coerceIn(0F, 1F)
     }
     private fun leftClick(key: Boolean) : Boolean {
-        return if (KillAura.state && KillAura.currentTarget != null || KillAura2.state && KillAura2.target != null || LeftClicker.state) MouseUtils.leftClicked else key
+        return if (KillAura.state && KillAura.currentTarget != null || SilentAura.state && SilentAura.target != null || LeftClicker.state) MouseUtils.leftClicked else key
     }
     private fun rightClick(key: Boolean) : Boolean {
         return if (BlockHit.state || Scaffold.state) MouseUtils.rightClicked else key
