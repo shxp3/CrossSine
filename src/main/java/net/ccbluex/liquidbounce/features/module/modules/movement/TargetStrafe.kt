@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -229,7 +229,7 @@ class TargetStrafe : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        targetEntity = if (KillAura.state) KillAura.currentTarget else if (SilentAura.state) SilentAura.target else CrossSine.combatManager.target
+        targetEntity = if (KillAura.state) KillAura.currentTarget else if (KillAura2.state) KillAura2.target else CrossSine.combatManager.target
         if (mc.thePlayer.isCollidedHorizontally) {
             direction = -direction
             direction = if (direction >= 0) {

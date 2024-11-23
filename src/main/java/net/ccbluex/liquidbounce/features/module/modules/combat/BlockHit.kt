@@ -7,10 +7,8 @@ import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
@@ -19,12 +17,10 @@ import net.minecraft.client.settings.GameSettings
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemSword
-import net.minecraft.util.MovingObjectPosition
 
 @ModuleInfo("BlockHit", ModuleCategory.COMBAT)
 object BlockHit : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Spam", "HurtTime"), "Spam")
-    private val onEntity = BoolValue("OnLookingEntity", false).displayable { modeValue.equals("Spam") }
     private val cpsValue = IntegerValue("CPS", 15, 1, 20).displayable { modeValue.equals("Spam") }
     private val maxChanceValue: IntegerValue = object : IntegerValue("MaxChance", 100, 1, 100) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -71,7 +67,7 @@ object BlockHit : Module() {
         if (hurtTime > 0) {
             hurtTime--
         }
-        if (combatTarget.hasTimePassed(10000)) {
+        if (combatTarget.hasTimePassed(3000)) {
             target = null
             hurtTime = 0
         }
@@ -79,11 +75,11 @@ object BlockHit : Module() {
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
-        if (mc.thePlayer.heldItem.item !is ItemSword || GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+        if (mc.thePlayer.heldItem.item !is ItemSword || mc.gameSettings.keyBindUseItem.isKeyDown || !mc.gameSettings.keyBindAttack.isKeyDown) {
             MouseUtils.rightClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
             return
         }
-        if (modeValue.equals("Spam") && (!onEntity.get() || mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && EntityUtils.isSelected(mc.objectMouseOver.entityHit, true))) {
+        if (modeValue.equals("Spam")) {
             if (RandomUtils.nextInt(minChanceValue.get(), maxChanceValue.get()) > RandomUtils.nextInt(1, 100)) {
                 if (timerMS.hasTimePassed(TimeUtils.randomClickDelay(cpsValue.get(), cpsValue.get()))) {
                     MouseUtils.rightClicked = true
@@ -97,8 +93,8 @@ object BlockHit : Module() {
                     MouseUtils.rightClicked = true
                     mc.gameSettings.keyBindUseItem.pressed = true
                 } else {
-                    MouseUtils.rightClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
-                    mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+                    MouseUtils.rightClicked = false
+                    mc.gameSettings.keyBindUseItem.pressed = false
                 }
             }
         }

@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofalls.other
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2
@@ -37,9 +37,9 @@ class BlinkNofall : NoFallMode("Blink") {
                     bdaState = true
                     BedAura.state = false
                 }
-                if (SilentAura.state) {
+                if (KillAura2.state) {
                     laState = true
-                    SilentAura.state = false
+                    KillAura2.state = false
                 }
                 if (Velocity.state) {
                     veloState = true
@@ -69,7 +69,7 @@ class BlinkNofall : NoFallMode("Blink") {
                 bdaState = false
             }
             if (laState) {
-                SilentAura.state = true
+                KillAura2.state = true
                 laState = false
             }
             if (veloState) {
@@ -104,7 +104,7 @@ class BlinkNofall : NoFallMode("Blink") {
                 bdaState = false
             }
             if (laState) {
-                SilentAura.state = true
+                KillAura2.state = true
                 laState = false
             }
             if (veloState) {

@@ -4,6 +4,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.draw
 import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2
@@ -11,31 +12,36 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.extensions.rayTraceWithServerSideRotation
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.utils.timer.TimerMS
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.client.settings.KeyBinding
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemAxe
 import net.minecraft.item.ItemPickaxe
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.C02PacketUseEntity
+import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.world.WorldSettings
+import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "KillAura2", category = ModuleCategory.COMBAT)
-object SilentAura : Module() {
+object KillAura2 : Module() {
     private val onlyWeapon = BoolValue("Only-Weapon", true)
     private val onlyClick = BoolValue("Mouse-Down", false)
-    private val attackMode = ListValue("Attack-Mode", arrayOf("Packet", "Legit"), "Legit")
+    private val attackMode = ListValue("AttackMode", arrayOf("Legit", "Packet"), "Legit")
+    private val hitableCheck = BoolValue("Hitable", false).displayable { attackMode.equals("Packet") }
+    private val swingMode = ListValue("SwingMode", arrayOf("ClientSide", "ServerSide", "None"), "ClientSide").displayable { attackMode.equals("Packet") }
     private val autoBlock = ListValue("Blocking", arrayOf("Fake", "Bypass", "HurtTime", "Time", "None"), "None")
     private val alwaysBlock = BoolValue("Always-Block", false).displayable { !autoBlock.equals("None") && !autoBlock.equals("Fake") }
     private val bypassTick = IntegerValue("BypassTick", 15, 1, 20).displayable { autoBlock.equals("Bypass") }
@@ -47,11 +53,21 @@ object SilentAura : Module() {
     private val lowHelper = BoolValue("Less-Helper", false).displayable { moveHelper.get() && rotationMode.equals("Silent") }
     private val markValue = BoolValue("Mark", false)
     private val switchDelay = IntegerValue("Switch-Delay", 140, 0, 1000).displayable { switchValue.get() }
-    val reachValue: FloatValue = object : FloatValue("Reach", 3F, 1F, 7F) {
+    val reachValue: FloatValue = object : FloatValue("Reach", 3F, 0F, 7F) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val minreach = discoverValue.get()
             if (minreach < newValue) {
                 set(minreach)
+            }
+        }
+    }
+    private val swingRange: FloatValue = object: FloatValue("SwingRange", 3F, 0F, 7F) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue > discoverValue.get()) {
+                set(discoverValue.get())
+            }
+            if (newValue < reachValue.get()) {
+                set(reachValue.get())
             }
         }
     }
@@ -70,7 +86,7 @@ object SilentAura : Module() {
                 set(i)
             }
         }
-    }
+    }.displayable { attackMode.equals("Packet") } as FloatValue
     private val fovValue = IntegerValue("Fov", 180, 0, 180)
     private val maxCPSValue: IntegerValue = object : IntegerValue("Max-CPS", 20, 1, 20) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -120,11 +136,15 @@ object SilentAura : Module() {
     private var blockTime: TimerMS = TimerMS()
     private var attacked = false
     private var tickState = 0
+    private var hurtTime = 0
+    private var canSwing = false
+    private var hitable = false
     private val cancelAttack: Boolean
         get() = (onlyClick.get() && !mc.gameSettings.keyBindAttack.pressed)
                 || (onlyWeapon.get() && (mc.thePlayer.heldItem == null || mc.thePlayer.heldItem.item !is ItemSword && mc.thePlayer.heldItem.item !is ItemPickaxe && mc.thePlayer.heldItem.item !is ItemAxe))
                 || (scaffoldCheck.get() && Scaffold.state)
                 || (scaffoldCheck.get() && Scaffold2.state)
+
     val canBlock: Boolean
         get() = ((alwaysBlock.get() || autoBlock.equals("Fake")) && blockingStatus)
 
@@ -137,6 +157,8 @@ object SilentAura : Module() {
         discoveredTargets.clear()
         inRangeDiscoveredTargets.clear()
         tickState = 0
+        hurtTime = 0
+        MouseUtils.leftClicked = false
     }
 
     override fun onEnable() {
@@ -151,76 +173,62 @@ object SilentAura : Module() {
     fun onAttack(event: AttackEvent) {
         blockTime.reset()
         attacked = true
+        if (hurtTime == 0 || event.targetEntity != target) {
+            hurtTime = 10
+        }
     }
-
     @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        if (EntityUtils.isSelected((mc.objectMouseOver.entityHit), true)) {
-            if (((mc.objectMouseOver.entityHit != null || target != null) && !cancelAttack)) {
-                if (System.currentTimeMillis() - leftLastSwing >= leftDelay) {
-                    MouseUtils.leftClicked = true
-                    if (attackMode.equals("Legit")) {
-                        KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
-                    } else {
-                        PacketUtils.sendPacketNoEvent(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
-                        if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                            mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
+    fun onPreUpdate(event: PreUpdateEvent) {
+        updateHitable()
+        if (EntityUtils.isSelected((target!!), true)) {
+            if (attackMode.equals("Legit")) {
+                if (target != null && !cancelAttack) {
+                    if (System.currentTimeMillis() - leftLastSwing >= leftDelay) {
+                        if (canSwing) {
+                            KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
+                            MouseUtils.leftClicked = true
                         }
-                    }
-                    leftLastSwing = System.currentTimeMillis()
-                    leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
-                } else MouseUtils.leftClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindAttack)
-            }
-            if (target != null) {
-                if (!autoBlock.equals("None") && mc.thePlayer.isBlocking) {
-                    PlayerUtils.swing()
+                        leftLastSwing = System.currentTimeMillis()
+                        leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
+                    } else MouseUtils.leftClicked = false
+
                 }
-                if (mc.thePlayer.heldItem.item is ItemSword) {
-                    when (autoBlock.get().lowercase()) {
-                        "bypass" -> {
-                            bypassBlock()
+            } else {
+                if (target != null && !cancelAttack) {
+                    if (System.currentTimeMillis() - leftLastSwing >= leftDelay) {
+                        if (canSwing) {
+                            if (swingMode.equals("ClientSide")) {
+                                mc.thePlayer.swingItem()
+                            } else if (swingMode.equals("ServerSide")) {
+                                mc.netHandler.addToSendQueue(C0APacketAnimation())
+                            }
                         }
-
-                        "fake" -> {
-                            blockingStatus = true
-                        }
-
-                        "time" -> {
-                            if (attacked) {
-                                blockingStatus = true
-                                mc.gameSettings.keyBindUseItem.pressed = true
-                                if (discoveredTargets.isEmpty() || blockTime.hasTimePassed(autoBlockTime.get().toLong())) {
-                                    attacked = false
-                                    mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+                        if (hitable) {
+                            mc.netHandler.addToSendQueue(C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK))
+                            if (!KeepSprint.state) {
+                                if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+                                    mc.thePlayer.attackTargetEntityWithCurrentItem(target)
+                                }
+                            } else {
+                                if (EnchantmentHelper.getModifierForCreature(
+                                        mc.thePlayer.heldItem,
+                                        target!!.creatureAttribute
+                                    ) > 0F
+                                ) {
+                                    mc.thePlayer.onEnchantmentCritical(target)
                                 }
                             }
                         }
-                        "hurttime" -> {
-                            mc.gameSettings.keyBindUseItem.pressed = target!!.hurtTime > 4
-                            blockingStatus = true
-                        }
+                        leftLastSwing = System.currentTimeMillis()
+                        leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
                     }
                 }
-            } else {
-                attacked = false
-                mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
-            }
-            if (markValue.get() && discoveredTargets.isNotEmpty()) {
-                RenderUtils.drawEntityBox(
-                    target,
-                    ClientTheme.getColorWithAlpha(1, 70),
-                    false,
-                    true,
-                    0f
-                )
-                GlStateManager.resetColor()
             }
         }
-    }
-
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
         getTarget()
+        if (hurtTime > 0) {
+            --hurtTime
+        }
         if (switchValue.get()) {
             if (switchTimer.hasTimePassed(switchDelay.get().toLong())) {
                 prevTargetEntities.add(target!!.entityId)
@@ -238,6 +246,57 @@ object SilentAura : Module() {
             tickState++
         }
     }
+    @EventTarget
+    fun onRender3D(event: Render3DEvent) {
+        if (markValue.get() && discoveredTargets.isNotEmpty()) {
+            draw(target!!, event)
+            GlStateManager.resetColor()
+        }
+        if (GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+            stopBlocking()
+            MouseUtils.rightClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+            return
+        }
+        if (EntityUtils.isSelected((target!!), true)) {
+                if (target != null && mc.thePlayer.getDistanceToEntity(target) <= if (attackMode.equals("Legit")) blockRangeValue.get() else reachValue.get()) {
+                    if (!autoBlock.equals("None") && mc.thePlayer.isBlocking && attackMode.equals("Legit")) {
+                        PlayerUtils.swing()
+                    }
+                    if (mc.thePlayer.heldItem.item is ItemSword) {
+                        when (autoBlock.get().lowercase()) {
+                            "bypass" -> {
+                                bypassBlock()
+                            }
+
+                            "fake" -> {
+                                blockingStatus = true
+                            }
+
+                            "time" -> {
+                                if (attacked) {
+                                    blockingStatus = true
+                                    mc.gameSettings.keyBindUseItem.pressed = true
+                                    MouseUtils.rightClicked = true
+                                    if (discoveredTargets.isEmpty() || blockTime.hasTimePassed(autoBlockTime.get().toLong())) {
+                                        attacked = false
+                                        MouseUtils.rightClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+                                        mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+                                    }
+                                }
+                            }
+                            "hurttime" -> {
+                                mc.gameSettings.keyBindUseItem.pressed = hurtTime > 6
+                                MouseUtils.rightClicked = hurtTime > 6
+                                blockingStatus = true
+                            }
+                        }
+                    }
+            } else {
+                stopBlocking()
+            }
+        }
+    }
+
 
     private fun getTarget() {
         val fov = fovValue.get()
@@ -280,7 +339,29 @@ object SilentAura : Module() {
         }
         target = null
     }
-
+    private fun updateHitable() {
+        if (target == null) {
+            canSwing = false
+            hitable = false
+            return
+        }
+        val entityDist = mc.thePlayer.getDistanceToEntityBox(target as Entity)
+        canSwing = entityDist <= swingRange.get()
+        if (hitableCheck.get() && attackMode.equals("Packet")) {
+            hitable = entityDist <= reachValue.get().toDouble()
+            return
+        }
+        // Disable hitable check if turn speed is zero
+        if (rotationMaxSpeed.get() <= 0F) {
+            hitable = true
+            return
+        }
+        val wallTrace = mc.thePlayer.rayTraceWithServerSideRotation(entityDist)
+        hitable = RotationUtils.isFaced(
+            target,
+            reachValue.get().toDouble()
+        ) && (entityDist < discoverValue.get() || wallTrace?.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
+    }
     private fun getRot(entity: Entity): Boolean {
         if (cancelAttack)
             return false
@@ -329,16 +410,17 @@ object SilentAura : Module() {
     private fun bypassBlock() {
         if (System.currentTimeMillis() - LastBlock >= blockDelay) {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
-
+            MouseUtils.rightClicked = true
             LastBlock = System.currentTimeMillis()
             blockDelay = TimeUtils.randomClickDelay(bypassTick.get(), bypassTick.get())
-        }
+        } else MouseUtils.rightClicked = false
         blockingStatus = true
     }
 
     private fun stopBlocking() {
         mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
         blockingStatus = false
+        MouseUtils.rightClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
     }
 
     fun getReach(): Double {

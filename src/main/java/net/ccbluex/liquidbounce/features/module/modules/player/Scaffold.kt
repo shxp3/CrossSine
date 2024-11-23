@@ -45,14 +45,10 @@ object Scaffold : Module() {
             "None",
             "NCP",
             "BlocksMC",
-            "TestBlocksMC",
             "Vanilla",
         ), "None"
     )
-    private val predictTickBlocksMC = IntegerValue("BlocksMC-Predict-Tick", 2, 1, 5).displayable { towerModeValue.equals("TestBlocksMC") }
-    private val offGroundTickBlocksMC = IntegerValue("BlocksMC-Air-Tick", 4, 1, 5).displayable { towerModeValue.equals("TestBlocksMC") }
-    private val motionBlocksMC = FloatValue("BlocksMC-Motion", 1F, 0.1F, 1F).displayable { towerModeValue.equals("BlocksMC") || towerModeValue.equals("TestBlocksMC") }
-    private val motionSpeedEffectBlocksMC = FloatValue("BlocksMC-SpeedEffect-Motion", 1F, 0.1F, 1F).displayable { towerModeValue.equals("BlocksMC") || towerModeValue.equals("TestBlocksMC") }
+    private val motionBlocksMC = FloatValue("BlocksMC-Motion", 1F, 0.1F, 1F).displayable { towerModeValue.equals("BlocksMC") }
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "Switch"), "Switch")
     private val highBlock = BoolValue("BiggestStack", false)
     private val highBlockMode = BoolValue("BiggestStackSwitchTick", false).displayable { highBlock.get() }
@@ -65,7 +61,7 @@ object Scaffold : Module() {
     private val sprintCustom = BoolValue("CustomSprint", true).displayable { sprintModeValue.equals("Custom") }
     private val cancelSprintCustom: BoolValue = object : BoolValue("CustomCancelSprintPacket", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (sprintCustom.get()) {
+            if (mc.thePlayer.isSprinting && sprintCustom.get()) {
                 cancelSprint = true
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
             }
@@ -236,7 +232,9 @@ object Scaffold : Module() {
             y = mc.thePlayer.posY.toInt()
         }
         if (cancelSprintCustom.get() && sprintModeValue.equals("Custom")) {
-            mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+            if (mc.thePlayer.isSprinting) {
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+            }
             cancelSprint = true
         }
         prevItem = mc.thePlayer.inventory.currentItem
@@ -246,16 +244,7 @@ object Scaffold : Module() {
         zitterTimer.reset()
         tellyPlaceTicks = 0
     }
-    @EventTarget
-    fun onTick2(event: TickEvent) {
-        if (InventoryUtils.findAutoBlockBlock(highBlock.get()) != -1) {
-            findBlock(expandLengthValue.get() > 1)
-            if (towerStatus) {
-                move()
-            }
-        }
-        place()
-    }
+
     /**
      * Update event
      *
@@ -295,7 +284,6 @@ object Scaffold : Module() {
         if (lastPlace == 1) {
             delayTimer.reset()
             delay = getDelay
-            MouseUtils.leftClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
             lastPlace = 0
         }
 
@@ -450,6 +438,13 @@ object Scaffold : Module() {
                 }
             }
         }
+        if (InventoryUtils.findAutoBlockBlock(highBlock.get()) != -1) {
+            findBlock(expandLengthValue.get() > 1)
+            if (towerStatus) {
+                move()
+            }
+        }
+        place()
     }
     @EventTarget
     fun onMovementInput(event: MovementInputEvent) {
@@ -685,7 +680,6 @@ object Scaffold : Module() {
     private fun move() {
         when (towerModeValue.get().lowercase()) {
             "ncp" -> {
-                MovementUtils.strafe()
                 if (mc.thePlayer.posY % 1 <= 0.00153598) {
                     mc.thePlayer.setPosition(
                         mc.thePlayer.posX,
@@ -701,17 +695,7 @@ object Scaffold : Module() {
                     )
                 }
             }
-            "testblocksmc" -> {
-                MovementUtils.strafe()
-                if (mc.thePlayer.onGround) {
-                    mc.thePlayer.motionY = 0.42
-                }
-                if (PlayerUtils.offGroundTicks == offGroundTickBlocksMC.get()) {
-                    mc.thePlayer.motionY = MovementUtils.predictedMotion(mc.thePlayer.motionY, predictTickBlocksMC.get())
-                }
-            }
             "blocksmc" -> {
-                MovementUtils.strafe()
                 if (mc.thePlayer.onGround) {
                     mc.thePlayer.motionY = 0.42
                 }
@@ -800,6 +784,7 @@ object Scaffold : Module() {
      */
     private fun place() {
         if (!shouldPlace()) return
+        MouseUtils.rightClicked = true
         if (!rotationsValue.equals("None")) {
             val rayTraceInfo = mc.thePlayer.rayTraceWithServerSideRotation(5.0)
             when (hitableCheckValue.get().lowercase()) {
@@ -833,7 +818,6 @@ object Scaffold : Module() {
                 }
                 tellyPlaceTicks++
                 lastPlace++
-                MouseUtils.rightClicked = true
                 godBridgePlaceTicks++
                 if (highBlockMode.get() && highBlock.get()) {
                     switchPlaceTick++
@@ -845,6 +829,7 @@ object Scaffold : Module() {
         }
         // Reset
         targetPlace = null
+        MouseUtils.rightClicked = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
     }
 
     /**
@@ -894,14 +879,9 @@ object Scaffold : Module() {
     fun onMove(event: MoveEvent) {
         if (!shouldPlace()) return
         if (sprintModeValue.equals("Custom")) {
-            if (towerStatus && (towerModeValue.equals("BlocksMC") || towerModeValue.equals("TestBlocksMC"))) {
-                if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                    event.x *= motionSpeedEffectBlocksMC.get()
-                    event.z *= motionSpeedEffectBlocksMC.get()
-                } else {
-                    event.x *= motionBlocksMC.get()
-                    event.z *= motionBlocksMC.get()
-                }
+            if (towerStatus && towerModeValue.equals("BlocksMC")) {
+                event.x *= motionBlocksMC.get()
+                event.z *= motionBlocksMC.get()
             } else {
                 if (motionCustom.get() && (!motionSpeedEffectCustom.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed))) {
                     event.x *= motionSpeedCustom.get()

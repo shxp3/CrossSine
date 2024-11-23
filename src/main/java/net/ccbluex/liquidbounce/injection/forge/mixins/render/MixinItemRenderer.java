@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura;
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
 import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimations;
@@ -156,7 +156,7 @@ public abstract class MixinItemRenderer {
             }
             if (itemToRender.getItem() instanceof ItemMap) {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
-            } else if ((abstractclientplayer.isUsingItem() || ((itemToRender.getItem() instanceof ItemSword) && ((KillAura.INSTANCE.getState() && KillAura.INSTANCE.getDisplayBlocking() && KillAura.INSTANCE.getCurrentTarget() != null) || (SilentAura.INSTANCE.getState() && SilentAura.INSTANCE.getCanBlock() && SilentAura.INSTANCE.getTarget() != null))))) {
+            } else if ((abstractclientplayer.isUsingItem() || ((itemToRender.getItem() instanceof ItemSword) && ((KillAura.INSTANCE.getState() && KillAura.INSTANCE.getDisplayBlocking() && KillAura.INSTANCE.getCurrentTarget() != null) || (KillAura2.INSTANCE.getState() && KillAura2.INSTANCE.getCanBlock() && KillAura2.INSTANCE.getTarget() != null))))) {
                 switch (this.itemToRender.getItemUseAction()) {
                     case NONE:
                         this.transformFirstPersonItem(f, 0.0F);

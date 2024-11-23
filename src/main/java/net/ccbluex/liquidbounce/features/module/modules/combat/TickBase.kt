@@ -30,7 +30,7 @@ class TickBase : Module(){
         freezing = false
 
 
-        if (!Scaffold.state && timer.hasTimePassed(delayTimer.get().toLong()) && (KillAura.state && KillAura.currentTarget != null && mc.thePlayer.getDistanceToEntity(KillAura.currentTarget) > KillAura.rangeValue.get() || SilentAura.state && SilentAura.target != null && mc.thePlayer.getDistanceToEntity(SilentAura.target) > SilentAura.reachValue.get()) && mc.thePlayer.hurtTime <= 2) {
+        if (!Scaffold.state && timer.hasTimePassed(delayTimer.get().toLong()) && (KillAura.state && KillAura.currentTarget != null && mc.thePlayer.getDistanceToEntity(KillAura.currentTarget) > KillAura.rangeValue.get() || KillAura2.state && KillAura2.target != null && mc.thePlayer.getDistanceToEntity(KillAura2.target) > KillAura2.reachValue.get()) && mc.thePlayer.hurtTime <= 2) {
             counter = ticks.get()
             timer.reset()
             return counter

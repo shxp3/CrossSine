@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.InfiniteAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -63,7 +63,7 @@ class TargetHUD : Element(-46.0, -40.0, 1F, Side(Side.Horizontal.MIDDLE, Side.Ve
         val actualTarget = if (InfiniteAura.lastTarget != null && (!onlyPlayer.get() || InfiniteAura.lastTarget is EntityPlayer)) InfiniteAura.lastTarget
         else if ((mc.currentScreen is GuiChat && showinchat.get()) || mc.currentScreen is GuiHudDesigner) mc.thePlayer
         else if (KillAura.state && KillAura.currentTarget != null) KillAura.currentTarget
-        else if (SilentAura.state && SilentAura.target != null) SilentAura.target
+        else if (KillAura2.state && KillAura2.target != null) KillAura2.target
         else targetOver
         if (targetTimer.hasTimePassed(500)) {
             targetOver = null
