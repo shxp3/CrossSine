@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2
+import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -69,7 +69,7 @@ class NoSlow : Module() {
     }
 
     private val canNoslow: Boolean
-        get() = !onlyKillAura.get() || (KillAura.state && KillAura.currentTarget != null || KillAura2.state && KillAura2.target != null)
+        get() = !onlyKillAura.get() || (KillAura.state && KillAura.currentTarget != null || SilentAura.state && SilentAura.target != null)
     val shouldSprint: Boolean
         get() = mode.sprint
     override val tag: String

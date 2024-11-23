@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2;
+import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -56,7 +56,7 @@ public class MixinLayerHeldItem {
             final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
             Item item = itemstack.getItem();
 
-            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && ((killAura.getDisplayBlocking() && killAura.getCurrentTarget() != null) || (KillAura2.INSTANCE.getCanBlock() &&  KillAura2.INSTANCE.getTarget() != null))&& CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
+            if (entityplayer != null && entityplayer.isBlocking() || entityplayer != null && ((killAura.getDisplayBlocking() && killAura.getCurrentTarget() != null) || (SilentAura.INSTANCE.getCanBlock() &&  SilentAura.INSTANCE.getTarget() != null))&& CrossSine.moduleManager.getModule(Animations.class).getState() && item instanceof ItemSword && Objects.equals(entityplayer.getGameProfile().getName(), Minecraft.getMinecraft().thePlayer.getGameProfile().getName())) {
                 if(entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped) this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     GlStateManager.translate(-0.58F, 0.3F, -0.2F);

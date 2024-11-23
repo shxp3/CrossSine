@@ -268,9 +268,9 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
                 break;
             case "CenterLine":
-                xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;
+                xMin = 0.45D; xMax = 0.451D; xDist = 0.0125D;
                 yMin = 0.50D; yMax = 0.90D; yDist = 0.1D;
-                zMin = 0.45D; zMax = 0.55D; zDist = 0.0125D;
+                zMin = 0.45D; zMax = 0.451D; zDist = 0.0125D;
                 break;
             case "CenterHead":
                 xMin = 0.45D; xMax = 0.55D; xDist = 0.0125D;

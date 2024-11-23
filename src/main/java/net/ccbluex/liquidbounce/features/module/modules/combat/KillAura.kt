@@ -590,14 +590,8 @@ object KillAura : Module() {
         runSwing()
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
         if (interact) mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.INTERACT))
-        if (!KeepSprint.state) {
-            if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
-            }
-        } else {
-            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, entity.creatureAttribute) > 0F) {
-                mc.thePlayer.onEnchantmentCritical(entity)
-            }
+        if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+            mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
         }
 
         CooldownHelper.resetLastAttackedTicks()
