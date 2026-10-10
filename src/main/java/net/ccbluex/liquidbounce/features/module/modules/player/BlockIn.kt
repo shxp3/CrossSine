@@ -113,18 +113,13 @@ object BlockIn : Module() {
                 warning = false
             }
         } else {
-            if (active) {
-                active = false
-                warning = false
-                SlotUtils.stopSet()
-            }
+            disableActive()
         }
         if (active) {
             findBlock()
             if (findBlock.get()) {
                 if (InventoryUtils.findAutoBlockBlock(true) == -1) return
                 SlotUtils.setSlot(InventoryUtils.findAutoBlockBlock(true) - 36, true, name)
-                mc.playerController.updateController()
             }
         }
     }
@@ -142,9 +137,8 @@ object BlockIn : Module() {
                     getBlock(BlockPos(mc.thePlayer).add(0, dy, -1)) !is BlockAir &&
                     getBlock(BlockPos(mc.thePlayer).add(0, dy, 1)) !is BlockAir
                 ) {
-
+                    disableActive()
                 }
-                active = false
             }
         }
         place()
@@ -353,7 +347,13 @@ object BlockIn : Module() {
                 obj.blockPos == neighbor &&
                 obj.sideHit == facing
     }
-
+    fun disableActive() {
+        if (active) {
+            active = false
+            warning = false
+            SlotUtils.stopSet()
+        }
+    }
     fun setCorrectBlockPos(speed: Float = 1F) {
         val player = mc.thePlayer ?: return
         val input = player.movementInput ?: return

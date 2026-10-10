@@ -38,7 +38,6 @@ object BackTrack : Module() {
     private val onAttack = BoolValue("On-Attack", true).displayable { !lagMode.equals("Automatic") }
     private val sizeTick = IntegerValue("Size", 60, 10, 100).displayable { lagMode.equals("LagSize") }
     private val playerModel = BoolValue("PlayerModel", true).displayable { lagMode.equals("LegitReach") || lagMode.equals("Automatic") }
-    private val drawRealPos = BoolValue("drawRealPos", false)
     /** 0 = snap like drawRealPos; higher = smoother travel between server snapshots. */
     private val smoothMs = IntegerValue("SmoothMS", 100, 0, 300)
     private val packetList = ConcurrentLinkedQueue<PacketLog>()
@@ -284,11 +283,6 @@ object BackTrack : Module() {
                 drawEsp(getX(), getY(), getZ())
                 stopDrawing()
             }
-            if (drawRealPos.get()) {
-                startDrawing()
-                drawRealEsp(realPos.xCoord, realPos.yCoord, realPos.zCoord)
-                stopDrawing()
-            }
         }
     }
 
@@ -315,14 +309,6 @@ object BackTrack : Module() {
         GL11.glEnable(3553)
         GL11.glEnable(2929)
         GL11.glPopMatrix()
-    }
-    private fun drawRealEsp(x: Double, y: Double, z: Double) {
-        RenderUtils.glColor(Color(0,0,255, 100))
-        RenderUtils.drawBoundingBlock(
-            mc.thePlayer.entityBoundingBox.offset(-mc.thePlayer.posX, -mc.thePlayer.posY, -mc.thePlayer.posZ)
-                .offset(x, y, z).expand(0.04, 0.04, 0.04)
-        )
-        GlStateManager.resetColor()
     }
     private fun getX() : Double {
         return lerpPos.xCoord

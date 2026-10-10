@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.SlotUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
@@ -25,6 +26,7 @@ object AutoItem : Module() {
     private val onlyTools = BoolValue("Only-Tool", true).displayable { autoTool.get() }
     private val autoWeapon = BoolValue("Auto-Weapon", false)
     private val onlySwordValue = BoolValue("Only-Sword", false).displayable { autoWeapon.get() }
+    private val delayValue = IntegerValue("Delay", 0, 0, 500)
     private val spoof = BoolValue("Spoof-Item", true)
     private var prevItem = 0
     var mining = false
@@ -32,12 +34,13 @@ object AutoItem : Module() {
     private var attackEnemy = false
     private var prevItemWeapon = 0
     private var spoofTick = 0
+    private var delayTick = 0
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         if (autoTool.get()) {
             if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && (!sneakValue.get() || mc.thePlayer.isSneaking)) {
-
+                delayTick++
                 var bestSpeed = 0
                 if (!mining) {
                     prevItem = mc.thePlayer.inventory.currentItem
@@ -56,13 +59,16 @@ object AutoItem : Module() {
 
                     if (bestSlot != -1) {
                         val item = mc.thePlayer.inventory.getStackInSlot(bestSlot).item
-                        if (!onlyTools.get() || (item is ItemShears || item is ItemTool))
-                            SlotUtils.setSlot(bestSlot, spoof.get(), name)
-
+                        if (!onlyTools.get() || (item is ItemShears || item is ItemTool)) {
+                            if (delayTick >= delayValue.get()) {
+                                SlotUtils.setSlot(bestSlot, spoof.get(), name)
+                            }
+                        }
                     }
                 }
                 mining = true
             } else {
+                delayTick = 0
                 if (mining) {
                     SlotUtils.stopSet()
                     mining = false

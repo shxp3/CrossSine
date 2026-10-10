@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrossSine – ClickGUI</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       CrossSine — Web ClickGUI (modern, dark, glass)
+       Layout:  ┌────────────────────────────────────────────────┐
+                │ Top bar (mode toggle, search, status)          │
+                ├──────────┬─────────────────────────────────────┤
+                │ Sidebar  │  Module card grid (3 cols)          │
+                │ (cats)   │                                     │
+                └──────────┴─────────────────────────────────────┘
+       Right-click a card → expand inline settings panel.
+    ============================================================ */
+
+    :root {
+      --cg-bg: #0a0712;
+      --cg-bg-2: #150e25;
+      --cg-panel: rgba(22, 16, 38, .55);
+      --cg-panel-h: rgba(28, 20, 48, .8);
+      --cg-border: rgba(255, 255, 255, .06);
+      --cg-border-h: rgba(168, 85, 247, .4);
+      --cg-text: #ece6f5;
+      --cg-text-d: #b8aacc;
+      --cg-text-m: #7d6f95;
+      --cg-text-f: #544863;
+      --cg-accent: #a855f7;       /* purple-500 */
+      --cg-accent-2: #7c3aed;     /* violet-600 */
+      --cg-accent-soft: rgba(168, 85, 247, .15);
+      --cg-accent-glow: rgba(168, 85, 247, .3);
+      --cg-on-bg: rgba(168, 85, 247, .07);
+      --cg-on-border: rgba(168, 85, 247, .4);
+      --cg-shadow: 0 6px 28px rgba(0, 0, 0, .45);
+      --cg-radius: 12px;
+    }
+
+    /* ── Page-level overrides ───────────────────────────────── */
+    body {
+      background: var(--cg-bg) !important;
+      color: var(--cg-text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body::before, body::after { display: none !important; }
+
+    /* ── Animated starfield background ──────────────────────── */
+    .cg-bg {
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(168, 85, 247, .1) 0%, transparent 45%),
+        radial-gradient(ellipse at 80% 100%, rgba(124, 58, 237, .1) 0%, transparent 45%),
+        var(--cg-bg);
+      overflow: hidden;
+    }
+    .cg-bg::before {
+      content: '';
+      position: absolute; inset: -20%;
+      background-image:
+        radial-gradient(1px 1px at 25% 30%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,.35), transparent),
+        radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 45% 15%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 70% 90%, rgba(255,255,255,.45), transparent);
+      background-size: 380px 380px, 520px 520px, 460px 460px, 600px 600px, 380px 380px, 540px 540px, 420px 420px;
+      animation: cg-drift 90s linear infinite;
+      opacity: .55;
+    }
+    /* Diagonal light "comets" / streaks */
+    .cg-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(135deg, transparent 49.5%, rgba(255,255,255,.025) 50%, transparent 50.5%),
+        linear-gradient(135deg, transparent 49.5%, rgba(168,85,247,.05) 50%, transparent 50.5%);
+      background-size: 220px 220px, 320px 320px;
+      background-position: 0 0, 60px 40px;
+      pointer-events: none;
+      opacity: .9;
+    }
+    @keyframes cg-drift {
+      from { transform: translate3d(0, 0, 0); }
+      to   { transform: translate3d(-200px, -120px, 0); }
+    }
+
+    /* ── Top bar ────────────────────────────────────────────── */
+    .cg-top {
+      max-width: 1400px;
+      margin: 22px auto 6px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .cg-title {
+      display: flex; align-items: baseline; gap: 10px;
+      flex-shrink: 0;
+    }
+    .cg-title h1 {
+      font-size: 22px; font-weight: 800; letter-spacing: -.4px;
+      background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 50%, #a855f7 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+    }
+    .cg-title small {
+      font-size: 11px; color: var(--cg-text-m);
+      font-weight: 500; letter-spacing: .5px;
+    }
+
+    .cg-search {
+      position: relative; flex: 1; max-width: 300px;
+    }
+    .cg-search svg {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px;
+      stroke: var(--cg-text-m); fill: none; stroke-width: 2;
+      pointer-events: none;
+    }
+    .cg-search input {
+      width: 100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--cg-border);
+      border-radius: 9px;
+      padding: 8px 12px 8px 34px;
+      color: var(--cg-text);
+      font: inherit; font-size: 13px;
+      outline: none;
+      transition: border-color .18s, background .18s;
+    }
+    .cg-search input::placeholder { color: var(--cg-text-f); }
+    .cg-search input:focus {
+      border-color: var(--cg-border-h);
+      background: rgba(255,255,255,.06);
+    }
+
+    /* Mode pill toggle */
+    .cg-mode {
+      display: flex; gap: 2px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--cg-border);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .cg-mode button {
+      font: 600 12px/1 'Inter', sans-serif;
+      color: var(--cg-text-m);
+      background: transparent;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background .18s, color .18s;
+    }
+    .cg-mode button:hover:not(.active) {
+      color: var(--cg-text-d);
+      background: rgba(255,255,255,.04);
+    }
+    .cg-mode button.active {
+      background: linear-gradient(135deg, var(--cg-accent) 0%, var(--cg-accent-2) 100%);
+      color: #1a0d2e;
+      box-shadow: 0 0 14px rgba(168,85,247,.4);
+    }
+
+    .cg-status {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--cg-text-m);
+    }
+    .cg-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,.5);
+    }
+    .cg-dot.ok {
+      background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,.6);
+      animation: cg-pulse 2s infinite;
+    }
+    @keyframes cg-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .55; }
+    }
+
+    /* ── Layout: sidebar + content ──────────────────────────── */
+    .cg-shell {
+      max-width: 1400px;
+      margin: 14px auto 60px;
+      padding: 0 28px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .cg-sidebar {
+      position: sticky; top: 18px;
+      background: var(--cg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--cg-border);
+      border-radius: var(--cg-radius);
+      padding: 10px 6px;
+      box-shadow: var(--cg-shadow);
+    }
+    .cg-cat {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      font: 700 11px/1 'Inter', sans-serif;
+      letter-spacing: 1.4px;
+      color: var(--cg-text-m);
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s, color .15s;
+    }
+    .cg-cat:hover { color: var(--cg-text-d); background: rgba(255,255,255,.025); }
+    .cg-cat.active {
+      background: rgba(168,85,247,.1);
+      color: var(--cg-text);
+      box-shadow: inset 2px 0 0 var(--cg-accent);
+    }
+    .cg-cat-count {
+      font: 600 10px/1 'JetBrains Mono', monospace;
+      color: var(--cg-text-f);
+    }
+    .cg-cat.active .cg-cat-count { color: var(--cg-accent); }
+
+    .cg-sidebar-stats {
+      margin-top: 8px; padding: 12px 14px 4px;
+      border-top: 1px solid var(--cg-border);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .cg-stat {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--cg-text-m);
+    }
+    .cg-stat b {
+      color: var(--cg-accent); font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Main content + grid ────────────────────────────────── */
+    .cg-main { min-width: 0; }
+    .cg-section-title {
+      display: flex; align-items: baseline; gap: 12px;
+      margin: 4px 4px 14px;
+    }
+    .cg-section-title h2 {
+      font-size: 13px; font-weight: 700; letter-spacing: 1.6px;
+      color: var(--cg-text); margin: 0; text-transform: uppercase;
+    }
+    .cg-section-title span {
+      font-size: 11px; color: var(--cg-text-m);
+    }
+
+    .cg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+      gap: 14px;
+    }
+
+    /* ── Module card ────────────────────────────────────────── */
+    .cg-card {
+      position: relative;
+      background: var(--cg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--cg-border);
+      border-radius: var(--cg-radius);
+      padding: 16px 18px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color .2s, background .2s, box-shadow .25s, transform .12s;
+      overflow: hidden;
+    }
+    .cg-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(168,85,247,.08) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+    }
+    .cg-card:hover {
+      border-color: rgba(255,255,255,.12);
+      background: var(--cg-panel-h);
+    }
+    .cg-card:hover::before { opacity: 1; }
+    .cg-card.on {
+      border-color: var(--cg-on-border);
+      background: linear-gradient(135deg, var(--cg-on-bg) 0%, var(--cg-panel) 60%);
+      box-shadow: 0 0 0 1px var(--cg-on-border), 0 0 24px var(--cg-accent-glow);
+    }
+    .cg-card.on::before { opacity: 1; }
+    .cg-card.expanded { border-color: var(--cg-border-h); }
+
+    .cg-card-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 6px;
+    }
+    .cg-card-name {
+      flex: 1;
+      font-size: 14px; font-weight: 700; color: var(--cg-text);
+      letter-spacing: -.2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cg-card-bind {
+      font: 600 9.5px/1 'JetBrains Mono', monospace;
+      letter-spacing: .5px;
+      color: var(--cg-text-d);
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--cg-border);
+      padding: 3px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .cg-card.on .cg-card-bind {
+      color: var(--cg-accent);
+      border-color: rgba(168,85,247,.3);
+      background: rgba(168,85,247,.1);
+    }
+
+    /* Toggle switch */
+    .cg-switch {
+      flex-shrink: 0;
+      width: 32px; height: 18px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      position: relative;
+      transition: background .2s;
+      cursor: pointer;
+    }
+    .cg-switch::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: #cbd5e1;
+      border-radius: 50%;
+      transition: transform .22s cubic-bezier(.4,.2,.2,1.2), background .2s;
+    }
+    .cg-card.on .cg-switch {
+      background: linear-gradient(135deg, var(--cg-accent) 0%, var(--cg-accent-2) 100%);
+      box-shadow: 0 0 10px rgba(168,85,247,.5);
+    }
+    .cg-card.on .cg-switch::after {
+      transform: translateX(14px);
+      background: #ffffff;
+    }
+
+    .cg-card-desc {
+      font-size: 12px; color: var(--cg-text-m);
+      line-height: 1.45;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 34px;
+    }
+
+    .cg-card-foot {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cg-card-tag {
+      font: 700 9.5px/1 'Inter', sans-serif;
+      letter-spacing: 1.4px;
+      color: var(--cg-text-m);
+      text-transform: uppercase;
+    }
+    .cg-card.on .cg-card-tag { color: var(--cg-accent); }
+
+    .cg-card-hint {
+      margin-left: auto;
+      font: 500 10px/1 'JetBrains Mono', monospace;
+      color: var(--cg-text-f);
+      opacity: 0; transition: opacity .2s;
+    }
+    .cg-card:hover .cg-card-hint { opacity: 1; }
+
+    /* ── Expanded settings panel ────────────────────────────── */
+    .cg-settings {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease, margin-top .3s, padding-top .3s;
+      margin-top: 0; padding-top: 0;
+      border-top: 1px solid transparent;
+    }
+    .cg-card.expanded .cg-settings {
+      max-height: 800px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top-color: var(--cg-border);
+    }
+
+    .cg-set {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 0;
+      font-size: 12px;
+    }
+    .cg-set + .cg-set { border-top: 1px dashed rgba(255,255,255,.04); }
+    .cg-set-label {
+      flex: 1; color: var(--cg-text-d); font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cg-set-val {
+      font: 600 11px/1 'JetBrains Mono', monospace;
+      color: var(--cg-accent);
+      min-width: 38px; text-align: right;
+    }
+
+    /* Mini toggle (inside settings) */
+    .cg-set-toggle {
+      width: 26px; height: 14px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .cg-set-toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: #cbd5e1; border-radius: 50%;
+      transition: transform .22s, background .2s;
+    }
+    .cg-set-toggle.on { background: var(--cg-accent); }
+    .cg-set-toggle.on::after { transform: translateX(12px); background: #fff; }
+
+    /* Slider */
+    .cg-slider {
+      flex: 1; height: 4px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+    }
+    .cg-slider-fill {
+      position: absolute; top: 0; left: 0; bottom: 0;
+      background: linear-gradient(90deg, var(--cg-accent-2), var(--cg-accent));
+      border-radius: 999px;
+    }
+    .cg-slider-thumb {
+      position: absolute; top: 50%;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 2px var(--cg-accent), 0 0 8px rgba(168,85,247,.6);
+      transition: box-shadow .2s, width .15s, height .15s;
+      cursor: grab;
+    }
+    .cg-slider-thumb:active { cursor: grabbing; }
+    .cg-slider:hover .cg-slider-thumb {
+      width: 14px; height: 14px;
+      box-shadow: 0 0 0 2px var(--cg-accent), 0 0 12px rgba(168,85,247,.8);
+    }
+    .cg-slider.cg-slider-range .cg-slider-fill { left: auto; }
+
+    /* Dropdown */
+    .cg-select {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--cg-border);
+      border-radius: 6px;
+      color: var(--cg-text);
+      font: 600 11px/1 'JetBrains Mono', monospace;
+      padding: 6px 8px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .cg-select:hover, .cg-select:focus {
+      border-color: var(--cg-border-h);
+    }
+    .cg-select option { background: var(--cg-bg-2); color: var(--cg-text); }
+
+    /* Text input */
+    .cg-text {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--cg-border);
+      border-radius: 6px;
+      color: var(--cg-text);
+      font: 500 11px/1 'JetBrains Mono', monospace;
+      padding: 6px 8px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .cg-text:focus { border-color: var(--cg-border-h); }
+
+    /* Settings group title */
+    .cg-set-title {
+      font: 700 9.5px/1 'Inter', sans-serif;
+      letter-spacing: 1.5px;
+      color: var(--cg-text-m);
+      text-transform: uppercase;
+      padding: 8px 0 4px;
+      border-top: 1px solid rgba(255,255,255,.04);
+      margin-top: 4px;
+    }
+    .cg-set-title:first-child { border-top: none; margin-top: 0; padding-top: 2px; }
+
+    /* ── Empty state ────────────────────────────────────────── */
+    .cg-empty {
+      grid-column: 1 / -1;
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--cg-text-m);
+      font-size: 13px;
+    }
+    .cg-empty .cg-empty-icon {
+      font-size: 32px; margin-bottom: 10px; opacity: .55;
+    }
+
+    /* ── Live mode: connection card ─────────────────────────── */
+    .cg-live-banner {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(168,85,247,.1) 0%, rgba(124,58,237,.08) 100%);
+      border: 1px solid var(--cg-border-h);
+      border-radius: var(--cg-radius);
+      padding: 14px 18px;
+      display: flex; align-items: center; gap: 14px;
+      font-size: 13px; color: var(--cg-text-d);
+    }
+    .cg-live-banner b { color: var(--cg-accent); font-weight: 700; }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 880px) {
+      .cg-shell {
+        grid-template-columns: 1fr; padding: 0 18px;
+      }
+      .cg-sidebar {
+        position: static;
+        display: flex; flex-wrap: wrap; gap: 4px;
+        padding: 8px;
+      }
+      .cg-cat { flex: 0 0 auto; padding: 8px 12px; font-size: 10px; }
+      .cg-sidebar-stats { width: 100%; flex-direction: row; gap: 14px; padding: 10px 12px 4px; }
+      .cg-cat.active { box-shadow: inset 0 -2px 0 var(--cg-accent); }
+      .cg-top { padding: 0 18px; }
+    }
+    @media (max-width: 520px) {
+      .cg-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Hide footer's gap if any */
+    footer { position: relative; z-index: 2; }
+  </style>
+</head>
+<body>
+
+  <div class="cg-bg"></div>
+
+  <header>
+    <span class="logo">CrossSine</span>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="downloads.html">Downloads</a>
+      <a href="clickgui.html" class="active">ClickGUI</a>
+    </nav>
+  </header>
+
+  <!-- ── Top bar ──────────────────────────────────────────── -->
+  <div class="cg-top">
+    <div class="cg-title">
+      <h1>ClickGUI</h1>
+      <small>Configure modules visually</small>
+    </div>
+
+    <div class="cg-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-linecap="round"/><line x1="21" y1="21" x2="16.6" y2="16.6" stroke-linecap="round"/></svg>
+      <input id="search" placeholder="Search modules..." autocomplete="off" spellcheck="false" />
+    </div>
+
+
+  </div>
+
+  <!-- ── Main shell ───────────────────────────────────────── -->
+  <div class="cg-shell">
+
+    <aside class="cg-sidebar" id="sidebar"></aside>
+
+    <main class="cg-main">
+      <div class="cg-section-title">
+        <h2 id="sectionTitle">All Modules</h2>
+        <span id="sectionSub">Click toggle to enable · Right-click card for settings</span>
+      </div>
+      <div class="cg-grid" id="grid"></div>
+    </main>
+
+  </div>
+
+  <footer>
+    <p>© 2026 <span>CrossSine</span> — All rights reserved. Built by Shape.</p>
+  </footer>
+
+  <script>
+  /* ============================================================
+     Module data — demo content with rich descriptions + settings
+     ============================================================ */
+
+  /* Per-module description + sample settings.
+     Settings types: bool | slider | list | text
+       slider: { min, max, step?, value, suffix? }
+       list:   { options: [...], value }                         */
+  const MOD_LIB = {
+    /* COMBAT */
+    AutoClicker:  { desc: 'Automates left/right click with advanced randomization.', tag: 'COMBAT',
+      settings: [
+        { type: 'list',   name: 'Mode',         options: ['Stable','Sequential','Burst'], value: 'Sequential' },
+        { type: 'slider', name: 'Min CPS',      min: 1,  max: 20, step: 1, value: 10 },
+        { type: 'slider', name: 'Max CPS',      min: 1,  max: 25, step: 1, value: 14 },
+        { type: 'bool',   name: 'Block Hit',    value: true  },
+        { type: 'bool',   name: 'Randomize',    value: true  },
+      ] },
+    AimAssist:    { desc: 'Smooth aim assist with FOV and target checks.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'FOV',          min: 1,  max: 180, step: 1, value: 60, suffix: '°' },
+        { type: 'slider', name: 'Strength',     min: 0,  max: 1,   step: 0.05, value: 0.55 },
+        { type: 'list',   name: 'Mode',         options: ['Smooth','Snap','Sticky'], value: 'Smooth' },
+        { type: 'bool',   name: 'Through Walls',value: false },
+      ] },
+    Reach:        { desc: 'Extends hit distance with anti-cheat checks.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'Distance',     min: 3, max: 6, step: 0.05, value: 3.15, suffix: 'b' },
+        { type: 'bool',   name: 'Combat Only',  value: true },
+      ] },
+    HitBoxes:     { desc: 'Expands entity hitboxes for easier targeting.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'Size',         min: 0.1, max: 2, step: 0.05, value: 0.3 },
+        { type: 'bool',   name: 'Players Only', value: true },
+      ] },
+    BlockHit:     { desc: 'BlockHit with multiple blocking modes.', tag: 'COMBAT',
+      settings: [
+        { type: 'list',   name: 'Mode', options: ['Vanilla','Watchdog','NCP'], value: 'Watchdog' },
+      ] },
+    JumpReset:    { desc: 'Automates jump reset for combat combos.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'Chance', min: 0, max: 100, step: 1, value: 90, suffix: '%' },
+        { type: 'bool',   name: 'Only In Range', value: true },
+      ] },
+    SprintReset:  { desc: 'Automates sprint reset for W-tapping.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'Delay', min: 0, max: 500, step: 5, value: 120, suffix: 'ms' },
+      ] },
+    Velocity:     { desc: 'Modifies knockback for combat advantage.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'Horizontal', min: 0, max: 100, step: 1, value: 0,  suffix: '%' },
+        { type: 'slider', name: 'Vertical',   min: 0, max: 100, step: 1, value: 0,  suffix: '%' },
+      ] },
+    AntiBot:      { desc: 'Filters bots from your target list.', tag: 'COMBAT',
+      settings: [
+        { type: 'bool',   name: 'Invisible',   value: true },
+        { type: 'bool',   name: 'Duplicates',  value: true },
+      ] },
+    BowAimbot:    { desc: 'Auto-aims bow shots with prediction.', tag: 'COMBAT',
+      settings: [
+        { type: 'slider', name: 'Range', min: 5, max: 80, step: 1, value: 40, suffix: 'b' },
+      ] },
+
+    /* RENDER / VISUAL */
+    Animations:   { desc: 'Custom item & arm animations for style.', tag: 'RENDER',
+      settings: [
+        { type: 'list',   name: 'Style',  options: ['1.7','Smooth','Spin','Slide'], value: 'Smooth' },
+        { type: 'slider', name: 'Speed',  min: 0.1, max: 3, step: 0.05, value: 1 },
+      ] },
+    Chams:        { desc: 'See entities through walls with X-ray render.', tag: 'RENDER',
+      settings: [
+        { type: 'list', name: 'Mode',  options: ['Texture','Color','Wireframe'], value: 'Color' },
+        { type: 'bool', name: 'Players',  value: true  },
+        { type: 'bool', name: 'Mobs',     value: false },
+      ] },
+    Crosshair:    { desc: 'Custom static or dynamic crosshair overlay.', tag: 'RENDER',
+      settings: [
+        { type: 'slider', name: 'Size',     min: 1, max: 20, step: 1, value: 6 },
+        { type: 'slider', name: 'Gap',      min: 0, max: 10, step: 1, value: 2 },
+        { type: 'bool',   name: 'Dynamic',  value: true },
+      ] },
+    BlockOverlay: { desc: 'Outlines the block you are looking at.', tag: 'RENDER',
+      settings: [
+        { type: 'slider', name: 'Width', min: 1, max: 5, step: 0.5, value: 2 },
+        { type: 'bool',   name: 'Fill',  value: false },
+      ] },
+    BedESP:       { desc: 'Highlights bed locations through walls.', tag: 'RENDER',
+      settings: [
+        { type: 'slider', name: 'Range', min: 10, max: 200, step: 5, value: 60, suffix: 'b' },
+        { type: 'bool',   name: 'Tracer', value: true },
+      ] },
+    Cape:         { desc: 'Display custom cape texture on your player.', tag: 'RENDER',
+      settings: [
+        { type: 'list', name: 'Type',  options: ['Optifine','MinecraftCapes','Custom'], value: 'Custom' },
+        { type: 'text', name: 'URL',   value: 'cape.png' },
+      ] },
+
+    /* MOVEMENT */
+    Speed:        { desc: 'Modifies movement speed with multiple modes.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'list',   name: 'Mode',  options: ['Vanilla','BHop','Strafe','LowHop'], value: 'BHop' },
+        { type: 'slider', name: 'Speed', min: 0.1, max: 2, step: 0.05, value: 1.05 },
+      ] },
+    Flight:       { desc: 'Allows free flight in the world.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'list',   name: 'Mode',     options: ['Vanilla','Creative','Glide'], value: 'Vanilla' },
+        { type: 'slider', name: 'Speed',    min: 0.1, max: 8,  step: 0.1, value: 1 },
+      ] },
+    HighJump:     { desc: 'Increases jump height with bypass options.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'slider', name: 'Height', min: 1, max: 8, step: 0.25, value: 2 },
+      ] },
+    LongJump:     { desc: 'Boosts forward distance on jumps.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'slider', name: 'Distance', min: 1, max: 6, step: 0.1, value: 2.5, suffix: 'b' },
+      ] },
+    NoSlow:       { desc: 'Removes slowdown from items and webs.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'bool', name: 'Food',   value: true },
+        { type: 'bool', name: 'Bow',    value: true },
+        { type: 'bool', name: 'Soulsand',value: false },
+      ] },
+    SafeWalk:     { desc: 'Prevents you from falling off block edges.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'list', name: 'Mode', options: ['Sneak','Air','Ground'], value: 'Air' },
+      ] },
+    Sprint:       { desc: 'Automatically sprints in any direction.', tag: 'MOVEMENT',
+      settings: [
+        { type: 'bool', name: 'Omnidirectional', value: false },
+      ] },
+
+    /* PLAYER */
+    AutoItem:     { desc: 'Auto-selects best item for the situation.', tag: 'PLAYER',
+      settings: [
+        { type: 'bool', name: 'Sword on attack', value: true },
+        { type: 'bool', name: 'Bow on long range', value: true },
+      ] },
+    FastPlace:    { desc: 'Removes block placement delay.', tag: 'PLAYER',
+      settings: [
+        { type: 'slider', name: 'Delay', min: 0, max: 4, step: 1, value: 0, suffix: 't' },
+      ] },
+    NoFall:       { desc: 'Prevents fall damage with various methods.', tag: 'PLAYER',
+      settings: [
+        { type: 'list', name: 'Mode', options: ['Packet','MLG','Ground'], value: 'Packet' },
+      ] },
+    AntiVoid:     { desc: 'Prevents falling into the void.', tag: 'PLAYER',
+      settings: [
+        { type: 'slider', name: 'Y Level', min: -64, max: 10, step: 1, value: 1 },
+      ] },
+    Blink:        { desc: 'Holds outgoing packets to teleport later.', tag: 'PLAYER',
+      settings: [
+        { type: 'slider', name: 'Buffer', min: 1, max: 200, step: 1, value: 40 },
+      ] },
+    FreeCam:      { desc: 'Detaches camera from your player body.', tag: 'PLAYER',
+      settings: [
+        { type: 'slider', name: 'Speed', min: 0.5, max: 10, step: 0.1, value: 2 },
+      ] },
+
+    /* UTILITY / WORLD */
+    FastBreak:    { desc: 'Breaks blocks faster than vanilla allows.', tag: 'UTILITY',
+      settings: [
+        { type: 'slider', name: 'Speed', min: 1, max: 10, step: 0.5, value: 2 },
+      ] },
+    FastMine:     { desc: 'Optimizes mining sequences for speed.', tag: 'UTILITY',
+      settings: [
+        { type: 'bool', name: 'Survival Only', value: true },
+      ] },
+    Nuker:        { desc: 'Breaks all blocks around you.', tag: 'UTILITY',
+      settings: [
+        { type: 'slider', name: 'Range', min: 1, max: 6, step: 0.5, value: 4, suffix: 'b' },
+      ] },
+    StaffChecker: { desc: 'Detects staff members on the server.', tag: 'UTILITY',
+      settings: [
+        { type: 'bool', name: 'Notify', value: true },
+        { type: 'bool', name: 'Auto-disable', value: true },
+      ] },
+    Scaffold:     { desc: 'Auto-places blocks under you.', tag: 'UTILITY',
+      settings: [
+        { type: 'list', name: 'Mode', options: ['Normal','Telly','Tower'], value: 'Normal' },
+      ] },
+
+    /* CLIENT */
+    ClickGUI:     { desc: 'Open the in-game ClickGUI to configure modules.', tag: 'CLIENT',
+      settings: [
+        { type: 'list', name: 'Style', options: ['Modern','Classic','Compact'], value: 'Modern' },
+      ] },
+    ArrayList:    { desc: 'On-screen list of enabled modules.', tag: 'CLIENT',
+      settings: [
+        { type: 'list',   name: 'Side', options: ['Left','Right'], value: 'Right' },
+        { type: 'bool',   name: 'Background', value: true },
+      ] },
+    Interface:    { desc: 'Custom HUD interface elements.', tag: 'CLIENT',
+      settings: [
+        { type: 'bool', name: 'Watermark', value: true  },
+        { type: 'bool', name: 'FPS',       value: true  },
+        { type: 'bool', name: 'Coords',    value: false },
+      ] },
+    KeyStrokes:   { desc: 'Visualize WASD/mouse key presses on screen.', tag: 'CLIENT',
+      settings: [
+        { type: 'slider', name: 'Scale', min: 0.5, max: 3, step: 0.1, value: 1 },
+        { type: 'bool',   name: 'CPS',  value: true },
+      ] },
+    Scoreboard:   { desc: 'Custom scoreboard rendering.', tag: 'CLIENT',
+      settings: [
+        { type: 'bool', name: 'Hide Numbers', value: false },
+        { type: 'bool', name: 'Compact',      value: false },
+      ] },
+    SessionInfo:  { desc: 'Tracks kills, deaths and session stats.', tag: 'CLIENT',
+      settings: [
+        { type: 'bool', name: 'Show in chat', value: true },
+      ] },
+    TargetHUD:    { desc: 'Displays current target info.', tag: 'CLIENT',
+      settings: [
+        { type: 'list', name: 'Style', options: ['Modern','Compact','Old'], value: 'Modern' },
+      ] },
+  };
+
+  /* Generic fallback used for any module not explicitly defined above */
+  function defaultLib(name, tag) {
+    return {
+      desc: 'Configurable ' + tag.toLowerCase() + ' module — toggle to enable.',
+      tag: tag,
+      settings: [
+        { type: 'bool',   name: 'Enabled',  value: true },
+        { type: 'slider', name: 'Strength', min: 0, max: 100, step: 1, value: 50, suffix: '%' },
+        { type: 'list',   name: 'Mode',     options: ['Default','Aggressive','Safe'], value: 'Default' },
+      ],
+    };
+  }
+
+  /* Demo categories with module names. We attach desc/settings from MOD_LIB. */
+  const RAW_CATS = [
+    { name: 'COMBAT',   modules: [
+      { name: 'AutoClicker', on: true, bind: 'R'  },
+      { name: 'AimAssist'                          },
+      { name: 'Reach'                              },
+      { name: 'HitBoxes'                           },
+      { name: 'BlockHit',    on: true              },
+      { name: 'JumpReset'                          },
+      { name: 'SprintReset'                        },
+      { name: 'Velocity'                           },
+      { name: 'AntiBot'                            },
+      { name: 'BowAimbot'                          },
+    ]},
+    { name: 'RENDER',   modules: [
+      { name: 'Animations',  on: true              },
+      { name: 'Chams'                              },
+      { name: 'Crosshair',   bind: 'C'             },
+      { name: 'BlockOverlay'                       },
+      { name: 'BedESP',      on: true              },
+      { name: 'Cape'                               },
+    ]},
+    { name: 'MOVEMENT', modules: [
+      { name: 'Speed'                              },
+      { name: 'Flight'                             },
+      { name: 'HighJump'                           },
+      { name: 'LongJump'                           },
+      { name: 'NoSlow',      on: true              },
+      { name: 'SafeWalk',    bind: 'V'             },
+      { name: 'Sprint',      on: true              },
+    ]},
+    { name: 'PLAYER',   modules: [
+      { name: 'AutoItem',    on: true              },
+      { name: 'FastPlace',   bind: 'V'             },
+      { name: 'NoFall',      on: true              },
+      { name: 'AntiVoid'                           },
+      { name: 'Blink'                              },
+      { name: 'FreeCam'                            },
+    ]},
+    { name: 'UTILITY',  modules: [
+      { name: 'FastBreak'                          },
+      { name: 'FastMine',    on: true              },
+      { name: 'Nuker'                              },
+      { name: 'StaffChecker',on: true              },
+      { name: 'Scaffold',    bind: 'X'             },
+    ]},
+    { name: 'CLIENT',   modules: [
+      { name: 'ClickGUI',    on: true, bind: 'RSHIFT' },
+      { name: 'ArrayList',   on: true              },
+      { name: 'Interface',   on: true              },
+      { name: 'KeyStrokes'                         },
+      { name: 'Scoreboard',  on: true              },
+      { name: 'SessionInfo'                        },
+      { name: 'TargetHUD',   on: true              },
+    ]},
+  ];
+
+  /* Hydrate demo state with descriptions/settings + deep-clone safe-defaults. */
+  const demoState = RAW_CATS.map(cat => ({
+    name: cat.name,
+    modules: cat.modules.map(m => {
+      const lib = MOD_LIB[m.name] || defaultLib(m.name, cat.name);
+      return {
+        name: m.name,
+        on: !!m.on,
+        bind: m.bind || '',
+        desc: lib.desc,
+        tag: lib.tag,
+        settings: JSON.parse(JSON.stringify(lib.settings)),
+      };
+    }),
+  }));
+
+  /* ============================================================
+     State management
+     ============================================================ */
+
+  let activeCat = 'ALL';        // sidebar filter
+  let search = '';
+  let dragging = false;
+  const expanded = new Set();   // module names currently expanded
+
+  function $(id) { return document.getElementById(id); }
+
+  function currentCategories() {
+    return demoState;
+  }
+
+  /* ============================================================
+     Rendering
+     ============================================================ */
+
+  function renderAll() {
+    renderSidebar();
+    renderGrid();
+  }
+
+  function renderSidebar() {
+    const sb = $('sidebar');
+    const cats = currentCategories();
+    const totalAll = cats.reduce((s, c) => s + c.modules.length, 0);
+    const totalOn  = cats.reduce((s, c) => s + c.modules.filter(m => m.on).length, 0);
+
+    let html = '';
+    html += `<div class="cg-cat ${activeCat === 'ALL' ? 'active' : ''}" data-cat="ALL">
+               <span>ALL</span><span class="cg-cat-count">${totalAll}</span>
+             </div>`;
+    cats.forEach(cat => {
+      const on = cat.modules.filter(m => m.on).length;
+      const cls = activeCat === cat.name ? 'active' : '';
+      html += `<div class="cg-cat ${cls}" data-cat="${cat.name}">
+                 <span>${cat.name}</span><span class="cg-cat-count">${on}/${cat.modules.length}</span>
+               </div>`;
+    });
+    html += `<div class="cg-sidebar-stats">
+               <div class="cg-stat"><span>Active</span><b>${totalOn}</b></div>
+               <div class="cg-stat"><span>Total</span><b>${totalAll}</b></div>
+             </div>`;
+    sb.innerHTML = html;
+
+    sb.querySelectorAll('.cg-cat').forEach(el => {
+      el.addEventListener('click', () => {
+        activeCat = el.dataset.cat;
+        renderAll();
+      });
+    });
+  }
+
+  function renderGrid() {
+    const grid = $('grid');
+    const cats = currentCategories();
+    const sub = $('sectionSub');
+    const title = $('sectionTitle');
+
+    title.textContent = activeCat === 'ALL' ? 'All Modules' : (activeCat.charAt(0) + activeCat.slice(1).toLowerCase());
+    sub.textContent = 'Click toggle to enable · Right-click card for settings';
+
+    /* Flatten + filter */
+    const q = search.toLowerCase();
+    let cards = [];
+    cats.forEach(cat => {
+      if (activeCat !== 'ALL' && activeCat !== cat.name) return;
+      cat.modules.forEach(m => {
+        if (q && !m.name.toLowerCase().includes(q) && !m.desc.toLowerCase().includes(q)) return;
+        cards.push({ cat: cat.name, mod: m });
+      });
+    });
+
+    if (!cards.length) {
+      grid.innerHTML = `
+        <div class="cg-empty">
+          <div class="cg-empty-icon">∅</div>
+          <div>No modules match "<b>${escapeHtml(search)}</b>"</div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = cards.map(({ mod }) => cardHtml(mod)).join('');
+
+    /* Wire events */
+    grid.querySelectorAll('.cg-card').forEach(card => {
+      const name = card.dataset.name;
+
+      /* Toggle (switch button or card body) */
+      card.querySelector('.cg-switch').addEventListener('click', e => {
+        e.stopPropagation();
+        toggleModule(name);
+      });
+      card.addEventListener('click', e => {
+        if (e.target.closest('.cg-settings')) return;
+        toggleModule(name);
+      });
+
+      /* Right-click → expand settings */
+      card.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        if (expanded.has(name)) expanded.delete(name);
+        else expanded.add(name);
+        renderGrid();
+      });
+    });
+
+    /* Wire setting controls (works in both demo + live) */
+    grid.querySelectorAll('.cg-set').forEach(setEl => {
+      const card = setEl.closest('.cg-card');
+      const modName = card.dataset.name;
+      const setName = setEl.dataset.set;
+      const mod = findMod(modName);
+      if (!mod) return;
+      const setting = (mod.settings || []).find(s => s.name === setName);
+      if (!setting) return;
+
+      if (setting.type === 'bool') {
+        const tg = setEl.querySelector('.cg-set-toggle');
+        if (!tg) return;
+        tg.addEventListener('click', e => {
+          e.stopPropagation();
+          setting.value = !setting.value;
+          renderGrid();
+        });
+      }
+      else if (setting.type === 'slider' || setting.type === 'int' || setting.type === 'float') {
+        const slider = setEl.querySelector('.cg-slider');
+        if (!slider) return;
+        const isFloat = setting.type === 'float' || (setting.step && setting.step < 1);
+        const apply = (ev, finalize) => {
+          const rect = slider.getBoundingClientRect();
+          let x = (ev.clientX - rect.left) / rect.width;
+          x = Math.max(0, Math.min(1, x));
+          let raw = setting.min + x * (setting.max - setting.min);
+          if (setting.type === 'int') raw = Math.round(raw);
+          else if (setting.step) raw = Math.round(raw / setting.step) * setting.step;
+          else if (setting.type === 'float') raw = Math.round(raw * 100) / 100;
+          setting.value = isFloat ? +raw.toFixed(2) : Math.round(raw);
+          renderGrid();
+        };
+        slider.addEventListener('mousedown', e => {
+          e.stopPropagation();
+          dragging = true;
+          apply(e, false);
+          const move = ev => apply(ev, false);
+          const up = ev => {
+            dragging = false;
+            window.removeEventListener('mousemove', move);
+            window.removeEventListener('mouseup', up);
+            apply(ev, true);
+          };
+          window.addEventListener('mousemove', move);
+          window.addEventListener('mouseup', up);
+        });
+      }
+      else if (setting.type === 'intrange' || setting.type === 'floatrange') {
+        const slider = setEl.querySelector('.cg-slider');
+        if (!slider) return;
+        const isFloat = setting.type === 'floatrange';
+        const applyR = (ev, finalize, which) => {
+          const rect = slider.getBoundingClientRect();
+          let x = (ev.clientX - rect.left) / rect.width;
+          x = Math.max(0, Math.min(1, x));
+          let raw = setting.min + x * (setting.max - setting.min);
+          raw = isFloat ? Math.round(raw * 100) / 100 : Math.round(raw);
+          if (which === 'min') {
+            setting.valueMin = raw;
+            if (setting.valueMin > setting.valueMax) setting.valueMin = setting.valueMax;
+          } else {
+            setting.valueMax = raw;
+            if (setting.valueMax < setting.valueMin) setting.valueMax = setting.valueMin;
+          }
+          renderGrid();
+        };
+        slider.addEventListener('mousedown', e => {
+          e.stopPropagation();
+          const rect = slider.getBoundingClientRect();
+          const px = (e.clientX - rect.left) / rect.width;
+          const minPct = (setting.valueMin - setting.min) / (setting.max - setting.min);
+          const maxPct = (setting.valueMax - setting.min) / (setting.max - setting.min);
+          const which = Math.abs(px - minPct) <= Math.abs(px - maxPct) ? 'min' : 'max';
+          dragging = true;
+          applyR(e, false, which);
+          const move = ev => applyR(ev, false, which);
+          const up   = ev => {
+            dragging = false;
+            window.removeEventListener('mousemove', move);
+            window.removeEventListener('mouseup', up);
+            applyR(ev, true, which);
+          };
+          window.addEventListener('mousemove', move);
+          window.addEventListener('mouseup', up);
+        });
+      }
+      else if (setting.type === 'list') {
+        const sel = setEl.querySelector('.cg-select');
+        if (!sel) return;
+        sel.addEventListener('click', e => e.stopPropagation());
+        sel.addEventListener('change', e => {
+          setting.value = e.target.value;
+          renderGrid();
+        });
+      }
+      else if (setting.type === 'text') {
+        const inp = setEl.querySelector('.cg-text');
+        if (!inp) return;
+        inp.addEventListener('click', e => e.stopPropagation());
+        let debounce = null;
+        inp.addEventListener('input', e => {
+          setting.value = e.target.value;
+        });
+      }
+      /* 'title' and 'key' types are display-only — no event wiring */
+    });
+  }
+
+  /* ============================================================
+     Card / setting templates
+     ============================================================ */
+
+  function cardHtml(m) {
+    const isExpanded = expanded.has(m.name);
+    return `
+      <div class="cg-card ${m.on ? 'on' : ''} ${isExpanded ? 'expanded' : ''}" data-name="${escapeHtml(m.name)}">
+        <div class="cg-card-head">
+          <span class="cg-card-name">${escapeHtml(m.name)}</span>
+          ${m.bind ? `<span class="cg-card-bind">${escapeHtml(m.bind)}</span>` : ''}
+          <div class="cg-switch" title="Toggle"></div>
+        </div>
+        <div class="cg-card-desc">${escapeHtml(m.desc)}</div>
+        <div class="cg-card-foot">
+          <span class="cg-card-tag">${escapeHtml(m.tag)}</span>
+          <span class="cg-card-hint">${isExpanded ? 'Right-click to close' : 'Right-click ▾'}</span>
+        </div>
+        <div class="cg-settings">
+          ${(m.settings || []).map(s => settingHtml(s)).join('')}
+        </div>
+      </div>`;
+  }
+
+  function settingHtml(s) {
+    const label = `<span class="cg-set-label">${escapeHtml(s.name)}</span>`;
+
+    if (s.type === 'title') {
+      return `<div class="cg-set-title">${escapeHtml(s.name)}</div>`;
+    }
+    if (s.type === 'bool') {
+      return `<div class="cg-set" data-set="${escapeHtml(s.name)}">
+                ${label}<div class="cg-set-toggle ${s.value ? 'on' : ''}"></div>
+              </div>`;
+    }
+    if (s.type === 'slider' || s.type === 'int' || s.type === 'float') {
+      const span = s.max - s.min;
+      const pct  = span > 0 ? Math.max(0, Math.min(1, (s.value - s.min) / span)) * 100 : 0;
+      let display;
+      if (s.type === 'float') display = (+s.value).toFixed(2);
+      else if (s.type === 'int') display = Math.round(s.value);
+      else display = (s.step && s.step < 1) ? (+s.value).toFixed(2) : Math.round(s.value);
+      return `<div class="cg-set" data-set="${escapeHtml(s.name)}">
+                ${label}
+                <div class="cg-slider">
+                  <div class="cg-slider-fill" style="width:${pct}%"></div>
+                  <div class="cg-slider-thumb" style="left:${pct}%"></div>
+                </div>
+                <span class="cg-set-val">${display}${escapeHtml(s.suffix || '')}</span>
+              </div>`;
+    }
+    if (s.type === 'intrange' || s.type === 'floatrange') {
+      const span = s.max - s.min;
+      const minPct = span > 0 ? Math.max(0, Math.min(1, (s.valueMin - s.min) / span)) * 100 : 0;
+      const maxPct = span > 0 ? Math.max(0, Math.min(1, (s.valueMax - s.min) / span)) * 100 : 0;
+      const fmt = n => s.type === 'floatrange' ? (+n).toFixed(2) : Math.round(n);
+      const suf = escapeHtml(s.suffix || '');
+      return `<div class="cg-set" data-set="${escapeHtml(s.name)}">
+                ${label}
+                <div class="cg-slider cg-slider-range">
+                  <div class="cg-slider-fill" style="left:${minPct}%;width:${maxPct - minPct}%"></div>
+                  <div class="cg-slider-thumb" style="left:${minPct}%"></div>
+                  <div class="cg-slider-thumb" style="left:${maxPct}%"></div>
+                </div>
+                <span class="cg-set-val">${fmt(s.valueMin)}${suf}–${fmt(s.valueMax)}${suf}</span>
+              </div>`;
+    }
+    if (s.type === 'list') {
+      const opts = (s.options || []).map(o =>
+        `<option value="${escapeHtml(o)}" ${o === s.value ? 'selected' : ''}>${escapeHtml(o)}</option>`
+      ).join('');
+      return `<div class="cg-set" data-set="${escapeHtml(s.name)}">
+                ${label}
+                <select class="cg-select">${opts}</select>
+              </div>`;
+    }
+    if (s.type === 'text') {
+      return `<div class="cg-set" data-set="${escapeHtml(s.name)}">
+                ${label}
+                <input class="cg-text" value="${escapeHtml(s.value || '')}" />
+              </div>`;
+    }
+    if (s.type === 'key') {
+      return `<div class="cg-set" data-set="${escapeHtml(s.name)}">
+                ${label}
+                <span class="cg-card-bind" style="margin-left:auto">${escapeHtml(s.value || 'None')}</span>
+              </div>`;
+    }
+    return '';
+  }
+
+  /* ============================================================
+     Helpers
+     ============================================================ */
+
+  function findMod(name) {
+    const cats = currentCategories();
+    for (const c of cats) {
+      const m = c.modules.find(m => m.name === name);
+      if (m) return m;
+    }
+    return null;
+  }
+
+  function toggleModule(name) {
+    demoState.forEach(c => c.modules.forEach(m => {
+      if (m.name === name) m.on = !m.on;
+    }));
+    renderAll();
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  /* Search */
+  $('search').addEventListener('input', e => {
+    search = e.target.value;
+    renderGrid();
+  });
+
+  /* Suppress browser context menu on grid (so right-click expand feels native) */
+  $('grid').addEventListener('contextmenu', e => e.preventDefault());
+
+  /* Initial render */
+  renderAll();
+  </script>
+
+</body>
+</html>
