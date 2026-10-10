@@ -2,11 +2,13 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura2;
 import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
+import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
 import net.ccbluex.liquidbounce.features.module.modules.visual.NoRender;
-import net.ccbluex.liquidbounce.features.module.modules.visual.OldAnimations;
-import net.ccbluex.liquidbounce.utils.SpoofItemUtils;
+import net.ccbluex.liquidbounce.utils.RotationUtils;
+import net.ccbluex.liquidbounce.utils.SlotUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -83,13 +85,13 @@ public abstract class MixinItemRenderer {
     @Inject(method = "updateEquippedItem", at = @At("HEAD"), cancellable = true)
     public void updateEquippedItemHead(CallbackInfo i) {
         this.prevEquippedProgress = this.equippedProgress;
-        ItemStack itemstack = SpoofItemUtils.INSTANCE.getStack();
+        ItemStack itemstack = SlotUtils.INSTANCE.getStack();
         boolean flag = false;
         if (this.itemToRender != null && itemstack != null) {
             if (!this.itemToRender.getIsItemStackEqual(itemstack)) {
-                if (!this.itemToRender.getItem().shouldCauseReequipAnimation(this.itemToRender, itemstack, this.equippedItemSlot != SpoofItemUtils.INSTANCE.getSlot())) {
+                if (!this.itemToRender.getItem().shouldCauseReequipAnimation(this.itemToRender, itemstack, this.equippedItemSlot != SlotUtils.INSTANCE.getSlot())) {
                     this.itemToRender = itemstack;
-                    this.equippedItemSlot = SpoofItemUtils.INSTANCE.getSlot();
+                    this.equippedItemSlot = SlotUtils.INSTANCE.getSlot();
                     return;
                 }
 
@@ -103,7 +105,7 @@ public abstract class MixinItemRenderer {
         this.equippedProgress += f2;
         if (this.equippedProgress < 0.1F) {
             this.itemToRender = itemstack;
-            this.equippedItemSlot = SpoofItemUtils.INSTANCE.getSlot();
+            this.equippedItemSlot = SlotUtils.INSTANCE.getSlot();
         }
         i.cancel();
     }
@@ -144,19 +146,20 @@ public abstract class MixinItemRenderer {
         float f2 = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
         float f3 = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
         this.rotateArroundXAndY(f2, f3);
+
         this.setLightMapFromPlayer(abstractclientplayer);
         this.rotateWithPlayerRotations(abstractclientplayer, partialTicks);
         GlStateManager.enableRescaleNormal();
         GlStateManager.pushMatrix();
 
         if (this.itemToRender != null) {
-            if (OldAnimations.INSTANCE.getBlockAnimation().get() && (itemToRender.getItem() instanceof ItemCarrotOnAStick || itemToRender.getItem() instanceof ItemFishingRod)) {
+            if (Animations.INSTANCE.getBlockAnimation().get() && (itemToRender.getItem() instanceof ItemCarrotOnAStick || itemToRender.getItem() instanceof ItemFishingRod)) {
                 GlStateManager.translate(0.08F, -0.027F, -0.33F);
                 GlStateManager.scale(0.93F, 1.0F, 1.0F);
             }
             if (itemToRender.getItem() instanceof ItemMap) {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
-            } else if ((abstractclientplayer.isUsingItem() || ((itemToRender.getItem() instanceof ItemSword) && ((KillAura.INSTANCE.getState() && KillAura.INSTANCE.getDisplayBlocking() && KillAura.INSTANCE.getCurrentTarget() != null) || (SilentAura.INSTANCE.getState() && SilentAura.INSTANCE.getCanBlock() && SilentAura.INSTANCE.getTarget() != null))))) {
+            } else if ((abstractclientplayer.isUsingItem() || ((itemToRender.getItem() instanceof ItemSword) && ((KillAura.INSTANCE.getState() && KillAura.INSTANCE.getDisplayBlocking() && KillAura.INSTANCE.getCurrentTarget() != null) || (SilentAura.INSTANCE.getState() && SilentAura.INSTANCE.getCanBlock() && SilentAura.INSTANCE.getTarget() != null) || (KillAura2.INSTANCE.getState() && KillAura2.INSTANCE.getDisplayBlocking()))))) {
                 switch (this.itemToRender.getItemUseAction()) {
                     case NONE:
                         this.transformFirstPersonItem(f, 0.0F);
@@ -164,7 +167,7 @@ public abstract class MixinItemRenderer {
                     case EAT:
                     case DRINK:
                         this.performDrinking(abstractclientplayer, partialTicks);
-                        if (OldAnimations.INSTANCE.getBlockAnimation().get()) {
+                        if (Animations.INSTANCE.getBlockAnimation().get()) {
                             this.transformFirstPersonItem(f, f1);
                         } else {
                             this.transformFirstPersonItem(f, 0.0F);
@@ -360,7 +363,7 @@ public abstract class MixinItemRenderer {
                         }
                         break;
                     case BOW:
-                        if (OldAnimations.INSTANCE.getBlockAnimation().get()) {
+                        if (Animations.INSTANCE.getBlockAnimation().get()) {
                             this.transformFirstPersonItem(f, f1);
                         } else {
                             this.transformFirstPersonItem(f, 0.0F);

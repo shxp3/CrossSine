@@ -24,7 +24,7 @@ object Crosshair : Module() {
     private val sizeValue = FloatValue("Length", 7f, 0.25f, 15f)
     private val gapValue = FloatValue("Gap", 5f, 0.25f, 15f)
     private val dynamicValue = BoolValue("Dynamic", true)
-    private val hitMarkerValue = BoolValue("HitMarker", true)
+    private val hitMarkerValue = BoolValue("Hit-Marker", true)
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {

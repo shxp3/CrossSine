@@ -24,7 +24,6 @@ class CombatManager : Listenable, MinecraftInstance() {
         if (mc.thePlayer == null) return
         MovementUtils.updateBlocksPerSecond()
 
-        // bypass java.util.ConcurrentModificationException
         attackedEntityList.map { it }.forEach {
             if (it.isDead) {
                 CrossSine.eventManager.callEvent(EntityKilledEvent(it))
@@ -64,17 +63,6 @@ class CombatManager : Listenable, MinecraftInstance() {
         target = null
         attackedEntityList.clear()
         focusedPlayerList.clear()
-    }
-
-
-    fun getNearByEntity(radius: Float): EntityLivingBase? {
-        return try {
-            mc.theWorld.loadedEntityList
-                    .filter { mc.thePlayer.getDistanceToEntity(it) < radius && EntityUtils.isSelected(it, true) }
-                    .sortedBy { it.getDistanceToEntity(mc.thePlayer) }[0] as EntityLivingBase?
-        } catch (e: Exception) {
-            null
-        }
     }
 
     fun isFocusEntity(entity: EntityPlayer): Boolean {

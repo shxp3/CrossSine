@@ -5,36 +5,46 @@ import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.KeyEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.InvManager;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface;
 import net.ccbluex.liquidbounce.features.module.modules.world.Stealer;
+import net.ccbluex.liquidbounce.ui.client.gui.ThemedBackground;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.extensions.RendererExtensionKt;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
+
 
 @Mixin(GuiContainer.class)
 public abstract class MixinGuiContainer extends MixinGuiScreen {
+
     @Shadow
     protected int xSize;
     @Shadow
     protected int ySize;
     @Shadow
     protected int guiLeft;
+    @Shadow
+    public Container inventorySlots;
     @Shadow
     protected int guiTop;
 
@@ -45,41 +55,24 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
     @Shadow
     protected abstract boolean checkHotbarKeys(int keyCode);
 
-    private GuiButton stealButton, chestStealerButton, InventorymanagerButton, killAuraButton;
     @Shadow private int dragSplittingButton;
     @Shadow private int dragSplittingRemnant;
-    private float progress = 0F;
-    private long lastMS = 0L;
 
-    @Inject(method = "initGui", at = @At("HEAD"), cancellable = true)
-    public void injectInitGui(CallbackInfo callbackInfo){
-        if (!CrossSine.INSTANCE.getDestruced()) {
-            GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
-            if (guiScreen instanceof GuiChest) {
-                if (Interface.INSTANCE.getButtonValue().get()) {
-                    buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 150, 20, "Disable KillAura"));
-                    buttonList.add(InventorymanagerButton = new GuiButton(321123, 5, 27, 150, 20, "Disable InventoryManager"));
-                    buttonList.add(chestStealerButton = new GuiButton(727, 5, 49, 150, 20, "Disable Stealer"));
-                }
-            }
-            lastMS = System.currentTimeMillis();
-            progress = 0F;
-        }
-     }
     @Inject(method = "initGui", at = @At("RETURN"))
     private void initGuiReturn(CallbackInfo callbackInfo) {
         guiOpenTime = System.currentTimeMillis();
+        this.guiLeft = (this.width - this.xSize) / 2;
+        this.guiTop = (this.height - this.ySize) / 2;
     }
-    @Override
-    protected void actionPerformed(GuiButton button) {
-        if (button.id == 1024576)
-            CrossSine.moduleManager.getModule(KillAura.class).setState(false);
-        if (button.id == 727)
-            CrossSine.moduleManager.getModule(Stealer.class).setState(false);
-        if (button.id == 321123)
-            CrossSine.moduleManager.getModule(InvManager.class).setState(false);
-    }
+    @Overwrite
+    public void onGuiClosed() {
+        if (this.mc.thePlayer != null) {
+            this.inventorySlots.onContainerClosed(this.mc.thePlayer);
+            InvManager.INSTANCE.setCurrentSlot(-1);
+            Stealer.INSTANCE.setCurrentSlot(-1);
+        }
 
+    }
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private void drawScreenHead(CallbackInfo callbackInfo) {
         if (!CrossSine.INSTANCE.getDestruced()) {
@@ -125,7 +118,6 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             }
         }
     }
-
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void checkCloseClick(int mouseX, int mouseY, int mouseButton, CallbackInfo ci) {
         if (!CrossSine.INSTANCE.getDestruced()) {
@@ -166,5 +158,42 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         }catch (Exception e){
 
         }
+    }
+    @Inject(method = "drawSlot", at = @At("HEAD"))
+    private void drawSlot(Slot slot, CallbackInfo ci) {
+        final InvManager invManager = InvManager.INSTANCE;
+        final Stealer stealer = Stealer.INSTANCE;
+
+        int x = slot.xDisplayPosition;
+        int y = slot.yDisplayPosition;
+
+
+        Color color0 = new Color(80, 80, 80, 255);
+
+        int currentSlotChestStealer = stealer.getCurrentSlot();
+        int currentSlotInvCleaner = invManager.getCurrentSlot();
+
+        GL11.glPushMatrix();
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        if (mc.currentScreen instanceof GuiChest) {
+            if (stealer.getState() && !stealer.getSilentValue().get()) {
+                if (slot.slotNumber == currentSlotChestStealer && currentSlotChestStealer != -1) {
+                    RenderUtils.drawBloomRoundedRect(x, y, x + 16, y + 16, 3, 2.5F, color0, RenderUtils.ShaderBloom.BOTH);
+                }
+            }
+        }
+
+        if (mc.currentScreen instanceof GuiInventory) {
+                if (invManager.getState()) {
+                    if (slot.slotNumber == currentSlotInvCleaner && currentSlotInvCleaner != -1) {
+                        RenderUtils.drawBloomRoundedRect(x, y, x + 16, y + 16, 3, 2.5F, color0, RenderUtils.ShaderBloom.BOTH);
+                    }
+                }
+        }
+
+        GL11.glPopAttrib();
+        GL11.glPopMatrix();
     }
 }

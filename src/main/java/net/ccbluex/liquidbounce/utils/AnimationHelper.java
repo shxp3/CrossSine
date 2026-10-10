@@ -23,13 +23,6 @@ public class AnimationHelper {
         if(alpha < 255)
             this.alpha += speed;
     }
-    public AnimationHelper(BoolValue value) {
-        animationX = value.get() ? 5 : -5;
-    }
-    public AnimationHelper(Module module) {
-        animationX = module.getState() ? 5 : -5;
-    }
-
     public static double animate(double target, double current, double speed) {
         boolean larger;
         boolean bl = larger = target > current;

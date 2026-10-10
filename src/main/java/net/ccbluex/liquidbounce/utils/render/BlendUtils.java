@@ -22,7 +22,7 @@ public enum BlendUtils {
         float[] fractions = new float[]{0.0F, 0.5F, 1.0F};
         Color[] colors = new Color[]{new Color(108, 0, 0), new Color(255, 51, 0), Color.GREEN};
         float progress = health / maxHealth;
-        return blendColors(fractions, colors, progress).brighter();
+         return blendColors(fractions, colors, progress).brighter();
     }
     public static Color blendColors(float[] fractions, Color[] colors, float progress) {
         if (fractions.length == colors.length) {

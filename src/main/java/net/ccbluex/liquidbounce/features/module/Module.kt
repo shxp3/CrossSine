@@ -2,10 +2,9 @@ package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.features.special.NotificationUtil
+import net.ccbluex.liquidbounce.features.special.TYPE
 import net.ccbluex.liquidbounce.features.value.Value
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
-import net.ccbluex.liquidbounce.utils.AnimationHelper
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -41,8 +40,7 @@ open class Module : MinecraftInstance(), Listenable {
     val moduleInfo = javaClass.getAnnotation(ModuleInfo::class.java)!!
     var slideStep = 0F
     var module: String? = null
-    var boolean1 = false
-    var boolean2 = false
+    var loadConfig = true
 
 
     init {
@@ -55,8 +53,7 @@ open class Module : MinecraftInstance(), Listenable {
         moduleCommand = moduleInfo.moduleCommand
         triggerType = moduleInfo.triggerType
         module = moduleInfo.module
-        boolean1 = moduleInfo.boolean1
-        boolean2 = moduleInfo.boolean2
+        loadConfig = moduleInfo.loadConfig
     }
 
     open fun onLoad() {
@@ -70,23 +67,35 @@ open class Module : MinecraftInstance(), Listenable {
 
             // Call toggle
             onToggle(value)
-
-            // Play sound and add notification
-            if (!CrossSine.isStarting && moduleInfo.array) {
-                if (value) {
-                    CrossSine.hud.addNotification(Notification("Module", "Enabled $localizedName", NotifyType.SUCCESS))
-                } else {
-                    CrossSine.hud.addNotification(Notification("Module", "Disable $localizedName", NotifyType.ERROR))
-                }
-            }
-
             // Call on enabled or disabled
             try {
                 field = canEnable && value
                 if (value) {
                     onEnable()
+                    if (array && !CrossSine.isLoadingConfig) {
+                        CrossSine.notification.list.add(
+                            NotificationUtil(
+                                "Module",
+                                "Enable ${name}",
+                                TYPE.SUCCESS,
+                                System.currentTimeMillis(),
+                                1000
+                            )
+                        )
+                    }
                 } else {
                     onDisable()
+                    if (array && !CrossSine.isLoadingConfig) {
+                        CrossSine.notification.list.add(
+                            NotificationUtil(
+                                "Module",
+                                "Disable ${name}",
+                                TYPE.ERROR,
+                                System.currentTimeMillis(),
+                                1000
+                            )
+                        )
+                    }
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()
@@ -100,6 +109,7 @@ open class Module : MinecraftInstance(), Listenable {
     val hue = Math.random().toFloat()
     var slide = 0f
     var arrayY = 0F
+    var zoom = 0F
 
     // Tag
     open val tag: String?
@@ -143,10 +153,19 @@ open class Module : MinecraftInstance(), Listenable {
     open fun onInitialize() {}
 
     /**
+     * Cached once — ClassUtils.getValues uses reflection over declaredFields.
+     */
+    @Transient
+    private var cachedValues: List<Value<*>>? = null
+
+    /**
      * Get all values of module
      */
     open val values: List<Value<*>>
-        get() = ClassUtils.getValues(this.javaClass, this)
+        get() {
+            cachedValues?.let { return it }
+            return ClassUtils.getValues(this.javaClass, this).also { cachedValues = it }
+        }
 
     /**
      * Get module by [valueName]

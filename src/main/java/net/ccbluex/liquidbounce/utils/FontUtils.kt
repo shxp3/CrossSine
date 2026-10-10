@@ -69,9 +69,9 @@ object FontUtils {
             val color = lerpColor(colorStart, colorEnd, ratio)
             val shadowColor = Color(0xFF000000.toInt(), true)
             if (shadow) {
-            fontRenderer.drawString(text[i].toString(),
-                (posX - (fontRenderer.getStringWidth(text) / 2)) + 1, y + 1, shadowColor.rgb)
-}
+                fontRenderer.drawString(text[i].toString(),
+                    (posX - (fontRenderer.getStringWidth(text) / 2)) + 1, y + 1, shadowColor.rgb)
+            }
             fontRenderer.drawString(text[i].toString(),
                 (posX - (fontRenderer.getStringWidth(text) / 2)), y, color)
 

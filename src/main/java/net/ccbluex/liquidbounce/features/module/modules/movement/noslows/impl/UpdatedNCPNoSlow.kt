@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.PacketUtils
-import net.ccbluex.liquidbounce.utils.SpoofItemUtils
+import net.ccbluex.liquidbounce.utils.SlotUtils
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
@@ -12,7 +12,6 @@ import net.minecraft.util.BlockPos
 class UpdatedNCPNoSlow : NoSlowMode("UpdatedNCP") {
     private val swapPacket = BoolValue("${valuePrefix}SwapPacket", true)
     private var swap = false
-    private var prevItem = 0
     override fun onPreMotion(event: MotionEvent) {
         if (holdConsume || holdBow) {
             if (swap) {
@@ -33,12 +32,8 @@ class UpdatedNCPNoSlow : NoSlowMode("UpdatedNCP") {
             PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
             PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         } else {
-            prevItem = mc.thePlayer.inventory.currentItem
-            SpoofItemUtils.startSpoof(prevItem, false)
-            mc.thePlayer.inventory.currentItem = (mc.thePlayer.inventory.currentItem + 1) % 9
-            mc.thePlayer.inventory.currentItem = prevItem
-            SpoofItemUtils.stopSpoof()
-            prevItem = 0
+            SlotUtils.setSlot((mc.thePlayer.inventory.currentItem + 1) % 9, true, noslow.name)
+            SlotUtils.stopSet()
         }
     }
 

@@ -23,9 +23,9 @@ class DamageParticle : Module() {
     private val healthData = HashMap<Int, Float>()
     private val particles = ArrayList<SingleParticle>()
 
-    private val aliveTicks = IntegerValue("AliveTicks", 20, 10, 50)
+    private val aliveTicks = IntegerValue("Alive-Ticks", 20, 10, 50)
     private val sizeValue = IntegerValue("Size", 3, 1, 7)
-    private val customColor = BoolValue("CustomColor", false)
+    private val customColor = BoolValue("Custom-Color", false)
     private val red = IntegerValue("Red", 255, 0, 255).displayable{ customColor.get() }
     private val green = IntegerValue("Green", 255, 0, 255).displayable{ customColor.get() }
     private val blue = IntegerValue("Blue", 255, 0, 255).displayable{ customColor.get() }

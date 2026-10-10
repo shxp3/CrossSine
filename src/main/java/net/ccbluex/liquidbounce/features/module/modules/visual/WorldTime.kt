@@ -13,8 +13,8 @@ import org.lwjgl.input.Keyboard
 
 @ModuleInfo(name = "WorldTime", category = ModuleCategory.VISUAL)
 class WorldTime : Module() {
-    private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 20000)
-    private val arrowValue = BoolValue("ArrowButton", false)
+    private val customWorldTimeValue = IntegerValue("Custom-Time", 1, 0, 20000)
+    private val arrowValue = BoolValue("Arrow-Button", false)
     private var c = false
     private var a = false
     @EventTarget

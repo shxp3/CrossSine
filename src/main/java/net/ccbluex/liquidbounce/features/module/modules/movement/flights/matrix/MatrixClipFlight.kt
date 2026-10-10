@@ -8,8 +8,6 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
@@ -55,14 +53,11 @@ class MatrixClipFlight : FlightMode("MatrixClip") {
                if (clipTimes == 2) {
                     if (!clipSmart.get()) {
                         if (!hasWarned) {
-                            CrossSine.hud.addNotification(Notification("Clip success", "To successfully clip disable fly now", NotifyType.SUCCESS, 3000))
                             hasWarned = true
                         }
                     } else {
                         if (timer2.hasTimePassed(350)) {
                             shouldClip = false
-                            CrossSine.hud.addNotification(Notification("Smart Clip", "Smart Clip stopped cliping, you can disable fly now.", NotifyType.WARNING, 5000))
-                            CrossSine.hud.addNotification(Notification("Smart Clip", "If you have tped back, disable Smart Clip or try again.", NotifyType.WARNING, 5000))
                             try {
                                 disableLogger = true
                                 while (!packets.isEmpty()) {
@@ -73,10 +68,6 @@ class MatrixClipFlight : FlightMode("MatrixClip") {
                                 disableLogger = false
                             }
                         }
-                    }
-                } else if (clipTimes > 2) {
-                    if (!clipSmart.get()) {
-                        CrossSine.hud.addNotification(Notification("Clip fail", "Clipped too many times, disable fly and try again", NotifyType.ERROR, 3000))
                     }
                 }
                     

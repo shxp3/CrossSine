@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerRangeValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.access.IItemStack
@@ -35,20 +36,7 @@ object InvManager : Module() {
      * OPTIONS
      */
     private val instantValue = BoolValue("Instant", false)
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 600, 0, 1000) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val minCPS = minDelayValue.get()
-            if (minCPS > newValue) set(minCPS)
-        }
-    }.displayable { !instantValue.get() } as IntegerValue
-
-    private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 400, 0, 1000) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val maxDelay = maxDelayValue.get()
-            if (maxDelay < newValue) set(maxDelay)
-        }
-    }.displayable { !instantValue.get() } as IntegerValue
-
+    private val delayValue = IntegerRangeValue("Delay", 400, 600, 0, 1000).displayable { !instantValue.get() }
     private val invOpenValue = BoolValue("InvOpen", false)
     private val simulateInventory = BoolValue("InvSpoof", true)
     private val simulateDelayValue = IntegerValue("InvSpoof", 0, 0, 1000).displayable { simulateInventory.get() }
@@ -103,7 +91,7 @@ object InvManager : Module() {
 
     private var delay = 0L
     private val simDelayTimer = MSTimer()
-
+    var currentSlot = -1
     override fun onDisable() {
         invOpened = false
     }
@@ -146,6 +134,7 @@ object InvManager : Module() {
                         return
                     }
                     if (mc.thePlayer.inventory.armorItemInSlot(armorSlot) == null && move(armorPiece.slot, false)) {
+                        currentSlot = armorPiece.slot
                         return
                     }
                 }
@@ -162,8 +151,8 @@ object InvManager : Module() {
                     }
 
                     mc.playerController.windowClick(0, if (bestItem < 9) bestItem + 36 else bestItem, index, 2, mc.thePlayer)
-
-                    delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+                    currentSlot = if (bestItem < 9) bestItem + 36 else bestItem
+                    delay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
                     return
                 }
             }
@@ -193,8 +182,8 @@ object InvManager : Module() {
                 if(swingValue.get()) mc.thePlayer.swingItem()
 
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, garbageItem, 1, 4, mc.thePlayer)
-
-                delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+                currentSlot = garbageItem
+                delay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
 
                 return
             }
@@ -505,7 +494,7 @@ object InvManager : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(item))
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventoryContainer.getSlot(item).stack))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
             return true
         } else {
             if (checkOpen()) {
@@ -513,10 +502,12 @@ object InvManager : Module() {
             }
             if (throwValue.get() && isArmorSlot) {
                 mc.playerController.windowClick(mc.thePlayer.inventoryContainer.windowId, item, 0, 4, mc.thePlayer)
+                currentSlot = item
             } else {
                 mc.playerController.windowClick(mc.thePlayer.inventoryContainer.windowId, if (isArmorSlot) item else if (item < 9) item + 36 else item, 0, 1, mc.thePlayer)
+                currentSlot = if (isArmorSlot) item else if (item < 9) item + 36 else item
             }
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
             return true
         }
     }

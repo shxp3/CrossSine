@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.SilentAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold
-import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2
 import net.ccbluex.liquidbounce.features.module.modules.player.nofalls.NoFallMode
 import net.ccbluex.liquidbounce.features.module.modules.world.BedAura
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
@@ -27,7 +26,7 @@ class BlinkNofall : NoFallMode("Blink") {
     private var bdaState = false
     private var veloState = false
     override fun onPacket(event: PacketEvent) {
-        if (PlayerUtils.isOnEdge() && getBP(1) && getBP(2) && getBP(3) && !start && !Scaffold.state && !Scaffold2.state) {
+        if (PlayerUtils.isOnEdge() && getBP(1) && getBP(2) && getBP(3) && !start && !Scaffold.state) {
             start = true
             if (KillAura.state) {
                 kaState = true

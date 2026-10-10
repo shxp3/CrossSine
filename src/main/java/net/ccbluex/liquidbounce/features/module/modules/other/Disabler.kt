@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.ClassUtils
 import java.util.LinkedList
 
 @ModuleInfo(name = "Disabler" ,category = ModuleCategory.OTHER)
-class Disabler : Module() {
+object Disabler : Module() {
     private val debugValue = BoolValue("Debug", false)
     private val mode = LinkedList<BoolValue>()
     private val mode2 = LinkedList<DisablerMode>()
@@ -37,7 +37,7 @@ class Disabler : Module() {
 
 
 
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.disablers", DisablerMode::class.java)
+    val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.disablers", DisablerMode::class.java)
         .map { it.newInstance() as DisablerMode }
         .sortedBy { it.modeName }
 

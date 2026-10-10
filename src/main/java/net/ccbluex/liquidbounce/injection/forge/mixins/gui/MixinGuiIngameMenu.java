@@ -1,12 +1,14 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.CrossSine;
+import net.ccbluex.liquidbounce.ui.client.gui.GuiServerList;
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.login.LoginUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.multiplayer.WorldClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,6 +32,18 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
             }
         }
     }
+
+    @Inject(method = "actionPerformed", at = @At("HEAD"), cancellable = true)
+    private void actionPerformedDisconnect(GuiButton button, CallbackInfo callbackInfo) {
+        // Redirect vanilla "Disconnect" (id 1) so we go to our themed server list instead of GuiMultiplayer
+        if (button.id == 1 && !CrossSine.INSTANCE.getDestruced() && !mc.isIntegratedServerRunning()) {
+            if (mc.theWorld != null) mc.theWorld.sendQuittingDisconnectingPacket();
+            mc.loadWorld((WorldClient) null);
+            mc.displayGuiScreen(new GuiServerList(new GuiMainMenu()));
+            callbackInfo.cancel();
+        }
+    }
+
     @Inject(method = "actionPerformed", at = @At("HEAD"))
     private void actionPerformed(GuiButton button, CallbackInfo callbackInfo) {
         if(button.id == 1337) {
@@ -42,7 +56,7 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
              LoginUtils.INSTANCE.randomCracked();
         }
         if (button.id == 1068) {
-            mc.displayGuiScreen(new GuiMultiplayer((GuiScreen) (Object) this));
+            mc.displayGuiScreen(new GuiServerList((GuiScreen) (Object) this));
         }
         if (button.id == 1078) {
             mc.displayGuiScreen(CrossSine.keyBindManager);

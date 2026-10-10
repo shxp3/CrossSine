@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerRangeValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.InventoryUtils
@@ -28,14 +29,13 @@ import java.util.*
 class Gapple : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Auto", "LegitAuto", "Legit", "Head"), "Auto")
-    private val percent = FloatValue("HealthPercent", 75.0f, 1.0f, 100.0f)
-    private val min = IntegerValue("MinDelay", 75, 1, 5000)
-    private val max = IntegerValue("MaxDelay", 125, 1, 5000)
-    private val regenSec = FloatValue("MinRegenSec", 4.6f, 0.0f, 10.0f)
-    private val groundCheck = BoolValue("OnlyOnGround", false)
-    private val waitRegen = BoolValue("WaitRegen", true)
-    private val invCheck = BoolValue("InvCheck", false)
-    private val absorpCheck = BoolValue("NoAbsorption", true)
+    private val percent = FloatValue("Health-Percent", 75.0f, 1.0f, 100.0f)
+    private val delayValue = IntegerRangeValue("Delay", 350, 500, 0, 5000)
+    private val regenSec = FloatValue("Min-Regen-Sec", 4.6f, 0.0f, 10.0f)
+    private val groundCheck = BoolValue("Only-On-Ground", false)
+    private val waitRegen = BoolValue("Wait-Regen", true)
+    private val invCheck = BoolValue("Inv-Check", false)
+    private val absorpCheck = BoolValue("No-Absorption", true)
     private val AlertValue = BoolValue("Alert", false)
     val timer = MSTimer()
     private var eating = -1
@@ -51,7 +51,7 @@ class Gapple : Module() {
         timer.reset()
         isDisable = false
         tryHeal = false
-        delay = MathHelper.getRandomIntegerInRange(Random(), min.get(), max.get())
+        delay = MathHelper.getRandomIntegerInRange(Random(), delayValue.get().first, delayValue.get().last)
     }
 
     @EventTarget
@@ -86,7 +86,7 @@ class Gapple : Module() {
                         if (AlertValue.get()) alert("Gapple eaten")
                         tryHeal = false
                         timer.reset()
-                        delay = MathHelper.getRandomIntegerInRange(Random(), min.get(), max.get())
+                        delay = MathHelper.getRandomIntegerInRange(Random(), delayValue.get().first, delayValue.get().last)
                     }else {
                         tryHeal = false
                     }
@@ -105,7 +105,7 @@ class Gapple : Module() {
                         mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
                         timer.reset()
                         tryHeal = false
-                        delay = MathHelper.getRandomIntegerInRange(Random(), min.get(), max.get())
+                        delay = MathHelper.getRandomIntegerInRange(Random(), delayValue.get().first, delayValue.get().last)
                     }
                 }
                 "legit" -> {
@@ -124,7 +124,7 @@ class Gapple : Module() {
                     } else if (eating > 35) {
                         timer.reset()
                         tryHeal = false
-                        delay = MathHelper.getRandomIntegerInRange(Random(), min.get(), max.get())
+                        delay = MathHelper.getRandomIntegerInRange(Random(), delayValue.get().first, delayValue.get().last)
                     }
                 }
                 "head" -> {
@@ -135,7 +135,7 @@ class Gapple : Module() {
                         mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
                         timer.reset()
                         tryHeal = false
-                        delay = MathHelper.getRandomIntegerInRange(Random(), min.get(), max.get())
+                        delay = MathHelper.getRandomIntegerInRange(Random(), delayValue.get().first, delayValue.get().last)
                     }else {
                         tryHeal = false
                     }

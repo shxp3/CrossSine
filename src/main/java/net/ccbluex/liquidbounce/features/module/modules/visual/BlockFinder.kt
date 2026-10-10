@@ -60,7 +60,7 @@ class BlockFinder : Module() {
     fun onRender3D(event: Render3DEvent?) {
         synchronized(posList) {
             for (blockPos in posList) {
-                RenderUtils.drawBlockBox(blockPos, color, false, true, 0.5F)
+                RenderUtils.drawBlockBox(blockPos, color, false, true, 0.5F, 1F)
             }
         }
     }

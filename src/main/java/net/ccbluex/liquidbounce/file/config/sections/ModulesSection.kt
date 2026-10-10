@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.file.config.ConfigSection
 class ModulesSection : ConfigSection("modules") {
     override fun load(json: JsonObject) {
         CrossSine.moduleManager.modules.forEach {
-            if (it.name != "Interface") {
+            if (it.loadConfig) {
                 val moduleInfo = it.moduleInfo
                 it.state = moduleInfo.defaultOn
                 it.keyBind = moduleInfo.keyBind
@@ -58,30 +58,31 @@ class ModulesSection : ConfigSection("modules") {
 
         CrossSine.moduleManager.modules.forEach {
             val moduleJson = JsonObject()
+            if (it.loadConfig) {
+                if (it.canEnable || it.triggerType != EnumTriggerType.PRESS) {
+                    moduleJson.addProperty("state", it.state)
+                }
 
-            if (it.canEnable || it.triggerType != EnumTriggerType.PRESS) {
-                moduleJson.addProperty("state", it.state)
+                moduleJson.addProperty("keybind", it.keyBind)
+
+                if (it.canEnable) {
+                    moduleJson.addProperty("array", it.array)
+                }
+
+                if (it.canEnable) {
+                    moduleJson.addProperty("autodisable", it.autoDisable.toString())
+                }
+
+                moduleJson.addProperty("trigger", it.triggerType.toString())
+
+                val valuesJson = JsonObject()
+                it.values.forEach { value ->
+                    valuesJson.add(value.name, value.toJson())
+                }
+                moduleJson.add("values", valuesJson)
+
+                json.add(it.name, moduleJson)
             }
-
-            moduleJson.addProperty("keybind", it.keyBind)
-
-            if (it.canEnable) {
-                moduleJson.addProperty("array", it.array)
-            }
-
-            if (it.canEnable) {
-                moduleJson.addProperty("autodisable", it.autoDisable.toString())
-            }
-
-            moduleJson.addProperty("trigger", it.triggerType.toString())
-
-            val valuesJson = JsonObject()
-            it.values.forEach { value ->
-                valuesJson.add(value.name, value.toJson())
-            }
-            moduleJson.add("values", valuesJson)
-
-            json.add(it.name, moduleJson)
         }
 
         return json

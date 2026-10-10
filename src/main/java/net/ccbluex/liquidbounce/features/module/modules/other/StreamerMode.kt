@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 @ModuleInfo(name = "StreamerMode", category = ModuleCategory.OTHER)
 object StreamerMode : Module() {
     private val nameDisplay = TextValue("Name", "CrossSineUser")
-    private val allPlayersValue = BoolValue("SensorPlayer", false)
+    private val allPlayersValue = BoolValue("Sensor-Player", false)
 
     @EventTarget
     fun onText(event: TextEvent) {

@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.keybind
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.ui.client.other.PopUI
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.GuiScreen
 import org.lwjgl.input.Keyboard
@@ -10,10 +11,6 @@ import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-/**
- * @author liulihaocai
- * FDPClient
- */
 class KeyBindManager : GuiScreen() {
     private val baseHeight = 205
     private val baseWidth = 500
@@ -23,8 +20,20 @@ class KeyBindManager : GuiScreen() {
     var clicked: Boolean = false
     var popUI: PopUI? = null
 
+    // ── Open-animation timing ───────────────────────────────────────────
+    // `openTime` is the wall-clock ms the GUI was opened. Every per-frame
+    // animation derives its progress from `(now - openTime - delay) / dur`
+    // clamped to [0, 1] and then run through `easeOutBack` so we get a
+    // satisfying bounce. Per-key delays come from row index so the
+    // keyboard cascades down in waves rather than every key popping in
+    // at once.
+    private var openTime = 0L
+
     override fun initGui() {
         nowDisplayKey = null
+        openTime = System.currentTimeMillis()
+        // Re-arm KeyInfo intro timings so re-opening replays the cascade.
+        keys.forEachIndexed { idx, k -> k.armIntro(openTime, idx) }
         updateAllKeys()
     }
 
@@ -41,12 +50,26 @@ class KeyBindManager : GuiScreen() {
         drawDefaultBackground()
 
         val mcWidth = ((width * 0.8f) - (width * 0.2f)).toInt()
+        val now = System.currentTimeMillis()
+
+        // ── Title slide-in + fade ──────────────────────────────────────
+        // Title progress completes by 280 ms after open. Uses easeOutCubic
+        // so it decelerates into place without overshoot (titles look
+        // weird if they bounce).
+        val titleT = ((now - openTime) / 280.0).coerceIn(0.0, 1.0)
+        val titleEase = 1.0 - (1.0 - titleT).let { it * it * it }
+        val titleAlpha = (titleEase * 255.0).toInt().coerceIn(0, 255)
+        val titleSlide = ((1.0 - titleEase) * 14.0).toFloat()
 
         GL11.glPushMatrix()
-
         GL11.glPushMatrix()
         GL11.glScalef(2.0F, 2.0F, 2.0F)
-        Fonts.fontRockoFLF40.drawString("KeyBind Manager", width * 0.21f * 0.5f, height * 0.2f * 0.5f - 0.5F, Color.WHITE.rgb, false)
+        Fonts.fontRockoFLF40.drawString(
+            "KeyBind Manager",
+            width * 0.21f * 0.5f,
+            height * 0.2f * 0.5f - 0.5F - titleSlide,
+            Color(255, 255, 255, titleAlpha).rgb, false
+        )
         GL11.glPopMatrix()
 
         GL11.glTranslatef(width * 0.2f, height * 0.2f + Fonts.SFApple40.height * 2.3f, 0F)
@@ -54,13 +77,30 @@ class KeyBindManager : GuiScreen() {
         // It's easier to use scale
         GL11.glScalef(scale, scale, scale)
 
-        RenderUtils.drawRoundedRect(0F, 0F, baseWidth.toFloat(), baseHeight.toFloat(), 7F, Color.WHITE.rgb)
+        // ── Card scale-in ──────────────────────────────────────────────
+        // The white backdrop swells from 92 % → 100 % over 320 ms with
+        // easeOutBack. Wrapped around everything inside so the keys
+        // ride along with the card while it grows.
+        val cardT = ((now - openTime) / 320.0).coerceIn(0.0, 1.0)
+        val cardEase = EaseUtils.easeOutBack(cardT)
+        val cardScale = (0.92 + 0.08 * cardEase).toFloat()
+        val cardAlpha = (cardEase * 255.0).toInt().coerceIn(0, 255)
+        GL11.glPushMatrix()
+        GL11.glTranslatef(baseWidth / 2F, baseHeight / 2F, 0F)
+        GL11.glScalef(cardScale, cardScale, 1F)
+        GL11.glTranslatef(-baseWidth / 2F, -baseHeight / 2F, 0F)
 
+        RenderUtils.drawRoundedRect(0F, 0F, baseWidth.toFloat(), baseHeight.toFloat(), 7F, Color(255, 255, 255, cardAlpha).rgb)
+
+        // Translate mouse into card-local coords for hover detection.
+        val localMouseX = (mouseX - width * 0.2f) / scale
+        val localMouseY = (mouseY - (height * 0.2f + Fonts.SFApple40.height * 2.3f)) / scale
         for (key in keys) {
-            key.render()
+            key.render(localMouseX, localMouseY, now)
         }
+        GL11.glPopMatrix()
 
-        // render key tab
+        // render key tab (above the card scale so its own pop-in reads cleanly)
         if (nowDisplayKey != null) {
             nowDisplayKey!!.renderTab()
         }

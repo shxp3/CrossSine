@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.script.api.*
 import net.ccbluex.liquidbounce.script.api.global.Chat
-import net.ccbluex.liquidbounce.script.api.global.Notifications
 import net.ccbluex.liquidbounce.script.api.global.Setting
 import net.ccbluex.liquidbounce.utils.*
 import java.io.File
@@ -45,7 +44,6 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
         //Main
         scriptEngine.put("Chat", StaticClass.forClass(Chat::class.java))
         scriptEngine.put("Setting", StaticClass.forClass(Setting::class.java))
-        scriptEngine.put("Notifications", StaticClass.forClass(Notifications::class.java))
 
         // Global instances
         scriptEngine.put("mc", mc)

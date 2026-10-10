@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
+import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -22,6 +23,9 @@ public class GuiClicker extends Module {
     public void onRender2D(Render2DEvent event) {
         if (!Mouse.isButtonDown(0) || !Keyboard.isKeyDown(54) && !Keyboard.isKeyDown(42)) {
             mouseDown = 0;
+            return;
+        }
+        if (AutoClicker.INSTANCE.getState() && AutoClicker.INSTANCE.getInvClicker().get()) {
             return;
         }
         mouseDown++;

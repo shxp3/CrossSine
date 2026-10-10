@@ -1,12 +1,16 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
+import jline.internal.Nullable;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.*;
+import net.ccbluex.liquidbounce.features.module.modules.client.Patcher;
 import net.ccbluex.liquidbounce.features.module.modules.combat.TickBase;
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
-import net.ccbluex.liquidbounce.utils.SpoofItemUtils;
+import net.ccbluex.liquidbounce.utils.PacketUtils;
+import net.ccbluex.liquidbounce.utils.PlayerUtils;
+import net.ccbluex.liquidbounce.utils.SlotUtils;
 import net.ccbluex.liquidbounce.utils.render.ImageUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
@@ -47,10 +51,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -60,6 +61,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
@@ -250,7 +252,8 @@ public abstract class MixinMinecraft {
 
     @Shadow
     public abstract void displayInGameMenu();
-
+    @Unique
+    private @Nullable WorldClient lastWorld = null;
     @Shadow
     public void displayGuiScreen(GuiScreen p_displayGuiScreen_1_) {}
 
@@ -464,15 +467,6 @@ public abstract class MixinMinecraft {
     private void runTick(final CallbackInfo callbackInfo) {
         StaticStorage.scaledResolution = new ScaledResolution((Minecraft) (Object) this);
     }
-
-    @Redirect(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/settings/GameSettings;thirdPersonView:I", opcode = PUTFIELD))
-    public void setThirdPersonView(GameSettings gameSettings, int value) {
-        if (FreeLook.perspectiveToggled) {
-            FreeLook.resetPerspective();
-        } else {
-            gameSettings.thirdPersonView = value;
-        }
-    }
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/settings/KeyBinding;isPressed()Z", ordinal = 0))
     private void changeItem(CallbackInfo info) {
 
@@ -481,8 +475,8 @@ public abstract class MixinMinecraft {
                 if (this.thePlayer.isSpectator()) {
                     this.ingameGUI.getSpectatorGui().func_175260_a(k);
                 } else {
-                    if(SpoofItemUtils.INSTANCE.getSpoofing()) {
-                        SpoofItemUtils.INSTANCE.setSlot(k);
+                    if(SlotUtils.INSTANCE.getChanged()) {
+                        SlotUtils.INSTANCE.setPrevSlot(k);
                     } else {
                         this.thePlayer.inventory.currentItem = k;
                     }
@@ -499,7 +493,6 @@ public abstract class MixinMinecraft {
     private static final String TARGET = "Lnet/minecraft/client/settings/KeyBinding;setKeyBindState(IZ)V";
     @Redirect(method="runTick", at=@At(value="INVOKE", target=TARGET))
     public void runTick_setKeyBindState(int keybind, boolean state) {
-        leftClickCounter = 0;
 
         KeyBinding.setKeyBindState(keybind, state);
     }
@@ -529,12 +522,15 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
     private void clickMouse(CallbackInfo callbackInfo) {
+        if (Objects.requireNonNull(CrossSine.moduleManager.getModule(Patcher.class)).getHitDelayFix().get()) {
+            leftClickCounter = 0;
+        }
         CrossSine.eventManager.callEvent(new ClickEvent());
         CPSCounter.registerClick(CPSCounter.MouseButton.LEFT);
-        leftClickCounter = 0;
     }
     @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;rightClickDelayTimer:I", shift = At.Shift.AFTER))
     private void rightClickMouse(final CallbackInfo callbackInfo) {
+        CrossSine.eventManager.callEvent(new ClickEvent());
         CPSCounter.registerClick(CPSCounter.MouseButton.RIGHT);
     }
     @Inject(method = "middleClickMouse", at = @At("HEAD"))
@@ -543,9 +539,14 @@ public abstract class MixinMinecraft {
     }
 
 
-    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
-    private void loadWorld(WorldClient p_loadWorld_1_, String p_loadWorld_2_, final CallbackInfo callbackInfo) {
-        CrossSine.eventManager.callEvent(new WorldEvent(p_loadWorld_1_));
+    @Inject(method = "runTick", at = @At("HEAD"))
+    private void runTickPre(CallbackInfo ci) {
+
+        if (lastWorld != Minecraft.getMinecraft().theWorld && PlayerUtils.NotNull()) {
+            CrossSine.eventManager.callEvent(new WorldEvent());
+        }
+
+        this.lastWorld = Minecraft.getMinecraft().theWorld;
     }
     /**
      * @author CCBlueX

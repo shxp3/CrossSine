@@ -23,15 +23,15 @@ import kotlin.math.sin
 
 @ModuleInfo(name = "TargetStrafe", category = ModuleCategory.MOVEMENT)
 class TargetStrafe : Module() {
-    private val thirdPersonViewValue = BoolValue("ThirdPersonView", false)
-    private val renderModeValue = ListValue("RenderMode", arrayOf("Circle", "Polygon", "None"), "Polygon")
-    private val lineWidthValue = FloatValue("LineWidth", 1f, 1f, 10f). displayable{!renderModeValue.equals("None")}
-    private val radiusModeValue = ListValue("RadiusMode", arrayOf("Normal", "Strict"), "Normal")
+    private val thirdPersonViewValue = BoolValue("Third-Person-View", false)
+    private val renderModeValue = ListValue("Render-Mode", arrayOf("Circle", "Polygon", "None"), "Polygon")
+    private val lineWidthValue = FloatValue("Line-Width", 1f, 1f, 10f). displayable{!renderModeValue.equals("None")}
+    private val radiusModeValue = ListValue("Radius-Mode", arrayOf("Normal", "Strict"), "Normal")
     private val radiusValue = FloatValue("Radius", 0.5f, 0.1f, 5.0f)
-    private val ongroundValue = BoolValue("OnlyOnGround",false)
-    private val holdSpaceValue = BoolValue("HoldSpace", false)
-    private val onlySpeedValue = BoolValue("OnlySpeed", true)
-    private val onlyFlightValue = BoolValue("OnlyFlight", true)
+    private val ongroundValue = BoolValue("Only-On-Ground",false)
+    private val holdSpaceValue = BoolValue("Hold-Space", false)
+    private val onlySpeedValue = BoolValue("Only-Speed", true)
+    private val onlyFlightValue = BoolValue("Only-Flight", true)
     private var direction = -1.0
 
     var targetEntity : EntityLivingBase?=null
@@ -212,15 +212,6 @@ class TargetStrafe : Module() {
     }
     private fun canStrafe(target: EntityLivingBase?): Boolean {
         return target != null && (!holdSpaceValue.get() || mc.gameSettings.keyBindJump.isKeyDown) && (!onlySpeedValue.get() || CrossSine.moduleManager[Speed::class.java]!!.state) && (!onlyFlightValue.get() || CrossSine.moduleManager[Flight::class.java]!!.state)
-    }
-
-    fun modifyStrafe(event: StrafeEvent):Boolean {
-        if(!isEnabled || event.isCancelled) {
-            return false
-        }else {
-            MovementUtils.strafe()
-            return true
-        }
     }
 
     fun toggleStrafe(): Boolean {

@@ -14,9 +14,4 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class MixinRender {
     @Shadow
     protected abstract <T extends Entity> boolean bindEntityTexture(T entity);
-
-    @Redirect(method={"renderLivingLabel(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V"}, at=@At(value="FIELD", target="Lnet/minecraft/client/renderer/entity/RenderManager;playerViewX:F"))
-    private float renderLivingLabel(RenderManager renderManager) {
-        return Minecraft.getMinecraft().gameSettings.thirdPersonView == 2 ? -renderManager.playerViewX : renderManager.playerViewX;
-    }
 }

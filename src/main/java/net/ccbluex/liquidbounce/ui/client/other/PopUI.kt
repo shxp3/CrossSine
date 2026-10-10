@@ -7,10 +7,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-/**
- * @author liulihaocai
- * FDPClient
- */
 open class PopUI(val title: String) {
     val baseWidth = 150
     val baseHeight = 210

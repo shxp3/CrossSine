@@ -33,13 +33,13 @@ import kotlin.math.roundToInt
 class Nuker : Module() {
 
     private val radiusValue = FloatValue("Radius", 5.2F, 1F, 6F)
-    private val throughWallsValue = BoolValue("ThroughWalls", false)
+    private val throughWallsValue = BoolValue("Through-Walls", false)
     private val priorityValue = ListValue("Priority", arrayOf("Distance", "Hardness"), "Distance")
     private val rotationsValue = BoolValue("Rotations", true)
     private val layerValue = BoolValue("Layer", false)
-    private val hitDelayValue = IntegerValue("HitDelay", 4, 0, 20)
+    private val hitDelayValue = IntegerValue("Hit-Delay", 4, 0, 20)
     private val nukeValue = IntegerValue("Nuke", 1, 1, 20)
-    private val nukeDelayValue = IntegerValue("NukeDelay", 1, 1, 20)
+    private val nukeDelayValue = IntegerValue("Nuke-Delay", 1, 1, 20)
 
     private val attackedBlocks = arrayListOf<BlockPos>()
     private var currentBlock: BlockPos? = null

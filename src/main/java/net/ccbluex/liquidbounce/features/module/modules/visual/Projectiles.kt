@@ -7,6 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.ColorValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -22,10 +23,8 @@ import java.awt.Color
 @ModuleInfo(name = "Projectiles", category = ModuleCategory.VISUAL)
 class Projectiles : Module() {
 
-    private val dynamicBowPower = BoolValue("DynamicBowPower", true)
-    private val textRedValue = IntegerValue("Text-R", 255, 0, 255)
-    private val textGreenValue = IntegerValue("Text-G", 255, 0, 255)
-    private val textBlueValue = IntegerValue("Text-B", 255, 0, 255)
+    private val dynamicBowPower = BoolValue("Dynamic-Bow-Power", true)
+    private val textColorValue = ColorValue("Text-Color", Color(255, 255, 255))
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
@@ -230,6 +229,5 @@ class Projectiles : Module() {
         RenderUtils.resetCaps()
         GL11.glColor4f(1F, 1F, 1F, 1F)
     }
-    private fun textColor() = Color(textRedValue.get(), textGreenValue.get(),
-        textBlueValue.get())
+    private fun textColor() = textColorValue.get()
 }

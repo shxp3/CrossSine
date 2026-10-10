@@ -1,0 +1,29 @@
+{
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "motion_blur",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        {
+          "name": "Phosphor",
+          "values": [ 0.5, 0.0, 0.0 ]
+        }
+      ]
+    },
+    {
+      "name": "color_convolve",
+      "intarget": "swap",
+      "outtarget": "minecraft:main",
+      "uniforms": [
+        {
+          "name": "Saturation",
+          "values": [ 1.0 ]
+        }
+      ]
+    }
+  ]
+}

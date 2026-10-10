@@ -7,6 +7,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.IntegerRangeValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.TextValue
@@ -17,21 +18,7 @@ import net.minecraft.client.gui.GuiChat
 
 @ModuleInfo(name = "Spammer",  category = ModuleCategory.PLAYER)
 class Spammer : Module() {
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 1000, 0, 5000) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val minDelayValueObject = minDelayValue.get()
-            if (minDelayValueObject > newValue) set(minDelayValueObject)
-            delay = TimeUtils.randomDelay(minDelayValue.get(), this.get())
-        }
-    }
-    private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 500, 0, 5000) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val maxDelayValueObject = maxDelayValue.get()
-            if (maxDelayValueObject < newValue) set(maxDelayValueObject)
-            delay = TimeUtils.randomDelay(this.get(), maxDelayValue.get())
-        }
-    }
-
+    private val delayValue = IntegerRangeValue("Delay", 500, 1000, 0, 10000)
     private val modeValue = ListValue("Mode", arrayOf("Single", "Insult", "OrderInsult"), "Single")
     private val endingCharsValue = IntegerValue("EndingRandomChars",5,0,30)
     private val messageValue = TextValue("Message", "Buy %r Minecraft %r Legit %r and %r stop %r using %r cracked %r servers %r%r")
@@ -40,7 +27,7 @@ class Spammer : Module() {
         .displayable { modeValue.contains("insult") }
 
     private val msTimer = MSTimer()
-    private var delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+    private var delay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
     private var lastIndex = -1
 
     override fun onEnable() {
@@ -72,7 +59,7 @@ class Spammer : Module() {
                 else -> replace(messageValue.get())
             })
             msTimer.reset()
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
         }
     }
 

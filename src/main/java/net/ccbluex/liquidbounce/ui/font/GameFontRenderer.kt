@@ -13,13 +13,13 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.awt.Font
 
-class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameSettings,
+class GameFontRenderer @JvmOverloads constructor(font: Font, stopChar: Int = 255) : FontRenderer(Minecraft.getMinecraft().gameSettings,
     ResourceLocation("textures/font/ascii.png"), Minecraft.getMinecraft().textureManager, false) {
 
-    var defaultFont = AWTFontRenderer(font)
-    private var boldFont = AWTFontRenderer(font.deriveFont(Font.BOLD))
-    private var italicFont = AWTFontRenderer(font.deriveFont(Font.ITALIC))
-    private var boldItalicFont = AWTFontRenderer(font.deriveFont(Font.BOLD or Font.ITALIC))
+    var defaultFont = AWTFontRenderer(font, 0, stopChar)
+    private var boldFont = AWTFontRenderer(font.deriveFont(Font.BOLD), 0, stopChar)
+    private var italicFont = AWTFontRenderer(font.deriveFont(Font.ITALIC), 0, stopChar)
+    private var boldItalicFont = AWTFontRenderer(font.deriveFont(Font.BOLD or Font.ITALIC), 0, stopChar)
 
     val height: Int
         get() = defaultFont.height / 2
@@ -44,6 +44,7 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
     fun drawString(s: String, x: Float, y: Float, color: Int) = drawString(s, x, y, color, false)
 
     fun drawStringFade(s: String, x: Float, y: Float, color: Color) {
+        if (color.alpha <= 0) return
         drawString(s, x+0.85F, y+0.85F, Color(0,0,0,color.alpha).rgb, false)
         drawString(s, x, y, color.rgb, false)
     }
@@ -55,6 +56,10 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
     fun drawCenteredString(s: String, x: Float, y: Float, color: Int) = drawStringWithShadow(s, x - getStringWidth(s) / 2F, y, color)
 
     override fun drawString(text: String, x: Float, y: Float, color: Int, shadow: Boolean): Int {
+        // Alpha 0 → skip. Old drawText forced alpha-0 colors to opaque, which broke fade animations
+        // (Color(r,g,b,0) became fully visible). Opaque text should use Color(...).rgb or -1.
+        if (color and -67108864 == 0) return 0
+
         var currentText = text
 
         val event = TextEvent(currentText)
@@ -72,6 +77,8 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
             return 0
         if (text.isNullOrEmpty())
             return x.toInt()
+        // Second guard for internal/shadow paths
+        if (colorHex and -67108864 == 0) return x.toInt()
 
         GlStateManager.translate(x - 1.5, y + 0.5, 0.0)
         GlStateManager.enableAlpha()
@@ -80,9 +87,6 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         GlStateManager.enableTexture2D()
 
         var hexColor = colorHex
-        if (hexColor and -67108864 == 0)
-            hexColor = hexColor or -16777216
-
         val alpha: Int = (hexColor shr 24 and 0xff)
 
         if (text.contains("§")) {

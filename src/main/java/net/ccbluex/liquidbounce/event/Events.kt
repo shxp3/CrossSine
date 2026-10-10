@@ -27,11 +27,27 @@ class ClickEvent : Event()
 class AttackEvent(val targetEntity: Entity) : CancellableEvent()
 
 /**
- * Called in "onLivingUpdate" after the movement input update.
+ * Called inside `MovementInputFromOptions.updatePlayerMoveState` AFTER the raw
+ * WASD / jump / sneak state has been written but BEFORE the sneak slow-down
+ * multiplier is applied. Equivalent to Raven's `PrePlayerInputEvent`.
  *
- * @param original the movement input after the update
+ * Modules can mutate [original]'s fields (moveForward, moveStrafe, jump,
+ * sneak) and override [sneakMultiplier] (default 0.3, same as vanilla).
+ *
+ * @param original         the current movement input state
+ * @param sneakMultiplier  multiplier applied to forward/strafe when sneaking
  */
-class MovementInputEvent(var original: MovementInput) : Event()
+class MovementInputEvent @JvmOverloads constructor(
+    var original: MovementInput,
+    var sneakMultiplier: Double = 0.3
+) : Event()
+
+/**
+ * Called at the end of `MovementInputFromOptions.updatePlayerMoveState`,
+ * after the sneak slow-down has been applied. Equivalent to Raven's
+ * `PostPlayerInputEvent`.
+ */
+class PostPlayerInputEvent : Event()
 
 /**
  * Called when player killed other entity
@@ -68,7 +84,7 @@ class ClientShutdownEvent : Event()
  *
  * @param motion jump motion (y motion)
  */
-class JumpEvent(var motion: Float, var boosting: Boolean) : CancellableEvent()
+class JumpEvent(var motion: Float, var boosting: Boolean, var yaw: Float) : CancellableEvent()
 
 /**
  * Called when user press a key once
@@ -127,7 +143,7 @@ class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
 /**
  * Called in "moveFlying"
  */
-class StrafeEvent(val strafe: Float, val forward: Float, val friction: Float) : CancellableEvent()
+class StrafeEvent(var strafe: Float, var forward: Float, var friction: Float) : CancellableEvent()
 
 /**
  * Called when player swing hand
@@ -240,6 +256,11 @@ class TickEvent : Event()
 class PreUpdateEvent : CancellableEvent()
 
 /**
+ * Called when minecraft player will be postupdated
+ */
+class PostUpdateEvent : CancellableEvent()
+
+/**
  * Called when minecraft player will be updated
  */
 class UpdateEvent : Event()
@@ -247,8 +268,11 @@ class UpdateEvent : Event()
 /**
  * Called when the world changes
  */
-class WorldEvent(val worldClient: WorldClient?) : Event()
-
+class WorldEvent() : Event()
+/**
+ * Called when player is Sprinting
+ */
+class SprintEvent(var sprint: Boolean) : CancellableEvent()
 /**
  * Called when window clicked
  */

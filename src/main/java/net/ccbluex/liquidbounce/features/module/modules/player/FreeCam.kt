@@ -20,9 +20,9 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 class FreeCam : Module() {
     private val speedValue = FloatValue("Speed", 0.8f, 0.1f, 2f)
     private val flyValue = BoolValue("Fly", true)
-    private val noClipValue = BoolValue("NoClip", true)
-    private val motionValue = BoolValue("RecordMotion", true)
-    private val c03SpoofValue = BoolValue("C03Spoof", false)
+    private val noClipValue = BoolValue("No-Clip", true)
+    private val motionValue = BoolValue("Record-Motion", true)
+    private val c03SpoofValue = BoolValue("C03-Spoof", false)
 
     private var fakePlayer: EntityOtherPlayerMP? = null
     private var motionX = 0.0

@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.player.InvManager
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerRangeValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.InventoryUtils
@@ -41,27 +42,7 @@ object Stealer : Module() {
      * OPTIONS
      */
     private val instantValue = BoolValue("Instant", false)
-    private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 200, 0, 400) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val i = minDelayValue.get()
-            if (i > newValue) {
-                set(i)
-            }
-
-            nextDelay = TimeUtils.randomDelay(minDelayValue.get(), get())
-        }
-    }.displayable { !instantValue.get() } as IntegerValue
-    private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 150, 0, 400) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val i = maxDelayValue.get()
-
-            if (i < newValue) {
-                set(i)
-            }
-
-            nextDelay = TimeUtils.randomDelay(get(), maxDelayValue.get())
-        }
-    }.displayable { !instantValue.get() } as IntegerValue
+    private val delayValue = IntegerRangeValue("Delay", 0, 0, 0, 1000).displayable { !instantValue.get() }
     private val chestValue = IntegerValue("ChestOpenDelay", 300, 0, 1000)
     private val takeRandomizedValue = BoolValue("TakeRandomized", false)
     private val alwayTake = BoolValue("AlwayTakeItem", false).displayable { InvManager.state }
@@ -119,11 +100,12 @@ object Stealer : Module() {
      */
     private val delayTimer = MSTimer()
     private val chestTimer = MSTimer()
-    private var nextDelay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+    private var nextDelay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
     private val autoCloseTimer = MSTimer()
     private var nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
+    var currentSlot = -1
 
-    var contentReceived = 0
+    private var contentReceived = 0
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
@@ -177,8 +159,8 @@ object Stealer : Module() {
 
                     val randomSlot = Random.nextInt(items.size)
                     val slot = items[randomSlot]
-
                     move(screen, slot)
+                    currentSlot = slot.slotIndex
                 } while (instantValue.get() || delayTimer.hasTimePassed(nextDelay) && items.isNotEmpty())
                 return
             }
@@ -194,6 +176,7 @@ object Stealer : Module() {
                     ))
                 ) {
                     move(screen, slot)
+                    currentSlot = slotIndex
                 }
             }
         } else if (instantValue.get()) {
@@ -232,7 +215,7 @@ object Stealer : Module() {
     private fun move(screen: GuiChest, slot: Slot) {
         screen.handleMouseClick(slot, slot.slotNumber, 0, 1)
         delayTimer.reset()
-        nextDelay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+        nextDelay = TimeUtils.randomDelay(delayValue.get().first, delayValue.get().last)
     }
 
     private fun isEmpty(chest: GuiChest): Boolean {

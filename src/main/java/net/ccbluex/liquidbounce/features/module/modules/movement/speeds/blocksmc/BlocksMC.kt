@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.minecraft.potion.Potion
+import kotlin.math.max
 
 
 class BlocksMC : SpeedMode("BlocksMC") {
@@ -40,7 +41,7 @@ class BlocksMC : SpeedMode("BlocksMC") {
                 }
             }
             if (!mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                strafe(MovementUtils.getSpeed())
+                strafe(max(MovementUtils.getSpeed(), MovementUtils.getSpeedWithPotionEffects(0.27).toFloat()))
             } else strafe(0.375)
             if (damageBoostValue.get() && mc.thePlayer.hurtTime > 6 && ((KillAura.state && KillAura.currentTarget != null) || (SilentAura.state && SilentAura.target != null))) {
                 strafe(if (damageCustomValue.get()) damageValue.get() else 0.455F)

@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.other.hackercheck;
 
 import net.ccbluex.liquidbounce.features.module.modules.other.HackerDetector;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.AutoBlockCheck;
+import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.ReachCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.combat.VelocityCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move.NoSlowCheck;
 import net.ccbluex.liquidbounce.features.module.modules.other.hackercheck.checks.move.ScaffoldCheck;
@@ -16,6 +17,7 @@ public class CheckManager {
     private final PlayerData data = new PlayerData();
     private static final Class<?>[] checksClz = {
             AutoBlockCheck.class,
+            ReachCheck.class,
             NoSlowCheck.class,
             ScaffoldCheck.class,
             RotationCheck.class,

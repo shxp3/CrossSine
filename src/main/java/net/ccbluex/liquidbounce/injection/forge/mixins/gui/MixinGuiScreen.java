@@ -1,9 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.CrossSine;
-import net.ccbluex.liquidbounce.features.module.modules.visual.Interface;
-import net.ccbluex.liquidbounce.utils.particles.ParticleUtils;
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
+import net.ccbluex.liquidbounce.ui.client.gui.ThemedBackground;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -15,9 +12,6 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,35 +49,13 @@ public abstract class MixinGuiScreen {
 
     @Shadow
     protected abstract void drawHoveringText(List<String> textLines, int x, int y);
+    @Shadow
+    protected abstract void sendChatMessage(String p_sendChatMessage_1_);
 
     @Shadow
     protected abstract void actionPerformed(GuiButton p_actionPerformed_1_);
-    @Inject(method = "drawWorldBackground", at = @At("HEAD"), cancellable = true)
-    private void drawWorldBackground(final CallbackInfo callbackInfo) {
-        try {
-            final Interface hud = CrossSine.moduleManager.getModule(Interface.class);
-            if (hud.getInventoryParticle().get() && mc.thePlayer != null) {
-                ParticleUtils.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    @Inject(method = "drawWorldBackground", at = @At("RETURN"), cancellable = true)
-    private void drawWorldBackground2(final CallbackInfo callbackInfo) {
-        try {
-            if(mc.thePlayer != null) {
-                GL11.glPushMatrix();
-                GL11.glPopMatrix();
-                GL11.glPushMatrix();
-                GL11.glPopMatrix();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
     @ModifyVariable(method = "sendChatMessage(Ljava/lang/String;)V", at = @At("HEAD"))
-    private String sendChatMessage(String p_sendChatMessage_1_){
+    private String mosendChatMessage(String p_sendChatMessage_1_){
         if(p_sendChatMessage_1_.length()>100){
             return p_sendChatMessage_1_.substring(0,100);
         }
@@ -99,7 +70,10 @@ public abstract class MixinGuiScreen {
     /**
      * @author CCBlueX
      */
-
+    @Overwrite
+    public void drawBackground(int p_drawBackground_1_) {
+        ThemedBackground.draw(width, height);
+    }
 
     @Inject(method = "handleComponentHover", at = @At("HEAD"))
     private void handleHoverOverComponent(IChatComponent component, int x, int y, final CallbackInfo callbackInfo) {

@@ -22,8 +22,8 @@ class Tracers : Module() {
 
     private val thicknessValue = FloatValue("Thickness", 2F, 1F, 5F)
     private val colorAlphaValue = IntegerValue("Alpha", 150, 0, 255)
-    private val playerHeightValue = BoolValue("PlayerHeight", true)
-    private val entityHeightValue = BoolValue("EntityHeight", true)
+    private val playerHeightValue = BoolValue("Player-Height", true)
+    private val entityHeightValue = BoolValue("Entity-Height", true)
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {

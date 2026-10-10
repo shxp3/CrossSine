@@ -3,10 +3,9 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitBox;
-import net.ccbluex.liquidbounce.features.module.modules.movement.MovementFix;
-import net.ccbluex.liquidbounce.features.module.modules.world.FPSBoost;
-import net.ccbluex.liquidbounce.features.module.modules.world.NoPitchLimit;
-import net.ccbluex.liquidbounce.injection.access.IWorld;
+import net.ccbluex.liquidbounce.features.module.modules.movement.MovementCorrection;
+import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook;
+import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
@@ -17,6 +16,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,8 +26,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Random;
 import java.util.UUID;
 
+import static net.ccbluex.liquidbounce.script.api.global.Chat.alert;
+
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity{
 
     @Shadow
     public double posX;
@@ -186,16 +188,15 @@ public abstract class MixinEntity {
             return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
-        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
+        final MovementCorrection movementCorrection = CrossSine.moduleManager.getModule(MovementCorrection.class);
         CrossSine.eventManager.callEvent(strafeEvent);
-        if (movementFix.getDoFix()) {
-            movementFix.runStrafeFixLoop(movementFix.getSilentFix(), strafeEvent);
+        if (movementCorrection.getDoFix()) { //Run MovementCorrection process on Post Strafe 2023/02/15
+            movementCorrection.runStrafeFixLoop(MovementCorrection.INSTANCE.getSilentFix(), strafeEvent);
         }
-
+        this.rotationYaw = (!CrossSine.moduleManager.getModule(FreeLook.class).getState() && FreeLook.isEnabled) ? FreeLook.cameraYaw : this.rotationYaw;
         if (strafeEvent.isCancelled())
             callbackInfo.cancel();
     }
-
     @Inject(
             method = "getCollisionBorderSize",
             at = @At("HEAD"),
@@ -206,37 +207,6 @@ public abstract class MixinEntity {
             double hitBox = HitBox.getSize();
             callbackInfoReturnable.setReturnValue((float) hitBox);
             callbackInfoReturnable.cancel();
-        }
-    }
-
-    @Inject(method="getBrightnessForRender", at=@At(value="HEAD"), cancellable=true)
-    private void getBrightnessForRender(float f, CallbackInfoReturnable<Integer> callbackInfoReturnable) {
-        if (FPSBoost.INSTANCE.getState()) {
-            int n, n2, n3 = MathHelper.floor_double(this.posX);
-            IWorld world = (IWorld)this.worldObj;
-            callbackInfoReturnable.setReturnValue(world.isBlockLoaded(n3, n2 = MathHelper.floor_double(this.posY + (double)this.getEyeHeight()), n = MathHelper.floor_double(this.posZ)) ? world.getCombinedLight(n3, n2, n, 0) : 0);
-        }
-    }
-
-    @Inject(method="getBrightness", at=@At(value="HEAD"), cancellable=true)
-    public void getBrightness(float f, CallbackInfoReturnable<Float> callbackInfoReturnable) {
-        if (FPSBoost.INSTANCE.getState()) {
-            int n, n2, n3 = MathHelper.floor_double(this.posX);
-            IWorld world = (IWorld)this.worldObj;
-            callbackInfoReturnable.setReturnValue(world.isBlockLoaded(n3, n2 = MathHelper.floor_double(this.posY + (double) this.getEyeHeight()), n = MathHelper.floor_double(this.posZ)) ? world.getLightBrightness(n3, n2, n) : 0.0f);
-        }
-    }
-    @Inject(method = "setAngles", at = @At("HEAD"), cancellable = true)
-    private void setAngles(final float yaw, final float pitch, final CallbackInfo callbackInfo) {
-        if (CrossSine.moduleManager.getModule(NoPitchLimit.class).getState()) {
-            callbackInfo.cancel();
-
-            float f = this.rotationPitch;
-            float f1 = this.rotationYaw;
-            this.rotationYaw = (float) ((double) this.rotationYaw + (double) yaw * 0.15D);
-            this.rotationPitch = (float) ((double) this.rotationPitch - (double) pitch * 0.15D);
-            this.prevRotationPitch += this.rotationPitch - f;
-            this.prevRotationYaw += this.rotationYaw - f1;
         }
     }
 }

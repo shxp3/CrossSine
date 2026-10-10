@@ -1,8 +1,8 @@
 
 package net.ccbluex.liquidbounce.ui.font;
 
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.api.FontRenderer;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.BufferUtils;

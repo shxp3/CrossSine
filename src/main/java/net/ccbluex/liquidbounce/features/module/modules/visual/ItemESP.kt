@@ -7,6 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.ColorValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -22,16 +23,15 @@ import java.awt.Color
 @ModuleInfo(name = "ItemESP", category = ModuleCategory.VISUAL)
 class ItemESP : Module() {
     private val entityConvertedPointsMap: MutableMap<EntityItem, DoubleArray> = HashMap()
-    private val nameTags = BoolValue("NameTag", false)
-    private val itemCount = BoolValue("ItemCount", false).displayable { nameTags.get() }
+    private val nameTags = BoolValue("Name-Tag", false)
+    private val itemCount = BoolValue("Item-Count", false).displayable { nameTags.get() }
+    private val onlyCount = BoolValue("Only-Count", false).displayable { nameTags.get() }
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "LightBox"), "Box")
     private val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
-    private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { !colorThemeClient.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorThemeClient.get() }
-    private val colorBlueValue = IntegerValue("B", 0, 0, 255).displayable { !colorThemeClient.get() }
+    private val colorValue = ColorValue("Color", Color(0, 0, 255)).displayable { !colorThemeClient.get() }
     private val colorThemeClient = BoolValue("ClientTheme", true)
     private fun getColor(): Color {
-        return if (colorThemeClient.get()) ClientTheme.getColor(1) else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
+        return if (colorThemeClient.get()) ClientTheme.getColor(1) else colorValue.get()
     }
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
@@ -144,7 +144,7 @@ class ItemESP : Module() {
         if (nameTags.get()) {
             for (item in mc.theWorld.getLoadedEntityList()) {
                 if (item is EntityItem) {
-                    val string = (item.entityItem.displayName + if (itemCount.get() && item.entityItem.stackSize > 1) " x${item.entityItem.stackSize}" else "")
+                    val string = (if (!onlyCount.get()) item.entityItem.displayName + if (itemCount.get() && item.entityItem.stackSize > 1) " x${item.entityItem.stackSize}" else "${item.entityItem.stackSize}" else "")
                     GL11.glPushMatrix()
                     GL11.glTranslated(
                         item.lastTickPosX + (item.posX - item.lastTickPosX) * mc.timer.renderPartialTicks - mc.renderManager.renderPosX,

@@ -1,4 +1,3 @@
-
 package net.ccbluex.liquidbounce.ui.client.keybind
 
 import net.ccbluex.liquidbounce.CrossSine
@@ -6,6 +5,7 @@ import net.ccbluex.liquidbounce.features.macro.Macro
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
@@ -13,10 +13,6 @@ import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-/**
- * @author XiGua And LiuLihaocai
- * FDPClient
- */
 class KeyInfo(
     val posX: Float,
     val posY: Float,
@@ -43,12 +39,90 @@ class KeyInfo(
     private var stroll = 0
     private var maxStroll = 0
 
-    fun render() {
+    // ── Intro animation ────────────────────────────────────────────────
+    // Set by KeyBindManager.armIntro() on GUI open. Each key gets a small
+    // delay derived from its index so the rows cascade in waves instead
+    // of every key popping at once. Progress = clamp((now-start-delay)/dur).
+    private var introStart = 0L
+    private var introDelay = 0L
+    private val introDur = 260L
+
+    // Hover scale lerp. We don't use the Animation class here because we
+    // re-derive target every frame from current mouse position, and a
+    // hand-rolled exponential smoothing reads better at very fast cursor
+    // movement (Animation snaps when target changes mid-run).
+    private var hoverProgress = 0F
+
+    fun armIntro(openTime: Long, index: Int) {
+        introStart = openTime
+        // 12 ms per key index → ~50 keys span 600 ms of cascading delay.
+        introDelay = (index * 12L)
+        hoverProgress = 0F
+    }
+
+    fun render() = render(-1F, -1F, System.currentTimeMillis())
+
+    fun render(mouseX: Float, mouseY: Float, now: Long) {
+        // Intro progress: easeOutBack so the key overshoots and settles.
+        val rawT = ((now - introStart - introDelay).coerceAtLeast(0L)) / introDur.toFloat()
+        val t = rawT.coerceIn(0F, 1F)
+        val introEase = EaseUtils.easeOutBack(t.toDouble()).toFloat()
+        if (t <= 0F) {
+            // Not yet visible — skip draw entirely so the cascade reads
+            // as a wave instead of a fade.
+            return
+        }
+        // Pre-pop translate: keys start ~6 px below their resting spot
+        // and slide up. Combined with easeOutBack scale this gives a
+        // tactile "key drops in" feel.
+        val slideY  = (1F - introEase) * 6F
+        val introScale = 0.6F + 0.4F * introEase
+        val alpha   = (introEase.coerceIn(0F, 1F) * 255F).toInt().coerceIn(0, 255)
+
+        // Hover target = 1.0 if mouse is inside this key's bounds, else 0.
+        val hovered = mouseX in posX..(posX + width) && mouseY in posY..(posY + height)
+        // Exponential smoothing toward target. ~6 frames at 60fps to settle.
+        val hoverTarget = if (hovered) 1F else 0F
+        hoverProgress += (hoverTarget - hoverProgress) * 0.22F
+        if (kotlin.math.abs(hoverProgress - hoverTarget) < 0.001F) hoverProgress = hoverTarget
+        val hoverScale = 1F + hoverProgress * 0.08F  // up to +8 %
+        val hoverLift  = hoverProgress * 1.5F        // up to 1.5 px upward
+
+        val finalScale = introScale * hoverScale
+        val cx = posX + width * 0.5F
+        val cy = posY + height * 0.5F
+
         GL11.glPushMatrix()
+        // Scale + slide around the key centre so it grows in place.
+        GL11.glTranslatef(cx, cy + slideY - hoverLift, 0F)
+        GL11.glScalef(finalScale, finalScale, 1F)
+        GL11.glTranslatef(-cx, -cy, 0F)
         GL11.glTranslatef(posX, posY, 0F)
-        RenderUtils.drawRoundedRect(0F, 2F, width, height + 8, 6F, shadowColor)
-        RenderUtils.drawRoundedRect(0F, 0F, width, height, 6F, keyColor)
-        Fonts.SFApple40.drawCenteredString(keyName, width * 0.5F, height * 0.9F * 0.5F - (Fonts.SFApple35.FONT_HEIGHT * 0.5F) + 3F, if (hasKeyBind) { usedColor } else { unusedColor }, false)
+
+        val shadowA = Color(210, 210, 210, alpha).rgb
+        val faceA   = Color(240, 240, 240, alpha).rgb
+        // Slight brighter face while hovered.
+        val faceHov = Color(
+            (240 + hoverProgress * 15F).toInt().coerceAtMost(255),
+            (240 + hoverProgress * 15F).toInt().coerceAtMost(255),
+            (240 + hoverProgress * 15F).toInt().coerceAtMost(255),
+            alpha
+        ).rgb
+        RenderUtils.drawRoundedRect(0F, 2F, width, height + 8, 6F, shadowA)
+        RenderUtils.drawRoundedRect(0F, 0F, width, height, 6F, if (hoverProgress > 0F) faceHov else faceA)
+
+        val baseTextColor = if (hasKeyBind) usedColor else unusedColor
+        val (br, bg, bb) = Triple(
+            (baseTextColor shr 16) and 0xFF,
+            (baseTextColor shr 8) and 0xFF,
+            baseTextColor and 0xFF
+        )
+        val textColor = Color(br, bg, bb, alpha).rgb
+        Fonts.SFApple40.drawCenteredString(
+            keyName, width * 0.5F,
+            height * 0.9F * 0.5F - (Fonts.SFApple35.FONT_HEIGHT * 0.5F) + 3F,
+            textColor, false
+        )
         GL11.glPopMatrix()
     }
 

@@ -31,13 +31,14 @@ object Reach : Module() {
     }
     val throughWall = BoolValue("Through-Wall", false)
     fun getReach(): Double {
-        val min: Double = Math.min(ReachMin.get(), ReachMax.get()).toDouble()
-        val max: Double = Math.max(ReachMin.get(), ReachMax.get()).toDouble()
+        val min: Double = ReachMin.get().coerceAtMost(ReachMax.get()).toDouble()
+        val max: Double = ReachMin.get().coerceAtLeast(ReachMax.get()).toDouble()
         return Math.random() * (max - min) + min
     }
-    override val tag: String?
+    override val tag: String
         get() = "${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(ReachMax.get())} - ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(
             ReachMin.get())}"
+
     fun call() : Boolean {
         if (!throughWall.get() && mc.objectMouseOver != null) {
             if (mc.objectMouseOver != null) {

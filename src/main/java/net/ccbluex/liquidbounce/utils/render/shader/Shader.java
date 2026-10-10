@@ -109,7 +109,17 @@ public abstract class Shader extends MinecraftInstance {
         return uniformsMap.get(uniformName);
     }
     public void setUniformf(final String name, final float... args) {
-        final int loc = GL20.glGetUniformLocation(this.program, name);
+        // Prefer the cached location from setupUniforms(); fall back + cache on miss.
+        int loc;
+        if (uniformsMap != null && uniformsMap.containsKey(name)) {
+            loc = uniformsMap.get(name);
+        } else {
+            loc = GL20.glGetUniformLocation(this.program, name);
+            if (uniformsMap == null) {
+                uniformsMap = new HashMap<>();
+            }
+            uniformsMap.put(name, loc);
+        }
         switch (args.length) {
             case 1: {
                 GL20.glUniform1f(loc, args[0]);

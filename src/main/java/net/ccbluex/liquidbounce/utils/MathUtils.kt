@@ -15,7 +15,9 @@ object MathUtils {
     fun radians(degrees: Double): Double {
         return degrees * Math.PI / 180
     }
-
+    fun interpolate(old: Double, current: Double, partialTicks: Double): Double {
+        return old + (current - old) * partialTicks
+    }
     fun getDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
         return sqrt((x1 - x2).pow((2).toDouble()) + (y1 - y2).pow((2).toDouble()))
     }

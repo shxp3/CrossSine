@@ -4,8 +4,10 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Jesus;
+import net.ccbluex.liquidbounce.features.module.modules.movement.MovementCorrection;
 import net.ccbluex.liquidbounce.features.module.modules.other.ViaVersionFix;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations;
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -16,6 +18,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -84,18 +87,23 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     protected abstract void updateAITick();
 
 
-    @Shadow
-    public float prevCameraPitch;
-
+    /**
+     * @author
+     * @reason
+     */
     @Overwrite
     protected float updateDistance(float p_110146_1_, float p_110146_2_) {
         float rotationYaw = this.rotationYaw;
         if ((EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
             if (RotationUtils.playerYaw != null) {
-                if (this.swingProgress > 0F) {
-                    p_110146_1_ = RotationUtils.playerYaw;
+                if (ClientTheme.INSTANCE.getFullBody().get() && (RotationUtils.targetRotation != null || RotationUtils.freeLookRotation != null) || this.swingProgress > 0F) {
+                    p_110146_1_ = (float) (ClientTheme.INSTANCE.getSmoothRotation().get() ? RotationUtils.smoothYaw : RotationUtils.serverRotation.getYaw());
                 }
-                rotationYaw = RotationUtils.playerYaw;
+                rotationYaw = (float) (ClientTheme.INSTANCE.getSmoothRotation().get() ? RotationUtils.smoothYaw : RotationUtils.serverRotation.getYaw());
+            }
+            if (ClientTheme.INSTANCE.getFullBody().get() && (RotationUtils.targetRotation != null || RotationUtils.freeLookRotation != null)) {
+                renderYawOffset = (float) (ClientTheme.INSTANCE.getSmoothRotation().get() ? RotationUtils.smoothYaw : RotationUtils.serverRotation.getYaw());
+                return p_110146_1_;
             }
         }
         float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
@@ -130,7 +138,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Overwrite
     protected void jump() {
         if (((EntityLivingBase) (Object) this).equals(Minecraft.getMinecraft().thePlayer)) {
-            final JumpEvent event = new JumpEvent((float) this.motionY, this.isSprinting());
+            final JumpEvent event = new JumpEvent((float) this.motionY, this.isSprinting(), this.rotationYaw);
             CrossSine.eventManager.callEvent(event);
             if (event.isCancelled()) {
                 return;
@@ -141,7 +149,17 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             }
 
             if (this.isSprinting() || event.getBoosting()) {
-                float f = this.rotationYaw * 0.017453292F;
+                // Only re-project the sprint-jump boost when a silent
+                // rotation is actually active. Without one, the real yaw
+                // IS what gets sent to the server, so using it matches
+                // what prediction-based AC (Hypixel / Grim) will simulate.
+                float yaw;
+                if (MovementCorrection.INSTANCE.getDoFix() && RotationUtils.targetRotation != null) {
+                    yaw = RotationUtils.targetRotation.getYaw();
+                } else {
+                    yaw = event.getYaw();
+                }
+                float f = yaw * 0.017453292F;
                 this.motionX -= (MathHelper.sin(f) * 0.2F);
                 this.motionZ += (MathHelper.cos(f) * 0.2F);
             }
@@ -150,7 +168,19 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             ForgeHooks.onLivingJump((EntityLivingBase) (Object) this);
         }
     }
-
+    @Overwrite
+    public Vec3 getLook(float p_getLook_1_) {
+        if (((EntityLivingBase) (Object) this) instanceof EntityPlayerSP) {
+            return this.getVectorForRotation(this.rotationPitch, this.rotationYawHead);
+        }
+        if (p_getLook_1_ == 1.0F) {
+            return this.getVectorForRotation(this.rotationPitch, this.rotationYawHead);
+        } else {
+            float f = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * p_getLook_1_;
+            float f1 = this.prevRotationYawHead + (this.rotationYawHead - this.prevRotationYawHead) * p_getLook_1_;
+            return this.getVectorForRotation(f, f1);
+        }
+    }
     @Inject(method = "onLivingUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;isJumping:Z", ordinal = 1))
     private void onJumpSection(CallbackInfo callbackInfo) {
         final Jesus jesus = CrossSine.moduleManager.getModule(Jesus.class);

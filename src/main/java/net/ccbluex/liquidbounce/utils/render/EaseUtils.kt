@@ -4,9 +4,6 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import kotlin.math.*
 
-/***
- * Skid from https://github.com/ai/easings.net
- */
 object EaseUtils {
     fun easeInSine(x: Double): Double {
         return 1 - cos((x * PI) / 2)
@@ -85,6 +82,7 @@ object EaseUtils {
         return if (x == 0.0) { 0.0 } else { if (x == 1.0) { 1.0 } else { if (x < 0.5) { 2.0.pow(20 * x - 10) / 2 } else { (2 - 2.0.pow(-20 * x + 10)) / 2 } } }
     }
 
+    @JvmStatic
     fun easeInCirc(x: Double): Double {
         return 1 - sqrt(1 - x.pow(2))
     }

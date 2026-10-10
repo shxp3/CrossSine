@@ -6,4 +6,4 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 
 @ModuleInfo(name = "CameraClip", category = ModuleCategory.VISUAL)
-class CameraClip : Module()
+object CameraClip : Module()

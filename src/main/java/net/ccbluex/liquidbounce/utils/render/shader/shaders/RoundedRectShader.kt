@@ -19,7 +19,7 @@ object RoundedRectShader : Shader("roundedrect.frag") {
         // ignore
     }
         @Suppress("NOTHING_TO_INLINE")
-        inline fun draw(x: Float, y: Float, x2: Float, y2: Float, radius: Float, color: Color): RoundedRectShader {
+        inline fun draw(x: Float, y: Float, x2: Float, y2: Float, radius: Float, shadow:Float, color: Color): RoundedRectShader {
             val width = abs(x2 - x)
             val height = abs(y2 - y)
 
@@ -29,6 +29,7 @@ object RoundedRectShader : Shader("roundedrect.frag") {
             RoundedRectShader.setUniformf("u_size", width, height)
             RoundedRectShader.setUniformf("u_radius", radius)
             RoundedRectShader.setUniformf("u_color", color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
+            RoundedRectShader.setUniformf("u_shadow", shadow)
 
             GlStateManager.enableBlend()
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)

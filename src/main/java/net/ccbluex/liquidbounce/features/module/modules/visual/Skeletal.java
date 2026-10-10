@@ -7,12 +7,16 @@ import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
+import net.ccbluex.liquidbounce.features.value.ColorValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme;
+import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -21,10 +25,8 @@ import java.util.WeakHashMap;
 public class Skeletal extends Module {
 
     private final Map playerRotationMap = new WeakHashMap();
-
-    private final IntegerValue red = new IntegerValue("Red", 255, 0, 255);
-    private final IntegerValue green = new IntegerValue("Green", 255, 0, 255);
-    private final IntegerValue blue = new IntegerValue("Blue", 255, 0, 255);
+    private final BoolValue clientTheme = new BoolValue("ClientTheme", false);
+    private final ColorValue colorValue = (ColorValue) new ColorValue("Red",  new Color(255, 255, 255), false).displayable(() -> !clientTheme.get());
 
     private final BoolValue smoothLines = new BoolValue("SmoothLines", true);
 
@@ -43,7 +45,6 @@ public class Skeletal extends Module {
         this.playerRotationMap.keySet().removeIf(var0 -> contain((EntityPlayer) var0));
 
         Map playerRotationMap = this.playerRotationMap;
-        List worldPlayers = mc.theWorld.playerEntities;
 
         Object[] players = playerRotationMap.keySet().toArray();
         int playersLength = players.length;
@@ -53,14 +54,17 @@ public class Skeletal extends Module {
             float[][] entPos = (float[][]) playerRotationMap.get(player);
 
             if (entPos == null || player.getEntityId() == -1488 || !player.isEntityAlive() || !RenderUtils.isInViewFrustrum(player) ||
-                    player.isDead || player == mc.thePlayer || player.isPlayerSleeping() || player.isInvisible())
+                    player.isDead || player == mc.thePlayer || !EntityUtils.INSTANCE.isSelected(player, true) || player.isPlayerSleeping() || player.isInvisible())
                 continue;
 
             GL11.glPushMatrix();
             float[][] modelRotations = (float[][]) playerRotationMap.get(player);
             GL11.glLineWidth(1.0f);
-            GL11.glColor4f(red.get() / 255.0f, green.get() / 255.0f, blue.get() / 255.0f, 1.0f);
-
+            if (clientTheme.get()) {
+                RenderUtils.setColor(ClientTheme.INSTANCE.getColor(0, false));
+            } else {
+                GL11.glColor4f(colorValue.get().getRed() / 255.0f, colorValue.get().getGreen() / 255.0f, colorValue.get().getBlue() / 255.0f, 1.0f);
+            }
             double x = interpolate(player.posX, player.lastTickPosX, event.getPartialTicks()) - mc.getRenderManager().renderPosX;
             double y = interpolate(player.posY, player.lastTickPosY, event.getPartialTicks()) - mc.getRenderManager().renderPosY;
             double z = interpolate(player.posZ, player.lastTickPosZ, event.getPartialTicks()) - mc.getRenderManager().renderPosZ;

@@ -3,14 +3,11 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flights.other
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.minecraft.network.play.client.C03PacketPlayer
 
 class FlagFlight : FlightMode("Flag") {
     override fun onEnable() {
         if(mc.isSingleplayer) {
-            CrossSine.hud.addNotification(Notification("FlagFly", "Using FlagFly in SinglePlayer will crash your client while saving world!", NotifyType.ERROR))
             flight.state = false
         }
     }

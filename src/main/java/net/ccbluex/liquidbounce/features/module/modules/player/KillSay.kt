@@ -28,7 +28,7 @@ object KillSay : Module() {
             "RawWords"
         ), "RawWords"
     )
-    private val waterMarkValue = BoolValue("WaterMark", true)
+    private val waterMarkValue = BoolValue("Water-Mark", true)
 
     private val insultFile = File(CrossSine.fileManager.dir, "insult.json")
     var insultWords = mutableListOf<String>()

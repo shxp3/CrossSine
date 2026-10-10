@@ -38,9 +38,9 @@ object Velocity : Module() {
             if (state) onEnable()
         }
     }
-    val h = FloatValue("Horizontal", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
-    val v = FloatValue("Vertical", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
-    val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") || modeValue.equals("JumpReset") }
+    val horizontal = IntegerValue("Horizontal", 0, 0, 100).displayable { modeValue.equals("Standard") }
+    val vertical = IntegerValue("Vertical", 0, 0, 100).displayable { modeValue.equals("Standard") }
+    val chance = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") || modeValue.equals("JumpReset") }
     private val m = ListValue("StandardTag", arrayOf("Text", "Percent"),"Text").displayable { modeValue.equals("Standard") }
     private val og = BoolValue("OnlyGround", false)
     private val oc = BoolValue("OnlyCombat", false)
@@ -48,22 +48,15 @@ object Velocity : Module() {
     private val noFireValue = BoolValue("noFire", false)
 
     val velocityTimer = MSTimer()
-    var wasTimer = false
     var velocityInput = false
-    var velocityTick = 0
 
-    var antiDesync = false
 
-    var needReset = true
 
     override fun onEnable() {
-        antiDesync = false
-        needReset = true
         mode.onEnable()
     }
 
     override fun onDisable() {
-        antiDesync = false
         mc.thePlayer.capabilities.isFlying = false
         mc.thePlayer.capabilities.flySpeed = 0.05f
         mc.thePlayer.noClip = false
@@ -76,13 +69,6 @@ object Velocity : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (wasTimer) {
-            mc.timer.timerSpeed = 1f
-            wasTimer = false
-        }
-        if(velocityInput) {
-            velocityTick++
-        }else velocityTick = 0
 
         if (mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb) {
             return
@@ -110,7 +96,6 @@ object Velocity : Module() {
             // if(onlyHitVelocityValue.get() && packet.getMotionY()<400.0) return
             if (noFireValue.get() && mc.thePlayer.isBurning) return
             velocityTimer.reset()
-            velocityTick = 0
 
             mode.onVelocityPacket(event)
         }
@@ -121,7 +106,8 @@ object Velocity : Module() {
         get() = if (modeValue.get() == "Standard") {
             when (m.get()) {
                 "Text" -> "Standard"
-                "Percent" ->  "${DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(v.get())}% ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(h.get())}%"
+                "Percent" ->  "${DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(vertical.get())}% ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(
+                    horizontal.get())}%"
                 else -> ""
             }
         } else modeValue.get()

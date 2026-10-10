@@ -22,7 +22,7 @@ import net.minecraft.util.ResourceLocation
 class KillEffect : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Lighting", "Blood", "Fire"), "Lighting")
     private val timesValue = IntegerValue("Times", 1, 1, 10)
-    private val lightingSoundValue = BoolValue("LightingSound", true).displayable { modeValue.equals("Lighting") }
+    private val lightingSoundValue = BoolValue("Lighting-Sound", true).displayable { modeValue.equals("Lighting") }
 
     private val blockState = Block.getStateId(Blocks.redstone_block.defaultState)
 

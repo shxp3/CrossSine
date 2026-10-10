@@ -1,8 +1,5 @@
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.visual.Animations
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.minecraft.block.BlockSlime
@@ -23,6 +20,11 @@ object PlayerUtils {
     @JvmStatic
     var groundTicks = 0
 
+    @JvmStatic
+    var lastOffGroundTicks = 0
+    @JvmStatic
+    var lastGroundTicks = 0
+
     fun findSlimeBlock(): Int? {
         for (i in 0..8) {
             val itemStack = mc.thePlayer.inventory.getStackInSlot(i)
@@ -33,6 +35,14 @@ object PlayerUtils {
         }
         return Integer.valueOf(-1)
     }
+    fun canMove(x: Double, z: Double): Boolean {
+        return canMove(x, z, -1.0)
+    }
+
+    fun canMove(x: Double, z: Double, y: Double): Boolean {
+        val boundingBox: AxisAlignedBB? = mc.thePlayer.getEntityBoundingBox().offset(x, y, z)
+        return mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, boundingBox).isEmpty()
+    }
     fun swing() {
         val player: EntityPlayerSP = mc.thePlayer
         val swingEnd = (if (player.isPotionActive(Potion.digSpeed)) (6 - (1 + player.getActivePotionEffect(Potion.digSpeed).amplifier)) else (if (player.isPotionActive(Potion.digSlowdown)) (6 + (1 + player.getActivePotionEffect(Potion.digSlowdown).amplifier) * 2) else 6)) * if (Animations.state) Animations.swingSpeedValue.get() else 1F
@@ -41,11 +51,15 @@ object PlayerUtils {
             player.isSwingInProgress = true
         }
     }
-
     fun isOnEdge() : Boolean {
         return mc.thePlayer.onGround && !mc.thePlayer.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty()
     }
-
+    fun BlockUnderPlayerIsEmpty() : Boolean {
+        return mc.theWorld.getCollidingBoundingBoxes(
+            mc.thePlayer,
+            mc.thePlayer.entityBoundingBox.offset(mc.thePlayer.motionX / 3.5, -1.0, mc.thePlayer.motionZ / 3.5)
+        ).isEmpty()
+    }
     fun getEntity(distance: Double, expand: Double): Array<Any?>? {
         val var2 = mc.renderViewEntity
         var entity: Entity? = null
@@ -105,6 +119,9 @@ object PlayerUtils {
         }
         return null
     }
-
+    @JvmStatic
+    fun NotNull() : Boolean {
+        return mc.thePlayer != null && mc.theWorld != null
+    }
 }
 

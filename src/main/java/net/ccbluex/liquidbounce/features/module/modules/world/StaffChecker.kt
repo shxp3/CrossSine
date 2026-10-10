@@ -8,8 +8,6 @@ import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -25,11 +23,11 @@ import kotlin.concurrent.thread
 
 @ModuleInfo(name = "StaffChecker", category = ModuleCategory.WORLD)
 class StaffChecker : Module() {
-    private val antiV = BoolValue("AntiVanish", false)
-    private val chat = BoolValue("AlertChat", true)
+    private val antiV = BoolValue("Anti-Vanish", false)
+    private val chat = BoolValue("Alert-Chat", true)
     private val leave = BoolValue("Leave", true)
-    private val leavemsg = TextValue("LeaveMessage", "leave")
-    private val customValue = BoolValue("CustomName", false)
+    private val leavemsg = TextValue("Leave-Message", "leave")
+    private val customValue = BoolValue("Custom-Name", false)
     private val customName = TextValue("Name-of-staff", "").displayable { customValue.get() }
     private var staffs = mutableListOf<String>()
     private var csstaffs = mutableListOf<String>()
@@ -128,7 +126,7 @@ class StaffChecker : Module() {
 
                 is S1DPacketEntityEffect -> {
                     if (antiV.get()) {
-                        if(mc.theWorld.getEntityByID(packet.entityId)==null){
+                        if(mc.theWorld.getEntityByID(packet.entityId) == null){
                             vanish()
                         }
                     }

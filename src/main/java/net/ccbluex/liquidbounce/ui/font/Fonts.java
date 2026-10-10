@@ -16,20 +16,60 @@ import java.util.List;
 
 public class Fonts {
 
-    @FontDetails(fontName = "Urbanist", fontSize = 18)
-    public static GameFontRenderer font18;
     @FontDetails(fontName = "Urbanist", fontSize = 20)
     public static GameFontRenderer font20;
+
     @FontDetails(fontName = "Urbanist", fontSize = 24)
     public static GameFontRenderer font24;
+
     @FontDetails(fontName = "Urbanist", fontSize = 30)
     public static GameFontRenderer font30;
+
     @FontDetails(fontName = "Urbanist", fontSize = 32)
     public static GameFontRenderer font32;
+
     @FontDetails(fontName = "Urbanist", fontSize = 35)
     public static GameFontRenderer font35;
+
     @FontDetails(fontName = "Urbanist", fontSize = 40)
     public static GameFontRenderer font40;
+
+    @FontDetails(fontName = "UrbanistBold", fontSize = 20)
+    public static GameFontRenderer font20Bold;
+
+    @FontDetails(fontName = "UrbanistBold", fontSize = 24)
+    public static GameFontRenderer font24Bold;
+
+    @FontDetails(fontName = "UrbanistBold", fontSize = 30)
+    public static GameFontRenderer font30Bold;
+
+    @FontDetails(fontName = "UrbanistBold", fontSize = 32)
+    public static GameFontRenderer font32Bold;
+
+    @FontDetails(fontName = "UrbanistBold", fontSize = 35)
+    public static GameFontRenderer font35Bold;
+
+    @FontDetails(fontName = "UrbanistBold", fontSize = 40)
+    public static GameFontRenderer font40Bold;
+
+    @FontDetails(fontName = "UrbanistSemiBold", fontSize = 20)
+    public static GameFontRenderer font20SemiBold;
+
+    @FontDetails(fontName = "UrbanistSemiBold", fontSize = 24)
+    public static GameFontRenderer font24SemiBold;
+
+    @FontDetails(fontName = "UrbanistSemiBold", fontSize = 30)
+    public static GameFontRenderer font30SemiBold;
+
+    @FontDetails(fontName = "UrbanistSemiBold", fontSize = 32)
+    public static GameFontRenderer font32SemiBold;
+
+    @FontDetails(fontName = "UrbanistSemiBold", fontSize = 35)
+    public static GameFontRenderer font35SemiBold;
+
+    @FontDetails(fontName = "UrbanistSemiBold", fontSize = 40)
+    public static GameFontRenderer font40SemiBold;
+
 
 
     @FontDetails(fontName = "SF", fontSize = 35)
@@ -42,9 +82,6 @@ public class Fonts {
 
     @FontDetails(fontName = "Bangers", fontSize = 45)
     public static GameFontRenderer fontBangers;
-
-    @FontDetails(fontName = "SFUI35", fontSize = 18)
-    public static GameFontRenderer SFUI35;
 
     @FontDetails(fontName = "Minecraft Font")
     public static final FontRenderer minecraftFont = Minecraft.getMinecraft().fontRendererObj;
@@ -105,16 +142,36 @@ public class Fonts {
     @FontDetails(fontName = "SFApple50", fontSize = 50)
     public static GameFontRenderer SFApple50;
 
+    @FontDetails(fontName = "Thai24", fontSize = 24)
+    public static GameFontRenderer Thai24;
+    @FontDetails(fontName = "Thai30", fontSize = 30)
+    public static GameFontRenderer Thai30;
+    @FontDetails(fontName = "Thai36", fontSize = 36)
+    public static GameFontRenderer Thai36;
+
     @FontDetails(fontName = "Nova24", fontSize = 24)
     public static GameFontRenderer Nova24;
     @FontDetails(fontName = "Nova30", fontSize = 30)
     public static GameFontRenderer Nova30;
+    @FontDetails(fontName = "Nova30", fontSize = 32)
+    public static GameFontRenderer Nova32;
     @FontDetails(fontName = "Nova35", fontSize = 35)
     public static GameFontRenderer Nova35;
     @FontDetails(fontName = "Nova40", fontSize = 40)
     public static GameFontRenderer Nova40;
     @FontDetails(fontName = "Nova50", fontSize = 50)
     public static GameFontRenderer Nova50;
+
+    @FontDetails(fontName = "SFBold24", fontSize = 24)
+    public static GameFontRenderer SFBold24;
+    @FontDetails(fontName = "SFBold30", fontSize = 30)
+    public static GameFontRenderer SFBold30;
+    @FontDetails(fontName = "SFBold35", fontSize = 35)
+    public static GameFontRenderer SFBold35;
+    @FontDetails(fontName = "SFBold40", fontSize = 40)
+    public static GameFontRenderer SFBold40;
+    @FontDetails(fontName = "SFBold50", fontSize = 50)
+    public static GameFontRenderer SFBold50;
 
 
     private static final List<GameFontRenderer> CUSTOM_FONT_RENDERERS = new ArrayList<>();
@@ -126,44 +183,76 @@ public class Fonts {
 
         fontSFUI35 = new GameFontRenderer(getFont("SF.ttf", 35));
         fontSFUI40 = new GameFontRenderer(getFont("SF.ttf", 40));
-        SFUI35 = new GameFontRenderer(getFont("SF.ttf", 18));
         fontSFUI35 = new GameFontRenderer(getFont("SF.ttf", 35));
         fontSFUI40 = new GameFontRenderer(getFont("SF.ttf", 40));
+
         fontTahomaSmall = new TTFFontRenderer(getFont("Tahoma.ttf", 11));
+
         fontBangers = new GameFontRenderer(getFontcustom(45, "Bangers"));
+
         fontTenacity35 = new GameFontRenderer(getFontcustom(35, "tenacity"));
         fontTenacityBold35 = new GameFontRenderer(getFontcustom(35, "tenacity-bold"));
         fontTenacityIcon30 = new GameFontRenderer(getFontcustom(30, "Tenacityicon"));
         fontTenacity40 = new GameFontRenderer(getFontcustom(40, "tenacity"));
         fontTenacityBold40 = new GameFontRenderer(getFontcustom(40, "tenacity-bold"));
+
         fontComfortaa35 = new GameFontRenderer(getFontcustom(35, "Comfortaa"));
         fontComfortaa40 = new GameFontRenderer(getFontcustom(40, "Comfortaa"));
+
         fontRockoFLF35 = new GameFontRenderer(getFontcustom(35, "RockoFLF-Bold"));
         fontRockoFLF40 = new GameFontRenderer(getFontcustom(40, "RockoFLF-Bold"));
+
         Nunito24 = new GameFontRenderer(getFontcustom(24, "Nunito"));
         Nunito30 = new GameFontRenderer(getFontcustom(30, "Nunito"));
         Nunito35 = new GameFontRenderer(getFontcustom(35, "Nunito"));
         Nunito40 = new GameFontRenderer(getFontcustom(40, "Nunito"));
         Nunito50 = new GameFontRenderer(getFontcustom(50, "Nunito"));
         Nunito60 = new GameFontRenderer(getFontcustom(60, "Nunito"));
+
+
         SFApple40 = new GameFontRenderer(getFontcustom(40, "SFApple"));
         SFApple30 = new GameFontRenderer(getFontcustom(30, "SFApple"));
         SFApple35 = new GameFontRenderer(getFontcustom(35, "SFApple"));
         SFApple50 = new GameFontRenderer(getFontcustom(50, "SFApple"));
         SFApple24 = new GameFontRenderer(getFontcustom(24, "SFApple"));
-        Nova40 = new GameFontRenderer(getFontcustom(40, "ProximaNovaLight"));
-        Nova30 = new GameFontRenderer(getFontcustom(30, "ProximaNovaLight"));
-        Nova35 = new GameFontRenderer(getFontcustom(35, "ProximaNovaLight"));
-        Nova50 = new GameFontRenderer(getFontcustom(50, "ProximaNovaLight"));
-        Nova24 = new GameFontRenderer(getFontcustom(24, "ProximaNovaLight"));
 
-        font18 = new GameFontRenderer(getFontcustom(18, "Urbanist-Medium"));
+        Thai24 = new GameFontRenderer(getFontcustom(24, "Sarabun"), 3712);
+        Thai30 = new GameFontRenderer(getFontcustom(30, "Sarabun"), 3712);
+        Thai36 = new GameFontRenderer(getFontcustom(36, "Sarabun"), 3712);
+
+        Nova40 = new GameFontRenderer(getFontcustom(40, "ProximaNova"));
+        Nova30 = new GameFontRenderer(getFontcustom(30, "ProximaNova"));
+        Nova35 = new GameFontRenderer(getFontcustom(35, "ProximaNova"));
+        Nova50 = new GameFontRenderer(getFontcustom(50, "ProximaNova"));
+        Nova24 = new GameFontRenderer(getFontcustom(24, "ProximaNova"));
+
+        SFBold24 = new GameFontRenderer(getFontcustom(24, "SFSemiBold"));
+        SFBold30 = new GameFontRenderer(getFontcustom(30, "SFSemiBold"));
+        SFBold30 = new GameFontRenderer(getFontcustom(32, "SFSemiBold"));
+        SFBold35 = new GameFontRenderer(getFontcustom(35, "SFSemiBold"));
+        SFBold40 = new GameFontRenderer(getFontcustom(40, "SFSemiBold"));
+        SFBold50 = new GameFontRenderer(getFontcustom(50, "SFSemiBold"));
+
         font20 = new GameFontRenderer(getFontcustom(20, "Urbanist-Medium"));
         font24 = new GameFontRenderer(getFontcustom(24, "Urbanist-Medium"));
         font30 = new GameFontRenderer(getFontcustom(30, "Urbanist-Medium"));
         font32 = new GameFontRenderer(getFontcustom(32, "Urbanist-Medium"));
         font35 = new GameFontRenderer(getFontcustom(35, "Urbanist-Medium"));
         font40 = new GameFontRenderer(getFontcustom(40, "Urbanist-Medium"));
+
+        font20Bold = new GameFontRenderer(getFontcustom(20, "Urbanist-Bold"));
+        font24Bold = new GameFontRenderer(getFontcustom(24, "Urbanist-Bold"));
+        font30Bold = new GameFontRenderer(getFontcustom(30, "Urbanist-Bold"));
+        font32Bold = new GameFontRenderer(getFontcustom(32, "Urbanist-Bold"));
+        font35Bold = new GameFontRenderer(getFontcustom(35, "Urbanist-Bold"));
+        font40Bold = new GameFontRenderer(getFontcustom(40, "Urbanist-Bold"));
+
+        font20SemiBold = new GameFontRenderer(getFontcustom(20, "Urbanist-SemiBold"));
+        font24SemiBold = new GameFontRenderer(getFontcustom(24, "Urbanist-SemiBold"));
+        font30SemiBold = new GameFontRenderer(getFontcustom(30, "Urbanist-SemiBold"));
+        font32SemiBold = new GameFontRenderer(getFontcustom(32, "Urbanist-SemiBold"));
+        font35SemiBold = new GameFontRenderer(getFontcustom(35, "Urbanist-SemiBold"));
+        font40SemiBold = new GameFontRenderer(getFontcustom(40, "Urbanist-SemiBold"));
 
         getCustomFonts();
 
@@ -218,7 +307,7 @@ public class Fonts {
 
     private static void initFonts() {
         try {
-            initSingleFont("Urbanist-Light.ttf", "assets/minecraft/crosssine/font/Urbanist-Light.ttf");
+            initSingleFont("Urbanist-Medium.ttf", "assets/minecraft/crosssine/font/Urbanist-Medium.ttf");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -227,16 +316,19 @@ public class Fonts {
     private static Font getFontcustom(int size, String fontname) {
         Font font;
         try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("crosssine/font/" + fontname + ".ttf")).getInputStream();
+            InputStream is = Minecraft.getMinecraft().getResourceManager()
+                    .getResource(new ResourceLocation("crosssine/font/" + fontname + ".ttf"))
+                    .getInputStream();
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("default", 0, size);
+            System.out.println("Error loading font: " + fontname);
+            font = new Font("default", Font.PLAIN, size);
         }
         return font;
     }
+
 
     private static void initSingleFont(String name, String resourcePath) throws IOException {
         File file = new File(CrossSine.fileManager.getFontsDir(), name);
@@ -276,7 +368,7 @@ public class Fonts {
 
                 final Object o = field.get(null);
 
-                if (o.equals(fontRenderer)) {
+                if (o != null && o.equals(fontRenderer)) {
                     final FontDetails fontDetails = field.getAnnotation(FontDetails.class);
 
                     return new Object[]{fontDetails.fontName(), fontDetails.fontSize()};

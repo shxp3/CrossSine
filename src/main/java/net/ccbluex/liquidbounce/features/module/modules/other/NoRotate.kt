@@ -6,42 +6,34 @@ import net.ccbluex.liquidbounce.event.TeleportEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 
 @ModuleInfo(name = "NoRotate", category = ModuleCategory.OTHER)
 class NoRotate : Module() {
-    private val modeValue = ListValue("Mode", arrayOf("Cancel", "Edit"), "Cancel")
-    private var yaw = 0F
-    private var pitch = 0F
+    private var yaw = 0f
+    private var pitch = 0f
     private var teleport = false
 
     @EventTarget
     fun onTeleport(event: TeleportEvent) {
+        yaw = event.yaw
+        pitch = event.pitch
+
         event.yaw = mc.thePlayer.rotationYaw
         event.pitch = mc.thePlayer.rotationPitch
 
-        if (modeValue.equals("Edit")) {
-            this.yaw = event.yaw
-            this.pitch = event.pitch
-
-            teleport = true
-        }
+        teleport = true
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (modeValue.equals("Edit")) {
-            if (teleport && event.packet is C06PacketPlayerPosLook) {
-                val packet = event.packet
-                packet.yaw = yaw
-                packet.pitch = pitch
-                teleport = false
-            }
+        val packet = event.packet
+        if (this.teleport && packet is C06PacketPlayerPosLook) {
+
+            packet.yaw = this.yaw
+            packet.pitch = this.pitch
+
+            this.teleport = false
         }
     }
-
-    override val tag: String?
-        get() = modeValue.get()
 }

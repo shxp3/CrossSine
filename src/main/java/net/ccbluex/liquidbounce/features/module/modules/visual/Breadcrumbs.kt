@@ -26,13 +26,13 @@ class Breadcrumbs : Module() {
     private val typeValue = ListValue("Type", arrayOf("Line", "Rect", "Sphere", "Rise"), "Line")
     private val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255)
     private val fadeValue = BoolValue("Fade", true)
-    private val drawThePlayerValue = BoolValue("DrawThePlayer", true)
-    private val drawTargetsValue = BoolValue("DrawTargets", true)
-    private val fadeTimeValue = IntegerValue("FadeTime", 5, 1, 20)
+    private val drawThePlayerValue = BoolValue("Draw-The-Player", true)
+    private val drawTargetsValue = BoolValue("Draw-Targets", true)
+    private val fadeTimeValue = IntegerValue("Fade-Time", 5, 1, 20)
     private val precisionValue = IntegerValue("Precision", 4, 1, 20)
-    private val lineWidthValue = IntegerValue("LineWidth", 1, 1, 10).displayable { typeValue.equals("Line") }
-    private val sphereScaleValue = FloatValue("SphereScale", 0.6f, 0.1f, 2f).displayable { typeValue.equals("Sphere") || typeValue.equals("Rise")}
-    private val onlyThirdPersonValue = BoolValue("OnlyThirdPerson", true)
+    private val lineWidthValue = IntegerValue("Line-Width", 1, 1, 10).displayable { typeValue.equals("Line") }
+    private val sphereScaleValue = FloatValue("Sphere-Scale", 0.6f, 0.1f, 2f).displayable { typeValue.equals("Sphere") || typeValue.equals("Rise")}
+    private val onlyThirdPersonValue = BoolValue("Only-Third-Person", true)
 
     private val points = mutableMapOf<Int, MutableList<BreadcrumbPoint>>()
 

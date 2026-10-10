@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.fire
 
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.LongJumpMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
@@ -13,36 +14,40 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 
 class FireBallLongjump : LongJumpMode("FireBall") {
+    private val spoofValue = BoolValue("SpoofItem", true)
     private val speedValue = FloatValue("Speed", 1.5F, 0F, 2F)
-    private val timeValue = IntegerValue("TimeTicks", 30, 10, 60)
     private val motionValue = FloatValue("Motion", 0.3F, 0.01F, 0.4F)
     private val strafeValue = BoolValue("Strafe", false)
-    private var prevSlot = -1
     private var ticks = -1
     private var setSpeed = false
     private var sentPlace = false
     private var initTicks = 0
+    private var velocity = false
     private var thrown = false
+    override fun onEnable() {
+        if (Velocity.state) {
+            Velocity.state = false
+            velocity = true
+        }
+    }
     override fun onDisable() {
         ticks = -1
-        prevSlot = -1
         setSpeed = false
         sentPlace = false
         initTicks = 0
+        if (velocity) {
+            Velocity.state = true
+            velocity = false
+        }
     }
 
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (packet is C08PacketPlayerBlockPlacement
-            && packet.getStack() != null && packet.getStack().item is ItemFireball
-        ) {
-            thrown = true
-        }
         if (packet is S12PacketEntityVelocity) {
             if (packet.entityID != mc.thePlayer.entityId) {
                 return
             }
-            if (thrown) {
+            if (sentPlace) {
                 ticks = 0
                 setSpeed = true
                 thrown = false
@@ -51,12 +56,14 @@ class FireBallLongjump : LongJumpMode("FireBall") {
     }
 
     override fun onPreMotion(event: MotionEvent) {
+        if (getFBSlot() == -1 && !sentPlace) {
+            ClientUtils.displayChatMessage("FireBall not found")
+            longjump.state = false
+        }
         when (initTicks) {
             1 -> {
                 if (getFBSlot() != -1 && getFBSlot() != mc.thePlayer.inventory.currentItem) {
-                    prevSlot = mc.thePlayer.inventory.currentItem
-                    SpoofItemUtils.startSpoof(prevSlot, true)
-                    mc.thePlayer.inventory.currentItem = getFBSlot()
+                    SlotUtils.setSlot(getFBSlot(), spoofValue.get(), longjump.name)
                 }
                 RotationUtils.setTargetRotation(Rotation(MovementUtils.movingYaw - 180F, 89F), 1)
             }
@@ -64,26 +71,20 @@ class FireBallLongjump : LongJumpMode("FireBall") {
             2 -> {
                 RotationUtils.setTargetRotation(Rotation(MovementUtils.movingYaw - 180F, 89F), 1)
                 if (!sentPlace) {
-                    PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+                    mc.rightClickMouse()
                     sentPlace = true
                 }
             }
 
-            3 -> SpoofItemUtils.stopSpoof()
+            3 -> SlotUtils.stopSet()
+            5 -> if (longjump.autoDisableValue.get()) longjump.state = false
         }
 
         initTicks++
 
-        if (ticks > timeValue.get()) {
-            if(longjump.autoDisableValue.get()) longjump.state = false
-        } else if (ticks >= 0) {
+        if (ticks >= 0) {
             mc.thePlayer.motionY = motionValue.get().toDouble()
             if (strafeValue.get()) MovementUtils.strafe()
-        }
-
-        if (setSpeed) {
-            MovementUtils.strafe(speedValue.get())
-            ticks++
         }
 
         if (setSpeed) {

@@ -39,10 +39,10 @@ import static org.lwjgl.opengl.GL11.*;
 @ModuleInfo(name = "Teleport",category = ModuleCategory.OTHER)
 public class Teleport extends Module {
 
-    private final BoolValue ignoreNoCollision = new BoolValue("IgnoreNoCollision", true);
+    private final BoolValue ignoreNoCollision = new BoolValue("Ignore-No-Collision", true);
     private final ListValue modeValue = new ListValue("Mode", new String[] {"Tp", "Blink", "Flag", "Rewinside", "OldRewinside", "Spoof", "Minesucht", "AAC3.5.0","BWRel","Karhu"}, "Tp");
     private final ListValue buttonValue = new ListValue("Button", new String[] {"Left", "Right", "Middle"}, "Middle");
-    private final BoolValue needSneak = new BoolValue("NeedSneak", true);
+    private final BoolValue needSneak = new BoolValue("Need-Sneak", true);
     private final tickTimer flyTimer = new tickTimer();
     private boolean hadGround;
     private double fixedY;

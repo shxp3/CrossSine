@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CrossSine ClickGUI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0712;--panel:rgba(22,16,38,.55);--panel-h:rgba(28,20,48,.8);
+  --border:rgba(255,255,255,.06);--border-h:rgba(168,85,247,.4);
+  --text:#ece6f5;--text-d:#b8aacc;--text-m:#7d6f95;--text-f:#544863;
+  --acc:#a855f7;--acc-2:#7c3aed;--acc-soft:rgba(168,85,247,.15);
+  --on-bg:rgba(168,85,247,.07);--on-bd:rgba(168,85,247,.4);
+  --on-glow:rgba(168,85,247,.32);
+  --r:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);overflow-x:hidden;
+}
+
+/* ── Animated starfield ─────────────────────────────────────────────────── */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 20% 0%,rgba(168,85,247,.1) 0%,transparent 45%),
+    radial-gradient(ellipse at 80% 100%,rgba(124,58,237,.1) 0%,transparent 45%),
+    var(--bg);}
+.bg::before{content:'';position:absolute;inset:-20%;
+  background-image:
+    radial-gradient(1px 1px at 25% 30%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,.3),transparent),
+    radial-gradient(1px 1px at 80% 20%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 15% 80%,rgba(255,255,255,.35),transparent),
+    radial-gradient(1px 1px at 90% 50%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 45% 15%,rgba(255,255,255,.3),transparent),
+    radial-gradient(1px 1px at 70% 90%,rgba(255,255,255,.45),transparent);
+  background-size:380px 380px,520px 520px,460px 460px,600px 600px,380px 380px,540px 540px,420px 420px;
+  animation:drift 90s linear infinite;opacity:.55;}
+.bg::after{content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(135deg,transparent 49.5%,rgba(255,255,255,.025) 50%,transparent 50.5%),
+    linear-gradient(135deg,transparent 49.5%,rgba(168,85,247,.05) 50%,transparent 50.5%);
+  background-size:220px 220px,320px 320px;
+  background-position:0 0,60px 40px;opacity:.9;pointer-events:none;}
+@keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-200px,-120px,0)}}
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,7,18,.85);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:12px 24px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:baseline;gap:10px;flex-shrink:0}
+.brand h1{font-size:20px;font-weight:800;letter-spacing:-.4px;
+  background:linear-gradient(135deg,#e9d5ff 0%,#c084fc 50%,#a855f7 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.brand small{font-size:11px;color:var(--text-m);font-weight:500;letter-spacing:.5px}
+.search{position:relative;flex:1;max-width:300px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;stroke:var(--text-m);fill:none;stroke-width:2;pointer-events:none}
+.search input{width:100%;background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:9px;
+  padding:8px 12px 8px 34px;color:var(--text);
+  font:inherit;font-size:13px;outline:none;
+  transition:border-color .18s,background .18s;}
+.search input::placeholder{color:var(--text-f)}
+.search input:focus{border-color:var(--border-h);background:rgba(255,255,255,.06)}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;
+  font-size:12px;color:var(--text-m)}
+.dot{width:7px;height:7px;border-radius:50%;
+  background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.5)}
+.dot.ok{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.6);
+  animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.shell{
+  max-width:1500px;margin:18px auto 60px;padding:0 24px;
+  display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:flex-start;
+}
+.sidebar{position:sticky;top:84px;
+  background:var(--panel);backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-radius:var(--r);padding:10px 6px;}
+.cat{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;font:700 11px/1 'Inter',sans-serif;letter-spacing:1.4px;
+  color:var(--text-m);border-radius:8px;cursor:pointer;user-select:none;
+  transition:background .15s,color .15s;}
+.cat:hover{color:var(--text-d);background:rgba(255,255,255,.025)}
+.cat.active{background:rgba(168,85,247,.1);color:var(--text);
+  box-shadow:inset 2px 0 0 var(--acc);}
+.cat-count{font:600 10px/1 'JetBrains Mono',monospace;color:var(--text-f)}
+.cat.active .cat-count{color:var(--acc)}
+.sb-stats{margin-top:8px;padding:12px 14px 4px;
+  border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.sb-stat{display:flex;justify-content:space-between;font-size:11px;color:var(--text-m)}
+.sb-stat b{color:var(--acc);font-weight:700;font-family:'JetBrains Mono',monospace}
+
+.main{min-width:0}
+.section{display:flex;align-items:baseline;gap:12px;margin:4px 4px 14px}
+.section h2{font-size:13px;font-weight:700;letter-spacing:1.6px;
+  text-transform:uppercase;margin:0}
+.section span{font-size:11px;color:var(--text-m)}
+
+.grid{display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(265px,1fr));
+  gap:14px;}
+
+/* ── Module card ────────────────────────────────────────────────────────── */
+.card{position:relative;background:var(--panel);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px 12px;cursor:pointer;user-select:none;
+  transition:border-color .2s,background .2s,box-shadow .25s;
+  overflow:hidden;}
+.card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(168,85,247,.08) 0%,transparent 60%);
+  opacity:0;transition:opacity .25s;pointer-events:none}
+.card:hover{border-color:rgba(255,255,255,.12);background:var(--panel-h)}
+.card:hover::before{opacity:1}
+.card.on{border-color:var(--on-bd);
+  background:linear-gradient(135deg,var(--on-bg) 0%,var(--panel) 60%);
+  box-shadow:0 0 0 1px var(--on-bd),0 0 24px var(--on-glow);}
+.card.on::before{opacity:1}
+.card.exp{border-color:var(--border-h)}
+
+.head{display:flex;align-items:center;gap:10px}
+.name{flex:1;font-size:14px;font-weight:700;letter-spacing:-.2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bind{font:600 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.5px;
+  color:var(--text-d);background:rgba(255,255,255,.05);
+  border:1px solid var(--border);padding:3px 6px;border-radius:4px;flex-shrink:0}
+.card.on .bind{color:var(--acc);
+  border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.1)}
+
+.sw{flex-shrink:0;width:32px;height:18px;background:rgba(255,255,255,.08);
+  border-radius:999px;position:relative;transition:background .2s;cursor:pointer}
+.sw::after{content:'';position:absolute;top:2px;left:2px;
+  width:14px;height:14px;background:#cbd5e1;border-radius:50%;
+  transition:transform .22s cubic-bezier(.4,.2,.2,1.2),background .2s}
+.card.on .sw{background:linear-gradient(135deg,var(--acc) 0%,var(--acc-2) 100%);
+  box-shadow:0 0 10px rgba(168,85,247,.5)}
+.card.on .sw::after{transform:translateX(14px);background:#fff}
+
+.foot{display:flex;align-items:center;gap:8px;margin-top:8px}
+.tag{font:700 9.5px/1 'Inter',sans-serif;letter-spacing:1.4px;
+  color:var(--text-m);text-transform:uppercase}
+.card.on .tag{color:var(--acc)}
+.hint{margin-left:auto;font:500 10px/1 'JetBrains Mono',monospace;
+  color:var(--text-f);opacity:0;transition:opacity .2s}
+.card:hover .hint{opacity:1}
+.card.exp .hint{opacity:1;color:var(--acc)}
+.set-count{font:600 9.5px/1 'JetBrains Mono',monospace;color:var(--text-f)}
+.card.on .set-count{color:var(--text-m)}
+
+/* ── Settings panel (expanded) ──────────────────────────────────────────── */
+.set{max-height:0;overflow:hidden;
+  transition:max-height .3s ease,margin-top .3s,padding-top .3s;
+  margin-top:0;padding-top:0;border-top:1px solid transparent}
+.card.exp .set{max-height:1200px;margin-top:10px;padding-top:10px;
+  border-top-color:var(--border)}
+.row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12px}
+.row + .row{border-top:1px dashed rgba(255,255,255,.04)}
+.lbl{flex:1;color:var(--text-d);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val{font:600 11px/1 'JetBrains Mono',monospace;color:var(--acc);
+  min-width:42px;text-align:right}
+.row.title{padding:8px 0 4px;border-top:1px solid rgba(255,255,255,.04);
+  margin-top:4px}
+.row.title:first-child{border-top:none;margin-top:0;padding-top:2px}
+.row.title .lbl{font:700 9.5px/1 'Inter',sans-serif;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text-m)}
+
+/* mini toggle */
+.tg{width:26px;height:14px;background:rgba(255,255,255,.08);
+  border-radius:999px;position:relative;cursor:pointer;
+  transition:background .2s;flex-shrink:0}
+.tg::after{content:'';position:absolute;top:2px;left:2px;
+  width:10px;height:10px;background:#cbd5e1;border-radius:50%;
+  transition:transform .22s,background .2s}
+.tg.on{background:var(--acc)}
+.tg.on::after{transform:translateX(12px);background:#fff}
+
+/* slider */
+.sl{flex:1;height:4px;background:rgba(255,255,255,.08);
+  border-radius:999px;position:relative;cursor:pointer}
+.sl-fill{position:absolute;top:0;left:0;bottom:0;
+  background:linear-gradient(90deg,var(--acc-2),var(--acc));
+  border-radius:999px}
+.sl-th{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;
+  background:#fff;transform:translate(-50%,-50%);
+  box-shadow:0 0 0 2px var(--acc),0 0 8px rgba(168,85,247,.6);
+  transition:width .15s,height .15s;cursor:grab}
+.sl-th:active{cursor:grabbing}
+.sl:hover .sl-th{width:14px;height:14px}
+.sl-r .sl-fill{left:auto}
+
+/* select / text */
+.sel,.txt{flex:1;min-width:0;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:6px;color:var(--text);
+  font:600 11px/1 'JetBrains Mono',monospace;padding:6px 8px;outline:none;
+  transition:border-color .15s;cursor:pointer}
+.sel:hover,.sel:focus,.txt:focus{border-color:var(--border-h)}
+.sel option{background:#150e25;color:var(--text)}
+.txt{font-weight:500;cursor:text}
+.kb{font:600 10px/1 'JetBrains Mono',monospace;color:var(--text-d);
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  padding:4px 8px;border-radius:4px}
+
+/* ── Skeleton ───────────────────────────────────────────────────────────── */
+.skel{height:14px;margin:6px 0;border-radius:4px;
+  background:linear-gradient(90deg,
+    rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);
+  background-size:200% 100%;animation:shim 1.5s infinite}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── Banners ────────────────────────────────────────────────────────────── */
+.banner{grid-column:1/-1;
+  background:linear-gradient(135deg,rgba(168,85,247,.1) 0%,rgba(124,58,237,.08) 100%);
+  border:1px solid var(--border-h);border-radius:var(--r);
+  padding:14px 18px;display:flex;align-items:center;gap:14px;
+  font-size:13px;color:var(--text-d)}
+.banner b{color:var(--acc);font-weight:700}
+.empty{grid-column:1/-1;padding:60px 20px;text-align:center;
+  color:var(--text-m);font-size:13px}
+.empty .ic{font-size:32px;margin-bottom:10px;opacity:.55}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width:880px){
+  .shell{grid-template-columns:1fr;padding:0 16px}
+  .sidebar{position:static;display:flex;flex-wrap:wrap;gap:4px;padding:8px}
+  .cat{flex:0 0 auto;padding:8px 12px;font-size:10px}
+  .cat.active{box-shadow:inset 0 -2px 0 var(--acc)}
+  .sb-stats{width:100%;flex-direction:row;gap:14px;padding:10px 12px 4px}
+  .top{padding:12px 16px}
+}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="top">
+  <div class="brand">
+    <h1>CrossSine</h1><small>ClickGUI · Live</small>
+  </div>
+  <div class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-linecap="round"/><line x1="21" y1="21" x2="16.6" y2="16.6" stroke-linecap="round"/></svg>
+    <input id="search" placeholder="Search modules..." autocomplete="off" spellcheck="false">
+  </div>
+  <div class="status">
+    <div class="dot" id="dot"></div><span id="stxt">Connecting...</span>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="skel" style="margin:6px 8px"></div>
+    <div class="skel" style="margin:6px 8px;width:60%"></div>
+    <div class="skel" style="margin:6px 8px"></div>
+    <div class="skel" style="margin:6px 8px;width:75%"></div>
+  </aside>
+  <main class="main">
+    <div class="section">
+      <h2 id="title">All Modules</h2>
+      <span id="sub">Right-click a card to configure settings</span>
+    </div>
+    <div class="grid" id="grid">
+      <div class="card"><div class="skel"></div><div class="skel" style="width:60%"></div></div>
+      <div class="card"><div class="skel"></div><div class="skel" style="width:75%"></div></div>
+      <div class="card"><div class="skel"></div><div class="skel"></div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   CrossSine — Live ClickGUI client-side
+   Talks to the LocalWebServer running at the same origin
+   (http://localhost:8080). Open this file via the server, OR
+   open it directly from disk and it will hit localhost:8080.
+   ============================================================ */
+
+/* If served from file:// or any non-localhost origin, hit localhost:8080 directly. */
+var API_BASE = (location.protocol === 'http:' || location.protocol === 'https:')
+  ? '' : 'http://localhost:8080';
+
+var state       = null;
+var connected   = false;
+var firstLoad   = true;
+var activeCat   = 'ALL';
+var search      = '';
+var dragging    = false;        // suppress polling while dragging slider
+var pendingPost = 0;            // ms until polling resumes
+var expanded    = new Set();    // module names currently expanded
+
+function $(id){ return document.getElementById(id); }
+
+function setOk(ok){
+  connected = ok;
+  $('dot').className  = 'dot' + (ok ? ' ok' : '');
+  $('stxt').textContent = ok ? 'Connected' : 'Disconnected';
+}
+
+function fetchState(){
+  if (dragging || pendingPost > Date.now()) return;
+  fetch(API_BASE + '/api/state?t=' + Date.now())
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(d){
+      state = d; setOk(true);
+      if (firstLoad){ firstLoad = false; }
+      render();
+    })
+    .catch(function(){ setOk(false); });
+}
+
+function postToggle(name){
+  // optimistic update
+  if (state){
+    state.categories.forEach(function(c){
+      c.modules.forEach(function(m){
+        if (m.name === name) m.on = !m.on;
+      });
+    });
+    render();
+  }
+  pendingPost = Date.now() + 400;
+  fetch(API_BASE + '/api/toggle?name=' + encodeURIComponent(name), { method: 'POST' })
+    .then(function(){ setTimeout(fetchState, 350); })
+    .catch(function(){});
+}
+
+function postValue(modName, valName, raw){
+  pendingPost = Date.now() + 500;
+  var url = API_BASE + '/api/setvalue?module=' + encodeURIComponent(modName) +
+            '&value=' + encodeURIComponent(valName) +
+            '&set=' + encodeURIComponent(String(raw));
+  fetch(url, { method: 'POST' })
+    .then(function(){ setTimeout(fetchState, 400); })
+    .catch(function(){});
+}
+
+/* ── Local state mutation helpers ────────────────────────── */
+function findMod(name){
+  if (!state) return null;
+  for (var i = 0; i < state.categories.length; i++){
+    var c = state.categories[i];
+    for (var k = 0; k < c.modules.length; k++){
+      if (c.modules[k].name === name) return c.modules[k];
+    }
+  }
+  return null;
+}
+function findSetting(modName, setName){
+  var m = findMod(modName);
+  if (!m || !m.settings) return null;
+  for (var i = 0; i < m.settings.length; i++){
+    if (m.settings[i].name === setName) return m.settings[i];
+  }
+  return null;
+}
+
+/* ── Render ──────────────────────────────────────────────── */
+function render(){
+  if (!state) return;
+  renderSidebar();
+  renderGrid();
+}
+
+function renderSidebar(){
+  var sb = $('sidebar');
+  var totalAll = 0, totalOn = 0;
+  state.categories.forEach(function(c){
+    totalAll += c.modules.length;
+    totalOn  += c.modules.filter(function(m){ return m.on; }).length;
+  });
+
+  var html = '';
+  html += '<div class="cat ' + (activeCat === 'ALL' ? 'active' : '') + '" data-cat="ALL">'
+        + '<span>ALL</span><span class="cat-count">' + totalAll + '</span></div>';
+  state.categories.forEach(function(c){
+    var on = c.modules.filter(function(m){ return m.on; }).length;
+    var nm = c.name.toUpperCase();
+    var cls = activeCat === nm ? 'active' : '';
+    html += '<div class="cat ' + cls + '" data-cat="' + esc(nm) + '">'
+          + '<span>' + esc(nm) + '</span>'
+          + '<span class="cat-count">' + on + '/' + c.modules.length + '</span></div>';
+  });
+  html += '<div class="sb-stats">'
+        + '<div class="sb-stat"><span>Active</span><b>' + totalOn + '</b></div>'
+        + '<div class="sb-stat"><span>Total</span><b>' + totalAll + '</b></div>'
+        + '<div class="sb-stat"><span>Mode</span><b>LIVE</b></div></div>';
+  sb.innerHTML = html;
+
+  Array.prototype.forEach.call(sb.querySelectorAll('.cat'), function(el){
+    el.addEventListener('click', function(){
+      activeCat = el.dataset.cat; render();
+    });
+  });
+}
+
+function renderGrid(){
+  var grid = $('grid');
+  $('title').textContent = activeCat === 'ALL' ? 'All Modules' :
+    activeCat.charAt(0) + activeCat.slice(1).toLowerCase();
+
+  var q = search.toLowerCase();
+  var items = [];
+  state.categories.forEach(function(c){
+    var nm = c.name.toUpperCase();
+    if (activeCat !== 'ALL' && activeCat !== nm) return;
+    c.modules.forEach(function(m){
+      if (q && m.name.toLowerCase().indexOf(q) === -1) return;
+      items.push({ cat: nm, mod: m });
+    });
+  });
+
+  if (!items.length){
+    grid.innerHTML = '<div class="empty"><div class="ic">∅</div>'
+      + 'No modules match "<b>' + esc(search) + '</b>"</div>';
+    return;
+  }
+
+  grid.innerHTML = items.map(function(it){
+    return cardHtml(it.mod, it.cat);
+  }).join('');
+
+  /* wire up */
+  Array.prototype.forEach.call(grid.querySelectorAll('.card'), function(card){
+    var name = card.dataset.name;
+    card.querySelector('.sw').addEventListener('click', function(e){
+      e.stopPropagation(); postToggle(name);
+    });
+    card.addEventListener('click', function(e){
+      if (e.target.closest('.set')) return;
+      postToggle(name);
+    });
+    card.addEventListener('contextmenu', function(e){
+      e.preventDefault();
+      if (expanded.has(name)) expanded.delete(name);
+      else expanded.add(name);
+      renderGrid();
+    });
+  });
+
+  /* wire setting controls */
+  Array.prototype.forEach.call(grid.querySelectorAll('.row'), function(row){
+    var card = row.closest('.card');
+    if (!card) return;
+    var modName = card.dataset.name;
+    var setName = row.dataset.set;
+    if (!setName) return;
+    var s = findSetting(modName, setName);
+    if (!s) return;
+
+    if (s.type === 'bool'){
+      var tg = row.querySelector('.tg');
+      tg.addEventListener('click', function(e){
+        e.stopPropagation();
+        s.value = !s.value;
+        renderGrid();
+        postValue(modName, setName, s.value ? 'true' : 'false');
+      });
+    }
+    else if (s.type === 'int' || s.type === 'float'){
+      var sl = row.querySelector('.sl');
+      var isFloat = s.type === 'float';
+      function applyFromX(clientX, finalize){
+        var rect = sl.getBoundingClientRect();
+        var x = (clientX - rect.left) / rect.width;
+        if (x < 0) x = 0; if (x > 1) x = 1;
+        var raw = s.min + x * (s.max - s.min);
+        if (isFloat){
+          raw = Math.round(raw * 100) / 100;
+        } else {
+          raw = Math.round(raw);
+        }
+        s.value = raw;
+        renderGrid();
+        if (finalize) postValue(modName, setName, raw);
+      }
+      sl.addEventListener('mousedown', function(e){
+        e.stopPropagation();
+        dragging = true;
+        applyFromX(e.clientX, false);
+        var move = function(ev){ applyFromX(ev.clientX, false); };
+        var up = function(ev){
+          dragging = false;
+          window.removeEventListener('mousemove', move);
+          window.removeEventListener('mouseup', up);
+          applyFromX(ev.clientX, true);
+        };
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', up);
+      });
+    }
+    else if (s.type === 'intrange' || s.type === 'floatrange'){
+      var slR = row.querySelector('.sl');
+      var isFloatR = s.type === 'floatrange';
+      function applyRange(clientX, finalize, which){
+        var rect = slR.getBoundingClientRect();
+        var x = (clientX - rect.left) / rect.width;
+        if (x < 0) x = 0; if (x > 1) x = 1;
+        var raw = s.min + x * (s.max - s.min);
+        raw = isFloatR ? Math.round(raw * 100) / 100 : Math.round(raw);
+        if (which === 'min'){
+          s.valueMin = raw;
+          if (s.valueMin > s.valueMax) s.valueMin = s.valueMax;
+        } else {
+          s.valueMax = raw;
+          if (s.valueMax < s.valueMin) s.valueMax = s.valueMin;
+        }
+        renderGrid();
+        if (finalize) postValue(modName, setName, s.valueMin + ',' + s.valueMax);
+      }
+      slR.addEventListener('mousedown', function(e){
+        e.stopPropagation();
+        var rect = slR.getBoundingClientRect();
+        var px = (e.clientX - rect.left) / rect.width;
+        var minPct = (s.valueMin - s.min) / (s.max - s.min);
+        var maxPct = (s.valueMax - s.min) / (s.max - s.min);
+        var which = Math.abs(px - minPct) <= Math.abs(px - maxPct) ? 'min' : 'max';
+        dragging = true;
+        applyRange(e.clientX, false, which);
+        var move = function(ev){ applyRange(ev.clientX, false, which); };
+        var up = function(ev){
+          dragging = false;
+          window.removeEventListener('mousemove', move);
+          window.removeEventListener('mouseup', up);
+          applyRange(ev.clientX, true, which);
+        };
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', up);
+      });
+    }
+    else if (s.type === 'list'){
+      var sel = row.querySelector('.sel');
+      sel.addEventListener('click',  function(e){ e.stopPropagation(); });
+      sel.addEventListener('change', function(e){
+        s.value = e.target.value;
+        renderGrid();
+        postValue(modName, setName, s.value);
+      });
+    }
+    else if (s.type === 'text'){
+      var inp = row.querySelector('.txt');
+      inp.addEventListener('click', function(e){ e.stopPropagation(); });
+      var debounce = null;
+      inp.addEventListener('input', function(e){
+        s.value = e.target.value;
+        clearTimeout(debounce);
+        debounce = setTimeout(function(){
+          postValue(modName, setName, s.value);
+        }, 350);
+      });
+    }
+  });
+}
+
+/* ── Templates ───────────────────────────────────────────── */
+function cardHtml(m, cat){
+  var isExp = expanded.has(m.name);
+  var nSet  = (m.settings || []).filter(function(s){ return s.type !== 'title'; }).length;
+  var bind  = m.bind ? '<span class="bind">' + esc(m.bind) + '</span>' : '';
+  var hint  = isExp ? 'Right-click ▴' : (nSet ? 'Right-click ▾' : '');
+  var setCount = nSet ? '<span class="set-count">' + nSet + ' setting' + (nSet === 1 ? '' : 's') + '</span>' : '';
+
+  var settings = (m.settings || []).map(function(s){ return rowHtml(s); }).join('');
+
+  return ''
+    + '<div class="card ' + (m.on ? 'on' : '') + ' ' + (isExp ? 'exp' : '') + '" data-name="' + esc(m.name) + '">'
+    +   '<div class="head">'
+    +     '<span class="name">' + esc(m.name) + '</span>'
+    +     bind
+    +     '<div class="sw" title="Toggle"></div>'
+    +   '</div>'
+    +   '<div class="foot">'
+    +     '<span class="tag">' + esc(cat) + '</span>'
+    +     setCount
+    +     '<span class="hint">' + hint + '</span>'
+    +   '</div>'
+    +   '<div class="set">' + settings + '</div>'
+    + '</div>';
+}
+
+function rowHtml(s){
+  var lbl = '<span class="lbl">' + esc(s.name) + '</span>';
+
+  if (s.type === 'title'){
+    return '<div class="row title" data-set="' + esc(s.name) + '">' + lbl + '</div>';
+  }
+  if (s.type === 'bool'){
+    return '<div class="row" data-set="' + esc(s.name) + '">'
+         +   lbl + '<div class="tg ' + (s.value ? 'on' : '') + '"></div>'
+         + '</div>';
+  }
+  if (s.type === 'int' || s.type === 'float'){
+    var span = (s.max - s.min);
+    var pct  = span > 0 ? Math.max(0, Math.min(1, (s.value - s.min) / span)) * 100 : 0;
+    var disp = s.type === 'float' ? Number(s.value).toFixed(2) : Math.round(s.value);
+    var suf  = s.suffix || '';
+    return '<div class="row" data-set="' + esc(s.name) + '">'
+         +   lbl
+         +   '<div class="sl">'
+         +     '<div class="sl-fill" style="width:' + pct + '%"></div>'
+         +     '<div class="sl-th" style="left:' + pct + '%"></div>'
+         +   '</div>'
+         +   '<span class="val">' + disp + esc(suf) + '</span>'
+         + '</div>';
+  }
+  if (s.type === 'intrange' || s.type === 'floatrange'){
+    var spanR = (s.max - s.min);
+    var minPctR = spanR > 0 ? Math.max(0, Math.min(1, (s.valueMin - s.min) / spanR)) * 100 : 0;
+    var maxPctR = spanR > 0 ? Math.max(0, Math.min(1, (s.valueMax - s.min) / spanR)) * 100 : 0;
+    var fmt = function(n){ return s.type === 'floatrange' ? Number(n).toFixed(2) : Math.round(n); };
+    var sufR = s.suffix || '';
+    return '<div class="row" data-set="' + esc(s.name) + '">'
+         +   lbl
+         +   '<div class="sl sl-r">'
+         +     '<div class="sl-fill" style="left:' + minPctR + '%;width:' + (maxPctR - minPctR) + '%"></div>'
+         +     '<div class="sl-th" style="left:' + minPctR + '%"></div>'
+         +     '<div class="sl-th" style="left:' + maxPctR + '%"></div>'
+         +   '</div>'
+         +   '<span class="val">' + fmt(s.valueMin) + esc(sufR) + '–' + fmt(s.valueMax) + esc(sufR) + '</span>'
+         + '</div>';
+  }
+  if (s.type === 'list'){
+    var opts = (s.options || []).map(function(o){
+      return '<option value="' + esc(o) + '"' + (o === s.value ? ' selected' : '') + '>' + esc(o) + '</option>';
+    }).join('');
+    return '<div class="row" data-set="' + esc(s.name) + '">'
+         +   lbl + '<select class="sel">' + opts + '</select>'
+         + '</div>';
+  }
+  if (s.type === 'text'){
+    return '<div class="row" data-set="' + esc(s.name) + '">'
+         +   lbl + '<input class="txt" value="' + esc(s.value || '') + '" />'
+         + '</div>';
+  }
+  if (s.type === 'key'){
+    return '<div class="row" data-set="' + esc(s.name) + '">'
+         +   lbl + '<span class="kb">' + esc(s.value || 'None') + '</span>'
+         + '</div>';
+  }
+  return '';
+}
+
+/* ── Helpers ─────────────────────────────────────────────── */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+$('search').addEventListener('input', function(e){
+  search = e.target.value; renderGrid();
+});
+document.addEventListener('contextmenu', function(e){
+  if (e.target.closest('.grid')) e.preventDefault();
+});
+
+fetchState();
+setInterval(fetchState, 1500);
+</script>
+</body>
+</html>

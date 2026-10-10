@@ -28,7 +28,6 @@ class Phase : Module() {
             if (state) onEnable()
         }
     }
-    private val debugValue = BoolValue("Debug", false)
 
     override fun onEnable() {
         mode.onEnable()
@@ -43,7 +42,10 @@ class Phase : Module() {
     fun onUpdate(event: UpdateEvent) {
         mode.onUpdate(event)
     }
-
+    @EventTarget
+    fun onTeleport(event: TeleportEvent) {
+        mode.onTeleport(event)
+    }
     @EventTarget
     fun onMotion(event: MotionEvent) {
         mode.onMotion(event)

@@ -21,12 +21,12 @@ import org.lwjgl.input.Keyboard
 @ModuleInfo(name = "Inventory",  category = ModuleCategory.MOVEMENT)
 class  Inventory : Module() {
 
-    private val noDetectableValue = BoolValue("NoDetectable", false)
+    private val noDetectableValue = BoolValue("No-Detectable", false)
     private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv", "None"), "None")
     private val rotateValue = BoolValue("Rotate", true)
-    private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
-    val noSprintValue = ListValue("NoSprint", arrayOf("Real", "PacketSpoof", "None"), "None")
-    private val customSpeed = FloatValue("CustomSpeed", 1.0F, 0.1F, 1.0F)
+    private val noMoveClicksValue = BoolValue("No-Move-Clicks", false)
+    val noSprintValue = ListValue("No-Sprint", arrayOf("Real", "PacketSpoof", "None"), "None")
+    private val customSpeed = FloatValue("Custom-Speed", 1.0F, 0.1F, 1.0F)
 
     private val blinkPacketList = mutableListOf<C03PacketPlayer>()
     private val packetListYes = mutableListOf<C0EPacketClickWindow>()

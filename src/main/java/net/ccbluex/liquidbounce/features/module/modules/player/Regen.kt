@@ -23,7 +23,7 @@ class Regen : Module() {
     private val foodValue = IntegerValue("Food", 18, 0, 20)
     private val speedValue = IntegerValue("Speed", 100, 1, 100)
     private val noAirValue = BoolValue("NoAir", false)
-    private val potionEffectValue = BoolValue("PotionEffect", false)
+    private val potionEffectValue = BoolValue("Potion-Effect", false)
 
     private val timer = MSTimer()
     private var resetTimer = false

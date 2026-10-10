@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.utils.block
 
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.block.Block
+import net.minecraft.block.BlockAir
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.enchantment.Enchantment
@@ -10,10 +11,7 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
 import net.minecraft.potion.Potion
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.BlockPos
-import net.minecraft.util.MathHelper
-import net.minecraft.util.Vec3
+import net.minecraft.util.*
 import kotlin.math.floor
 
 
@@ -21,6 +19,35 @@ object BlockUtils : MinecraftInstance() {
     fun blockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block {
         return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
     }
+    fun insideBlock(): Boolean {
+        if (mc.thePlayer.ticksExisted < 5) {
+            return false
+        }
+
+        return insideBlock(mc.thePlayer.entityBoundingBox)
+    }
+    @JvmStatic
+    fun insideBlock(bb: AxisAlignedBB): Boolean {
+        val world = mc.theWorld
+        for (x in MathHelper.floor_double(bb.minX) until MathHelper.floor_double(bb.maxX) + 1) {
+            for (y in MathHelper.floor_double(bb.minY) until MathHelper.floor_double(bb.maxY) + 1) {
+                for (z in MathHelper.floor_double(bb.minZ) until MathHelper.floor_double(bb.maxZ) + 1) {
+                    val block = world.getBlockState(BlockPos(x, y, z)).block
+                    var boundingBox: AxisAlignedBB? = null
+                    if (block != null && (block !is BlockAir) && (block.getCollisionBoundingBox(
+                            world,
+                            BlockPos(x, y, z),
+                            world.getBlockState(BlockPos(x, y, z))
+                        ).also { boundingBox = it }) != null && bb.intersectsWith(boundingBox)
+                    ) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     fun getBlockHardness(block: Block, itemStack: ItemStack?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
         val getBlockHardness = block.getBlockHardness(mc.theWorld, null)
         if (getBlockHardness < 0.0f) {

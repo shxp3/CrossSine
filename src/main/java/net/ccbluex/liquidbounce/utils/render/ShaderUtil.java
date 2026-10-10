@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.utils.render;
 
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.misc.FileUtils;
+import net.ccbluex.liquidbounce.utils.render.shader.shaders.RoundedRectGradientShader;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RoundedRectShader;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
@@ -186,15 +187,10 @@ public class ShaderUtil extends MinecraftInstance {
             "    gl_FragColor = vec4(color.rgb, smoothedAlpha);// mix(quadColor, shadowColor, 0.0);\n" +
             "\n" +
             "}";
-    public static void drawRoundedRect(float x, float y, float x2, float y2, float radius, Color color) {
-        RoundedRectShader.INSTANCE.draw(x, y, x2, y2, radius, color);
+    public static void drawRoundedRect(float x, float y, float x2, float y2, float radius, float shadow, Color color) {
+        RoundedRectShader.INSTANCE.draw(x, y, x2, y2, radius, shadow, color);
     }
-
-    public static void drawRoundedRect(float x, float y, float x2, float y2, float radius, int color) {
-        RoundedRectShader.INSTANCE.draw(x, y, x2, y2, radius, new Color(color));
-    }
-
-    public static void drawFilledCircle(float x, float y, float radius, Color color) {
-        RoundedRectShader.INSTANCE.draw(x - radius, y - radius, x + radius, y + radius, radius, color);
+    public static void drawGradientRoundedRect(float x, float y, float x2, float y2, float radius, float shadow, Color colorTop, Color colorBottom) {
+        RoundedRectGradientShader.INSTANCE.draw(x, y, x2, y2, radius, shadow, colorTop, colorBottom);
     }
 }

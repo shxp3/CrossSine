@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -36,10 +37,10 @@ class Step : Module() {
                                                       "OldAAC", "LAAC", "AAC3.3.4", "AAC3.6.4", "AAC4.4.0",
                                                       "Spartan", "Rewinside", "Vulcan", "Verus", "BlocksMC"), "NCP")
     private val heightValue = FloatValue("Height", 1F, 0.6F, 10F)
-    private val jumpHeightValue = FloatValue("JumpMotion", 0.42F, 0.37F, 0.42F).displayable { modeValue.equals("Jump") || modeValue.equals("TimerJump") }
+    private val jumpHeightValue = FloatValue("Jump-Motion", 0.42F, 0.37F, 0.42F).displayable { modeValue.equals("Jump") || modeValue.equals("TimerJump") }
     private val delayValue = IntegerValue("Delay", 0, 0, 500)
     private val timerValue = FloatValue("Timer", 1F, 0.05F, 1F).displayable { !modeValue.equals("Matrix6.7.0") && !modeValue.equals("Verus") }
-    private val timerDynValue = BoolValue("UseDynamicTimer", false).displayable { !modeValue.equals("Matrix6.7.0") && !modeValue.equals("Verus")}
+    private val timerDynValue = BoolValue("Use-Dynamic-Timer", false).displayable { !modeValue.equals("Matrix6.7.0") && !modeValue.equals("Verus")}
 
     /**
      * VALUES
@@ -275,39 +276,16 @@ class Step : Module() {
                 }
                 if (mode.equals("BlocksMC", true)) {
                     fakeJump()
-
-                    val pos = mc.thePlayer.position.add(0.0, -1.5, 0.0)
-
-                    mc.netHandler.addToSendQueue(
-                        C08PacketPlayerBlockPlacement(
-                            pos,
-                            1,
-                            ItemStack(Blocks.stone.getItem(mc.theWorld, pos)),
-                            0.0F,
-                            0.5F + Math.random().toFloat() * 0.44.toFloat(),
-                            0.0F
-                        )
-                    )
-
-                    mc.netHandler.addToSendQueue(
-                        C03PacketPlayer.C04PacketPlayerPosition(
-                            stepX,
-                            stepY + 0.41999998688698, stepZ, false
-                        )
-                    )
-                    mc.netHandler.addToSendQueue(
-                        C03PacketPlayer.C04PacketPlayerPosition(
-                            stepX,
-                            stepY + 0.7531999805212, stepZ, false
-                        )
-                    )
-                    mc.netHandler.addToSendQueue(
-                        C03PacketPlayer.C04PacketPlayerPosition(
-                            stepX,
-                            stepY + 1, stepZ, true
-                        )
-                    )
-                    timer.reset()
+                    if (PlayerUtils.groundTicks == 0) {
+                        mc.thePlayer.motionY = 0.42
+                    }
+                    if (PlayerUtils.offGroundTicks == 2) {
+                        mc.timer.timerSpeed = 2F
+                    }
+                    if (PlayerUtils.offGroundTicks == 3) {
+                        mc.timer.timerSpeed = 1F
+                        mc.thePlayer.motionY = MovementUtils.predictedMotion(mc.thePlayer.motionY, 5)
+                    }
                 }
                 when {
                     mode.equals("NCP", ignoreCase = true) || mode.equals("OldAAC", ignoreCase = true) -> {
@@ -646,12 +624,6 @@ class Step : Module() {
                                     stepY + 2.0000, stepZ + mc.thePlayer.motionZ * 0.5, true))
                             }
                         }
-                        /*
-
-                            AAC4 Step Code By Co丶Dynamic
-                            NO SKIDDER PLEASE
-
-                        */
                     }
 
                     mode.equals("Rewinside", ignoreCase = true) -> {

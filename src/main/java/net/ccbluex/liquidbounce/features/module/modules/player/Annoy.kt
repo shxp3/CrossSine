@@ -15,10 +15,10 @@ import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 
 @ModuleInfo(name = "Annoy",  category = ModuleCategory.PLAYER)
 class Annoy : Module() {
-    private val yawModeValue = ListValue("YawMode", arrayOf("Jitter", "Spin", "Back", "BackJitter"), "Spin")
-    private val pitchModeValue = ListValue("PitchMode", arrayOf("Down", "Up", "Jitter", "AnotherJitter"), "Down")
-    private val spinSpeedValue = IntegerValue("spinSpeed", 20, 1, 90).displayable { yawModeValue.equals("Spin") }
-    private val rotateValue = BoolValue("SilentRotate", true)
+    private val yawModeValue = ListValue("Yaw-Mode", arrayOf("Jitter", "Spin", "Back", "BackJitter"), "Spin")
+    private val pitchModeValue = ListValue("Pitch-Mode", arrayOf("Down", "Up", "Jitter", "AnotherJitter"), "Down")
+    private val spinSpeedValue = IntegerValue("spin-Speed", 20, 1, 90).displayable { yawModeValue.equals("Spin") }
+    private val rotateValue = BoolValue("Silent-Rotate", true)
 
     private var yaw = 0f
     private var pitch = 0f

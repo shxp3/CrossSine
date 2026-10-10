@@ -5,8 +5,6 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.extensions.rayTraceWithCustomRotation
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
@@ -116,8 +114,7 @@ class NCPSlimeFlight : FlightMode("NCPSlime") {
 
                         if(slot == -1) {
                             flight.state = false
-                            CrossSine.hud.addNotification(Notification("NCPSlimeFly", "U need a slime blocks to use this fly", NotifyType.ERROR, 1000))
-                            return
+                           return
                         }
 
                         val oldSlot = mc.thePlayer.inventory.currentItem

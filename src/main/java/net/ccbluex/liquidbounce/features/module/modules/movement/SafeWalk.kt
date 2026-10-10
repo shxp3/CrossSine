@@ -1,119 +1,97 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.MoveEvent
+import net.ccbluex.liquidbounce.event.MovementInputEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.minecraft.init.Blocks
+import net.ccbluex.liquidbounce.features.value.IntegerRangeValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.PlayerUtils
+import net.minecraft.client.settings.GameSettings
 import net.minecraft.item.ItemBlock
 import net.minecraft.potion.Potion
-import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
+
 
 @ModuleInfo(name = "SafeWalk", category = ModuleCategory.MOVEMENT)
 object SafeWalk : Module() {
 
     private val shiftValue = BoolValue("Shift", false)
-    private val og = BoolValue("OnlyGround", false)
-    private val onBlock = BoolValue("Block only", false).displayable { shiftValue.get() }
-    private val noSpeedPotion = BoolValue("NoPotionSpeed", false).displayable { shiftValue.get() }
-    private val onHoldShift = BoolValue("OnHoldShift", false).displayable { shiftValue.get() }
-    val ShiftMax: IntegerValue = object : IntegerValue("Shift-Max", 0, 0, 20) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val ShiftMin = ShiftMin.get()
-            if (ShiftMin > newValue) {
-                set(ShiftMin)
-            }
-        }
-    }.displayable { shiftValue.get() } as IntegerValue
-    private val ShiftMin: IntegerValue = object : IntegerValue("Shift-Min", 0, 0, 20) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val ShiftMax = ShiftMax.get()
-            if (ShiftMax < newValue) {
-                set(ShiftMax)
-            }
-        }
-    }.displayable { shiftValue.get() } as IntegerValue
-    private val PitchLitmit = BoolValue("Pitch", false)
-    private val PitchMax: IntegerValue = object : IntegerValue("Pitch-Max", 0, 0, 90) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val PitchMin = PitchMin.get()
-            if (PitchMin > newValue) {
-                set(PitchMin)
-            }
-        }
-    }.displayable { PitchLitmit.get() } as IntegerValue
-    private val PitchMin: IntegerValue = object : IntegerValue("Pitch-Min", 0, 0, 90) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val PitchMax = PitchMax.get()
-            if (PitchMax < newValue) {
-                set(PitchMax)
-            }
-        }
-    }.displayable { PitchLitmit.get() } as IntegerValue
+    private val og = BoolValue("Only-Ground", false)
+    private val onBlock = BoolValue("Block-only", false).displayable { shiftValue.get() }
+    private val noSpeedPotion = BoolValue("No-Potion-Speed", false).displayable { shiftValue.get() }
+    private val onHoldShift = BoolValue("On-Hold-Shift", false).displayable { shiftValue.get() }
+    private val shiftTime: IntegerRangeValue = IntegerRangeValue("Shift-Time", 0, 10, 0, 20).displayable { shiftValue.get() } as IntegerRangeValue
+    private val pitchLimit = BoolValue("Pitch-Limit", false)
+    private val pitchLimitValue = IntegerRangeValue("Pitch-Max", 65, 90, 0, 90).displayable { pitchLimit.get() }
+
+    var safing = false
+    private var sneakDelay = 0
 
     @EventTarget
     fun onMove(event: MoveEvent) {
         if (shiftValue.get()) return
         if (!og.get() || mc.thePlayer.onGround) {
-            event.isSafeWalk = !PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()
+            event.isSafeWalk = !pitchLimit.get() || mc.thePlayer.rotationPitch < pitchLimitValue.get().last && mc.thePlayer.rotationPitch > pitchLimitValue.get().first
+        }
+    }
+
+    private fun canMove(): Boolean {
+        val offset = MovementUtils.predictMovement()
+        return PlayerUtils.canMove(mc.thePlayer.motionX + offset[0], mc.thePlayer.motionZ + offset[1])
+    }
+
+    private fun shouldSneak(): Boolean {
+        if (onBlock.get() && mc.thePlayer.heldItem?.item !is ItemBlock) return false
+        if (onHoldShift.get() && !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) return false
+        if (og.get() && !mc.thePlayer.onGround) return false
+        if (noSpeedPotion.get() && mc.thePlayer.isPotionActive(Potion.moveSpeed)) return false
+        if (pitchLimit.get()) {
+            val pitch = mc.thePlayer.rotationPitch
+            if (pitch >= pitchLimitValue.get().last || pitch <= pitchLimitValue.get().first) return false
+        }
+        return !GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
+    }
+
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+        if (!shiftValue.get()) return
+        if (sneakDelay > 0) {
+            sneakDelay--
+        }
+        if (sneakDelay == 0 && canMove()) {
+            sneakDelay = shiftTime.getRandom()
         }
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (!shiftValue.get()) return
-        if (mc.currentScreen == null) {
-            if (mc.gameSettings.keyBindBack.isKeyDown) {
-                if (!onBlock.get() || mc.thePlayer.heldItem.item is ItemBlock) {
-                    if (!onHoldShift.get() || Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
-                        if (!og.get() || mc.thePlayer.onGround) {
-                            if (!noSpeedPotion.get() || !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                                if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
-                                    mc.gameSettings.keyBindSneak.pressed = mc.theWorld.getBlockState(
-                                        BlockPos(
-                                            mc.thePlayer.posX + mc.thePlayer.motionX * getShift(),
-                                            mc.thePlayer.posY - 1.0,
-                                            mc.thePlayer.posZ + mc.thePlayer.motionZ * getShift()
-                                        )
-                                    ).block == Blocks.air
-                                    return
-                                }
-                            }
-                        }
-                    }
-                } else
-                    mc.gameSettings.keyBindSneak.pressed = false
-            }
+    fun onMovementInput(event: MovementInputEvent) {
+        if (!shiftValue.get() || mc.currentScreen != null) return
 
-            if (mc.thePlayer.moveForward > 0 && mc.thePlayer.isSneaking && !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
-                mc.gameSettings.keyBindSneak.pressed = false
-            }
-            if (onBlock.get() && mc.thePlayer.heldItem.item !is ItemBlock) {
-                if (Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)) {
-                    mc.gameSettings.keyBindSneak.pressed = true
-                }
-            }
+        val input = event.original
+
+        // On-Hold-Shift: cancel vanilla held sneak so Eagle delay can control it
+        if (onHoldShift.get() && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode) && shouldSneak()) {
+            input.sneak = false
         }
 
-    }
-
-    private fun getShift(): Double {
-        val fuckmin = ShiftMin.get() / 10
-        val fuckmax = ShiftMax.get() / 10
-        val min = Math.min(fuckmin, fuckmax).toDouble()
-        val max = Math.max(fuckmin, fuckmax).toDouble()
-        return Math.random() * (max - min) + min
+        if (!input.sneak) {
+            if (shouldSneak() && (sneakDelay > 0 || canMove())) {
+                input.sneak = true
+                safing = true
+            } else {
+                safing = false
+            }
+        }
     }
 
     override fun onDisable() {
-        if (mc.thePlayer == null) {
-            return
-        }
+        sneakDelay = 0
+        safing = false
     }
 
 }

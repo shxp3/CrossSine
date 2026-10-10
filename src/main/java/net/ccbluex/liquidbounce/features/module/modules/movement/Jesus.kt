@@ -23,8 +23,8 @@ import net.minecraft.util.BlockPos
 @ModuleInfo(name = "Jesus", category = ModuleCategory.MOVEMENT)
 class Jesus : Module() {
     val modeValue = ListValue("Mode", arrayOf("Vanilla", "NCP", "Jump", "AAC", "AACFly", "AAC3.3.11", "AAC4.2.1", "Horizon1.4.6", "Spartan", "Twilight", "Matrix", "Medusa","Vulcan", "Dolphin", "Legit"), "Vanilla")
-    private val noJumpValue = BoolValue("NoJump", false)
-    private val jumpMotionValue = FloatValue("JumpMotion", 0.5f, 0.1f, 1f)
+    private val noJumpValue = BoolValue("No-Jump", false)
+    private val jumpMotionValue = FloatValue("Jump-Motion", 0.5f, 0.1f, 1f)
         .displayable { modeValue.equals("Jump") || modeValue.equals("AACFly") }
 
     private var nextTick = false

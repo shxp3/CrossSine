@@ -12,8 +12,6 @@ import net.ccbluex.liquidbounce.features.special.AutoDisable
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.minecraft.event.ClickEvent
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S02PacketChat
@@ -28,10 +26,10 @@ class AutoPlay : Module() {
     private val modeValue = ListValue("Server", arrayOf("RedeSky", "BlocksMC", "Minemora", "Hypixel", "Jartex", "Pika", "Hydracraft", "HyCraft", "MineFC/HeroMC_Bedwars", "Supercraft"), "RedeSky")
 
     private val bwModeValue = ListValue("Mode", arrayOf("SOLO", "4v4v4v4"), "4v4v4v4").displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val autoStartValue = BoolValue("AutoStartAtLobby", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val replayWhenKickedValue = BoolValue("ReplayWhenKicked", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val showGuiWhenFailedValue = BoolValue("ShowGuiWhenFailed", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val delayValue = IntegerValue("JoinDelay", 3, 0, 7)
+    private val autoStartValue = BoolValue("Auto-Start-At-Lobby", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val replayWhenKickedValue = BoolValue("Replay-When-Kicked", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val showGuiWhenFailedValue = BoolValue("Show-Gui-When-Failed", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val delayValue = IntegerValue("Join-Delay", 3, 0, 7)
 
     private var clicking = false
     private var queued = false
@@ -119,7 +117,6 @@ class AutoPlay : Module() {
                         }
                     }
                     if (text.contains("El juego ya fue iniciado.", true)) {
-                        CrossSine.hud.addNotification(Notification(this.name, "Failed to join, retrying...", NotifyType.ERROR, 1755))
                         queueAutoPlay {
                             mc.thePlayer.sendChatMessage("/sw leave")
                             mc.thePlayer.sendChatMessage("/sw randomjoin solo")
@@ -152,7 +149,6 @@ class AutoPlay : Module() {
                 }
                 "blocksmc" -> {
                     if (clickState == 1 && text.contains("Only VIP players can join full servers!", true)) {
-                        CrossSine.hud.addNotification(Notification(this.name, "Join failed! trying again...", NotifyType.WARNING, 3000))
                         // connect failed so try to join again
                         java.util.Timer().schedule(1500L) {
                             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(7))
@@ -224,7 +220,6 @@ class AutoPlay : Module() {
                     }
                     
                     if (showGuiWhenFailedValue.get() && text.contains("giây", false) && text.contains("thất bại", false)) {
-                        CrossSine.hud.addNotification(Notification(this.name, "Failed to join, showing GUI...", NotifyType.ERROR, 1000))
                         mc.thePlayer.sendChatMessage("/bw gui ${bwModeValue.get()}")
                     }
                 }
@@ -246,7 +241,6 @@ class AutoPlay : Module() {
                     runnable()
                 }
             }
-            CrossSine.hud.addNotification(Notification(this.name, "Next Game in ${delayValue.get()} sec", NotifyType.INFO, delayValue.get() * 1000))
         }
     }
 

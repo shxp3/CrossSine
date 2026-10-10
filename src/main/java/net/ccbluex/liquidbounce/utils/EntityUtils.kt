@@ -29,6 +29,8 @@ import net.minecraft.scoreboard.ScorePlayerTeam
 
 
 object EntityUtils : MinecraftInstance() {
+
+    private val healthSubstrings = arrayOf("hp", "health", "❤", "lives")
     fun isSelected(entity: Entity, canAttackCheck: Boolean): Boolean {
         if (entity is EntityLivingBase && (deadValue.get() || entity.isEntityAlive()) && entity !== mc.thePlayer) {
             if (invisibleValue.get() || !entity.isInvisible()) {

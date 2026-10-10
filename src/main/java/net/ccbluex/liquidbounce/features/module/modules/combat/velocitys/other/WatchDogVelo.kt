@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.ccbluex.liquidbounce.utils.PlayerUtils
 import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S27PacketExplosion
 
 class WatchDogVelo : VelocityMode("WatchDog") {
     override fun onPacket(event: PacketEvent) {
@@ -12,9 +13,7 @@ class WatchDogVelo : VelocityMode("WatchDog") {
         if (p is S12PacketEntityVelocity) {
             if (p.entityID == mc.thePlayer.entityId) {
                 event.cancelEvent()
-                if (PlayerUtils.offGroundTicks < 15) {
-                    mc.thePlayer.motionY = p.getMotionY().toDouble() / 8000
-                }
+                mc.thePlayer.motionY = p.getMotionY().toDouble() / 8000
             }
         }
     }

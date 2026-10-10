@@ -7,7 +7,7 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 
 public class Check extends MinecraftInstance {
     public static boolean debug = false;
-    public static PlayerData data = new PlayerData();
+    public PlayerData data = new PlayerData();
     protected EntityOtherPlayerMP handlePlayer = null;
     protected String name = "NONE";
     protected boolean enabled = true;

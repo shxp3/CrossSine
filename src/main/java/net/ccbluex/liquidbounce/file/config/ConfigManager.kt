@@ -39,20 +39,29 @@ class ConfigManager {
     fun load(name: String, save: Boolean = true) {
         CrossSine.isLoadingConfig = true
         if (save && nowConfig != name) {
-            save(saveConfigSet = true, forceSave = true) // 保存老配置
+            save(saveConfigSet = true, forceSave = true) // 保存旧配置
         }
 
         nowConfig = name
         configFile = File(CrossSine.fileManager.configsDir, "$nowConfig.json")
 
-        val json = if (configFile.exists()) {
-            JsonParser().parse(configFile.reader(Charsets.UTF_8)).asJsonObject
-        } else {
-            JsonObject()
+        val json = try {
+            if (configFile.exists()) {
+                JsonParser().parse(configFile.reader(Charsets.UTF_8)).asJsonObject
+            } else {
+                JsonObject()
+            }
+        } catch (e: Exception) {
+            ClientUtils.logError("Error parsing config file '$name': ${e.message}")
+            JsonObject() // กรณีไฟล์ JSON มีปัญหา
         }
 
-        for (section in sections) {
-            section.load(if (json.has(section.sectionName)) { json.getAsJsonObject(section.sectionName) } else { JsonObject() })
+        try {
+            for (section in sections) {
+                section.load(if (json.has(section.sectionName)) { json.getAsJsonObject(section.sectionName) } else { JsonObject() })
+            }
+        } catch (e: Exception) {
+            ClientUtils.logError("Error loading sections for config '$name': ${e.message}")
         }
 
         if (!configFile.exists()) {
@@ -100,7 +109,15 @@ class ConfigManager {
     }
 
     fun loadConfigSet() {
-        val configSet = if (configSetFile.exists()) { JsonParser().parse(configSetFile.reader(Charsets.UTF_8)).asJsonObject } else { JsonObject() }
+        val configSet = if (configSetFile.exists()) {
+            try {
+                JsonParser().parse(configSetFile.reader(Charsets.UTF_8)).asJsonObject
+            } catch (e: Exception) {
+                JsonObject() // กรณีไฟล์มีปัญหา
+            }
+        } else {
+            JsonObject()
+        }
 
         nowConfigInFile = if (configSet.has("file")) {
             configSet.get("file").asString
@@ -108,7 +125,12 @@ class ConfigManager {
             "default"
         }
 
-        load(nowConfigInFile, false)
+        try {
+            load(nowConfigInFile, false)
+        } catch (e: Exception) {
+            ClientUtils.logError("Error loading config '$nowConfigInFile', falling back to default: ${e.message}")
+            load("default", false)
+        }
     }
 
     fun saveConfigSet() {

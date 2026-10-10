@@ -30,9 +30,9 @@ class LongJump : Module() {
         }
     }
 
-    val motionResetValue = BoolValue("MotionReset", true)
-    val autoJumpValue = BoolValue("AutoJump", true)
-    val autoDisableValue = BoolValue("AutoDisable", true)
+    val motionResetValue = BoolValue("Motion-Reset", true)
+    val autoJumpValue = BoolValue("Auto-Jump", true)
+    val autoDisableValue = BoolValue("Auto-Disable", true)
     var jumped = false
     var hasJumped = false
     var no = false

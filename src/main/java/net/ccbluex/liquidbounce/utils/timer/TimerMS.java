@@ -10,4 +10,7 @@ public final class TimerMS {
     public void reset() {
         time = System.currentTimeMillis();
     }
+    public long getTimeNow(final long MS) {
+        return (time + MS) - System.currentTimeMillis();
+    }
 }

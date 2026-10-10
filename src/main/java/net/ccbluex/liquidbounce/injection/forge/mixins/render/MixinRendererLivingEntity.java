@@ -99,7 +99,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             if (flag1) {
                 assert hitColor != null;
                 if (hitColor.getState()) {
-                        int color = hitColor.getHitColorTheme().get() ? ClientTheme.INSTANCE.getColorWithAlpha(1, hitColor.getHitColorAlphaValue().get(), true).getRGB() : new Color(hitColor.getHitColorRValue().get(), hitColor.getHitColorGValue().get(), hitColor.getHitColorBValue().get(), hitColor.getHitColorAlphaValue().get()).getRGB();
+                        int color = hitColor.getHitColorTheme().get() ? ClientTheme.INSTANCE.getColorWithAlpha(1, hitColor.getHitColorAlphaValue().get(), true).getRGB() : new Color(hitColor.getHitColorValue().get().getRed(), hitColor.getHitColorValue().get().getGreen(), hitColor.getHitColorValue().get().getBlue(), hitColor.getHitColorAlphaValue().get()).getRGB();
                         float red = (float) (color >> 16 & 0xFF) / 255.0f;
                         float green = (float) (color >> 8 & 0xFF) / 255.0f;
                         float blue = (float) (color & 0xFF) / 255.0f;
@@ -228,17 +228,17 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
 
             switch (chams.getColorModeValue().get()) {
                 case "Custom":
-                    chamsColor = new Color(chams.getRedValue().get(), chams.getGreenValue().get(), chams.getBlueValue().get());
+                    chamsColor = chams.getColorValue().get();
                     break;
                 case "Slowly":
                     chamsColor = ColorUtils.slowlyRainbow(System.nanoTime(), 0, chams.getSaturationValue().get(), chams.getBrightnessValue().get());
                     break;
                 case "Fade":
-                    chamsColor = ColorUtils.fade(new Color(chams.getRedValue().get(), chams.getGreenValue().get(), chams.getBlueValue().get(), chams.getAlphaValue().get()), 0, 100);
+                    chamsColor = ColorUtils.fade(chams.getColorValue().get(), 0, 100);
                     break;
             }
 
-            chamsColor = ColorUtils.reAlpha(chamsColor, chams.getAlphaValue().get());
+            chamsColor = ColorUtils.reAlpha(chamsColor, chams.getColorValue().get().getAlpha());
 
             if (chamsFlag) {
                 Color chamsColor2 = new Color(0x00000000);

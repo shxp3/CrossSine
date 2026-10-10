@@ -29,7 +29,7 @@ object Blink : Module() {
     private val renderPlayer = BoolValue("Render", false)
     private val pulseValue = BoolValue("Pulse", false)
     private val serverPacket = BoolValue("Server-Packet", false)
-    private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 100, 5000).displayable { pulseValue.get() }
+    private val pulseDelayValue = IntegerValue("Pulse-Delay", 1000, 100, 5000).displayable { pulseValue.get() }
 
     private val pulseTimer = MSTimer()
     private var fakePlayer: EntityOtherPlayerMP? = null

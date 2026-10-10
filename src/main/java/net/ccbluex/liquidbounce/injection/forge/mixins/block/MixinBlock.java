@@ -52,9 +52,13 @@ public abstract class MixinBlock {
     @Overwrite
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
         AxisAlignedBB axisalignedbb = this.getCollisionBoundingBox(worldIn, pos, state);
-        final BlockBBEvent blockBBEvent = new BlockBBEvent(pos, blockState.getBlock(), axisalignedbb);
-        CrossSine.eventManager.callEvent(blockBBEvent);
-        axisalignedbb = blockBBEvent.getBoundingBox();
+        // Skip BlockBBEvent allocation + bus dispatch when no module needs it
+        // (this runs for every collision AABB query while moving).
+        if (CrossSine.eventManager.hasActiveHandlers(BlockBBEvent.class)) {
+            final BlockBBEvent blockBBEvent = new BlockBBEvent(pos, blockState.getBlock(), axisalignedbb);
+            CrossSine.eventManager.callEvent(blockBBEvent);
+            axisalignedbb = blockBBEvent.getBoundingBox();
+        }
         if(axisalignedbb != null && mask.intersectsWith(axisalignedbb))
             list.add(axisalignedbb);
     }

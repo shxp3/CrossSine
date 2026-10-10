@@ -6,10 +6,8 @@ import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold;
-import net.ccbluex.liquidbounce.features.module.modules.player.Scaffold2;
-import net.ccbluex.liquidbounce.utils.MovementUtils;
-import net.ccbluex.liquidbounce.utils.PlayerUtils;
-import net.ccbluex.liquidbounce.utils.RotationUtils;
+import net.ccbluex.liquidbounce.utils.*;
+import net.ccbluex.liquidbounce.utils.extensions.OtherExtensionKt;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -150,9 +148,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
             if (event.getOnGround()) {
                 PlayerUtils.setGroundTicks(PlayerUtils.getGroundTicks() + 1);
+                PlayerUtils.setLastGroundTicks(PlayerUtils.getGroundTicks());
                 PlayerUtils.setOffGroundTicks(0);
             } else {
                 PlayerUtils.setOffGroundTicks(PlayerUtils.getOffGroundTicks() + 1);
+                PlayerUtils.setLastOffGroundTicks(PlayerUtils.getOffGroundTicks());
                 PlayerUtils.setGroundTicks(0);
             }
             if (this.isCurrentViewEntity()) {
@@ -164,15 +164,17 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 if (RotationUtils.targetRotation != null) {
                     yaw = RotationUtils.targetRotation.getYaw();
                     pitch = RotationUtils.targetRotation.getPitch();
+                } else if (RotationUtils.freeLookRotation != null) {
+                    yaw = RotationUtils.freeLookRotation.getYaw();
+                    pitch = RotationUtils.freeLookRotation.getPitch();
                 }
 
-                final NoZeroZeroThree antiDesync = CrossSine.moduleManager.getModule(NoZeroZeroThree.class);
                 double xDiff = event.getX() - this.lastReportedPosX;
                 double yDiff = event.getY() - this.lastReportedPosY;
                 double zDiff = event.getZ() - this.lastReportedPosZ;
                 double yawDiff = yaw - lastReportedYaw;
                 double pitchDiff = pitch - lastReportedPitch;
-                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (antiDesync.getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20;
+                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 0D || this.positionUpdateTicks >= 20;
                 boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
 
                 if (this.ridingEntity == null) {
@@ -223,6 +225,13 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             ci.cancel();
         }
     }
+    @Inject(method = "onUpdate", at = @At("RETURN"))
+    public void onPostUpdate(CallbackInfo ci) {
+        if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {  // ensure compat
+            CrossSine.eventManager.callEvent(new PostUpdateEvent());
+        }
+    }
+
     @Inject(method = "pushOutOfBlocks", at = @At("HEAD"), cancellable = true)
     private void onPushOutOfBlocks(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         PushOutEvent event = new PushOutEvent();
@@ -241,7 +250,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      */
     @Overwrite
     public void onLivingUpdate() {
-        
         /**
          * Update Sprint State - Pre
          * - Run Sprint update before UpdateEvent
@@ -253,19 +261,17 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
          * @param isCurrentUsingItem is player using item
          * @return
          */
-         
+
         boolean lastForwardToggleState = this.movementInput.moveForward > 0.05f;
         boolean lastJumpToggleState = this.movementInput.jump;
-        
+
         this.movementInput.updatePlayerMoveState();
-        
+
         final Sprint sprint = CrossSine.moduleManager.getModule(Sprint.class);
         final NoSlow noSlow = CrossSine.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = CrossSine.moduleManager.getModule(KillAura.class);
         final Inventory inventoryMove = CrossSine.moduleManager.getModule(Inventory.class);
-        final Scaffold scaffold = CrossSine.moduleManager.getModule(Scaffold.class);
-        final Scaffold2 scaffold2 = CrossSine.moduleManager.getModule(Scaffold2.class);
-        final MovementFix movementFix = CrossSine.moduleManager.getModule(MovementFix.class);
+
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
 
@@ -277,31 +283,33 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if (this.sprintToggleTimer > 0) {
             --this.sprintToggleTimer;
         }
-        
-        boolean isSprintDirection = false;
-        boolean movingStat = Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f;
-        
-        boolean runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
-        boolean noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
-        
-        if (!movingStat || runStrictStrafe || noStrafe) {
-            isSprintDirection = this.movementInput.moveForward > 0.05f;
-        }else {
-            isSprintDirection = Math.abs(RotationUtils.getAngleDifference(MovementUtils.INSTANCE.getMovingYaw(), RotationUtils.targetRotation.getYaw())) < 67.0f;
-        }
-        
-        if (!movingStat) {
-            isSprintDirection = false;
-        }
-        
-        boolean attemptToggle = sprint.getState() || this.isSprinting() || this.mc.gameSettings.keyBindSprint.isKeyDown();
-        boolean baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
-        boolean baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
-        boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
-        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || killAura.getInteractSlowDown().get() && killAura.getNoEventBlocking()))) && !this.isRiding();
 
-        baseSprintState = baseSprintState && !(inventoryMove.getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
-        
+        boolean moving = Math.abs(this.movementInput.moveForward) > 0.05F || Math.abs(this.movementInput.moveStrafe) > 0.05F;
+        boolean forwardEnough = this.movementInput.moveForward >= 0.8F;
+        boolean omniDir = sprint.getState() && sprint.getAllDirectionsValue().get() && moving;
+        boolean isSprintDirection = moving && (forwardEnough || omniDir);
+
+        boolean isCurrentUsingItem = getHeldItem() != null
+                && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus()))
+                && !this.isRiding();
+
+        boolean hungerOk = (!sprint.getHungryValue().get() && sprint.getState())
+                || (float) this.getFoodStats().getFoodLevel() > 6.0F
+                || this.capabilities.allowFlying;
+
+        boolean baseSprintState = isSprintDirection
+                && hungerOk
+                && (!this.isCollidedHorizontally || sprint.getCollideValue().get())
+                && (!this.isSneaking() || sprint.getSneakValue().get())
+                && !this.isPotionActive(Potion.blindness)
+                && (!isCurrentUsingItem || (noSlow.getState() && noSlow.getShouldSprint()))
+                && (!inventoryMove.getNoSprintValue().equals("Real") || !inventoryMove.getInvOpen());
+
+        boolean attemptToggle = sprint.getState() || this.isSprinting() || this.mc.gameSettings.keyBindSprint.isKeyDown();
+        boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
+
+        final SprintEvent sprintEvent = new SprintEvent(baseSprintState && attemptToggle);
+
         if (!attemptToggle && !lastForwardToggleState && baseSprintState && !this.isSprinting() && canToggleSprint && !isCurrentUsingItem && !this.isPotionActive(Potion.blindness)) {
             if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
                 this.sprintToggleTimer = 7;
@@ -309,17 +317,23 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 attemptToggle = true;
             }
         }
-        
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldSprint()) && attemptToggle) {
-            this.setSprinting(true);
-        } else {
+        CrossSine.eventManager.callEvent(sprintEvent);
+        this.setSprinting(sprintEvent.getSprint());
+        if (sprintEvent.isCancelled()) {
             this.setSprinting(false);
         }
-        
-        //Run Sprint update before UpdateEvent
-        
+
+        MovementInput modifiedInput = new MovementInput();
+
+        modifiedInput.moveForward = movementInput.moveForward;
+        modifiedInput.moveStrafe = movementInput.moveStrafe;
+
+        float moveForward = RotationUtils.targetRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(OtherExtensionKt.toRadians(rotationYaw - RotationUtils.targetRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(OtherExtensionKt.toRadians(rotationYaw - RotationUtils.targetRotation.getYaw()))) : modifiedInput.moveForward;
         CrossSine.eventManager.callEvent(new UpdateEvent());
-        
+
+        sprint.check(moveForward);
+
+
         //Update Portal Effects state (Vanilla)
 
         this.prevTimeInPortal = this.timeInPortal;
@@ -358,19 +372,10 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         }
 
         this.movementInput.updatePlayerMoveState();
-        
-        /**
-         * Update Sprint State - Post
-         * Apply Item Slowdown
-         * Update sprint state for modules
-         * TODO: This part can be skipped if there's no rotation change
-         */
 
-        movingStat = Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f;
-        runStrictStrafe = movementFix.getDoFix() && !movementFix.getSilentFix();
-        noStrafe = RotationUtils.targetRotation == null || !movementFix.getDoFix();
-        
-        isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && (killAura.getBlockingStatus() || killAura.getNoEventBlocking() && killAura.getInteractSlowDown().get()))) && !this.isRiding();
+        isCurrentUsingItem = getHeldItem() != null
+                && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus()))
+                && !this.isRiding();
 
         if (isCurrentUsingItem) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
@@ -378,37 +383,17 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.movementInput.moveStrafe *= slowDownEvent.getStrafe();
             this.movementInput.moveForward *= slowDownEvent.getForward();
         }
-        
+
         this.pushOutOfBlocks(this.posX - (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX - (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double) this.width * 0.35D);
-        
-        if (!movingStat || runStrictStrafe || noStrafe) {
-            isSprintDirection = this.movementInput.moveForward > 0.05f;
-        }else {
-            isSprintDirection = Math.abs(RotationUtils.getAngleDifference(MovementUtils.INSTANCE.getMovingYaw(), RotationUtils.targetRotation.getYaw())) < 67.0f;
-        }
-        
-        baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (Math.abs(this.movementInput.moveForward) > 0.05f || Math.abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
-        baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
-        
-        //Don't check current Sprint state cuz it's not updated in real time :bruh:
-        
-        if (sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || noSlow.getState() && noSlow.getShouldSprint()) && attemptToggle) {
-            this.setSprinting(true);
-        } else {
+
+        if (sprintEvent.isCancelled()) {
             this.setSprinting(false);
+        } else {
+            this.setSprinting(sprintEvent.getSprint());
         }
-
-        if (scaffold.getState()) {
-            this.setSprinting(scaffold.getSprintActive());
-        }
-        if (scaffold2.getState()) {
-            this.setSprinting(scaffold2.getSprintState());
-        }
-        debug_AttemptSprint = this.isSprinting();
-
 
         //aac may check it :(
         if (this.capabilities.allowFlying) {

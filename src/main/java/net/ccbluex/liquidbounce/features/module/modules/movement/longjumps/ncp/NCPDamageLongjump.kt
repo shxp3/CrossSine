@@ -7,8 +7,6 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumps.LongJumpMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -31,7 +29,6 @@ class NCPDamageLongjump : LongJumpMode("NCPDamage") {
             balance = 114514
         } else {
             balance = 0
-            CrossSine.hud.addNotification(Notification(longjump.name, "Wait for damage...", NotifyType.SUCCESS, jumpYPosArr.size * 4 * 50))
         }
         x = mc.thePlayer.posX
         y = mc.thePlayer.posY

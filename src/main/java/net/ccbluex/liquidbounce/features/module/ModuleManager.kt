@@ -1,4 +1,3 @@
-
 package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.CrossSine
@@ -7,12 +6,12 @@ import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.special.AutoDisable
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.KeybindHelper
 import net.minecraft.client.Minecraft
 import org.lwjgl.input.Keyboard
+import org.lwjgl.input.Mouse
 
 class ModuleManager : Listenable {
 
@@ -129,8 +128,7 @@ class ModuleManager : Listenable {
             modules.toMutableList().filter { it.triggerType == EnumTriggerType.TOGGLE && it.keyBind == event.key }.forEach { it.toggle() }
         } else {
             pendingBindModule!!.keyBind = event.key
-            ClientUtils.displayAlert("Bound module §a§l${pendingBindModule!!.name}§3 to key §a§l${Keyboard.getKeyName(event.key)}§3.")
-            CrossSine.hud.addNotification(Notification("KeyBind", "Bound ${pendingBindModule!!.name} to ${Keyboard.getKeyName(event.key)}.", NotifyType.INFO))
+            ClientUtils.displayAlert("Bound module §a§l${pendingBindModule!!.name}§3 to key §a§l${KeybindHelper.getDisplayName(event.key)}§3.")
             pendingBindModule = null
         }
     }
@@ -140,7 +138,13 @@ class ModuleManager : Listenable {
         if (pendingBindModule != null || Minecraft.getMinecraft().currentScreen != null) {
             return
         }
-        modules.filter { it.triggerType == EnumTriggerType.PRESS }.forEach { it.state = Keyboard.isKeyDown(it.keyBind) }
+        for (module in modules) {
+            if (module.triggerType != EnumTriggerType.PRESS) continue
+            module.state = if (KeybindHelper.isMouseBind(module.keyBind))
+                try { Mouse.isButtonDown(module.keyBind + 100) } catch (_: Throwable) { false }
+            else
+                Keyboard.isKeyDown(module.keyBind)
+        }
     }
 
     override fun handleEvents() = true

@@ -16,23 +16,23 @@ class GrimVelocity : VelocityMode("Grim") {
 
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
-            if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
-                event.cancelEvent()
-                grimTCancel = 6
-            }
-            if (packet is S32PacketConfirmTransaction && grimTCancel > 0) {
-                event.cancelEvent()
-                grimTCancel--
-            }
+        if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
+            event.cancelEvent()
+            grimTCancel = 6
+        }
+        if (packet is S32PacketConfirmTransaction && grimTCancel > 0) {
+            event.cancelEvent()
+            grimTCancel--
+        }
     }
 
     override fun onUpdate(event: UpdateEvent) {
         updates++
-            if (updates >= 10) {
-                updates = 0
-                if (grimTCancel > 0){
-                    grimTCancel--
-                }
+        if (updates >= 10) {
+            updates = 0
+            if (grimTCancel > 0){
+                grimTCancel--
+            }
         }
     }
 }

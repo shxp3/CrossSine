@@ -13,7 +13,7 @@ import net.minecraft.util.EnumParticleTypes
 @ModuleInfo(name = "MoreParticles",  category = ModuleCategory.VISUAL)
 class MoreParticles : Module() {
     private val timesValue = IntegerValue("Times", 1, 1, 10)
-    private val sharpness = BoolValue("FakeSharp", false)
+    private val sharpness = BoolValue("Fake-Sharp", false)
 
     @EventTarget
     fun onAttack(event: AttackEvent) {

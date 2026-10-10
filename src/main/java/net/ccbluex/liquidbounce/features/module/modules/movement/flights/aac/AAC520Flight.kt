@@ -4,8 +4,6 @@ import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flights.FlightMode
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -16,7 +14,6 @@ import kotlin.math.sin
 class AAC520Flight : FlightMode("AAC5.2.0") {
     override fun onEnable() {
         if (mc.isSingleplayer) {
-            CrossSine.hud.addNotification(Notification("Fly", "Use AAC5.2.0 Fly will crash single player", NotifyType.ERROR, 2000, 500))
             flight.state = false
             return
         }

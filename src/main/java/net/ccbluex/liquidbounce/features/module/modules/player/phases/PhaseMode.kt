@@ -22,6 +22,7 @@ abstract class PhaseMode(val modeName: String) : MinecraftInstance() {
     open fun onUpdate(event: UpdateEvent) {}
     open fun onWorld(event: WorldEvent) {}
     open fun onMotion(event: MotionEvent) {}
+    open fun onTeleport(event: TeleportEvent) {}
     open fun onPacket(event: PacketEvent) {}
     open fun onMove(event: MoveEvent) {}
     open fun onBlockBB(event: BlockBBEvent) {}

@@ -6,34 +6,37 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.minecraft.util.ResourceLocation
+import net.ccbluex.liquidbounce.utils.render.shader.shaders.VisualShaderManager
 
-@ModuleInfo(name = "MotionBlur",  category = ModuleCategory.VISUAL, array = false)
+@ModuleInfo(name = "MotionBlur", category = ModuleCategory.VISUAL, array = false)
 class MotionBlur : Module() {
+
     private val blurAmount = IntegerValue("Amount", 7, 1, 10)
 
     override fun onDisable() {
-        if (mc.entityRenderer.isShaderActive) mc.entityRenderer.stopUseShader()
+        VisualShaderManager.onModuleDisabled(
+            motionBlurEnabled  = false,
+            saturationEnabled  = Saturation.instance?.state == true
+        )
     }
 
     @EventTarget
     fun onTick(event: TickEvent) {
         try {
-            if (mc.thePlayer != null) {
-                if (mc.entityRenderer.shaderGroup == null) mc.entityRenderer.loadShader(
-                    ResourceLocation(
-                        "minecraft",
-                        "shaders/post/motion_blur.json"
-                    )
-                )
-                val uniform = 1f - (blurAmount.get() / 10f).coerceAtMost(0.9f)
-                if (mc.entityRenderer.shaderGroup != null) {
-                    mc.entityRenderer.shaderGroup.listShaders[0].shaderManager.getShaderUniform("Phosphor")
-                        .set(uniform, 0f, 0f)
-                }
-            }
-        } catch (a: Exception) {
-            a.printStackTrace()
+            if (mc.thePlayer == null || mc.theWorld == null) return
+
+            val blurUniform = 1f - (blurAmount.get() / 10f).coerceAtMost(0.9f)
+            val saturationActive = Saturation.instance?.state == true
+            val saturationUniform = Saturation.instance?.currentSaturation ?: 1f
+
+            VisualShaderManager.update(
+                motionBlurEnabled  = true,
+                blurUniform        = blurUniform,
+                saturationEnabled  = saturationActive,
+                saturationUniform  = saturationUniform
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

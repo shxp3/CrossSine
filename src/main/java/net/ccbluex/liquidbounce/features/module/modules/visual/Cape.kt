@@ -16,18 +16,11 @@ class Cape : Module() {
         "Style",
         arrayOf(
             "CrossSine",
-            "CrossSine2",
             "Astolfo",
-            "Crave",
-            "MiaSakurajima",
             "Black",
-            "White",
-            "Moonzy",
             "Rise",
             "Novoline",
-            "NoneClient",
-            "SexyBanana",
-            "NightX",
+            "Styles",
             "None"
         ),
         "None"
@@ -48,18 +41,11 @@ class Cape : Module() {
 
     enum class CapeStyle(val location: ResourceLocation) {
         CROSSSINE(ResourceLocation("crosssine/cape/crosssine.png")),
-        CROSSSINE2(ResourceLocation("crosssine/cape/crosssine2.png")),
-        CRAVE(ResourceLocation("crosssine/cape/crave.png")),
-        MIASAKURAJIMA(ResourceLocation("crosssine/cape/miasakurajima.png")),
         ASTOLFO(ResourceLocation("crosssine/cape/astolfo.png")),
         BLACK(ResourceLocation("crosssine/cape/black.png")),
-        WHITE(ResourceLocation("crosssine/cape/white.png")),
-        MOONZY(ResourceLocation("crosssine/cape/moonzy.png")),
         RISE(ResourceLocation("crosssine/cape/risecape.png")),
         NOVOLINE(ResourceLocation("crosssine/cape/novoline.png")),
-        NONECLIENT(ResourceLocation("crosssine/cape/noneclient.png")),
-        SEXYBANANA(ResourceLocation("crosssine/cape/sexybanana.png")),
-        NIGHTX(ResourceLocation("crosssine/cape/nightx.png")),
+        STYLES(ResourceLocation("crosssine/cape/styles.png")),
     }
 
     override val tag: String

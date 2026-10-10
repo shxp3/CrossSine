@@ -36,27 +36,10 @@ object NoFall : Module() {
     
     private val noVoid = BoolValue("NoVoid", false)
 
-    var launchX = 0.0
-    var launchY = 0.0
-    var launchZ = 0.0
-    var launchYaw = 0f
-    var launchPitch = 0f
-
-    var antiDesync = false
-
-    var needReset = true
-
     var wasTimer = false
 
     override fun onEnable() {
-        needReset = true
-        launchX = mc.thePlayer.posX
-        launchY = mc.thePlayer.posY
-        launchZ = mc.thePlayer.posZ
-        launchYaw = mc.thePlayer.rotationYaw
-        launchPitch = mc.thePlayer.rotationPitch
         wasTimer = false
-
         mode.onEnable()
     }
 
@@ -133,11 +116,9 @@ object NoFall : Module() {
         }
         return dangerous
     }
-
-
-    /**
-     * 读取mode中的value并和本体中的value合并
-     * 所有的value必须在这个之前初始化
-     */
     override val values = super.values.toMutableList().also { modes.map { mode -> mode.values.forEach { value -> it.add(value.displayable { modeValue.equals(mode.modeName) }) } } }
+
+    override val tag: String?
+        get() = modeValue.get()
+
 }

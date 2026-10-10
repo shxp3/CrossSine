@@ -3,8 +3,10 @@ package net.ccbluex.liquidbounce.discordrpc
 import com.jagrosh.discordipc.IPCClient
 import com.jagrosh.discordipc.IPCListener
 import com.jagrosh.discordipc.entities.RichPresence
+import com.jagrosh.discordipc.entities.User
 import com.jagrosh.discordipc.entities.pipe.PipeStatus
 import net.ccbluex.liquidbounce.CrossSine
+import net.ccbluex.liquidbounce.features.module.modules.client.DiscordRPC
 import net.ccbluex.liquidbounce.ui.client.gui.GuiMainMenu
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -16,7 +18,7 @@ import kotlin.concurrent.thread
 
 object CrossSineRPC : MinecraftInstance(){
 
-    private val ipcClient = IPCClient(1218820754552918096)
+    private val ipcClient = IPCClient(1501705033086009515)
     private val timestamp = OffsetDateTime.now()
     private var running = false
 
@@ -54,21 +56,17 @@ object CrossSineRPC : MinecraftInstance(){
         // Set playing client time
         builder.setStartTimestamp(timestamp)
 
-        builder.setLargeImage("https://crosssine.github.io/file/CrossSinelogo.png", "CrossSine Client")
+        builder.setLargeImage("https://crosssine.github.io/file/C.png", "CrossSine Client")
 
-        if (mc.currentScreen is GuiMainMenu) {
-            builder.setDetails("MainMenu")
+        if (mc.theWorld != null) {
+            if (mc.theWorld.isRemote) {
+                builder.setDetails("Playing : ${if (DiscordRPC.serverValue.get()) ServerUtils.getRemoteIp() else "Multiplayer"}")
+            } else if (mc.isSingleplayer) {
+                builder.setDetails("Playing : Singleplayer")
+            }
+        } else {
+            builder.setDetails("Hack Client 1.8.9")
         }
-        else
-        if (mc.currentScreen is GuiMultiplayer) {
-            builder.setDetails("Selecting Server")
-        }
-        else
-        if (mc.theWorld != null && mc.theWorld.isRemote) {
-            builder.setDetails("Playing : ${ServerUtils.getRemoteIp()}")
-        }
-        else
-            builder.setDetails(mc.session.username + " is best player")
 
         builder.setState("Version : Build ${CrossSine.CLIENT_VERSION}")
         if (ipcClient.status == PipeStatus.CONNECTED) ipcClient.sendRichPresence(builder.build())

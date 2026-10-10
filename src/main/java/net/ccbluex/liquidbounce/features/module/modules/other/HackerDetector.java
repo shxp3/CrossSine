@@ -29,7 +29,7 @@ public class HackerDetector extends Module {
     public final ConcurrentHashMap<Integer, CheckManager> playersChecks = new ConcurrentHashMap<>();
 
     private final BoolValue warningValue = new BoolValue("Warning", true);
-    private final IntegerValue warningVLValue = new IntegerValue("WarningVL", 30, 20, 400);
+    private final IntegerValue warningVLValue = new IntegerValue("Warning-VL", 30, 20, 400);
     private final BoolValue alertValue = new BoolValue("Alert", false);
     private final BoolValue debugValue = new BoolValue("Debug", false) {
         @Override

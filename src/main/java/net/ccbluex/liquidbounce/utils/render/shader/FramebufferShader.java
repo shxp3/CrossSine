@@ -76,11 +76,14 @@ public abstract class FramebufferShader extends Shader {
      * @author TheSlowly
      */
     public Framebuffer setupFrameBuffer(Framebuffer frameBuffer) {
-        if(frameBuffer != null)
-            frameBuffer.deleteFramebuffer();
-
-        frameBuffer = new Framebuffer(mc.displayWidth, mc.displayHeight, true);
-
+        // Reuse the FBO unless the window was resized — recreating every draw
+        // caused large GPU alloc spikes for StorageESP glow/outline modes.
+        if (frameBuffer == null || frameBuffer.framebufferWidth != mc.displayWidth || frameBuffer.framebufferHeight != mc.displayHeight) {
+            if (frameBuffer != null) {
+                frameBuffer.deleteFramebuffer();
+            }
+            return new Framebuffer(mc.displayWidth, mc.displayHeight, true);
+        }
         return frameBuffer;
     }
 

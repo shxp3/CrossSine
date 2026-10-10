@@ -1,21 +1,18 @@
 
 package net.ccbluex.liquidbounce.utils.extensions
 
-import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.utils.ClientUtils.mc
+import net.ccbluex.liquidbounce.utils.MathUtils.interpolate
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.Rotation
+import net.ccbluex.liquidbounce.utils.Rotation.Companion.getFixedSensitivityAngle
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
-import net.ccbluex.liquidbounce.utils.render.GLUtils
-import net.ccbluex.liquidbounce.utils.extensions.toFloatTriple
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.*
@@ -59,10 +56,22 @@ fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, rotation: Rota
 fun Entity.rayTraceWithServerSideRotation(blockReachDistance: Double): MovingObjectPosition? {
     return this.rayTraceWithCustomRotation(blockReachDistance, RotationUtils.serverRotation)
 }
-fun Entity.inCombat() : Boolean {
-    return CrossSine.combatManager.inCombat
-}
+fun EntityPlayerSP.setFixedSensitivityAngles(yaw: Float? = null, pitch: Float? = null) {
+    if (yaw != null) fixedSensitivityYaw = yaw
 
+    if (pitch != null) fixedSensitivityPitch = pitch
+}
+var EntityPlayerSP.fixedSensitivityYaw
+    get() = getFixedSensitivityAngle(mc.thePlayer.rotationYaw)
+    set(yaw) {
+        rotationYaw = getFixedSensitivityAngle(yaw, rotationYaw)
+    }
+
+var EntityPlayerSP.fixedSensitivityPitch
+    get() = getFixedSensitivityAngle(rotationPitch)
+    set(pitch) {
+        rotationPitch = getFixedSensitivityAngle(pitch.coerceIn(-90f, 90f), rotationPitch)
+    }
 // Modified mc.playerController.sendUseItem() that sends correct stack in its C08
 fun EntityPlayerSP.sendUseItem(stack: ItemStack): Boolean {
     if (mc.playerController.isSpectator)
@@ -105,9 +114,9 @@ val EntityLivingBase.ping: Int
  */
 val Entity.renderPos: Vector3d
     get() {
-        val x = GLUtils.interpolate(lastTickPosX, posX) - mc.renderManager.viewerPosX
-        val y = GLUtils.interpolate(lastTickPosY, posY) - mc.renderManager.viewerPosY
-        val z = GLUtils.interpolate(lastTickPosZ, posZ) - mc.renderManager.viewerPosZ
+        val x = interpolate(lastTickPosX, posX, mc.timer.renderPartialTicks.toDouble()) - mc.renderManager.viewerPosX
+        val y = interpolate(lastTickPosY, posY, mc.timer.renderPartialTicks.toDouble()) - mc.renderManager.viewerPosY
+        val z = interpolate(lastTickPosZ, posZ, mc.timer.renderPartialTicks.toDouble()) - mc.renderManager.viewerPosZ
 
         return Vector3d(x, y, z)
     }

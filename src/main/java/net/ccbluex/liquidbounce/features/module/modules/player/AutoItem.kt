@@ -5,26 +5,29 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.utils.SpoofItemUtils
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.SlotUtils
+import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.item.ItemUtils
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemShears
 import net.minecraft.item.ItemSword
 import net.minecraft.item.ItemTool
 import net.minecraft.network.play.client.C02PacketUseEntity
+import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.MovingObjectPosition
 
 
 @ModuleInfo(name = "AutoItem", category = ModuleCategory.PLAYER)
 object AutoItem : Module() {
-    private val autoTool = BoolValue("AutoTool", true)
+    private val autoTool = BoolValue("Auto-Tool", true)
+    private val sneakValue = BoolValue("Sneak", false).displayable { autoTool.get() }
     private val onlyTools = BoolValue("Only-Tool", true).displayable { autoTool.get() }
-    private val autoWeapon = BoolValue("AutoWeapon", false)
-    private val onlySwordValue = BoolValue("OnlySword", false).displayable { autoWeapon.get() }
+    private val autoWeapon = BoolValue("Auto-Weapon", false)
+    private val onlySwordValue = BoolValue("Only-Sword", false).displayable { autoWeapon.get() }
     private val spoof = BoolValue("Spoof-Item", true)
-    private val render = BoolValue("Render", false)
     private var prevItem = 0
-    private var mining = false
+    var mining = false
     private var bestSlot = 0
     private var attackEnemy = false
     private var prevItemWeapon = 0
@@ -33,13 +36,11 @@ object AutoItem : Module() {
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         if (autoTool.get()) {
-            if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            if (!mc.gameSettings.keyBindUseItem.isKeyDown && mc.gameSettings.keyBindAttack.isKeyDown && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && (!sneakValue.get() || mc.thePlayer.isSneaking)) {
 
                 var bestSpeed = 0
                 if (!mining) {
                     prevItem = mc.thePlayer.inventory.currentItem
-                    if (spoof.get())
-                        SpoofItemUtils.startSpoof(prevItem, render.get())
                 }
 
                 val block = mc.theWorld.getBlockState(mc.objectMouseOver.blockPos).block
@@ -56,17 +57,14 @@ object AutoItem : Module() {
                     if (bestSlot != -1) {
                         val item = mc.thePlayer.inventory.getStackInSlot(bestSlot).item
                         if (!onlyTools.get() || (item is ItemShears || item is ItemTool))
-                            mc.thePlayer.inventory.currentItem = bestSlot
+                            SlotUtils.setSlot(bestSlot, spoof.get(), name)
+
                     }
                 }
                 mining = true
             } else {
                 if (mining) {
-                    if (spoof.get()) {
-                        SpoofItemUtils.stopSpoof()
-                    } else {
-                        mc.thePlayer.inventory.currentItem = prevItem
-                    }
+                    SlotUtils.stopSet()
                     mining = false
                 } else {
                     prevItem = mc.thePlayer.inventory.currentItem
@@ -100,14 +98,11 @@ object AutoItem : Module() {
                     return
                 }
 
-                // Switch to best weapon
-                if (!SpoofItemUtils.spoofing) {
+                if (!SlotUtils.changed) {
                     prevItemWeapon = mc.thePlayer.inventory.currentItem
-                    if (spoof.get())
-                        SpoofItemUtils.startSpoof(prevItemWeapon, render.get())
                 }
                 spoofTick = 15
-                mc.thePlayer.inventory.currentItem = slot
+                SlotUtils.setSlot(slot, spoof.get(), name)
                 mc.playerController.updateController()
 
 
@@ -123,8 +118,7 @@ object AutoItem : Module() {
         if (autoWeapon.get()) {
             if (spoofTick > 0) {
                 if (spoofTick == 1) {
-                    mc.thePlayer.inventory.currentItem = prevItemWeapon
-                    SpoofItemUtils.stopSpoof()
+                    SlotUtils.stopSet()
                 }
                 spoofTick--
             }

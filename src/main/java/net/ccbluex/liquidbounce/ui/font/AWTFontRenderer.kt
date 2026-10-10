@@ -51,6 +51,9 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255) {
 
     private val cachedStrings: HashMap<String, CachedFont> = HashMap()
 
+    private data class StringTexture(val texId: Int, val w: Int, val h: Int, var lastUsed: Long)
+    private val thaiCache = HashMap<String, StringTexture>()
+
     private var textureID = 0
     private var textureWidth = 0
     private var textureHeight = 0
@@ -62,6 +65,30 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255) {
         renderBitmap(startChar, stopChar)
 
         activeFontRenderers.add(this)
+    }
+
+    private fun hasThai(text: String) = text.any { it.code in 0x0E00..0x0E7F }
+
+    private fun getOrCreateThaiTex(text: String): StringTexture {
+        val hit = thaiCache[text]
+        if (hit != null) { hit.lastUsed = System.currentTimeMillis(); return hit }
+        val tmp = BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).graphics as Graphics2D
+        tmp.font = font
+        val fm = tmp.fontMetrics
+        tmp.dispose()
+        val w = (fm.stringWidth(text) + 8).coerceAtLeast(1)
+        val h = fontHeight.coerceAtLeast(fm.height + 3)
+        val img = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+        val g = img.graphics as Graphics2D
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        g.font = font
+        g.color = Color.WHITE
+        g.drawString(text, 3, 1 + fm.ascent)
+        g.dispose()
+        val texId = TextureUtil.uploadTextureImageAllocate(TextureUtil.glGenTextures(), img, true, true)
+        val st = StringTexture(texId, w, h, System.currentTimeMillis())
+        thaiCache[text] = st
+        return st
     }
 
     /**
@@ -87,6 +114,19 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255) {
         val alpha: Float = (color shr 24 and 0xff) / 255F
 
         GlStateManager.color(red, green, blue, alpha)
+
+        if (hasThai(text)) {
+            val st = getOrCreateThaiTex(text)
+            GlStateManager.bindTexture(st.texId)
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(0f, 0f); GL11.glVertex2f(0f, 0f)
+            GL11.glTexCoord2f(0f, 1f); GL11.glVertex2f(0f, st.h.toFloat())
+            GL11.glTexCoord2f(1f, 1f); GL11.glVertex2f(st.w.toFloat(), st.h.toFloat())
+            GL11.glTexCoord2f(1f, 0f); GL11.glVertex2f(st.w.toFloat(), 0f)
+            GL11.glEnd()
+            GlStateManager.popMatrix()
+            return
+        }
 
         var currX = 0.0
 
@@ -260,17 +300,26 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255) {
      * @return the width of the text
      */
     fun getStringWidth(text: String): Int {
+        if (hasThai(text)) {
+            val tmp = BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).graphics as Graphics2D
+            tmp.font = font
+            val w = tmp.fontMetrics.stringWidth(text)
+            tmp.dispose()
+            return w / 2
+        }
+
         var width = 0
-
-        for (c in text.toCharArray()) {
-            val fontChar = charLocations[
-                    if (c.toInt() < charLocations.size)
-                        c.toInt()
-                    else
-                        '\u0003'.toInt()
-            ] ?: continue
-
-            width += fontChar.width - 8
+        // Iterate String directly — avoids allocating a CharArray every call.
+        var i = 0
+        val len = text.length
+        while (i < len) {
+            val c = text[i]
+            val index = if (c.toInt() < charLocations.size) c.toInt() else '\u0003'.toInt()
+            val fontChar = charLocations[index]
+            if (fontChar != null) {
+                width += fontChar.width - 8
+            }
+            i++
         }
 
         return width / 2

@@ -40,14 +40,14 @@ object Flight : Module() {
         }
     }
 
-    private val motionResetValue = BoolValue("MotionReset", false)
+    private val motionResetValue = BoolValue("Motion-Reset", false)
     private val motionResetYValue = BoolValue("ResetY", false).displayable { motionResetValue.get() }
 
     // Visuals
     private val markValue = ListValue("Mark", arrayOf("Up", "Down", "Off"), "Off")
-    private val fakeDamageValue = BoolValue("FakeDamage", false)
-    private val viewBobbingValue = BoolValue("ViewBobbing", false)
-    private val viewBobbingYawValue = FloatValue("ViewBobbingYaw", 0.1f, 0f, 0.5f).displayable { viewBobbingValue.get() }
+    private val fakeDamageValue = BoolValue("Fake-Damage", false)
+    private val viewBobbingValue = BoolValue("View-Bobbing", false)
+    private val viewBobbingYawValue = FloatValue("View-Bobbing-Yaw", 0.1f, 0f, 0.5f).displayable { viewBobbingValue.get() }
 
     var launchX = 0.0
     var launchY = 0.0

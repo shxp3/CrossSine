@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.ccbluex.liquidbounce.CrossSine;
 import net.ccbluex.liquidbounce.event.ChatEvent;
-import net.ccbluex.liquidbounce.features.module.modules.visual.GuiChatModule;
+import net.ccbluex.liquidbounce.features.module.modules.client.GuiChatModule;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
@@ -129,7 +129,6 @@ public abstract class MixinGuiNewChat {
     @Overwrite
     public void drawChat(int updateCounter) {
         checkHud();
-        boolean canFont = guiChatModule.getState() && guiChatModule.getFontChatValue().get();
         GlStateManager.pushMatrix();
         GlStateManager.translate(0, -12, 0);
 
@@ -208,9 +207,9 @@ public abstract class MixinGuiNewChat {
                                 GlStateManager.enableBlend();
                                 if (guiChatModule.getState() && lineBeingDrawn <= newLines) {
                                     CrossSine.eventManager.callEvent(event);
-                                    (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), new Color(1F, 1F, 1F, animationPercent * (float) d0).getRGB(), true);
+                                    this.mc.fontRendererObj.drawString(s, (float) i2, (float) (j2 - 8), new Color(1F, 1F, 1F, animationPercent * (float) d0).getRGB(), true);
                                 } else
-                                    (canFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).drawString(s, (float) i2, (float) (j2 - 8), 16777215 + (l1 << 24), true);
+                                    this.mc.fontRendererObj.drawString(s, (float) i2, (float) (j2 - 8), 16777215 + (l1 << 24), true);
                                 GlStateManager.disableAlpha();
                                 GlStateManager.disableBlend();
                             }
@@ -272,7 +271,6 @@ public abstract class MixinGuiNewChat {
     @Overwrite
     public IChatComponent getChatComponent(int p_146236_1_, int p_146236_2_) {
         checkHud();
-        boolean flagFont = guiChatModule.getState() && guiChatModule.getFontChatValue().get();
 
         if (!this.getChatOpen()) {
             return null;
@@ -286,8 +284,8 @@ public abstract class MixinGuiNewChat {
             mY = MathHelper.floor_float((float) mY / chatScale);
             if (mX >= 0 && mY >= 0) {
                 int lineCount = Math.min(this.getLineCount(), this.drawnChatLines.size());
-                if (mX <= MathHelper.floor_float((float) this.getChatWidth() / this.getChatScale()) && mY < (flagFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).FONT_HEIGHT * lineCount + lineCount) {
-                    int line = mY / (flagFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).FONT_HEIGHT + this.scrollPos;
+                if (mX <= MathHelper.floor_float((float) this.getChatWidth() / this.getChatScale()) && mY < this.mc.fontRendererObj.FONT_HEIGHT * lineCount + lineCount) {
+                    int line = mY / this.mc.fontRendererObj.FONT_HEIGHT + this.scrollPos;
                     if (line >= 0 && line < this.drawnChatLines.size()) {
                         ChatLine chatLine = this.drawnChatLines.get(line);
                         int maxWidth = 0;
@@ -296,7 +294,7 @@ public abstract class MixinGuiNewChat {
                         while (iter.hasNext()) {
                             IChatComponent iterator = (IChatComponent) iter.next();
                             if (iterator instanceof ChatComponentText) {
-                                maxWidth += (flagFont ? guiChatModule.getFontType().get() : this.mc.fontRendererObj).getStringWidth(GuiUtilRenderComponents.func_178909_a(((ChatComponentText) iterator).getChatComponentText_TextValue(), false));
+                                maxWidth += this.mc.fontRendererObj.getStringWidth(GuiUtilRenderComponents.func_178909_a(((ChatComponentText) iterator).getChatComponentText_TextValue(), false));
                                 if (maxWidth > mX) {
                                     return iterator;
                                 }

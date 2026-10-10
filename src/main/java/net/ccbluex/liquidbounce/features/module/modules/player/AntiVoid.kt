@@ -20,16 +20,18 @@ import net.minecraft.block.BlockAir
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
+import kotlin.math.abs
 
 @ModuleInfo(name = "AntiVoid", category = ModuleCategory.PLAYER)
 class AntiVoid : Module() {
     private val modeValue = ListValue("Mode", arrayOf("Blink", "TPBack", "MotionFlag", "PacketFlag", "GroundSpoof", "OldHypixel", "Jartex", "OldCubecraft", "Packet", "Watchdog", "Vulcan", "Freeze"), "Blink")
-    private val maxFallDistValue = FloatValue("MaxFallDistance", 10F, 1F, 20F)
-    private val resetMotionValue = BoolValue("ResetMotion", false).displayable { modeValue.equals("Blink") }
-    private val startFallDistValue = FloatValue("BlinkStartFallDistance", 2F, 0F, 5F).displayable { modeValue.equals("Blink") }
-    private val autoScaffoldValue = BoolValue("BlinkAutoScaffold", true).displayable { modeValue.equals("Blink") }
-    private val motionflagValue = FloatValue("MotionFlag-MotionY", 1.0F, 0.0F, 5.0F).displayable { modeValue.equals("MotionFlag") }
-    private val voidOnlyValue = BoolValue("OnlyVoid", true)
+    private val maxFallDistValue = FloatValue("Max-Fall-Distance", 3F, 1F, 20F)
+    private val resetMotionValue = BoolValue("Reset-Motion", false).displayable { modeValue.equals("Blink") }
+    private val startFallDistValue = FloatValue("Blink-Start-Fall-Distance", 2F, 0F, 5F).displayable { modeValue.equals("Blink") }
+    private val autoScaffoldValue = BoolValue("Blink-Auto-Scaffold", true).displayable { modeValue.equals("Blink") }
+    private val motionflagValue = FloatValue("Motion-Flag-MotionY", 1.0F, 0.0F, 5.0F).displayable { modeValue.equals("MotionFlag") }
+    private val voidOnlyValue = BoolValue("Only-Void", true)
+    private val prediction = BoolValue("Prediction", false).displayable { voidOnlyValue.get() }
 
     private val packetCache = ArrayList<C03PacketPlayer>()
     private var blink = false
@@ -49,16 +51,17 @@ class AntiVoid : Module() {
     private var x = 0.0
     private var y = 0.0
     private var z = 0.0
-
+    private var pos: BlockPos? = null
     override fun onEnable() {
         canCancel = false
+        pos = null
         blink = false
         canBlink = false
         canSpoof = false
-        if(mc.thePlayer != null) {
-            lastRecY = mc.thePlayer.posY
+        lastRecY = if(mc.thePlayer != null) {
+            mc.thePlayer.posY
         } else {
-            lastRecY = 0.0
+            0.0
         }
         tried = false
         flagged = false
@@ -88,6 +91,17 @@ class AntiVoid : Module() {
         if (mc.thePlayer.onGround) {
             tried = false
             flagged = false
+        }
+        pos = if (!mc.thePlayer.onGround) {
+            val fallingPlayer = FallingPlayer(mc.thePlayer)
+            val collLoc = fallingPlayer.findCollision(60) // null -> too far to calc or fall pos in void
+            if (abs((collLoc?.y ?: 0) - mc.thePlayer.posY) > (maxFallDistValue.get() + 1)) {
+                collLoc
+            } else {
+                null
+            }
+        } else {
+            null
         }
 
         when (modeValue.get().lowercase()) {
@@ -260,6 +274,9 @@ class AntiVoid : Module() {
     }
 
     private fun checkVoid(): Boolean {
+        if (prediction.get() && mc.thePlayer.fallDistance >= maxFallDistValue.get()) {
+            if (pos == null) return false
+        }
         var i = (-(mc.thePlayer.posY-1.4857625)).toInt()
         var dangerous = true
         while (i <= 0) {
@@ -275,25 +292,6 @@ class AntiVoid : Module() {
         val packet = event.packet
 
         when (modeValue.get().lowercase()) {
-            "watchdog" -> {
-                if (packet is C03PacketPlayer) {
-                    if (mc.thePlayer.onGround) {
-                        posX = mc.thePlayer.posX
-                        posY = mc.thePlayer.posY
-                        posZ = mc.thePlayer.posZ
-                        for (packet in packetCache) {
-                            mc.netHandler.addToSendQueue(packet)
-                        }
-                        packetCache.clear()
-                    } else {
-                        event.cancelEvent()
-                        packetCache.add(packet)
-                        if (mc.thePlayer.fallDistance > maxFallDistValue.get()) {
-                            PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(posX, posY + 0.1, posZ, false))
-                        }
-                    }
-                }
-            }
             "blink" -> {
                 if (blink && (packet is C03PacketPlayer)) {
                     packetCache.add(packet)

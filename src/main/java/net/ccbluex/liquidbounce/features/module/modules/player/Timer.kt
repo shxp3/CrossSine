@@ -15,8 +15,8 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 class Timer : Module() {
 
     private val speedValue = FloatValue("Speed", 2F, 0.1F, 10F)
-    private val onMoveValue = BoolValue("OnlyMove", true)
-    private val onStrafeValue = BoolValue("OnlyStrafe", false)
+    private val onMoveValue = BoolValue("Only-Move", true)
+    private val onStrafeValue = BoolValue("Only-Strafe", false)
 
     override fun onDisable() {
         if (mc.thePlayer == null) {

@@ -36,9 +36,9 @@ abstract class Value<T>(val name: String, var value: T) {
     }
 
 
-    fun get() = value
+    open fun get() = value
 
-    fun setDefault() {
+    open fun setDefault() {
         value = default
     }
 
@@ -52,15 +52,6 @@ abstract class Value<T>(val name: String, var value: T) {
     protected open fun onChange(oldValue: T, newValue: T) {}
     protected open fun onChanged(oldValue: T, newValue: T) {}
 
-
-    fun nah(other: String?, ignoreCase: Boolean = false): Boolean {
-        if (this === null)
-            return other === null
-        return if (!ignoreCase)
-            (this as java.lang.String).equals(other)
-        else
-            (this as java.lang.String).equalsIgnoreCase(other)
-    }
 
     override fun equals(other: Any?): Boolean {
         other ?: return false
@@ -76,25 +67,6 @@ abstract class Value<T>(val name: String, var value: T) {
         } else {
             false
         }
-    }
-
-    private var Expanded = false
-
-    open fun getExpanded(): Boolean {
-        return Expanded
-    }
-
-    open fun setExpanded(b: Boolean) {
-        this.Expanded
-    }
-
-    open fun isExpanded(): Boolean {
-        return Expanded
-    }
-
-
-    open fun getAwtColor(): Color {
-        return Color((this as Value<Number>).value.toInt(), true)
     }
 
     open fun ColorValue(name: String, value: Int) {

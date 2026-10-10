@@ -15,16 +15,15 @@ class FileManager : MinecraftInstance() {
     val dir = File(mc.mcDataDir, "CrossSine")
     val fontsDir = File(dir, "fonts")
     val configsDir = File(dir, "configs")
-    val hertaSoundDir = File(dir, "sounds/herta")
     val legacySettingsDir = File(dir, "legacy-settings.json")
-    val themesDir = File(dir, "themes")
     val accountsConfig = AccountsConfig(File(dir, "accounts.json"))
     var friendsConfig = FriendsConfig(File(dir, "friends.json"))
     val xrayConfig = XRayConfig(File(dir, "xray-blocks.json"))
-    val hudConfig = HudConfig(File(dir, "hud.json"))
     val subscriptsConfig = ScriptConfig(File(dir, "subscripts.json"))
     val specialConfig = SpecialConfig(File(dir, "special.json"))
     val themeConfig = ThemeConfig(File(dir, "themeColor.json"))
+    val clientSettingsConfig = ClientSettingsConfig(File(dir, "clientsettings.json"))
+    val clienthudConfig = ClientHUDConfig(File(dir, "clienthud.json"))
     /**
      * Setup everything important
      */
@@ -46,13 +45,6 @@ class FileManager : MinecraftInstance() {
 
         if (!configsDir.exists()) {
             configsDir.mkdir()
-        }
-        if (!hertaSoundDir.exists()) {
-            hertaSoundDir.mkdir()
-        }
-
-        if (!themesDir.exists()) {
-            themesDir.mkdir();
         }
 
     }

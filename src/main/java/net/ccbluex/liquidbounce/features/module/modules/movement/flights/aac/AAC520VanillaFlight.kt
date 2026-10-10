@@ -8,8 +8,6 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacketNoEvent
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
@@ -34,7 +32,6 @@ class AAC520VanillaFlight : FlightMode("AAC5.2.0-Vanilla") {
 
     override fun onEnable() {
         if (mc.isSingleplayer) {
-            CrossSine.hud.addNotification(Notification("Fly", "Use AAC5.2.0 Fly will crash single player", NotifyType.ERROR, 2000, 500))
             flight.state = false
             return
         }

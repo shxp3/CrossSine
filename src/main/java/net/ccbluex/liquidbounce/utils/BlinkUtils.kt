@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.utils
 
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
-import java.math.BigInteger
 import java.util.*
 
 /**
@@ -25,6 +24,8 @@ object BlinkUtils : MinecraftInstance() {
     private var invStat = false
     private var interactStat = false
     private var otherPacket = false
+    /** Fast path for MixinNetworkManager — skip work when nothing is blinking. */
+    private var anyBlinkActive = false
 
     private var packetToggleStat = booleanArrayOf(false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false)
     init {
@@ -35,14 +36,24 @@ object BlinkUtils : MinecraftInstance() {
         clearPacket()
     }
 
+    /** Parse C03 / S12 style packet id from simpleName without allocating BigInteger. */
+    private fun packetIdFromName(simpleName: String): Int {
+        if (simpleName.length < 3) return -1
+        return try {
+            Integer.parseInt(simpleName.substring(1, 3), 16)
+        } catch (e: NumberFormatException) {
+            -1
+        }
+    }
+
     fun releasePacket(packetType: String? = null, onlySelected: Boolean = false, amount: Int = -1, minBuff: Int = 0) {
         var count = 0
         when(packetType) {
             null -> {
                 count = -1
                 for (packets in playerBuffer) {
-                    val packetID = BigInteger(packets.javaClass.simpleName.substring(1..2), 16).toInt()
-                    if (packetToggleStat[packetID] || !onlySelected) {
+                    val packetID = packetIdFromName(packets.javaClass.simpleName)
+                    if (packetID in packetToggleStat.indices && (packetToggleStat[packetID] || !onlySelected)) {
                         PacketUtils.sendPacketNoEvent(packets)
                     }
                 }
@@ -69,8 +80,8 @@ object BlinkUtils : MinecraftInstance() {
             null -> {
                 val tempBuffer = LinkedList<Packet<INetHandlerPlayServer>>()
                 for (packets in playerBuffer) {
-                    val packetID = BigInteger(packets.javaClass.simpleName.substring(1..2), 16).toInt()
-                    if (!packetToggleStat[packetID] && onlySelected) {
+                    val packetID = packetIdFromName(packets.javaClass.simpleName)
+                    if (packetID in packetToggleStat.indices && !packetToggleStat[packetID] && onlySelected) {
                         tempBuffer.add(packets)
                     }
                 }
@@ -102,8 +113,10 @@ object BlinkUtils : MinecraftInstance() {
     }
 
     fun pushPacket(packets: Packet<*>):Boolean {
-        val packetID = BigInteger(packets.javaClass.simpleName.substring(1..2), 16).toInt()
-        if (packetToggleStat[packetID] && !isBlacklisted(packets.javaClass.simpleName)) {
+        if (!anyBlinkActive) return false
+        val simpleName = packets.javaClass.simpleName
+        val packetID = packetIdFromName(simpleName)
+        if (packetID in packetToggleStat.indices && packetToggleStat[packetID] && !isBlacklisted(simpleName)) {
             playerBuffer.add(packets as Packet<INetHandlerPlayServer>)
             return true
         }
@@ -157,6 +170,13 @@ object BlinkUtils : MinecraftInstance() {
                     0x0D, 0x0E, 0x10, 0x16 -> packetToggleStat[i] = invStat
                     0x07, 0x08 -> packetToggleStat[i] = interactStat
                 }
+            }
+        }
+        anyBlinkActive = false
+        for (flag in packetToggleStat) {
+            if (flag) {
+                anyBlinkActive = true
+                break
             }
         }
     }

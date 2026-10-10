@@ -23,13 +23,8 @@ public class SessionUtils extends MinecraftInstance implements Listenable {
     public void onWorld(WorldEvent event) {
         lastWorldTime = System.currentTimeMillis() - worldTimer.time;
         worldTimer.reset();
-
-        if (event.getWorldClient() == null) {
-            backupSessionTime = System.currentTimeMillis() - sessionTimer.time;
-            requireDelay = true;
-        } else {
-            requireDelay = false;
-        }
+        backupSessionTime = System.currentTimeMillis() - sessionTimer.time;
+        requireDelay = true;
     }
 
     @EventTarget

@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 class EventManager : MinecraftInstance() {
 
     private val registry = HashMap<Class<out Event>, MutableList<EventHook>>()
+
     /**
      * Register [listener]
      */
@@ -23,7 +24,6 @@ class EventManager : MinecraftInstance() {
 
                     val invokableEventTargets = registry.getOrPut(eventClass) { mutableListOf() }
                     invokableEventTargets.add(EventHook(listener, method, eventTarget))
-                    registry[eventClass] = invokableEventTargets
                 } catch (t: Throwable) {
                     t.printStackTrace()
                 }
@@ -37,12 +37,25 @@ class EventManager : MinecraftInstance() {
      * @param listenable for unregister
      */
     fun unregisterListener(listenable: Listenable) {
-        for ((key, targets) in registry) {
+        for ((_, targets) in registry) {
             targets.removeIf { it.eventClass == listenable }
-
-            registry[key] = targets
         }
     }
+
+    /**
+     * True if at least one registered handler would currently process [eventClass].
+     * Used to skip allocating hot events (e.g. BlockBBEvent) when nothing is listening.
+     */
+    fun hasActiveHandlers(eventClass: Class<out Event>): Boolean {
+        val targets = registry[eventClass] ?: return false
+        for (hook in targets) {
+            if (hook.isIgnoreCondition || hook.eventClass.handleEvents()) {
+                return true
+            }
+        }
+        return false
+    }
+
     /**
      * Call event to listeners
      *
@@ -51,20 +64,15 @@ class EventManager : MinecraftInstance() {
     fun callEvent(event: Event) {
         if (CrossSine.destruced) return
         val targets = registry[event.javaClass] ?: return
-        try {
-            for (invokableEventTarget in targets) {
-                try {
-                    if (!invokableEventTarget.eventClass.handleEvents() && !invokableEventTarget.isIgnoreCondition) {
-                        continue
-                    }
-
-                    invokableEventTarget.method.invoke(invokableEventTarget.eventClass, event)
-                } catch (throwable: Throwable) {
-                    throwable.printStackTrace()
+        for (invokableEventTarget in targets) {
+            try {
+                if (!invokableEventTarget.eventClass.handleEvents() && !invokableEventTarget.isIgnoreCondition) {
+                    continue
                 }
+                invokableEventTarget.call(event)
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
             }
-        }catch (e :Exception){
-            e.printStackTrace();
         }
     }
 }

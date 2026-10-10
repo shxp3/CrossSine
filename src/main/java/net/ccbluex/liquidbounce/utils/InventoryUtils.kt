@@ -4,6 +4,7 @@ package net.ccbluex.liquidbounce.utils
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
@@ -16,6 +17,7 @@ import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.potion.Potion
+import java.util.*
 
 
 object InventoryUtils : Listenable {
@@ -82,6 +84,57 @@ object InventoryUtils : Listenable {
         }
         return false
     }
+    fun getBestSwapSlot(): Int {
+        val currentSlot = mc.thePlayer.inventory.currentItem
+        var bestSlot = -1
+        var bestDamage = -1.0
+        for (i in 0..8) {
+            if (i == currentSlot) {
+                continue
+            }
+            val stack = mc.thePlayer.inventory.getStackInSlot(i)
+            val damage: Double = getDamageLevel(stack)
+            if (damage != 0.0) {
+                if (damage > bestDamage) {
+                    bestDamage = damage
+                    bestSlot = i
+                }
+            }
+        }
+        if (bestSlot == -1) {
+            for (i in 0..8) {
+                if (i == currentSlot) {
+                    continue
+                }
+                val stack = mc.thePlayer.inventory.getStackInSlot(i)
+                if (stack == null || Arrays.stream(arrayOf("compass", "snowball", "spawn", "skull")).noneMatch { s: CharSequence? ->
+                        stack.unlocalizedName.lowercase(Locale.getDefault()).contains(
+                            s!!
+                        )
+                    }) {
+                    bestSlot = i
+                    break
+                }
+            }
+        }
+
+        return bestSlot
+    }
+    fun getDamageLevel(itemStack: ItemStack?): Double {
+        var baseDamage = 0.0
+        if (itemStack != null) {
+            for ((key, value) in itemStack.attributeModifiers.entries()) {
+                if (key == "generic.attackDamage") {
+                    baseDamage = value.amount
+                    break
+                }
+            }
+        }
+        val sharp_level = EnchantmentHelper.getEnchantmentLevel(Enchantment.sharpness.effectId, itemStack)
+        val fire_level = EnchantmentHelper.getEnchantmentLevel(Enchantment.fireAspect.effectId, itemStack)
+        return baseDamage + sharp_level * 1.25 + (fire_level * 4 - 1)
+    }
+
     fun findAutoBlockBlock(biggest: Boolean): Int {
         if (biggest) {
             var a = -1

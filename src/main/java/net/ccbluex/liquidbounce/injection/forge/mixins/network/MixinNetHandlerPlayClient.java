@@ -6,7 +6,6 @@ import net.ccbluex.liquidbounce.event.EntityDamageEvent;
 import net.ccbluex.liquidbounce.event.EntityMovementEvent;
 import net.ccbluex.liquidbounce.event.TeleportEvent;
 import net.ccbluex.liquidbounce.features.module.modules.other.AntiExploit;
-import net.ccbluex.liquidbounce.features.module.modules.other.NoRotate;
 import net.ccbluex.liquidbounce.script.api.global.Chat;
 import net.ccbluex.liquidbounce.utils.TransferUtils;
 import net.minecraft.client.Minecraft;
@@ -58,18 +57,6 @@ public abstract class MixinNetHandlerPlayClient {
     private boolean doneLoadingTerrain;
 
     public boolean silentConfirm = false;
-
-    @Inject(method = "handleEntityStatus", at = @At("HEAD"))
-    public void handleDamagePacket(S19PacketEntityStatus packetIn, CallbackInfo callbackInfo) {
-        if (packetIn.getOpCode() == 2) {
-            Entity entity = packetIn.getEntity(this.clientWorldController);
-            if (entity != null) {
-                CrossSine.eventManager.callEvent(new EntityDamageEvent(entity));
-                if (entity instanceof EntityPlayer)
-                    CrossSine.hud.handleDamage((EntityPlayer) entity);
-            }
-        }
-    }
     @Redirect(method = "handleExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S27PacketExplosion;getStrength()F"))
     private float onExplosionVelocity(S27PacketExplosion packetExplosion) {
         if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitExplosionStrength().get()) {
@@ -208,32 +195,52 @@ public abstract class MixinNetHandlerPlayClient {
      */
     @Overwrite
     public void handlePlayerPosLook(S08PacketPlayerPosLook packetIn) {
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
-        EntityPlayer entityplayer = this.gameController.thePlayer;
-        final TeleportEvent event = new TeleportEvent(new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false), packetIn.x, packetIn.y, packetIn.z, packetIn.yaw, packetIn.pitch);
+
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient)(Object)this, this.gameController);
+        final EntityPlayer entityplayer = this.gameController.thePlayer;
+        double d0 = packetIn.getX();
+        double d1 = packetIn.getY();
+        double d2 = packetIn.getZ();
+        float f = packetIn.getYaw();
+        float f1 = packetIn.getPitch();
+
+        final TeleportEvent event = new TeleportEvent(
+                new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.posY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false),
+                d0,
+                d1,
+                d2,
+                f,
+                f1
+        );
         CrossSine.eventManager.callEvent(event);
-        if (event.isCancelled()) return;
-        double d0 = event.getX();
-        double d1 = event.getY();
-        double d2 = event.getZ();
-        float f = event.getYaw();
-        float f1 = event.getPitch();
+
+
+        if (event.isCancelled()) {
+            return;
+        }
+
+        d0 = event.getX();
+        d1 = event.getY();
+        d2 = event.getZ();
+        f = event.getYaw();
+        f1 = event.getPitch();
+
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X)) {
             d0 += entityplayer.posX;
         } else {
-            entityplayer.motionX = 0.0;
+            entityplayer.motionX = 0.0D;
         }
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Y)) {
             d1 += entityplayer.posY;
         } else {
-            entityplayer.motionY = 0.0;
+            entityplayer.motionY = 0.0D;
         }
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Z)) {
             d2 += entityplayer.posZ;
         } else {
-            entityplayer.motionZ = 0.0;
+            entityplayer.motionZ = 0.0D;
         }
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X_ROT)) {
@@ -245,7 +252,15 @@ public abstract class MixinNetHandlerPlayClient {
         }
 
         entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
-        this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false));
+        this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(
+                d0,
+                d1,
+                d2,
+                f,
+                f1,
+                false
+        ));
+
         if (!this.doneLoadingTerrain) {
             this.gameController.thePlayer.prevPosX = this.gameController.thePlayer.posX;
             this.gameController.thePlayer.prevPosY = this.gameController.thePlayer.posY;
@@ -253,7 +268,6 @@ public abstract class MixinNetHandlerPlayClient {
             this.doneLoadingTerrain = true;
             this.gameController.displayGuiScreen(null);
         }
-
     }
 
     private <T> void cancelIfNull(T t, CallbackInfo callbackInfo) {

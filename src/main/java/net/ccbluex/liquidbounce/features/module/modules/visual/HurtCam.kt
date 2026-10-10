@@ -7,9 +7,11 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.ColorValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.utils.extensions.setAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.network.play.server.S19PacketEntityStatus
 import java.awt.Color
@@ -17,9 +19,7 @@ import java.awt.Color
 @ModuleInfo(name = "HurtCam", category = ModuleCategory.VISUAL, canEnable = false)
 class HurtCam : Module() {
     val modeValue = ListValue("Mode", arrayOf("Vanilla", "Cancel", "FPS"), "Vanilla")
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { modeValue.equals("FPS") }
-    private val colorGreenValue = IntegerValue("G", 0, 0, 255).displayable { modeValue.equals("FPS") }
-    private val colorBlueValue = IntegerValue("B", 0, 0, 255).displayable { modeValue.equals("FPS") }
+    private val colorValue = ColorValue("Color", Color(255,255,255)).displayable { modeValue.equals("FPS") }
     private val colorThmeme = BoolValue("ColorTheme", false).displayable { modeValue.equals("FPS") }
     private val timeValue = IntegerValue("FPSTime", 1000, 0, 1500).displayable { modeValue.equals("FPS") }
     private val fpsHeightValue = IntegerValue("FPSHeight", 25, 10, 50).displayable { modeValue.equals("FPS") }
@@ -61,7 +61,7 @@ class HurtCam : Module() {
     }
 
     private fun getColor(alpha: Int): Color {
-        return if (colorThmeme.get()) ClientTheme.getColorWithAlpha(1, alpha) else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), alpha)
+        return if (colorThmeme.get()) ClientTheme.getColorWithAlpha(1, alpha) else colorValue.get().setAlpha(alpha)
     }
 
     // always handle event

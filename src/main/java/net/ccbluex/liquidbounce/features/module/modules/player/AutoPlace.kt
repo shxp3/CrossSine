@@ -21,15 +21,27 @@ import org.lwjgl.input.Mouse
 @ModuleInfo(name = "AutoPlace", category = ModuleCategory.PLAYER)
 class AutoPlace : Module() {
     private val dl = FloatValue("Delay", 0f, 0f, 10f)
-    private val md = BoolValue("MouseDown", false)
+    private val md = BoolValue("Mouse-Down", false)
     private val fakeMouseDown = BoolValue("Fake-Mouse-Down", false)
     private val up = BoolValue("Up", false)
     private val down = BoolValue("Down", false)
     private val side = BoolValue("Side", true)
-    private val nofly = BoolValue("NoFly", false)
-    private val PitchLitmit = BoolValue("Pitch", false)
-    private val PitchMax = IntegerValue("Pitch-MAX", 90, 0, 90).displayable { PitchLitmit.get() }
-    private val PitchMin = IntegerValue("Pitch-MIN", 75, 0, 90).displayable { PitchLitmit.get() }
+    private val nofly = BoolValue("No-Fly", false)
+    private val pitchLimit = BoolValue("Pitch", false)
+    private val pitchMax: IntegerValue = object: IntegerValue("Pitch-MAX", 90, 0, 90) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            if (newValue < pitchMin.get()) {
+                set(pitchMin.get())
+            }
+        }
+    }.displayable { pitchLimit.get() } as IntegerValue
+    private val pitchMin: IntegerValue = object: IntegerValue("Pitch-MIN", 75, 0, 90) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            if (newValue > pitchMax.get()) {
+                set(pitchMax.get())
+            }
+        }
+    }.displayable { pitchLimit.get() } as IntegerValue
     private var l = 0L
     private var f = 0
     private var lm: MovingObjectPosition? = null
@@ -37,9 +49,6 @@ class AutoPlace : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
-        if (PitchMin.get() >= PitchMax.get()) {
-            PitchMin.set(PitchMax.get())
-        }
         if (fakeMouseDown.get()) {
             if (!Mouse.isButtonDown(1)) {
                 mc.gameSettings.keyBindUseItem.pressed =
@@ -47,7 +56,7 @@ class AutoPlace : Module() {
             }
         }
         if (mc.currentScreen == null && (!nofly.get() || !mc.thePlayer.capabilities.isFlying)) {
-            if (!PitchLitmit.get() || mc.thePlayer.rotationPitch < PitchMax.get() && mc.thePlayer.rotationPitch > PitchMin.get()) {
+            if (!pitchLimit.get() || mc.thePlayer.rotationPitch < pitchMax.get() && mc.thePlayer.rotationPitch > pitchMin.get()) {
                 val i = mc.thePlayer.heldItem
                 if (i != null && i.item is ItemBlock) {
                     val m = mc.objectMouseOver

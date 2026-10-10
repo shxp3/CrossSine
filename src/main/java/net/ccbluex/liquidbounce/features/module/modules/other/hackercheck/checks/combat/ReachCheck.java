@@ -32,11 +32,16 @@ public class ReachCheck extends Check {
             if (target != null) {
                 if (this.handlePlayer.isSwingInProgress) {
                     this.swingBuffer++;
+                } else if (this.swingBuffer > 0) {
+                    this.swingBuffer--;
                 }
 
-                if (this.swingBuffer >= 10 && target.hurtResistantTime > 8 && this.handlePlayer.getDistanceSqToEntity(target) >= 3.5D) {
+                if (this.swingBuffer >= 10 && target.hurtResistantTime > 8 && this.handlePlayer.getDistanceSqToEntity(target) >= 12.25D) {
                     flag("Attack other entity for long distance", 1.0D);
+                    this.swingBuffer = 0;
                 }
+            } else {
+                this.swingBuffer = 0;
             }
         }
     }

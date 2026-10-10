@@ -6,12 +6,22 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.client.Interface
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.gui.colortheme.ClientTheme
+import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.timer.TimerMS
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import org.lwjgl.input.Keyboard
+import java.awt.Color
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 
 @ModuleInfo(name = "Speed",  category = ModuleCategory.MOVEMENT)
 object Speed : Module() {
@@ -31,23 +41,32 @@ object Speed : Module() {
             if (state) onEnable()
         }
     }
-    private val noWater = BoolValue("NoWater", true)
-    private val debug = BoolValue("Debug", false)
-
+    val flagCheck = BoolValue("Flag-Check", false)
+    val flagMS = IntegerValue("Stop-For-MS", 500, 0, 2000).displayable { flagCheck.get() }
+    private val noWater = BoolValue("No-Water", true)
+    var flagged = false
+    val timerMS = TimerMS()
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (timerMS.hasTimePassed(flagMS.get().toLong())) {
+            flagged = false
+        }
         if (mc.thePlayer.isSneaking || (mc.thePlayer.isInWater && noWater.get())) return
         if (mc.thePlayer.moveForward > 0 && modeValue.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
+        if (stopWorking()) return
         mode.onUpdate()
     }
-
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        if (Interface.dynamicIsland.get()) return
+        val decimalFormat3 = DecimalFormat("0.#", DecimalFormatSymbols(Locale.ENGLISH))
+        if (stopWorking()) {
+            Fonts.font32.drawCenteredString("Disable Speed : ${decimalFormat3.format((timerMS.time + 2000 - System.currentTimeMillis()) / 1000.0)}", event.scaledResolution.scaledWidth / 2F, event.scaledResolution.scaledHeight / 2F + 5F, ClientTheme.getColor().rgb, true)
+        }
+    }
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (debug.get()) {
-            alert("Speed: " + MovementUtils.getSpeed().toString())
-            alert("YMotion: " + mc.thePlayer.motionY.toString())
-        }
-
+        if (stopWorking()) return
         if (mc.thePlayer.moveForward > 0 && modeValue.equals("Legit") || MovementUtils.isMoving()) mc.thePlayer.isSprinting
 
         mode.onMotion(event)
@@ -63,7 +82,7 @@ object Speed : Module() {
         if (mc.thePlayer.isSneaking || (mc.thePlayer.isInWater && noWater.get())) {
             return
         }
-
+        if (stopWorking()) return
         mode.onMove(event)
         CrossSine.moduleManager[TargetStrafe::class.java]!!.doMove(event)
     }
@@ -73,20 +92,18 @@ object Speed : Module() {
         if (mc.thePlayer.isSneaking || (mc.thePlayer.isInWater && noWater.get())) {
             return
         }
-
+        if (stopWorking()) return
         mode.onTick()
     }
     
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
-    }
-
-    @EventTarget
-    fun onJump(event: JumpEvent) {
-        if (mode.noJump) {
-            event.cancelEvent()
+        if (event.packet is S08PacketPlayerPosLook) {
+            flagged = true
+            timerMS.reset()
         }
+        if (stopWorking()) return
+        mode.onPacket(event)
     }
 
     override fun onEnable() {
@@ -99,8 +116,11 @@ object Speed : Module() {
         if (mc.thePlayer == null) return
         mc.timer.timerSpeed = 1f
         mode.onDisable()
+        flagged = false
     }
-
+    private fun stopWorking() : Boolean {
+        return flagCheck.get() && flagged && !timerMS.hasTimePassed(flagMS.get().toLong())
+    }
     override val tag: String
         get() = modeValue.get()
 

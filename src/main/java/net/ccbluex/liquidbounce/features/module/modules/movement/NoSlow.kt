@@ -29,7 +29,7 @@ class NoSlow : Module() {
             if (state) onEnable()
         }
     }
-    private val onlyKillAura = BoolValue("OnlyKillAura", false)
+    private val onlyKillAura = BoolValue("Only-KillAura", false)
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (!canNoslow) return
@@ -67,7 +67,6 @@ class NoSlow : Module() {
         event.forward = speed
         event.strafe = speed
     }
-
     private val canNoslow: Boolean
         get() = !onlyKillAura.get() || (KillAura.state && KillAura.currentTarget != null || SilentAura.state && SilentAura.target != null)
     val shouldSprint: Boolean

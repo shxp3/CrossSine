@@ -40,6 +40,13 @@ public enum Easing {
     SIGMOID(x -> 1 / (1 + Math.exp(-x))),
     EASE_OUT_ELASTIC(x -> x == 0 ? 0 : x == 1 ? 1 : pow(2, -10 * x) * sin((x * 10 - 0.75) * ((2 * Math.PI) / 3)) * 0.5 + 1),
     EASE_IN_BACK(x -> (1.70158 + 1) * x * x * x - 1.70158 * x * x),
+    EASE_IN_OUT_BACK(x -> {
+        final double c1 = 1.70158;
+        final double c2 = c1 * 1.525;
+        return x < 0.5
+                ? (pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+                : (pow(2 * x - 2, 2) * ((c2 + 1) * (2 * x - 2) + c2) + 2) / 2;
+    }),
     DECELERATE(x -> 1 - ((x - 1) * (x - 1)));
 
     private final Function<Double, Double> function;

@@ -2,112 +2,72 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofalls.normal
 
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.nofalls.NoFallMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.VecRotation
+import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.utils.timer.tickTimer
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemBucket
-import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
 class MLGNofall : NoFallMode("MLG") {
-    private val silentRo = BoolValue("SilentRotation", false)
-    private val turnSpeed = IntegerValue("TurnSpeed", 10, 10, 90)
-    private val minFallDistanceValue = FloatValue("${valuePrefix}MinMLGHeight", 5f, 2f, 50f)
-    private val mlgTimer = tickTimer()
-    private var currentMlgRotation: VecRotation? = null
-    private var currentMlgItemIndex = 0
-    private var currentMlgBlock: BlockPos? = null
-
-    override fun onEnable() {
-        mlgTimer.reset()
-        currentMlgRotation = null
-        currentMlgItemIndex = 0
-        currentMlgBlock = null
+    private val rotation = BoolValue("SilentRotation", false)
+    private val turnSpeed = IntegerValue("TurnSpeed", 90, 1, 90)
+    private val fallDistance = FloatValue("FallDistance", 3F, 3f, 8F)
+    private var placed = false
+    private var takeBack = false
+    override fun onDisable() {
+        placed = false
+        takeBack = false
     }
-
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE) {
-            currentMlgRotation = null
-            mlgTimer.update()
-
-            if (!mlgTimer.hasTimePassed(10))
+    override fun onUpdate(event: UpdateEvent) {
+        if (!takeBack) {
+            if (findBuket() != -1) {
+                ClientUtils.displayAlert("Failed to find WaterBuket")
                 return
-
-
-            if (mc.thePlayer.fallDistance > minFallDistanceValue.get()) {
-                val fallingPlayer = FallingPlayer(mc.thePlayer)
-                val maxDist = mc.playerController.blockReachDistance + 1.5
-                val collision =
-                    fallingPlayer.findCollision(ceil(1.0 / mc.thePlayer.motionY * -maxDist).toInt()) ?: return
-                var ok =
-                    Vec3(mc.thePlayer.posX, mc.thePlayer.posY + mc.thePlayer.eyeHeight, mc.thePlayer.posZ).distanceTo(
-                        Vec3(collision).addVector(0.5, 0.5, 0.5)
-                    ) < mc.playerController.blockReachDistance + sqrt(0.75)
-
-                if (mc.thePlayer.motionY < collision.y + 1 - mc.thePlayer.posY)
-                    ok = true
-
-                if (!ok)
-                    return
-
-                var index = -1
-
-                for (i in 36..44) {
-                    val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-
-                    if (itemStack != null && (itemStack.item == Items.water_bucket || itemStack.item is ItemBlock && (itemStack.item as ItemBlock).block == Blocks.web)) {
-                        index = i - 36
-
-                        if (mc.thePlayer.inventory.currentItem == index)
-                            break
+            }
+            SlotUtils.setSlot(findBuket(), true, nofall.name)
+            if (mc.thePlayer.fallDistance >= fallDistance.get()) {
+                val limitAngle = RotationUtils.limitAngleChange(RotationUtils.serverRotation, Rotation(MovementUtils.movingYaw, 90F), turnSpeed.get().toFloat())
+                if (rotation.get()) {
+                    RotationUtils.setTargetRotation(limitAngle, 100)
+                } else {
+                    limitAngle.toPlayer(mc.thePlayer)
+                }
+                if (mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                    if(!placed) {
+                       mc.rightClickMouse()
+                       placed = true
+                    }
+                    if (mc.thePlayer.isInWater) {
+                        mc.rightClickMouse()
+                        takeBack = true
+                        SlotUtils.stopSet()
                     }
                 }
-
-                if (index == -1)
-                    return
-
-                currentMlgItemIndex = index
-                currentMlgBlock = collision
-
-                if (mc.thePlayer.inventory.currentItem != index) {
-                    mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(index))
-                }
-
-                if (silentRo.get()) {
-                  RotationUtils.setTargetRotation(RotationUtils.limitAngleChange(RotationUtils.serverRotation, RotationUtils.faceBlock(collision).rotation,
-                      turnSpeed.get().toFloat()
-                  ), 0)
-                } else {
-                    RotationUtils.faceBlock(collision)!!.rotation.toPlayer(mc.thePlayer)
-                }
             }
-        } else if (currentMlgRotation != null) {
-            val stack = mc.thePlayer.inventory.mainInventory[currentMlgItemIndex]
-
-            if (stack.item is ItemBucket)
-                mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, stack)
-            else if (mc.playerController.onPlayerRightClick(
-                    mc.thePlayer, mc.theWorld, stack, currentMlgBlock, EnumFacing.UP, Vec3(0.0, 0.5, 0.0).add(
-                        Vec3(currentMlgBlock ?: return)
-                    )
-                )
-            )
-                mlgTimer.reset()
-
-            if (mc.thePlayer.inventory.currentItem != currentMlgItemIndex)
-                mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
+    }
+    private fun findBuket() : Int {
+        var slot = -1
+        for (i in 36..44) {
+            val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+
+            if (itemStack != null && (itemStack.item == Items.water_bucket || itemStack.item is ItemBlock && (itemStack.item as ItemBlock).block == Blocks.web)) {
+                slot = i - 36
+            }
+        }
+        return slot
     }
 }

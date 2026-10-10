@@ -1,7 +1,9 @@
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.features.module.modules.visual.FreeLook
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
@@ -13,6 +15,7 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
+import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import kotlin.math.*
 
@@ -51,7 +54,58 @@ object MovementUtils : MinecraftInstance() {
 
         return predicted
     }
+    fun getAllowedHorizontalDistance(): Float {
+        val slipperiness: Float = mc.thePlayer.worldObj.getBlockState(
+            BlockPos(
+                MathHelper.floor_double(mc.thePlayer.posX),
+                MathHelper.floor_double(mc.thePlayer.getEntityBoundingBox().minY) - 1,
+                MathHelper.floor_double(mc.thePlayer.posZ)
+            )
+        ).getBlock().slipperiness * 0.91f
+        return mc.thePlayer.getAIMoveSpeed() * (0.16277136f / (slipperiness * slipperiness * slipperiness))
+    }
+    fun getForwardValue(): Int {
+        var forwardValue = 0
+        if (mc.gameSettings.keyBindForward.isKeyDown()) {
+            ++forwardValue
+        }
+        if (mc.gameSettings.keyBindBack.isKeyDown()) {
+            --forwardValue
+        }
+        return forwardValue
+    }
 
+    fun getLeftValue(): Int {
+        var leftValue = 0
+        if (mc.gameSettings.keyBindLeft.isKeyDown()) {
+            ++leftValue
+        }
+        if (mc.gameSettings.keyBindRight.isKeyDown()) {
+            --leftValue
+        }
+        return leftValue
+    }
+    fun predictMovement(): DoubleArray {
+        var strafeInput = getLeftValue().toFloat() * 0.98f
+        var forwardInput = getForwardValue().toFloat() * 0.98f
+        var inputMagnitude = strafeInput * strafeInput + forwardInput * forwardInput
+        if (inputMagnitude >= 1.0E-4f) {
+            inputMagnitude = MathHelper.sqrt_float(inputMagnitude)
+            if (inputMagnitude < 1.0f) {
+                inputMagnitude = 1.0f
+            }
+            inputMagnitude = getAllowedHorizontalDistance() / inputMagnitude
+            val sinYaw = MathHelper.sin(mc.thePlayer.rotationYaw * Math.PI.toFloat() / 180.0f)
+            val cosYaw = MathHelper.cos(mc.thePlayer.rotationYaw * Math.PI.toFloat() / 180.0f)
+            strafeInput *= inputMagnitude
+            forwardInput *= inputMagnitude
+            return doubleArrayOf(
+                (strafeInput * cosYaw - forwardInput * sinYaw).toDouble(),
+                (forwardInput * cosYaw + strafeInput * sinYaw).toDouble()
+            )
+        }
+        return doubleArrayOf(0.0, 0.0)
+    }
     fun getSpeed(): Float {
         return sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ).toFloat()
     }
@@ -248,7 +302,7 @@ object MovementUtils : MinecraftInstance() {
     }
 
     fun forward(length: Double) {
-        val yaw = Math.toRadians(mc.thePlayer.rotationYaw.toDouble())
+        val yaw = Math.toRadians((if (!CrossSine.moduleManager.getModule(FreeLook::class.java)!!.state && FreeLook.isEnabled) FreeLook.cameraYaw else mc.thePlayer.rotationYaw).toDouble())
         mc.thePlayer.setPosition(
             mc.thePlayer.posX + -sin(yaw) * length,
             mc.thePlayer.posY,
@@ -258,12 +312,39 @@ object MovementUtils : MinecraftInstance() {
 
     val direction: Double
         get() {
-            var rotationYaw = mc.thePlayer.rotationYaw
-            if (mc.thePlayer.moveForward < 0f) rotationYaw += 180f
+            // Yaw source: use cameraYaw whenever FreeLook is hijacking the
+            // camera (silent rotation OR manual FreeLook). cameraYaw is the
+            // mouse-driven camera regardless of which path enabled it, so
+            // it's the single stable source. The old `!state && isEnabled`
+            // condition fell back to `rotationYaw` when the user had FreeLook
+            // manually on, but at that point `rotationYaw` is frozen
+            // (perspectiveToggled = true) → movingYaw drifted away from the
+            // visible camera and Scaffold's `movingYaw - 180` rotation
+            // oscillated each time isEnabled toggled.
+            var rotationYaw = if (FreeLook.isEnabled) FreeLook.cameraYaw else mc.thePlayer.rotationYaw
+
+            // Input source priority:
+            //  1. `movementInput.moveForward/moveStrafe` -- the player's raw
+            //     keypress state for this tick (not yet sneak-scaled).
+            //  2. `mc.thePlayer.moveForward/moveStrafing` -- final fallback
+            //     when movementInput isn't accessible yet (e.g. before the
+            //     first input event of the tick).
+            //
+            // Historical note: MovementCorrection used to expose a
+            // rewroteInputThisTick / rawForward / rawStrafe snapshot for
+            // its now-removed "Input" mode (which rewrote movementInput in
+            // place). Both modes that remain (Silent / Strict) operate on
+            // motion only via MixinEntity.moveFlying and never touch
+            // movementInput, so reading it directly here is correct again.
+            val input = mc.thePlayer.movementInput
+            val mf: Float = if (input != null) input.moveForward else mc.thePlayer.moveForward
+            val ms: Float = if (input != null) input.moveStrafe  else mc.thePlayer.moveStrafing
+
+            if (mf < 0f) rotationYaw += 180f
             var forward = 1f
-            if (mc.thePlayer.moveForward < 0f) forward = -0.5f else if (mc.thePlayer.moveForward > 0f) forward = 0.5f
-            if (mc.thePlayer.moveStrafing > 0f) rotationYaw -= 90f * forward
-            if (mc.thePlayer.moveStrafing < 0f) rotationYaw += 90f * forward
+            if (mf < 0f) forward = -0.5f else if (mf > 0f) forward = 0.5f
+            if (ms > 0f) rotationYaw -= 90f * forward
+            if (ms < 0f) rotationYaw += 90f * forward
             return Math.toRadians(rotationYaw.toDouble())
         }
     val jumpMotion: Float
@@ -287,7 +368,7 @@ object MovementUtils : MinecraftInstance() {
     fun setMotion(speed: Double) {
         var forward = mc.thePlayer.movementInput.moveForward.toDouble()
         var strafe = mc.thePlayer.movementInput.moveStrafe.toDouble()
-        var yaw = mc.thePlayer.rotationYaw
+        var yaw = if (!CrossSine.moduleManager.getModule(FreeLook::class.java)!!.state && FreeLook.isEnabled) FreeLook.cameraYaw else mc.thePlayer.rotationYaw
         if (forward == 0.0 && strafe == 0.0) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
@@ -427,7 +508,7 @@ object MovementUtils : MinecraftInstance() {
 
     @JvmStatic
     fun getDirectioon(): Double {
-        var rotationYaw = mc.thePlayer.rotationYaw
+        var rotationYaw = if (!CrossSine.moduleManager.getModule(FreeLook::class.java)!!.state && FreeLook.isEnabled) FreeLook.cameraYaw else mc.thePlayer.rotationYaw
         if (mc.thePlayer.moveForward < 0f) rotationYaw += 180f
         var forward = 1f
         if (mc.thePlayer.moveForward < 0f) forward = -0.5f else if (mc.thePlayer.moveForward > 0f) forward = 0.5f

@@ -81,6 +81,7 @@ class ConfigCommand : Command("config", arrayOf("cfg")) {
 
                 "save" -> {
                     CrossSine.configManager.save(true, true)
+                    CrossSine.fileManager.saveAllConfigs()
                     alert("Saved config ${CrossSine.configManager.nowConfig}")
                 }
 

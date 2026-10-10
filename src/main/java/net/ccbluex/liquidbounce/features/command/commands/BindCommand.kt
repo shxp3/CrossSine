@@ -3,8 +3,6 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.CrossSine
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import org.lwjgl.input.Keyboard
 
 class BindCommand : Command("bind", emptyArray()) {
@@ -28,9 +26,6 @@ class BindCommand : Command("bind", emptyArray()) {
 
                 // Response to user
                 alert("Bound module §l${module.name}§r to key §a§l${Keyboard.getKeyName(key)}§3.")
-                CrossSine.hud.addNotification(
-                    Notification("KeyBind", "Bound ${module.name} to ${Keyboard.getKeyName(key)}.", NotifyType.INFO)
-                )
                 playEdit()
             } else {
                 CrossSine.moduleManager.pendingBindModule = module

@@ -8,15 +8,12 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.animation.Animation
 import net.ccbluex.liquidbounce.utils.animation.Easing
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-/**
- * @author liulihaocai
- * FDPClient
- */
 class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
     private var str = ""
     private var modules = CrossSine.moduleManager.modules.toList()
@@ -61,6 +58,50 @@ class KeySelectUI(val info: KeyInfo) : PopUI("Select a module to bind") {
     }
 
     override fun key(typedChar: Char, keyCode: Int) {
+        // ── Ctrl+A / Ctrl+C / Ctrl+V ───────────────────────────────────
+        // The search bar isn't a full GuiTextField so we don't carry a
+        // selection model; instead we approximate "select all" as
+        // "clear the field on next character", which matches what most
+        // people actually want when they hit Ctrl+A in a search box
+        // (start typing fresh). Copy/paste hit the system clipboard via
+        // GuiScreen's helpers.
+        if (GuiScreen.isCtrlKeyDown()) {
+            when (keyCode) {
+                Keyboard.KEY_A -> {
+                    // Select-all → clear; next allowed char replaces.
+                    str = ""
+                    update()
+                    return
+                }
+                Keyboard.KEY_C -> {
+                    if (str.isNotEmpty()) GuiScreen.setClipboardString(str)
+                    return
+                }
+                Keyboard.KEY_V -> {
+                    val clip = GuiScreen.getClipboardString() ?: return
+                    // Filter the paste through the same whitelist used
+                    // for normal typing so e.g. tabs/newlines don't sneak
+                    // into the search string.
+                    val filtered = clip.filter { ChatAllowedCharacters.isAllowedCharacter(it) }
+                    if (filtered.isNotEmpty()) {
+                        str += filtered
+                        update()
+                    }
+                    return
+                }
+                Keyboard.KEY_X -> {
+                    // Bonus: cut = copy + clear, since we don't have
+                    // selection range so "cut selection" == "cut all".
+                    if (str.isNotEmpty()) {
+                        GuiScreen.setClipboardString(str)
+                        str = ""
+                        update()
+                    }
+                    return
+                }
+            }
+        }
+
         if (keyCode == Keyboard.KEY_BACK) {
             if (str.isNotEmpty()) {
                 str = str.substring(0, str.length - 1)

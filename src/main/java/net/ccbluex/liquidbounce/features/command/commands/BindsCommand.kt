@@ -23,7 +23,7 @@ class BindsCommand : Command("binds", emptyArray()) {
 
         alert("§c§lBinds")
         CrossSine.moduleManager.modules.filter { it.keyBind != Keyboard.KEY_NONE }.forEach {
-            ClientUtils.displayChatMessage("§6> §c${it.name}: §a§l${Keyboard.getKeyName(it.keyBind)}")
+            ClientUtils.displayChatMessage("§6> §c${it.name}: §a§l${net.ccbluex.liquidbounce.utils.KeybindHelper.getDisplayName(it.keyBind)}")
         }
         chatSyntax("binds clear")
     }

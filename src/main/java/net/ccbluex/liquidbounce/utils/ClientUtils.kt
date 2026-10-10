@@ -66,7 +66,8 @@ ClientUtils : MinecraftInstance() {
         CrossSine.fileManager.loadConfig(CrossSine.fileManager.accountsConfig)
         CrossSine.fileManager.loadConfig(CrossSine.fileManager.friendsConfig)
         CrossSine.fileManager.loadConfig(CrossSine.fileManager.xrayConfig)
-        CrossSine.fileManager.loadConfig(CrossSine.fileManager.hudConfig)
+        CrossSine.fileManager.loadConfig(CrossSine.fileManager.themeConfig)
+        CrossSine.fileManager.loadConfig(CrossSine.fileManager.clienthudConfig)
         CrossSine.isStarting = false
         CrossSine.isLoadingConfig = false
         System.gc()
